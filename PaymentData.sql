@@ -1,4 +1,14 @@
-﻿SELECT DISTINCT CONVERT(DATE,date_entered,101) AS reportDate  
+﻿/* Author: Sharon Graves (shgraves@godaddy.com)
+ * Description: Base Query to pull in Payment / Decline detial 
+ * JiraTicket BIACQ-1294
+ * DataSource: MSSQL
+ * Server: M1PWBIGRPTSQL02
+ *
+ * QUERY NOTES:
+ * This is a very basic query, used to generate the Payment Data Source for Tableau.
+ * Please contact either Fraud (Dan Kohler) or myself for assistance in using this data.
+*/
+SELECT DISTINCT CONVERT(DATE,date_entered,101) AS reportDate  
 		, processor
 		, domesticIntl
 		, reportRegion1
