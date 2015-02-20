@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Aprimo.JZJ_Dev.ChannelIDDetailsSubRpt" SavedBy="JOMAX\jzwayerjones" SavedAt="12/10/2013 1:51:27 PM" EngineVersion="11.0.43">
+  <StyleSheet />
+  <FormulaScriptFile />
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams idEndDate1="2013-11-07" idEndDate2="2013-11-15" idStartDate1="2013-11-01" idStartDate2="2013-11-08" rdAgRefreshData="True" />
+  <Body>
+    <DataTable SortArrows="True" ID="dtChannelIDDetails">
+      <DataLayer Type="SQL" ID="dlChannelIDDetails" ConnectionID="connM1BIG-biLogiReporting" Source="SELECT CASE WHEN IC.channel_id &gt; 0 then IC.name ELSE 'Billing Agent' END AS Channel_ID&#xA;, CASE WHEN RLPOD.point_of_purchase_id = 1 then 'Web'&#xA;	   WHEN RLPOD.point_of_purchase_id = 2 then 'Billing Agent'&#xA;	   WHEN RLPOD.point_of_purchase_id = 3 then 'C3' ELSE 'Other POP' END AS POP_ID&#xA;, SUM(RLPOD.Units) AS Units&#xA;, COMP.Units2&#xA;, SUM(RLPOD.Months) AS Months&#xA;, COMP.Months2&#xA;, SUM(RLPOD.GCR) AS GCR&#xA;, COMP.GCR2&#xA;&#xA;FROM&#xA;BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xA;JOIN&#xA;GoDaddy.dbo.isc_channel IC (NOLOCK)&#xA;ON RLPOD.channel_id = IC.channel_id&#xA;AND RLPOD.rptDate &gt;= '@Request.idStartDate1~' AND RLPOD.rptDate &lt;= '@Request.idEndDate1~'&#xA;&#xA;JOIN&#xA;&#xA;				(&#xA;				SELECT&#xA;				IC.channel_id AS Channel_ID&#xA;				, RLPOD.point_of_purchase_id AS POP_ID&#xA;				, SUM(RLPOD.Units) AS Units2&#xA;				, SUM(RLPOD.Months) AS Months2&#xA;				, SUM(RLPOD.GCR) AS GCR2&#xA;				FROM&#xA;				BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xA;				JOIN&#xA;				GoDaddy.dbo.isc_channel IC (NOLOCK)&#xA;				ON RLPOD.channel_id = IC.channel_id&#xA;				AND RLPOD.rptDate &gt;= '@Request.idStartDate2~' AND RLPOD.rptDate &lt;= '@Request.idEndDate2~'&#xA;&#xA;				GROUP BY IC.Channel_ID&#xA;				, RLPOD.point_of_purchase_id&#xA;				) COMP&#xA;ON IC.channel_id = COMP.Channel_ID&#xA;AND RLPOD.point_of_purchase_id = COMP.POP_ID&#xA;&#xA;GROUP BY CASE WHEN IC.channel_id &gt; 0 then IC.name ELSE 'Billing Agent' END&#xA;, CASE WHEN point_of_purchase_id = 1 then 'Web'&#xA;	   WHEN point_of_purchase_id = 2 then 'Billing Agent'&#xA;	   WHEN point_of_purchase_id = 3 then 'C3' ELSE 'Other POP' END&#xA;, COMP.Units2&#xA;, COMP.Months2&#xA;, COMP.GCR2">
+        <CompareFilter DataColumn="Channel_ID" CompareType="=" CompareValue="@Request.Channel_ID~" DataType="Text" />
+      </DataLayer>
+      <DataTableColumn ID="colChannel_ID" Header="Channel_ID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblChannel_ID" Caption="@Data.Channel_ID~" Format="Expanded Spaces" />
+        <DataColumnSort DataColumn="Channel_ID" />
+      </DataTableColumn>
+      <DataTableColumn ID="colPOP_ID" Header="POP_ID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblPOP_ID" Caption="@Data.POP_ID~" Format="Expanded Spaces" />
+        <DataColumnSort DataColumn="POP_ID" />
+      </DataTableColumn>
+      <DataTableColumn ID="colUnits" Header="Units" IdeDisplayStatus="Collapsed">
+        <Label ID="lblUnits" Caption="@Data.Units~" Format="General Number" />
+        <DataColumnSort DataColumn="Units" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colUnits2" Header="Units2" IdeDisplayStatus="Collapsed">
+        <Label ID="lblUnits2" Caption="@Data.Units2~" Format="General Number" />
+        <DataColumnSort DataColumn="Units2" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colMonths" Header="Months" IdeDisplayStatus="Collapsed">
+        <Label ID="lblMonths" Caption="@Data.Months~" Format="General Number" />
+        <DataColumnSort DataColumn="Months" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colMonths2" Header="Months2" IdeDisplayStatus="Collapsed">
+        <Label ID="lblMonths2" Caption="@Data.Months2~" Format="General Number" />
+        <DataColumnSort DataColumn="Months2" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colGCR" Header="GCR" IdeDisplayStatus="Collapsed">
+        <Label ID="lblGCR" Caption="@Data.GCR~" Format="Currency" />
+        <DataColumnSort DataColumn="GCR" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colGCR2" Header="GCR2" IdeDisplayStatus="Collapsed">
+        <Label ID="lblGCR2" Caption="@Data.GCR2~" Format="Currency" />
+        <DataColumnSort DataColumn="GCR2" DataType="Number" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ideTestParams Channel_ID="" idStartDate1="" idEndDate1="" idStartDate2="" idEndDate2="" />
+</Report>

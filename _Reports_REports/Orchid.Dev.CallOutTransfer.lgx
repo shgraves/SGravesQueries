@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Orchid.Dev.CallOutTransfer" SavedBy="JOMAX\twakefield" SavedAt="6/9/2014 10:04:27 AM" EngineVersion="11.0.43" SecurityReportRightID="GDSP_C3_C3workforce_Owners, Dev-C3 Support, BIG-Developer, InternalToolsQA, overlord_test_users, LogiXMLOrchidReports">
+  <DefaultRequestParams dt_StartDate="@Request.inpStartDate~" dt_EndDate="@Request.inpEndDate~" vc_DepartmentId="'-1'" vc_CallOutTypeId="'-1'" Supervisor="-1" ManagerUserID="-1" IsLeave="-1" UltiProId="-1" Location="-1" RepVersion="-1" />
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column IdeDisplayStatus="Collapsed">
+          <Label Caption="CallOutTransfer" Class="gdReportHeaderNameIT" />
+          <Spaces Size="20" />
+        </Column>
+        <Column Class="ThemeAlignLeft">
+          <Spaces Size="3" />
+          <InputDate ID="inpStartDate" Caption="Start Date:" DefaultValue="@Request.inpStartDate~" CalendarLinkType="Image" Format="MM/dd/yyyy" InputDateReformat="General Date" />
+          <Spaces Size="5" />
+          <InputDate CalendarLinkType="Image" ID="inpEndDate" Caption="End Date:" Format="MM/dd/yyyy" InputDateReformat="General Date" DefaultValue="@Request.inpEndDate~" />
+          <Spaces Size="5" />
+          <Button ID="btnSubmit" Caption="Submit" IdeDisplayStatus="Collapsed">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" Report="Orchid.Dev.CallOutTransfer" ID="tgtAdminsByServer" RequestForwarding="True" KeepShowElements="True" />
+            </Action>
+          </Button>
+          <Spaces Size="10" />
+          <Division>
+            <Image Caption="ExportToExcel2.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+              <Action Type="NativeExcel" ID="excelExport">
+                <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" ExportDataTableID="dtCallOutTransfer" ShowGridlines="True" ExportFilename="CallOutTransfer" />
+              </Action>
+            </Image>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <DataTable ID="dtCallOutTransfer" AltRowClass="gdThemeAltRowNoPadding td" TableBorder="1" CellSpacing="5 px" SortArrows="True" Width="1100" WidthScale="px">
+      <DataLayer Type="SP" ConnectionID="connDevOrchid" Command="eRpt.DailyCallOutTransfer_sp" IdeDisplayStatus="Collapsed">
+        <SPParameters>
+          <SPParameter ID="dt_StartDate" Value="@Request.dt_StartDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+          <SPParameter ID="dt_EndDate" Value="@Request.dt_EndDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+        </SPParameters>
+      </DataLayer>
+      <DataTableColumn ID="colDepartmentName" Header="Department" IdeDisplayStatus="Collapsed">
+        <Label ID="lblDepartmentName" Caption="@Data.DepartmentName~" />
+        <DataColumnSort DataColumn="DepartmentName" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colRep" Header="Rep" IdeDisplayStatus="Collapsed">
+        <Label ID="lblRep" Caption="@Data.Rep~" />
+        <DataColumnSort DataColumn="Rep" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSup" Header="Sup" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSup" Caption="@Data.Sup~" />
+        <DataColumnSort DataColumn="Sup" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colLocation" Header="Location" IdeDisplayStatus="Collapsed">
+        <Label ID="lblLocation" Caption="@Data.Location~" />
+        <DataColumnSort DataColumn="Location" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colshift" Header="shift" IdeDisplayStatus="Collapsed">
+        <Label ID="lblshift" Caption="@Data.shift~" />
+        <DataColumnSort DataColumn="shift" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSchedule" Header="Schedule" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSchedule" Caption="@Data.Schedule~" />
+        <DataColumnSort DataColumn="Schedule" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colDateOfCall" Header="Datetime of Call" IdeDisplayStatus="Collapsed">
+        <Label ID="lblDateOfCall" Caption="@Data.DateOfCall~" Format="MM/dd/yyyy HH:MM:ss" />
+        <DataColumnSort DataColumn="DateOfCall" DataType="Date" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colCallOutTransferTypeName" Header="TransferType" IdeDisplayStatus="Collapsed">
+        <Label ID="lblCallOutTransferTypeName" Caption="@Data.CallOutTransferTypeName~" />
+        <DataColumnSort DataColumn="CallOutTransferTypeName" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colPhoneNumber" Header="PhoneNumber" IdeDisplayStatus="Collapsed">
+        <Label ID="lblPhoneNumber" Caption="@Data.PhoneNumber~" />
+        <DataColumnSort DataColumn="PhoneNumber" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colEmpNo" Header="EmpNo" IdeDisplayStatus="Collapsed">
+        <Label ID="lblEmpNo" Caption="@Data.EmpNo~" />
+        <DataColumnSort DataColumn="EmpNo" DataType="Number" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colManagerUserId" Header="MgrUsrId" IdeDisplayStatus="Collapsed">
+        <Label ID="lblManagerUserId" Caption="@Data.ManagerUserId~" />
+        <DataColumnSort DataColumn="ManagerUserId" DataType="Number" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <InteractivePaging PageRowCount="50" ShowPageNumber="True" Location="Top" CaptionType="Image" />
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams inpStartDate="" inpEndDate="" dt_StartDate="" dt_EndDate="" />
+</Report>

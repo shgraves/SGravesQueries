@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Reports.IT.FailedLoginsByRepPast24Hrs" SavedBy="JOMAX\rschrafel" SavedAt="1/31/2014 5:24:57 PM" EngineVersion="11.0.43">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader />
+  <Body>
+    <DataTable SortArrows="True" ID="dtRepFails" CellSpacing="7 px" WidthScale="%" Width="100">
+      <DataLayer Type="Linked" LinkedDataLayerID="dllFailedAttemptsLast24Hour" ID="dllFailedReps">
+        <CompareFilter DataColumn="shopper_id" CompareValue="@Request.shopper_id~" ID="cfShopperId" />
+      </DataLayer>
+      <Remark>
+        <DataLayer Type="SP" ID="SPDataLayer" ConnectionID="connDevGdNote" Command="eRpt.ShopperFailedAttemptsLast24HoursByRep_sp" IdeDisplayStatus="Collapsed">
+          <SPParameters />
+        </DataLayer>
+      </Remark>
+      <DataTableColumn ID="colRepID" Header="Rep ID" HeaderType="Text">
+        <Label ID="lblRepID" Caption="@Data.RepID~" />
+        <DataColumnSort DataColumn="RepID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colRepName" Header="Rep" HeaderType="Text">
+        <Label ID="lblRepName" Caption="@Data.RepName~" />
+        <DataColumnSort DataColumn="RepName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSupName" Header="Sup" HeaderType="Text">
+        <Label ID="lblSupName" Caption="@Data.SupName~" />
+        <DataColumnSort DataColumn="SupName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colFailedAttempts" Header="Attempts" HeaderType="Text">
+        <Label ID="lblFailedAttempts" Caption="@Data.FailedAttempts~" />
+        <DataColumnSort DataColumn="FailedAttempts" DataType="Number" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams shopper_id="" />
+</Report>

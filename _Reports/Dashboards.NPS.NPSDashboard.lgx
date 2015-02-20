@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.NPS.NPSDashboard" SavedBy="JOMAX\mzwolak" SavedAt="6/14/2013 4:38:12 PM" EngineVersion="11.0.43">
+  <StyleSheet Theme="GDRPortal" StyleSheet="ERHubTheme.css" />
+  <DefaultRequestParams dateStart="=DateAdd(&quot;d&quot;, -7, Date())" dateEnd="=DateAdd(&quot;d&quot;, -1, Date())" PanelHeight="" PanelWidth="" />
+  <ReportHeader IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeader" ID="seHeader" SharedElementID="sharedHeader" />
+  </ReportHeader>
+  <Body>
+    <Dashboard2 ID="dashNPS" SaveFile="@Function.AppPhysicalPath~\Dashboard\NPSDash_@Function.UserName~.xml" AllowFreeformLayout="False" DashboardAdjustable="True" DashboardColumns="3" DashboardTabs="True" SaveFileStarter="@Function.AppPhysicalPath~\Dashboard\NPSDashdefault.xml">
+      <Panel ID="pnlChannelNPS" Caption="Channel NPS (Week: @Request.dateStart~ To @Request.dateEnd~)" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division Class="ThemeAlignCenter" ID="divChannelNPS">
+            <Chart Type="XY" ID="chtChannelNPS" ChartWidth="500" ChartHeight="300" ChartDataColumn="NPS" ChartLabelColumn="Channel" XYChartType="Bar" ChartOrientation="Vertical" Color="#077FC2" BorderLeft="45" BorderRight="10" LineStyle="SolidLine" GridHorizontalColor="#DDDDDD">
+              <DataLayer Type="SP" ID="dlChannelNPS" ConnectionID="connM1BIG-biLogiReporting" Command="rptLogiChannelNPSByDateGet_sp">
+                <SPParameters>
+                  <SPParameter ID="startDate" Value="@Request.dateStart~" SPParamDirection="Input" SPParamSize="10" SPParamType="dt-202" />
+                  <SPParameter ID="endDate" Value="@Request.dateEnd~" SPParamDirection="Input" SPParamSize="10" SPParamType="dt-202" />
+                </SPParameters>
+                <GroupFilter GroupColumn="Channel" />
+                <SortFilter SortColumn="sumNPS" DataType="Number" SortSequence="Descending" />
+              </DataLayer>
+              <Quicktip>
+                <QuicktipRow Value="@Chart.NPS~" />
+              </Quicktip>
+              <DataScale ScaleLowerBound="-100" ScaleUpperBound="100" TickDensity="20" />
+              <FontChartTitle FontSize="12" FontColor="#000" FontFilename="arial" Alignment="Center" />
+              <FontLabel FontAngle="0" FontColor="#000" FontFilename="arial" FontSize="14" />
+              <FontData FontColor="#000" FontSize="10" FontFilename="arial" />
+            </Chart>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlCumulativeNPS" Caption="Cumulative NPS - Rolling 1-Year" IdeDisplayStatus="Collapsed">
+        <PanelContent IdeDisplayStatus="Collapsed">
+          <LineBreak LineCount="2" />
+          <Spaces Size="3" />
+          <Label ID="lblCurrentWeekNPS" Caption="Current Week NPS" Class="gdTheme12ptTextBold" />
+          <Spaces Size="9" />
+          <Label ID="lblCumulativeNPS" Caption="Cumulative NPS" Class="gdTheme12ptTextBold" />
+          <Spaces Size="9" />
+          <Label ID="lblSurveyCountText" Caption="Total Surveys Taken" Class="gdTheme12ptTextBold" />
+          <LineBreak LineCount="1" />
+          <Spaces Size="10" />
+          <Label ID="lblCurrentWkNPScount" Caption="@Local.WeeklyNPS~" Class="gdTheme20ptTextBold" />
+          <Spaces Size="23" />
+          <Label ID="lblCumulativeNPScount" Caption="@Local.CumulativeNPS~" Class="gdTheme20ptTextBold" />
+          <Spaces Size="21" />
+          <Label Caption="@Local.SurveyCount~" ID="lblSurveyCount" Class="gdTheme20ptTextBold" Format="###,###,##" />
+          <LineBreak LineCount="3" />
+          <Image ID="imgNPS" Caption="NPS-legend.png" Class="ThemeAlignCenter" />
+          <LineBreak LineCount="2" />
+        </PanelContent>
+        <LocalData ID="varWeeklyNPS">
+          <DataLayer Type="SP" ID="dlWeeklyNPS" Command="dbo.rptLogiCurrentWeekNPSGet_sp" ConnectionID="connM1BIG-biLogiReporting" />
+        </LocalData>
+        <LocalData ID="varCumulativeNPS">
+          <DataLayer Type="SP" ID="dlCumulativeNPS" Command="dbo.rptLogiGetCumulativeNPS_sp" ConnectionID="connM1BIG-biLogiReporting" />
+        </LocalData>
+        <LocalData ID="varSurveyCount">
+          <DataLayer Type="SP" ID="dlSurveyCount" Command="dbo.rptLogiCSSSurveyCount_sp" ConnectionID="connM1BIG-biLogiReporting" />
+        </LocalData>
+      </Panel>
+      <Panel ID="pnlDepartmentNPS" Caption="Department NPS (Week: @Request.dateStart~ To @Request.dateEnd~)" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division Class="ThemeAlignCenter" ID="divDeptNPS">
+            <Chart Type="XY" ID="chtDepartmentNPS" ChartWidth="500" ChartHeight="300" ChartDataColumn="NPS" ChartLabelColumn="Department" XYChartType="Bar" ChartOrientation="Horizontal" BorderLeft="5" LineStyle="SolidLine" Color="#077FC2" GridHorizontalColor="#DDDDDD" BorderRight="20">
+              <DataLayer Type="SP" ID="dlDepartmentNPS" ConnectionID="connM1BIG-biLogiReporting" Command="dbo.rptLogiDepartmentNPSByDateGet_sp" IdeDisplayStatus="Collapsed">
+                <SPParameters IdeDisplayStatus="Collapsed">
+                  <SPParameter ID="startDate" Value="@Request.dateStart~" SPParamDirection="Input" SPParamSize="10" SPParamType="dt-202" />
+                  <SPParameter ID="endDate" Value="@Request.dateEnd~" SPParamDirection="Input" SPParamSize="10" SPParamType="dt-202" />
+                </SPParameters>
+                <GroupFilter GroupColumn="Department" />
+                <SortFilter SortColumn="sumNPS" DataType="Number" SortSequence="Descending" />
+              </DataLayer>
+              <Quicktip>
+                <QuicktipRow Value="@Chart.NPS~" />
+              </Quicktip>
+              <DataScale ScaleUpperBound="100" ScaleLowerBound="-100" TickDensity="20" />
+              <FontLabel FontAngle="0" FontColor="#000" FontFilename="arial" FontSize="11" TextWrapping="Wrap" />
+              <FontChartTitle FontSize="12" FontColor="#000" FontFilename="arial" Alignment="Center" FontWeight="bold" />
+              <FontData FontColor="#000000" FontSize="10" FontFilename="arial" />
+            </Chart>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlTrendNPS" Caption="Trend NPS" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division Class="ThemeAlignCenter" ID="divNPSTrend">
+            <LineBreak />
+            <Chart Type="XY" ID="chtNPSTrend" ChartHeight="300" ChartWidth="500" ChartDataColumn="NPS" XYChartType="Spline" ChartLabelColumn="Week" YAxisTitle="NPS" ChartSymbolEdgeColor="black" BorderLeft="50" LineStyle="SolidLine" BorderRight="25" BackgroundColor="white" GridHorizontalColor="#DDDDDD" Color="#077FC2">
+              <DataLayer Type="SP" ID="dlTrendNPS" ConnectionID="connM1BIG-biLogiReporting" Command="dbo.rptLogiGetNPSTrend_sp" IdeDisplayStatus="Collapsed">
+                <SPParameters />
+              </DataLayer>
+              <DataScale />
+              <LabelScale Format="M/d/yy" />
+              <FontLabel FontAngle="45" FontFilename="arial" FontColor="#000" FontSize="8" />
+              <Remark>
+                <FontChartTitle FontSize="12" FontColor="#000" FontFilename="arial" Alignment="Center" FontWeight="bold" />
+              </Remark>
+              <FontData FontColor="#000000" FontSize="10" FontFilename="arial" />
+            </Chart>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlQuestion" Caption="Satisfaction Survey Question Score Trend">
+        <PanelContent>
+          <DefaultRequestParams islQuestion="Go Daddy delivers on what they promise" />
+          <Division Class="ThemeAlignCenter" ID="divNPSQuestion">
+            <Rows />
+            <InputSelectList ID="islQuestion" OptionCaptionColumn="questionText" OptionValueColumn="questionText" DefaultValue="@Request.islQuestion~" Class="ThemeAlignCenter">
+              <DataLayer Type="SP" ID="dlQuestion" ConnectionID="connM1BIG-biLogiReporting" Command="dbo.rptLogiGetNPSSurveyQuestions_sp">
+                <SPParameters />
+              </DataLayer>
+              <EventHandler ID="evtChangeQuestion" DhtmlEvent="onchange">
+                <Action Type="RefreshElement" ID="actRefreshQuestionScore" ElementID="chtQuestionScoreTrend" />
+              </EventHandler>
+            </InputSelectList>
+            <LineBreak />
+            <Chart Type="XY" ID="chtQuestionScoreTrend" ChartHeight="300" ChartWidth="500" XYChartType="Spline" ChartDataColumn="avgScore" ChartLabelColumn="Week" Color="#077FC2" YAxisTitle="Avg Score" ChartSymbolEdgeColor="black" GridHorizontalColor="#DDDDDD" LineStyle="SolidLine" BackgroundColor="white" BorderLeft="50" BorderRight="10">
+              <DataLayer Type="SP" ID="dlQuestionScoreTrend" ConnectionID="connM1BIG-biLogiReporting" Command="dbo.rptLogiGetNPSQuestionScoreTrend_sp">
+                <SPParameters>
+                  <SPParameter ID="questionText" SPParamDirection="Input" SPParamSize="512" SPParamType="dt-200" Value="@Request.islQuestion~" />
+                </SPParameters>
+              </DataLayer>
+              <DataScale Format="0.00" TickDensity="15" />
+              <LabelScale Format="M/d/yy" />
+              <FontLabel FontAngle="45" FontFilename="arial" FontColor="#000" FontSize="8" />
+              <Remark>
+                <FontChartTitle FontSize="10" FontColor="#000" FontFilename="arial" Alignment="Center" FontWeight="bold" />
+              </Remark>
+              <FontData FontColor="#000000" FontSize="10" FontFilename="arial" />
+            </Chart>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlChannelTrendNPS" Caption="Trend NPS By Channel" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division Class="ThemeAlignCenter" ID="divNPSChannelTrend">
+            <LineBreak />
+            <Chart Type="XY" ID="chtNPSChannelTrend" ChartHeight="300" ChartWidth="500" ChartDataColumn="NPS" XYChartType="Spline" ChartLabelColumn="Week" YAxisTitle="NPS" ChartSymbolEdgeColor="black" BorderLeft="50" LineStyle="SolidLine" BorderRight="25" BackgroundColor="white" GridHorizontalColor="#DDDDDD" Color="#077FC2" LegendLabel="Inbound" BorderBottom="80">
+              <DataLayer Type="SP" ID="dlTrendInboundNPS" ConnectionID="connM1BIG-biLogiReporting" Command="dbo.rptLogiNPSChannelTrendGet_sp" IdeDisplayStatus="Collapsed">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="channel" Value="Inbound" SPParamType="dt-200" SPParamSize="10" />
+                </SPParameters>
+              </DataLayer>
+              <DataScale />
+              <LabelScale Format="M/d/yy" />
+              <FontLabel FontAngle="45" FontFilename="arial" FontColor="#000" FontSize="8" />
+              <FontData FontColor="#000000" FontSize="10" FontFilename="arial" />
+              <ExtraXYLayer XYChartType="Spline" LineStyle="SolidLine" ChartDataColumn="NPS" Color="Orange" ID="eglNPSOutboundTrend" LineWidth="3" LegendLabel="Outbound" IdeDisplayStatus="Collapsed">
+                <DataLayer Type="SP" ID="dlTrendOutboundNPS" ConnectionID="connM1BIG-biLogiReporting" Command="dbo.rptLogiNPSChannelTrendGet_sp">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="channel" Value="Outbound" SPParamType="dt-200" SPParamSize="10" />
+                  </SPParameters>
+                </DataLayer>
+              </ExtraXYLayer>
+              <ExtraXYLayer XYChartType="Spline" LineStyle="SolidLine" ChartDataColumn="NPS" Color="LimeGreen" ID="eglNPSTrendFOS" LineWidth="3" LegendLabel="FOS" IdeDisplayStatus="Collapsed">
+                <DataLayer Type="SP" ID="dlTrendFOSNPS" ConnectionID="connM1BIG-biLogiReporting" Command="dbo.rptLogiNPSChannelTrendGet_sp">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="channel" Value="FOS" SPParamType="dt-200" SPParamSize="10" />
+                  </SPParameters>
+                </DataLayer>
+              </ExtraXYLayer>
+              <ExtraXYLayer XYChartType="Spline" LineStyle="SolidLine" ChartDataColumn="NPS" Color="Purple" ID="eglNPSTrendCommunity" LineWidth="3" LegendLabel="Community" IdeDisplayStatus="Collapsed">
+                <DataLayer Type="SP" ID="dlTrendCommunityNPS" ConnectionID="connM1BIG-biLogiReporting" Command="dbo.rptLogiNPSChannelTrendGet_sp">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="channel" Value="Community" SPParamType="dt-200" SPParamSize="10" />
+                  </SPParameters>
+                </DataLayer>
+              </ExtraXYLayer>
+              <Legend LegendOrientation="Horizontal" LegendLeft="30" LegendTop="270" BorderColor="white">
+                <FontLegend FontSize="8" FontColor="black" />
+              </Legend>
+            </Chart>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlCustomerSegmentTrendNPS" Caption="Trend NPS By Customer Segment">
+        <PanelContent>
+          <DefaultRequestParams islSegment="6" />
+          <Division Class="ThemeAlignCenter" ID="divNPSCustomerSegmentTrend">
+            <InputSelectList ID="islSegment" Class="ThemeAlignCenter" DefaultValue="@Request.islSegment~" OptionValueColumn="SegmentCode" OptionCaptionColumn="Name">
+              <EventHandler ID="evtChangeSegment" DhtmlEvent="onchange">
+                <Action Type="RefreshElement" ID="actRefreshSegmentNPSTrend" ElementID="chtNPSCustomerSegmentTrend" />
+              </EventHandler>
+              <DataLayer Type="SP" ID="dlSegment" ConnectionID="connM1BIG-biLogiReporting" Command="dbo.rptLogiGetCustomerSegments_sp">
+                <SPParameters />
+              </DataLayer>
+            </InputSelectList>
+            <LineBreak />
+            <Chart Type="XY" ID="chtNPSCustomerSegmentTrend" ChartHeight="300" ChartWidth="500" ChartDataColumn="NPS" XYChartType="Spline" ChartLabelColumn="Week" YAxisTitle="NPS" ChartSymbolEdgeColor="black" BorderLeft="50" LineStyle="SolidLine" BorderRight="25" BackgroundColor="white" GridHorizontalColor="#DDDDDD" Color="#077FC2" BorderBottom="100">
+              <DataLayer Type="SP" ID="dlTrendeCommerceSegmentNPS" ConnectionID="connM1BIG-biLogiReporting" Command="dbo.rptLogiGetCustomerSegmentNPSTrend_sp">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="segmentCode" Value="@Request.islSegment~" SPParamType="dt-16" />
+                </SPParameters>
+              </DataLayer>
+              <DataScale />
+              <LabelScale Format="M/d/yy" />
+              <FontLabel FontAngle="45" FontFilename="arial" FontColor="#000" FontSize="8" />
+              <FontData FontColor="#000000" FontSize="10" FontFilename="arial" />
+            </Chart>
+          </Division>
+        </PanelContent>
+      </Panel>
+    </Dashboard2>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <Division Class="ThemeAlignCenter">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="sharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams dateStart="" dateEnd="" islQuestion="" islSegment="" />
+</Report>

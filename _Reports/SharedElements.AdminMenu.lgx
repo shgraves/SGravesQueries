@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="SharedElements.AdminMenu" SavedBy="JOMAX\bgaer" SavedAt="3/19/2013 4:34:36 PM" EngineVersion="10.2.424">
+  <SharedElement ID="seAdminMenu">
+    <Rows Class="gdLightBackground">
+      <Row Class="DarkBG">
+        <Column Class="gdLightBackground" IdeDisplayStatus="Collapsed">
+          <Label Caption="Menu Admin" ID="lblMenu" Class="DarkBG" IdeDisplayStatus="Collapsed">
+            <Action Type="Report" ID="actMenu">
+              <Target Type="Report" Report="Admin.AdminTools" ID="tgtAdmin" />
+            </Action>
+          </Label>
+        </Column>
+        <Column Class="gdLightBackground" IdeDisplayStatus="Collapsed">
+          <Label Caption="Detail Logs" ID="lblDetailLogs" Class="DarkBG">
+            <Action Type="Report" ID="actDetailLogs">
+              <Target Type="Report" Report="Admin.DetailLogging" ID="tgtDetailLogs" />
+            </Action>
+          </Label>
+        </Column>
+        <Column Class="gdLightBackground" IdeDisplayStatus="Collapsed">
+          <Label Caption="Report Logs" ID="lblReportLogs" Class="DarkBG">
+            <Action Type="Report" ID="actLogs">
+              <Target Type="Report" Report="Admin.ReportLogging" ID="tgtReportLogs" />
+            </Action>
+          </Label>
+        </Column>
+        <Column Class="gdLightBackground" IdeDisplayStatus="Collapsed">
+          <Label Caption="Session Logs" ID="lblSessionLogs" Class="DarkBG">
+            <Action Type="Report" ID="actSessionLogs">
+              <Target Type="Report" Report="Admin.SessionLogging" ID="tgtSessionLogs" />
+            </Action>
+          </Label>
+        </Column>
+        <Column Class="gdLightBackground" IdeDisplayStatus="Collapsed">
+          <Label Caption="SQL Logs" ID="lblSqlLogs" Class="DarkBG">
+            <Action Type="Report" ID="actSqlLogs">
+              <Target Type="Report" Report="Admin.SQLLogs" ID="tgtSqlLogs" />
+            </Action>
+          </Label>
+        </Column>
+        <Column Class="gdLightBackground" IdeDisplayStatus="Collapsed">
+          <Label Caption="Stored Proc Logs" ID="lblStoredProcs">
+            <Action Type="Report" ID="actStoredProcs">
+              <Target Type="Report" Report="Admin.StoredProcLogs" ID="tgtSqlLogs" />
+            </Action>
+          </Label>
+        </Column>
+        <Column Class="gdLightBackground" IdeDisplayStatus="Collapsed">
+          <Label Caption="User Logs" ID="lblUserLogs">
+            <Action Type="Report" ID="actUserLogs">
+              <Target Type="Report" Report="Admin.UserReportLogging" ID="tgtUserLogs" />
+            </Action>
+          </Label>
+        </Column>
+      </Row>
+    </Rows>
+  </SharedElement>
+</Report>

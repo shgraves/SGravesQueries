@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="SharedElements.SharedHeaderHTMLMenu" SavedBy="JOMAX\slyoung" SavedAt="2/26/2014 5:06:43 PM" EngineVersion="11.0.43">
+  <SharedElement ID="sharedHeader">
+    <Rows ID="logoNavHeader" WidthScale="100%" Height="42px">
+      <Row ID="headerRow">
+        <Column ID="colGDlogo">
+          <Image Caption="header_logo.png" ID="imgHeaderLogo" Width="350px" Height="30px" />
+        </Column>
+        <Column ID="colNavigation" Width="100" WidthScale="%">
+          <Remark>
+            <IncludeHtml Html="&lt;SPAN  id=&quot;inclTopNav&quot;&gt;&lt;ul id=&quot;menu&quot;&gt;&lt;li id=&quot;1&quot;&gt;&lt;a href=&quot;&quot;&gt;Dashboards&lt;/a&gt;&lt;ul&gt;&lt;li id=&quot;24&quot;&gt;&lt;a href=&quot;https://logi.int.godaddy.com/Dashboard/rdPage.aspx?rdReport=Dashboards.C3.Workforce.C3Workforcedash&quot;&gt;C3 Workforce&lt;/a&gt;&lt;/li&gt;&lt;li id=&quot;30&quot;&gt;&lt;a href=&quot;https://logi.int.godaddy.com/Dashboard/rdPage.aspx?rdReport=Dashboards.WBS.HOSTDashboard&quot;&gt;Hosting&lt;/a&gt;&lt;/li&gt;&lt;li id=&quot;25&quot;&gt;&lt;a href=&quot;https://logi.int.godaddy.com/Dashboard/rdPage.aspx?rdReport=Dashboards.Acquisitions.NewCustomerDashboard&quot;&gt;New Customers&lt;/a&gt;&lt;/li&gt;&lt;li id=&quot;20&quot;&gt;&lt;a href=&quot;https://logi.int.godaddy.com/Dashboard/rdPage.aspx?rdReport=Dashboards.NPS.NPSDashboard&quot;&gt;NPS&lt;/a&gt;&lt;/li&gt;&lt;li id=&quot;29&quot;&gt;&lt;a href=&quot;https://logi.int.godaddy.com/Dashboard/rdPage.aspx?rdReport=Dashboards.WBS.PWDDashBoard&quot;&gt;PWD&lt;/a&gt;&lt;/li&gt;&lt;li id=&quot;33&quot;&gt;&lt;a href=&quot;https://logi.int.godaddy.com/Dashboard/rdPage.aspx?rdReport=Dashboards.Productivity.ProductivityDash&quot;&gt;Productivity&lt;/a&gt;&lt;/li&gt;&lt;li id=&quot;21&quot;&gt;&lt;a href=&quot;https://logi.int.godaddy.com/Dashboard/rdPage.aspx?rdReport=Dashboards.WBS.WBSDashboard&quot;&gt;WSB&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li id=&quot;26&quot;&gt;&lt;a href=&quot;&quot;&gt;Cubes&lt;/a&gt;&lt;ul&gt;&lt;li id=&quot;27&quot;&gt;&lt;a href=&quot;https://logi.int.godaddy.com/Dashboard/rdPage.aspx?rdReport=Reports.Cubes.OrdersCubeViewer&quot;&gt;Orders&lt;/a&gt;&lt;/li&gt;&lt;li id=&quot;28&quot;&gt;&lt;a href=&quot;https://logi.int.godaddy.com/Dashboard/rdPage.aspx?rdReport=Reports.Cubes.StarCubeViewer&quot;&gt;Star&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;li id=&quot;31&quot;&gt;&lt;a href=&quot;&quot;&gt;Reports&lt;/a&gt;&lt;ul&gt;&lt;li id=&quot;32&quot;&gt;&lt;a href=&quot;https://logi.int.godaddy.com/Dashboard/rdPage.aspx?rdReport=Reports.QSCchurn&quot;&gt;QSC Churn&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/SPAN&gt;" />
+          </Remark>
+          <IncludeHtmlFile IncludedHtmlFile="c:\LogiHtmlIncludes\logiMenuHTML.html" />
+        </Column>
+        <Column ID="colGDlogo" Width="220" WidthScale="px" Class="ThemeAlignRight">
+          <Image Caption="gdMainLogo_WT.png" ID="GDlogo" />
+        </Column>
+      </Row>
+    </Rows>
+    <Image Caption="HdrSeparator_WT.png" ID="imgHorzRule" Width="100%" Height="3px" />
+    <StyleSheet StyleSheet="dropdown_one.css" />
+    <Remark>
+      <StyleSheet Theme="GDRPortal" StyleSheet="ERHubTheme.css" />
+    </Remark>
+  </SharedElement>
+</Report>

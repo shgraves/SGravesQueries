@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Jira.ChangeHistoryByIssue" SavedBy="JOMAX\dezell" SavedAt="3/12/2014 2:30:45 PM" EngineVersion="11.2.040-SP2">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Caption="JIRA Issue Change History - " Class="gdReportHeaderNameIT" />
+          <Spaces Size="1" />
+          <Label Caption="@Request.jiraKey~" Class="gdReportHeaderLinkIT">
+            <Action Type="Link" ID="actLink">
+              <Target Type="Link" ID="tgtJiraLink" Link="https://jira.int.godaddy.com/browse/@Request.jiraKey~" FrameID="NewWindow" />
+            </Action>
+          </Label>
+        </Column>
+      </Row>
+    </Rows>
+    <LineBreak />
+    <DataTable SortArrows="True" ID="dtChangeHistory" CellSpacing="7px" ColumnHeaderClass="ThemeAlignLeft" HideWhenZeroRows="True" AltRowClass="gdThemeAlternatingRow td">
+      <DataLayer Type="SQL" ID="SQLDataLayer1" ConnectionID="connProdJira" Source="set @jiraKey = '@Request.jiraKey~';&#xD;&#xA;set @projectKey = substring_index(@jiraKey,'-',1);&#xD;&#xA;set @issueNum = substring_index(@jiraKey,'-',-1);&#xD;&#xA;&#xD;&#xA;Select&#xD;&#xA;  changegroup.AUTHOR as 'Changed_By',&#xD;&#xA;  changegroup.CREATED as 'Change_Time',&#xD;&#xA;  changeitem.FIELD,&#xD;&#xA;  changeitem.OLDVALUE,&#xD;&#xA;  changeitem.OLDSTRING,&#xD;&#xA;  changeitem.NEWVALUE,&#xD;&#xA;  changeitem.NEWSTRING,&#xD;&#xA;  jiraaction.actionbody,&#xD;&#xA;  jiraaction.AUTHOR as 'Comment_By',&#xD;&#xA;  jiraaction.CREATED as 'Comment_Time'&#xD;&#xA;FROM jiraissue&#xD;&#xA;  Inner Join project On jiraissue.PROJECT = project.ID&#xD;&#xA;  Inner Join changegroup On jiraissue.ID = changegroup.issueid&#xD;&#xA;  Inner Join changeitem On changegroup.ID = changeitem.groupid&#xD;&#xA;  Inner Join jiraaction On jiraissue.ID = jiraaction.issueid&#xD;&#xA;WHERE @projectKey = project.pkey&#xD;&#xA;AND @issueNum = jiraissue.issuenum&#xD;&#xA;AND jiraaction.CREATED &gt;= changegroup.CREATED &#xD;&#xA;AND jiraaction.CREATED &lt; date_add(changegroup.CREATED, INTERVAL 5 MINUTE)&#xD;&#xA;AND FIELD in ('Start Date','duedate');&#xD;&#xA;" />
+      <DataTableColumn ID="colChanged_By" Header="Changed By">
+        <Label ID="lblChanged_By" Caption="@Data.Changed_By~" />
+        <DataColumnSort DataColumn="Changed_By" />
+      </DataTableColumn>
+      <DataTableColumn ID="colChange_Time" Header="Change Time">
+        <Label ID="lblChange_Time" Caption="@Data.Change_Time~" Format="dd/MM/yyyy hh:mm" />
+        <DataColumnSort DataColumn="Change_Time" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colFIELD" Header="Field">
+        <Label ID="lblFIELD" Caption="=((&quot;@Data.FIELD~&quot; == &quot;duedate&quot;) ? &quot;Due Date&quot; : &quot;@Data.FIELD~&quot;)" />
+        <DataColumnSort DataColumn="FIELD" />
+      </DataTableColumn>
+      <DataTableColumn ID="colOLDVALUE" Header="Old Value">
+        <Label ID="lblOLDVALUE" Caption="=((&quot;@Data.OLDVALUE~&quot; == &quot;&quot;) ? &quot;n/a&quot; : &quot;@Data.OLDVALUE~&quot;)" Format="Short Date" />
+        <DataColumnSort DataColumn="OLDVALUE" />
+      </DataTableColumn>
+      <Remark>
+        <DataTableColumn ID="colOLDSTRING" Header="OLDSTRING">
+          <Label ID="lblOLDSTRING" Caption="@Data.OLDSTRING~" />
+          <DataColumnSort DataColumn="OLDSTRING" />
+        </DataTableColumn>
+      </Remark>
+      <DataTableColumn ID="colNEWVALUE" Header="New Value">
+        <Label ID="lblNEWVALUE" Caption="@Data.NEWVALUE~" Format="Short Date" />
+        <DataColumnSort DataColumn="NEWVALUE" />
+      </DataTableColumn>
+      <Remark>
+        <DataTableColumn ID="colNEWSTRING" Header="NEWSTRING">
+          <Label ID="lblNEWSTRING" Caption="@Data.NEWSTRING~" />
+          <DataColumnSort DataColumn="NEWSTRING" />
+        </DataTableColumn>
+      </Remark>
+      <DataTableColumn ID="colactionbody" Header="Comment">
+        <Label ID="lblactionbody" Caption="@Data.actionbody~" />
+        <DataColumnSort DataColumn="actionbody" />
+      </DataTableColumn>
+      <DataTableColumn ID="colComment_By" Header="Comment By">
+        <Label ID="lblComment_By" Caption="@Data.Comment_By~" />
+        <DataColumnSort DataColumn="Comment_By" />
+      </DataTableColumn>
+      <DataTableColumn ID="colComment_Time" Header="Comment Time">
+        <Label ID="lblComment_Time" Caption="@Data.Comment_Time~" Format="dd/MM/yyyy hh:mm" />
+        <DataColumnSort DataColumn="Comment_Time" DataType="Date" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams jiraKey="" />
+</Report>

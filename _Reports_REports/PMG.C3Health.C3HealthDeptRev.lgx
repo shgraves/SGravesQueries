@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.C3Health.C3HealthDeptRev" SavedBy="JOMAX\vyancey" SavedAt="3/26/2014 3:35:20 PM" EngineVersion="11.2.040-SP4" SecurityReportRightID="LogiC3Managers">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <ReportHeader />
+  <DefaultRequestParams rptLegendOne="Actual" rptLegendTwo="Budget" />
+  <LocalData>
+    <DataLayer Type="SP" ID="dlrptc3HealthDepartment" Command="BiLogiReporting.dbo.rptLogiC3HealthDepartmentMetricsGet_sp" ConnectionID="connP3BIG-BiLogiReporting" IdeDisplayStatus="Collapsed">
+      <SPParameters>
+        <SPParameter SPParamDirection="Input" ID="@rptMonth" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptMonth~" />
+        <SPParameter SPParamDirection="Input" ID="@rptType" SPParamSize="3" SPParamType="dt-200" Value="@Request.rptType~" />
+        <SPParameter SPParamDirection="Input" ID="@rptView" SPParamSize="12" SPParamType="dt-200" Value="@Request.rptView~" />
+        <SPParameter Value="@Request.rptYearOne~" ID="@rptYearOne" SPParamDirection="Input" SPParamType="dt-2" SPParamSize="4" />
+        <SPParameter Value="@Request.rptYearTwo~" ID="@rptYearTwo" SPParamDirection="Input" SPParamType="dt-2" SPParamSize="4" />
+      </SPParameters>
+      <CalculatedColumn Formula="@Data.col1_Revenue~ - @Data.col2_Revenue~" ID="calcDelta" />
+      <CalculatedColumn ID="calcDeltaPercent" Formula="(@Data.col2_Revenue~ - @Data.col1_Revenue~)/@Data.col1_Revenue~" />
+      <FormattedColumn DataColumn="calcDeltaPercent" Format="Percent" ID="fcDeltaPercent" />
+      <DataLayerLink ID="rptC3HealthDepartment" />
+    </DataLayer>
+  </LocalData>
+  <Body>
+    <Division ID="divDeptRevChart">
+      <AnimatedChart Type="XY" XYChartType="Bar" ChartOrientation="Horizontal" ID="chtDeptRev" ChartDataColumn="col1_Revenue" ChartHeight="400" ChartWidth="700" ChartLabelColumn="Department" LegendLabel="@Request.rptLegendTwo~" YAxisTitle="GCR" XAxisTitle="Department" TooltipColumn="fcDeltaPercent">
+        <DataLayer Type="Linked" ID="rptC3HealthDepartment.Linked1" LinkedDataLayerID="rptC3HealthDepartment" />
+        <ExtraXYDataColumn ChartDataColumn="col2_Revenue" LegendLabel="@Request.rptLegendOne~" TooltipColumn="fcDeltaPercent" />
+      </AnimatedChart>
+      <Label Caption="Show Data" Class="gdDecorated">
+        <Action Type="ShowElement" ElementID="divDeptRevTable" ID="actShowData" />
+      </Label>
+    </Division>
+    <Division ID="divDeptRevTable" ShowModes="None">
+      <DataTable ID="dtDeptRev" Class="ThemeAlignRight" AltRowClass="gdThemeAltRowNoPadding td">
+        <DataLayer Type="Linked" ID="rptC3HealthDepartment.Linked2" LinkedDataLayerID="rptC3HealthDepartment" />
+        <DataTableColumn ID="colDepartment" Header="Department">
+          <Label Caption="@Data.Department~" />
+        </DataTableColumn>
+        <DataTableColumn ID="colActual" Header="@Request.rptLegendOne~">
+          <Label Caption="@Data.col1_Revenue~" Format="$#,##0;($#,##0)" />
+        </DataTableColumn>
+        <DataTableColumn ID="colBudget" Header="@Request.rptLegendTwo~">
+          <Label Caption="@Data.col2_Revenue~" Format="$#,##0;($#,##0)" />
+        </DataTableColumn>
+        <DataTableColumn ID="colDelta" Header="Delta +/-">
+          <Label Caption="@Data.calcDelta~" Format="$#,##0;($#,##0)">
+            <ConditionalClass Condition="@Data.calcDelta~ &lt; 0" Class="gdFont12Red" />
+          </Label>
+        </DataTableColumn>
+        <DataTableColumn ID="colPercent" Header="Delta %">
+          <Label Caption="@Data.calcDeltaPercent~" Format="Percent">
+            <ConditionalClass Condition="@Data.calcDeltaPercent~ &lt; 0" Class="gdFont12Red" />
+          </Label>
+        </DataTableColumn>
+      </DataTable>
+    </Division>
+  </Body>
+  <ReportFooter />
+  <ideTestParams rptMonth="" rptType="" rptView="" rptLegendOne="" rptLegendTwo="" rptYearOne="" rptYearTwo="" />
+</Report>

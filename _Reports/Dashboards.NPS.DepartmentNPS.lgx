@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.NPS.DepartmentNPS" SavedBy="JOMAX\slyoung" SavedAt="2/11/2013 1:12:41 PM" EngineVersion="10.2.424">
+  <DefaultRequestParams dateStart="@Date.ThisWeekStart~" dateEnd="@Date.ThisWeekEnd~" />
+  <StyleSheet />
+  <ReportHeader />
+  <Body>
+    <Chart Type="XY" ID="chtDepartmentNPS" ChartWidth="400" ChartHeight="400" ChartDataColumn="NPS" ChartLabelColumn="Department" XYChartType="Bar" ChartOrientation="Vertical" Color="LawnGreen" ChartTitle="NPS By Department (Week: @Request.dateStart~ To @Request.dateEnd~)" GridHorizontalColor="dddddd">
+      <DataLayer Type="SP" ID="dlDepartmentNPS" ConnectionID="BiLogiReporting-TEST" Command="dbo.logiXML_getDepartmentNPSByDate_sp">
+        <SPParameters>
+          <SPParameter ID="startDate" Value="@Request.dateStart~" SPParamDirection="Input" SPParamSize="10" SPParamType="dt-202" />
+          <SPParameter ID="endDate" Value="@Request.dateEnd~" SPParamDirection="Input" SPParamSize="10" SPParamType="dt-202" />
+        </SPParameters>
+        <GroupFilter GroupColumn="Department" />
+        <SortFilter SortColumn="sumNPS" DataType="Number" SortSequence="Descending" />
+      </DataLayer>
+      <Quicktip>
+        <QuicktipRow Value="@Chart.NPS~" />
+      </Quicktip>
+      <DataScale Format="mp" ScaleUpperBound="100" ScaleLowerBound="-100" TickDensity="20" />
+      <FontLabel FontAngle="0" />
+      <FontChartTitle FontSize="10" />
+    </Chart>
+  </Body>
+  <ReportFooter />
+  <ideTestParams dateStart="" dateEnd="" />
+</Report>

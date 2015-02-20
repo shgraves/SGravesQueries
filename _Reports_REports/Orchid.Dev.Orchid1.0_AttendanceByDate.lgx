@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Orchid.Dev.Orchid1.0_AttendanceByDate" SavedBy="JOMAX\twakefield" SavedAt="5/21/2014 2:15:19 PM" EngineVersion="11.0.43">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader />
+  <Body>
+    <DataTable SortArrows="True" ID="dtPresentNot" CellSpacing="7 px" Width="100" WidthScale="%">
+      <DataLayer Type="Linked" LinkedDataLayerID="dllOrchid1.0_AttendanceByDate" ID="dllOrchid1.0_AttendanceByDate">
+        <CompareFilter DataColumn="AttendanceDate" CompareValue="@Request.AttendanceDate~" ID="cfAttendanceDate" />
+        <CompareFilter ID="cfIsConsideredPresent" DataColumn="IsConsideredPresent" CompareValue="1" IncludeCondition="&quot;@Request.Present~&quot; = &quot;Yes&quot;" />
+        <CompareFilter ID="cfIsConsideredNotPresent" DataColumn="IsConsideredNotPresent" CompareValue="1" IncludeCondition="&quot;@Request.Present~&quot; = &quot;No&quot;" />
+      </DataLayer>
+      <DataTableColumn ID="colSupName" Header="Supervisor Name" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSupName" Caption="@Data.SupName~" />
+        <DataColumnSort DataColumn="SupName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colRepName" Header="Agent Name" IdeDisplayStatus="Collapsed">
+        <Label ID="lblRepName" Caption="@Data.RepName~" />
+        <DataColumnSort DataColumn="RepName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colAttendanceStatus" Header="AttendanceStatus" IdeDisplayStatus="Collapsed">
+        <Label ID="lblAttendanceStatus" Caption="@Data.AttendanceStatus~" />
+        <DataColumnSort DataColumn="AttendanceStatus" />
+      </DataTableColumn>
+      <Remark>
+        <DataTableColumn ID="colAttendanceDate" Header="AttendanceDate" IdeDisplayStatus="Collapsed">
+          <Label ID="lblAttendanceDate" Caption="@Data.AttendanceDate~" Format="Short Date" />
+          <DataColumnSort DataColumn="AttendanceDate" DataType="Date" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colIsConsideredPresent" Header="IsConsideredPresent" IdeDisplayStatus="Collapsed">
+          <Label ID="lblIsConsideredPresent" Caption="@Data.IsConsideredPresent~" />
+          <DataColumnSort DataColumn="IsConsideredPresent" />
+        </DataTableColumn>
+      </Remark>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams AttendanceDate="" Present="" />
+</Report>

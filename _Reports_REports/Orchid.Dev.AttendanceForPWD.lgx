@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Orchid.Dev.AttendanceForPWD" SavedBy="JOMAX\twakefield" SavedAt="4/9/2014 11:45:00 AM" EngineVersion="11.0.43">
+  <DefaultRequestParams dt_begin="@Request.inpStartDate~" dt_end="@Request.inpEndDate~" SupervisorID="@Request.checkGetSupervisor~" ManagerUserID="@Request.checkGetAgent~" EMDepartmentID="23" />
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Caption="PWD Attendance (Dev)" Class="gdReportHeaderNameIT" />
+          <Spaces Size="20" />
+        </Column>
+        <Column Class="ThemeAlignLeft">
+          <InputDate ID="inpStartDate" Caption="Start Date:" DefaultValue="@Request.dt_begin~" CalendarLinkType="Image" Format="MM/dd/yyyy" InputDateReformat="General Date" Tooltip="Date selector" />
+          <Spaces Size="24" />
+          <InputDate CalendarLinkType="Image" ID="inpEndDate" Caption="End Date:" Format="MM/dd/yyyy" InputDateReformat="General Date" DefaultValue="@Request.dt_end~" Tooltip="Date selector" />
+          <LineBreak />
+          <LineBreak />
+          <InputCheckboxList ID="checkGetSupervisor" OptionCaptionColumn="SupervisorName" OptionValueColumn="SupervisorID" Caption="Supervisor:" CheckboxListDropdown="True" SaveInLocalStorage="False" MultiSelect="True" DefaultValue="@Request.checkGetSupervisor~">
+            <DataLayer Type="SP" Command="eRpt.AttendanceReportPWDGetSupervisor_sp" ConnectionID="connDevEmployeeMaster" ID="cb_GetSupervisor">
+              <SPParameters>
+                <SPParameter ID="EMDepartmentID" Value="@Request.EMDepartmentID~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+              </SPParameters>
+            </DataLayer>
+          </InputCheckboxList>
+          <Spaces Size="10" />
+          <InputCheckboxList ID="checkGetAgent" OptionCaptionColumn="AgentName" OptionValueColumn="ManagerUserID" Caption="Agent:" CheckboxListDropdown="True" MultiSelect="True" DefaultValue="@Request.checkGetAgent~" SaveInLocalStorage="False">
+            <DataLayer Type="SP" Command="eRpt.AttendanceReportPWDGetAgent_sp" ConnectionID="connDevEmployeeMaster" ID="cb_GetAgent">
+              <SPParameters>
+                <SPParameter ID="EMDepartmentID" Value="@Request.EMDepartmentID~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+              </SPParameters>
+            </DataLayer>
+          </InputCheckboxList>
+          <LineBreak />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" Report="Orchid.Dev.AttendanceForPWD" ID="tgtAdminsByServer" RequestForwarding="True" KeepShowElements="True" />
+            </Action>
+          </Button>
+          <Spaces Size="150" />
+          <Division>
+            <Image Caption="ExportToExcel2.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+              <Action Type="NativeExcel" ID="excelExport">
+                <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" ExportDataTableID="DataTable1" />
+              </Action>
+            </Image>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <DataTable SortArrows="True" ID="DataTable1" CellSpacing="7 px" AltRowClass="gdThemeAltRowNoPadding td" TableBorder="1">
+      <DataLayer Type="SP" ID="SPDataLayer" ConnectionID="connDevEmployeeMaster" Command="eRpt.AttendanceReportPWD_sp" IdeDisplayStatus="Collapsed">
+        <SPParameters>
+          <SPParameter ID="dt_begin" Value="@Request.dt_begin~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+          <SPParameter ID="dt_end" Value="@Request.dt_end~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+          <SPParameter SPParamDirection="Input" ID="EMDepartmentID" SPParamType="dt-3" Value="@Request.EMDepartmentID~" />
+          <SPParameter SPParamDirection="Input" ID="SupervisorID" SPParamType="dt-3" Value="@Request.SupervisorID~" />
+          <SPParameter SPParamDirection="Input" ID="ManagerUserID" SPParamType="dt-3" Value="@Request.ManagerUserID~" />
+        </SPParameters>
+      </DataLayer>
+      <DataTableColumn ID="colDate" Header="Date">
+        <Label ID="lblDate" Caption="@Data.Date~" Format="MM/dd/yyyy" />
+        <DataColumnSort DataColumn="Date" DataType="Date" />
+        <ExcelColumnFormat ExcelFormat="Short Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colManagerUserID" Header="ManagerUserID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblManagerUserID" Caption="@Data.ManagerUserID~" />
+        <DataColumnSort DataColumn="ManagerUserID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colFirstName" Header="FirstName" IdeDisplayStatus="Collapsed">
+        <Label ID="lblFirstName" Caption="@Data.FirstName~" />
+        <DataColumnSort DataColumn="FirstName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colMiddleName" Header="MiddleName" IdeDisplayStatus="Collapsed">
+        <Label ID="lblMiddleName" Caption="@Data.MiddleName~" />
+        <DataColumnSort DataColumn="MiddleName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colLastName" Header="LastName" IdeDisplayStatus="Collapsed">
+        <Label ID="lblLastName" Caption="@Data.LastName~" />
+        <DataColumnSort DataColumn="LastName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSupervisorID" Header="SupervisorID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSupervisorID" Caption="@Data.SupervisorID~" />
+        <DataColumnSort DataColumn="SupervisorID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSupervisorFirstName" Header="SupervisorFirstName" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSupervisorFirstName" Caption="@Data.SupervisorFirstName~" />
+        <DataColumnSort DataColumn="SupervisorFirstName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSupervisorMiddleName" Header="SupervisorMiddleName" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSupervisorMiddleName" Caption="@Data.SupervisorMiddleName~" />
+        <DataColumnSort DataColumn="SupervisorMiddleName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSupervisorLastName" Header="SupervisorLastName" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSupervisorLastName" Caption="@Data.SupervisorLastName~" />
+        <DataColumnSort DataColumn="SupervisorLastName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colEMDepartmentID" Header="EMDepartmentID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblEMDepartmentID" Caption="@Data.EMDepartmentID~" />
+        <DataColumnSort DataColumn="EMDepartmentID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colDepartmentName" Header="DepartmentName" IdeDisplayStatus="Collapsed">
+        <Label ID="lblDepartmentName" Caption="@Data.DepartmentName~" />
+        <DataColumnSort DataColumn="DepartmentName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colPresent" Header="Present" IdeDisplayStatus="Collapsed">
+        <Label ID="lblPresent" Caption="@Data.Present~" />
+        <DataColumnSort DataColumn="Present" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colNotPresent" Header="NotPresent" IdeDisplayStatus="Collapsed">
+        <Label ID="lblNotPresent" Caption="@Data.NotPresent~" />
+        <DataColumnSort DataColumn="NotPresent" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colStatus" Header="Status" IdeDisplayStatus="Collapsed">
+        <Label ID="lblStatus" Caption="@Data.Status~" />
+        <DataColumnSort DataColumn="Status" />
+      </DataTableColumn>
+      <DataTableColumn ID="colIsOverride" Header="IsOverride" IdeDisplayStatus="Collapsed">
+        <Label ID="lblIsOverride" Caption="@Data.IsOverride~" />
+        <DataColumnSort DataColumn="IsOverride" />
+      </DataTableColumn>
+      <DataTableColumn ID="colApprovedTimeOffType" Header="ApprovedTimeOffType" IdeDisplayStatus="Collapsed">
+        <Label ID="lblApprovedTimeOffType" Caption="@Data.ApprovedTimeOffType~" />
+        <DataColumnSort DataColumn="ApprovedTimeOffType" />
+      </DataTableColumn>
+      <InteractivePaging PageRowCount="50" ShowPageNumber="True" Location="Top" CaptionType="Image" />
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams dt_begin="" dt_end="" inpStartDate="" inpEndDate="" checkGetSupervisor="" SupervisorID="" EMDepartmentID="" checkGetAgent="" ManagerUserID="" />
+</Report>

@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Reports.PMG.TestNewMenu" SavedBy="JOMAX\bgaer" SavedAt="5/20/2013 11:36:20 AM" EngineVersion="10.2.424">
+  <ReportCenterItem ReportCenterAllowSchedule="True" ReportCenterFolder="PMG" ReportCenterIncludeBookmarks="True" />
+  <StyleSheet StyleSheet="ERHubTheme.css" Theme="GDRPortal" />
+  <LocalData>
+    <Remark>
+      <DataLayer Type="SQL" ConnectionID="connM1BIG-biLogiReporting" ID="dlQSCchurn" Source="declare @startdate datetime =  cast(datepart(year, convert(date,getdate()) ) as varchar(4)) + '-01-01'&#xD;&#xA;declare @enddate datetime = convert(date,getdate()) &#xD;&#xA;&#xD;&#xA;if object_id('tempdb.dbo.#temp_QSC') is not null drop table #temp_QSC&#xD;&#xA;select resource_id, convert(date,a.createdate) as createdate, &#xD;&#xA;case when cancel_date is null then '1/1/2099' else convert(date,cancel_date) end as cancel_date&#xD;&#xA;, datediff(dd, convert(date,a.createdate),case when cancel_date is null then '1/1/2099' else convert(date,cancel_date) end) as cancel_days&#xD;&#xA;into #temp_QSC&#xD;&#xA;FROM godaddybilling.dbo.gdshop_billingHostingQSC a (nolock)&#xD;&#xA;LEFT JOIN godaddy.dbo.rp_salesMonitor_internalShopper b (nolock) on a.shopper_id = b.shopper_id&#xD;&#xA;where a.createdate &gt;= @startdate&#xD;&#xA;and a.createdate &lt; @enddate&#xD;&#xA;and b.shopper_id is null&#xD;&#xA;and patindex('%[^0123456789]%',a.shopper_id) = 0&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;select createdate, count (1) as new_plans&#xD;&#xA;, count (case when createdate &lt; dateadd(dd,-1,@enddate) and cancel_days &lt; 2 then 1 else null end) as day_1_cancels&#xD;&#xA;, count (case when createdate &lt; dateadd(dd,-7,@enddate) and  cancel_days &lt; 8 then 1 else null end) as day_7_cancels&#xD;&#xA;, COALESCE( NULLIF (count (case when createdate &lt; dateadd(dd,-1,@enddate) and cancel_days &lt; 2 then 1 else null end),0) *1.00/ count (1) , 1.7E+308) as day_1_churnRate&#xD;&#xA;,  COALESCE( NULLIF (count (case when createdate &lt; dateadd(dd,-7,@enddate) and  cancel_days &lt; 8 then 1 else null end),0) *1.00/ count (1) , 1.7E+308)  as day_7_churnRate&#xD;&#xA;FROM #temp_QSC&#xD;&#xA;group by createdate&#xD;&#xA;order by createdate&#xD;&#xA;">
+        <DataLayerLink ID="dllQSCchurn" />
+      </DataLayer>
+    </Remark>
+    <DataLayer Type="SP" ID="dlQSCchurn" ConnectionID="connM1BIG-biLogiReporting" Command="rptLogiQsc1And7DayChurnCohortAnalysis_sp">
+      <DataLayerLink ID="dllQSCchurn" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.newMenuTest" SharedElementID="sharedHeader" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <LineBreak />
+    <LineBreak />
+    <Rows ID="rowHeader">
+      <Row>
+        <Column ID="ColumnOne" Class="ThemeAlignCenter">
+          <Chart Type="XY" XYChartType="Line" ChartDataColumn="new_plans" ChartHeight="500" ChartWidth="600" ChartTitle="QSC New Accts by Day" ChartLabelColumn="createdate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#077fc2" ID="chtNewPlans" GridVerticalColor="transparent" GridHorizontalColor="#dddddd" BorderTop="75px" LineStyle="SolidLine" OuterBorderColor="#91c4da" ChartSymbolEdgeColor="Black" XAxisTitle="Weeks" BorderLeft="60" BorderRight="40" BorderBottom="110">
+            <DataLayer Type="Linked" LinkedDataLayerID="dllQSCchurn" />
+            <Quicktip Title="@Chart.new_plans~" />
+            <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="18" Alignment="Center" />
+            <LabelScale Format="MM/dd" LinearTickIncrement="Weeks" ScalingMode="LinearTime" LinearTickMinorIncrement="Weeks" />
+            <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="10" BorderColor="black" />
+            <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+            <DataScale Format="General Number" />
+            <FontData FontFilename="arial" FontColor="black" FontSize="12" />
+            <FontXAxisTitle FontFilename="arial" FontColor="black" FontSize="10" />
+          </Chart>
+        </Column>
+        <Column ID="ColumnTwo" Class="ThemeAlignCenter">
+          <Chart Type="XY" XYChartType="Line" ChartDataColumn="day_7_churnRate" ChartHeight="500" ChartWidth="600" ChartTitle="QSC Churn Rate by Create Date Cohort" ChartLabelColumn="createdate" ChartLabelColumnDataType="Date" LegendLabel="Day 7 Churn" XAxisTitle="Weeks" BackgroundColor="white" BorderTop="75px" GridHorizontalColor="#DDDDDD" GridVerticalColor="transparent" ID="chtChurnRate" LineStyle="SolidLine" BorderLeft="60" BorderBottom="110" BorderRight="40" OuterBorderColor="#91c4da">
+            <DataLayer Type="Linked" LinkedDataLayerID="dllQSCchurn">
+              <FormattedColumn ID="fcDay1Percent" DataColumn="day_1_churnRate" Format="##.#%" />
+              <FormattedColumn ID="fcDay7Percent" DataColumn="day_7_churnRate" Format="##.#%" />
+            </DataLayer>
+            <Quicktip Title="@Chart.fcDay7Percent~" />
+            <FontChartTitle Alignment="Center" FontFilename="arial" FontColor="black" FontSize="18" Margin="0,10,0,0" />
+            <LabelScale Format="MM/dd" LinearTickIncrement="Weeks" ScalingMode="LinearTime" LinearTickMinorIncrement="Weeks" />
+            <FontLabel FontAngle="90" FontFilename="arial" FontColor="black" FontSize="10" BorderColor="black" />
+            <ExtraXYDataColumn ChartDataColumn="day_1_churnRate" LegendLabel="Day 1 Churn">
+              <Quicktip Title="@Chart.fcDay1Percent~" />
+            </ExtraXYDataColumn>
+            <DataScale Format="##%" />
+            <FontData FontFilename="arial" FontColor="black" FontSize="12" />
+            <FontXAxisTitle FontSize="10" FontFilename="arial" FontColor="black" />
+            <Legend LegendOrientation="Horizontal" BorderColor="transparent" LegendLeft="140" LegendTop="450">
+              <FontLegend FontColor="Black" FontSize="12" FontFilename="arial" />
+            </Legend>
+          </Chart>
+        </Column>
+        <Remark>
+          <Column IdeDisplayStatus="Collapsed">
+            <AnimatedChart Type="XY" XYChartType="Line" ChartDataColumn="new_plans" ChartHeight="500" ChartWidth="600" ChartLabelColumn="createdate">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllQSCchurn" />
+            </AnimatedChart>
+            <Remark>
+              <Chart Type="XY" XYChartType="Spline" ChartDataColumn="new_plans" ChartHeight="500" ChartWidth="600" ChartTitle="QSC New Accts by Day" ChartLabelColumn="createdate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#077fc2" ID="chtNewPlans" GridVerticalColor="transparent" GridHorizontalColor="#dddddd" BorderTop="75px" LineStyle="SolidLine" OuterBorderColor="#91c4da" ChartSymbolEdgeColor="Black" XAxisTitle="Weeks" BorderLeft="60" BorderRight="40" BorderBottom="110">
+                <DataLayer Type="Linked" LinkedDataLayerID="dllQSCchurn" />
+                <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="18" Alignment="Center" />
+                <LabelScale Format="MM/dd" LinearTickIncrement="Weeks" ScalingMode="LinearTime" LinearTickMinorIncrement="Weeks" />
+                <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="10" BorderColor="black" />
+                <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                <DataScale Format="General Number" />
+                <FontData FontFilename="arial" FontColor="black" FontSize="12" />
+                <FontXAxisTitle FontFilename="arial" FontColor="black" FontSize="10" />
+              </Chart>
+            </Remark>
+          </Column>
+        </Remark>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter>
+    <Label Caption="BOOKMARKS" />
+    <Division>
+      <Rows>
+        <Row>
+          <Column>
+            <Label Caption="Add Bookmark" Class="gdDivTitleWhite">
+              <Action Type="AddBookmark" ID="bookAdd" BookmarkCollection="@Function.Username~" BookmarkSaveCaption="Save" BookmarkDescriptionMessage="Enter a description for this bookmark." BookmarkName="Test Menu report" />
+            </Label>
+          </Column>
+          <Column>
+            <Label Caption="Run Bookmark" Class="gdDivTitleWhite">
+              <Action Type="RunBookmark" BookmarkID="@Data.BookmarkID~" ID="bookRun" BookmarkCollection="@Function.Username~" />
+            </Label>
+          </Column>
+          <Column>
+            <Label Caption="Edit Bookmark" Class="gdDivTitleWhite">
+              <Action Type="EditBookmark" BookmarkCollection="@Function.Username~" BookmarkDescriptionMessage="Enter a description for this bookmark." BookmarkID="@Data.BookmarkID~" ID="bookEdit" />
+            </Label>
+          </Column>
+          <Column>
+            <Label Caption="Remove Bookmark" Class="gdDivTitleWhite">
+              <Action Type="RemoveBookmark" BookmarkCollection="@Function.Username~" BookmarkID="@Data.BookmarkID~" ID="bookRemove" ConfirmMessage="Are you sure you want to remove this bookmark?" />
+            </Label>
+          </Column>
+        </Row>
+      </Rows>
+    </Division>
+    <LineBreak />
+    <Division Class="ThemeAlignCenter">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams />
+</Report>

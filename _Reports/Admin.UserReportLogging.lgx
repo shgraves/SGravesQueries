@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Admin.UserReportLogging" SavedBy="JOMAX\bgaer" SavedAt="4/12/2013 3:10:44 PM" EngineVersion="10.2.424" SecurityReportRightID="BIG-Developer">
+  <DefaultRequestParams txtUserName="All Users" />
+  <DefaultRequestParams rptStartDate="=DateAdd(&quot;d&quot;,-6,Date())" rptEndDate="=DateAdd(&quot;d&quot;,+1,Date())" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderReport" ID="seReportHeader" SharedElementID="sharedHeader" />
+    <LineBreak />
+    <LineBreak />
+    <IncludeSharedElement DefinitionFile="SharedElements.AdminMenu" SharedElementID="seAdminMenu" ID="seAdminMenuLinks" />
+    <LineBreak />
+    <LineBreak />
+    <Division ID="divTitle" Class="rdAlternateTextColorWhite" IdeDisplayStatus="Collapsed">
+      <IncludeHtml Html="&lt;h2&gt;User Access Logs&lt;/h2&gt;" ID="htmlTitle" />
+    </Division>
+    <Division ID="divReportParams" IdeDisplayStatus="Collapsed">
+      <InputGrid Layout="Auto">
+        <InputDate ID="rptStartDate" Caption="Start Date:" DefaultValue="@Request.rptStartDate~" />
+        <InputDate ID="rptEndDate" Caption="End Date:" DefaultValue="@Request.rptEndDate~" />
+        <InputText ID="txtUserName" Caption="User Name:" DefaultValue="@Request.txtUserName~" Tooltip="User Name refers to the AD User Name without the Domain Prefix - for instance Brian Gaer is bgaer.   For All Users - simply type All Users" />
+      </InputGrid>
+    </Division>
+    <Button ID="btnSubmit" Caption="Submit">
+      <Action Type="Report" ID="actSubmit">
+        <Target Type="Report" ID="tgtSubmit" Report="Admin.UserReportLogging">
+          <WaitPage Caption="Querying..." />
+        </Target>
+      </Action>
+    </Button>
+  </ReportHeader>
+  <Body>
+    <LineBreak />
+    <LineBreak />
+    <DataTable ID="dtUsageLogging">
+      <DataLayer Type="SQL" ConnectionID="connM1BIG-biLogiReporting" ID="dlLogging" Source="select  event_date, event_duration, report_id, [user_name]&#xD;&#xA;from&#xD;&#xA;[BiLogiReporting].[dbo].[rptLogiEventLog] with (nolock)&#xD;&#xA;where event_name = 'BuildReport' and event_date between '@Request.rptStartDate~' and '@Request.rptEndDate~' &#xD;&#xA;and   (user_name = '@Request.txtUserName~' or '@Request.txtUserName~' = 'All Users' or '@Request.txtUserName~' = '' )" />
+      <DataTableColumn Header="User Name" IdeDisplayStatus="Collapsed">
+        <Label Caption="@Data.user_name~" />
+        <DataColumnSort DataColumn="user_name" />
+      </DataTableColumn>
+      <DataTableColumn Header="Date" IdeDisplayStatus="Collapsed">
+        <Label Caption="@Data.event_date~" />
+        <DataColumnSort DataColumn="event_date" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn Header="Duration (ms)" IdeDisplayStatus="Collapsed">
+        <Label Caption="@Data.event_duration~" />
+        <DataColumnSort DataColumn="event_duration" />
+      </DataTableColumn>
+      <DataTableColumn Header="Report Id" IdeDisplayStatus="Collapsed">
+        <Label Caption="@Data.report_id~" />
+        <DataColumnSort DataColumn="report_id" />
+      </DataTableColumn>
+      <InteractivePaging CaptionType="Image" PageRowCount="20" ID="logPaging" ShowPageNumber="True" Location="Both" HideWhenOnePage="True" HideShowPrevNextCaptions="True" />
+    </DataTable>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="seFooter" />
+  </ReportFooter>
+  <ideTestParams rptStartDate="" rptEndDate="" txtUserName="" />
+</Report>

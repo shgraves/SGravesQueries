@@ -1,0 +1,790 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="SharedElements.GDOB.GDOBSharedPanelContent" SavedBy="JOMAX\asham" SavedAt="3/17/2014 4:17:59 PM" EngineVersion="11.0.43">
+  <SharedElement ID="sePnlPurchases" IdeDisplayStatus="Collapsed">
+    <Panel ID="pnl_KPI_Purchases" Caption="Purchases Last 30 Days">
+      <PanelContent>
+        <Division ID="divPurchasesChart">
+          <Chart Type="XY" ID="chtPurchases" XYChartType="Line" ChartDataColumn="purchases" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ChartLabelColumn="date" YAxisTitle="Purchases" BorderColor="Black" LegendLabel="Daily Purchases" LineWidth="4" GridVerticalColor="#DFDADA" ShowDataValues="@Request.ShowSignupValues~" BorderBottom="75" BorderLeft="55">
+            <Quicktip Description="@Chart.purchases~" Title="Purchases : On @Chart.date~" ID="qtDailyPurchases" />
+            <DataLayer Type="Cached" CacheKey="GDOBDashPurchases" ExpirationTimeSpan="00:30" ExpirationNow="False" ID="dlCachePurchases">
+              <DataLayer Type="SQL" ID="dlDataPurchases" ConnectionID="connMySQL-P3Outright" Source="select &#xD;&#xA;	ps.date&#xD;&#xA;	, t1.purchases&#xD;&#xA;	, sum(ps.active_accounts) as netPaying&#xD;&#xA;from&#xD;&#xA;	(&#xD;&#xA;	select&#xD;&#xA;		pc.full_date&#xD;&#xA;		, count(distinct pc.company_id) as purchases&#xD;&#xA;	from&#xD;&#xA;		asham_paidCohorts pc&#xD;&#xA;	where&#xD;&#xA;		pc.full_date between date_add(curdate(), interval -30 day) and date_add(curdate(), interval -1 day)&#xD;&#xA;	group by pc.full_date&#xD;&#xA;	) t1&#xD;&#xA;	right join asham_billing_plan_summaries ps on t1.full_date = ps.date&#xD;&#xA;where&#xD;&#xA;	ps.date between date_add(curdate(), interval -30 day) and date_add(curdate(), interval -1 day)&#xD;&#xA;	and ps.plan_type = 'plus'&#xD;&#xA;group by ps.date" />
+            </DataLayer>
+            <ExtraXYLayer ChartDataColumn="netPaying" XYChartType="Line" Transparency="0" LineWidth="4" ID="glNetPaying" LegendLabel="Net Paying">
+              <Quicktip Description="@Chart.netPaying~" Title="Net Paying : On @Chart.date~" ID="qtNetPaying" />
+            </ExtraXYLayer>
+            <SecondaryAxis YAxisTitle="Net Paying (thousands)">
+              <DataScale Format="#.0mp" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontYAxisTitle FontColor="Black" FontSize="10" FontAngle="90" />
+            </SecondaryAxis>
+            <DataScale Format="#" />
+            <Legend BorderColor="Transparent" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~" LegendLeft="@Request.LegendLeft~">
+              <FontLegend FontColor="Black" />
+            </Legend>
+            <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+          </Chart>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </Division>
+      </PanelContent>
+      <RefreshElementTimer ElementID="divPurchasesChart" ID="refreshPurchases" RefreshInterval="600" />
+    </Panel>
+  </SharedElement>
+  <SharedElement ID="sePnlSignups" IdeDisplayStatus="Collapsed">
+    <Panel ID="pnl_KPI_Signups" Caption="Signups Last 30 Days">
+      <PanelContent>
+        <Division ID="divSignupsChart">
+          <Chart Type="XY" ID="chtSignups" XYChartType="Line" ChartDataColumn="DailySignupsPaid" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ChartLabelColumn="SignupDate" YAxisTitle="Signups" BorderColor="Black" LegendLabel="Paid Users" LineWidth="4" GridVerticalColor="#DFDADA" ShowDataValues="@Request.ShowSignupValues~" BorderBottom="75" BorderLeft="55" Color="#e88622">
+            <Quicktip Description="@Chart.DailySignupsPaid~" Title="Paid Users Signed Up : On @Chart.SignupDate~" ID="qtDailySignupsPaid" />
+            <DataLayer Type="Cached" CacheKey="GDOBDashSignups" ExpirationTimeSpan="00:30" ExpirationNow="False" ID="dlCacheSignups">
+              <DataLayer Type="SQL" ID="dlDataSignups" ConnectionID="connMySQL-P3Outright" Source="create temporary table if not exists DailySignups2 (signupDate date, signups int, isPaid int, isFree int);&#xD;&#xA;delete from DailySignups2;&#xD;&#xA;insert into DailySignups2&#xD;&#xA;select&#xD;&#xA;	cast(user_created_full_date as date) as signupDate&#xD;&#xA;	, count(*) as signups&#xD;&#xA;	, count(case when bsd.state = 'active' and bpf.plan_price &gt; 0 then bsd.company_id end) as isPaid&#xD;&#xA;	, count(case when bsd.state &lt;&gt; 'active' or bpf.plan_price = 0 then bsd.company_id end) as isFreee&#xD;&#xA;from user_dims ud&#xD;&#xA;	join billing_subscription_dims bsd on ud.company_id = bsd.company_id&#xD;&#xA;	join billing_plan_fcts bpf on bsd.billing_plan_id = bpf.billing_plan_id&#xD;&#xA;where user_created_full_date between date_add(curdate(), interval -29 day) and curdate()&#xD;&#xA;	and not (user_email like '%@outright.com' or user_email like '%@godaddy.com')&#xD;&#xA;	and bsd.billing_plan_id not in('37', '38') -- remove trialers&#xD;&#xA;group by signupDate&#xD;&#xA;order by signupDate asc&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;create temporary table if not exists StartEndSignups2 (signupDate date);&#xD;&#xA;delete from StartEndSignups2;&#xD;&#xA;insert into StartEndSignups2(signupDate) &#xD;&#xA;select full_date&#xD;&#xA;from date_dims&#xD;&#xA;where full_date between date_add(curdate(), interval -29 day) and curdate();&#xD;&#xA;&#xD;&#xA;create temporary table if not exists CumulativeSignups2 (signupDate date, signups int);&#xD;&#xA;delete from CumulativeSignups2;&#xD;&#xA;insert into CumulativeSignups2&#xD;&#xA;select&#xD;&#xA;	se.signupDate as signupDate&#xD;&#xA;	, count(ud.id) as signups&#xD;&#xA;from &#xD;&#xA;	user_dims ud&#xD;&#xA;	cross join StartEndSignups2 se&#xD;&#xA;where ud.created_at &lt;= se.signupDate&#xD;&#xA;	and not (user_email like '%@outright.com' or user_email like '%@godaddy.com')&#xD;&#xA;group by&#xD;&#xA;	se.signupDate&#xD;&#xA;order by se.signupDate&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;select ds.SignupDate&#xD;&#xA;	, ds.isFree as DailySignups&#xD;&#xA;	, ds.isPaid as DailySignupsPaid&#xD;&#xA;	, cs.signups as CumulativeSignups&#xD;&#xA;from DailySignups2 ds&#xD;&#xA;	join CumulativeSignups2 cs on ds.signupDate = cs.signupDate" />
+            </DataLayer>
+            <ExtraXYDataColumn ChartDataColumn="DailySignups" ID="dlDailySignups" LegendLabel="Free Users" Color="#28b8d5">
+              <Quicktip Description="@Chart.DailySignups~" Title="Free Users Signed Up : On @Chart.SignupDate~" ID="qtDailySignups" />
+            </ExtraXYDataColumn>
+            <ExtraXYLayer ChartDataColumn="CumulativeSignups" XYChartType="Line" Transparency="0" LineWidth="4" ID="glTotalSignups" LegendLabel="All Users to Date" Color="#36db65">
+              <Quicktip Description="@Chart.CumulativeSignups~" Title="Total Signups to Date : On @Chart.SignupDate~" ID="qtTotalSignups" />
+            </ExtraXYLayer>
+            <SecondaryAxis YAxisTitle="Total Signups (thousands)">
+              <DataScale Format="#mp" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontYAxisTitle FontColor="Black" FontSize="10" FontAngle="90" />
+            </SecondaryAxis>
+            <DataScale Format="#" />
+            <Legend BorderColor="Transparent" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~" LegendLeft="@Request.LegendLeftLongTitle~">
+              <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+            </Legend>
+            <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+          </Chart>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </Division>
+      </PanelContent>
+      <RefreshElementTimer ElementID="divSignupsChart" ID="refreshSignups" RefreshInterval="600" />
+    </Panel>
+  </SharedElement>
+  <SharedElement ID="sePnlActivationRate" IdeDisplayStatus="Collapsed">
+    <Panel ID="pnl_KPI_ActivationRate" Caption="Activation Rate Last 6 Months by Weekly Cohort">
+      <PanelContent>
+        <Division ID="divActivationRateChart">
+          <Chart Type="XY" ID="chtActivationRate" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ChartLabelColumn="signupWeek" YAxisTitle="Activation Rate" BorderLeft="55" BorderColor="Black" ChartDataColumn="PaidActivationRate" LegendLabel="Paid Users" LineWidth="4" BorderBottom="75">
+            <Quicktip ID="qtPaidActivationRate" Description="@Chart.PaidActivationRate~" Title="Paid Activation Rate on @Chart.signupWeek~" />
+            <DataLayer Type="Cached" ID="dlCacheActivations" CacheKey="GDOBDashActivations" ExpirationNow="False" ExpirationTimeSpan="00:30">
+              <DataLayer Type="SQL" Source="create temporary table Activations2 (signupWeek date, company_id bigint, isPaid int, isFree int, isActivated int);&#xD;&#xA;&#xD;&#xA;delete from Activations2;&#xD;&#xA;insert into Activations2&#xD;&#xA;select &#xD;&#xA;	-- str_to_date(bsd.created_date_id, '%Y%m%d') as signupWeek&#xD;&#xA;	ud.user_created_first_day_of_week as signupWeek&#xD;&#xA;	, bsd.company_id as company_id&#xD;&#xA;	, case when bsd.state = 'active' and bpf.plan_price &gt; 0 then 1 else 0 end as isPaid&#xD;&#xA;	, case when bsd.state &lt;&gt; 'active' or bpf.plan_price = 0 then 1 else 0 end as isFree&#xD;&#xA;	, cd.activated as isActivated&#xD;&#xA;from &#xD;&#xA;	(billing_subscription_dims bsd&#xD;&#xA;	join billing_plan_fcts bpf on bsd.billing_plan_id = bpf.billing_plan_id)&#xD;&#xA;	join user_dims ud on bsd.company_id = ud.company_id&#xD;&#xA;	join company_dims cd on bsd.company_id = cd.id&#xD;&#xA;where &#xD;&#xA;	ud.user_created_first_day_of_week &gt;= date_add(curdate(), interval -6 month) and curdate()&#xD;&#xA;	and not (ud.user_email like '%@outright.com' or ud.user_email like '%@godaddy.com')&#xD;&#xA;	and bsd.billing_plan_id not in('37', '38') -- remove trialers&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;select&#xD;&#xA;	signupWeek&#xD;&#xA;	, sum(case when isPaid = 1 then isActivated end) / sum(isPaid) as PaidActivationRate&#xD;&#xA;	, sum(case when isFree = 1 then isActivated end) / sum(isFree) as FreeActivationRate&#xD;&#xA;from &#xD;&#xA;	Activations2&#xD;&#xA;group by&#xD;&#xA;	signupWeek&#xD;&#xA;;" ConnectionID="connMySQL-P3Outright" ID="dlDataActivations" />
+            </DataLayer>
+            <ChartLowessCurveLine Color="Black" LineWidth="1" />
+            <ExtraXYLayer XYChartType="Line" ChartDataColumn="FreeActivationRate" LegendLabel="Free Users" LineWidth="4" Transparency="0" ID="glFreeActivationRate">
+              <ChartTrendLine Color="Black" LineWidth="1" />
+              <Quicktip ID="qtFreeActivationRate" Description="@Chart.FreeActivationRate~" Title="Free Activation Rate : On @Chart.signupWeek~" />
+            </ExtraXYLayer>
+            <Legend LegendOrientation="Horizontal" BorderColor="Transparent" LegendLeft="@Request.LegendLeft~" LegendTop="@Request.LegendTop~">
+              <FontLegend FontColor="Black" />
+            </Legend>
+            <DataScale ScaleUpperBound="1" ScaleLowerBound="0" Format="##%" />
+            <LabelScale Format="M/d/yyyy" ScalingMode="LinearTime" LinearTickIncrement="Auto" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+          </Chart>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </Division>
+      </PanelContent>
+      <RefreshElementTimer ElementID="divActivationRateChart" ID="refreshActivationRate" RefreshInterval="600" />
+    </Panel>
+  </SharedElement>
+  <SharedElement ID="sePnlActiveUse" IdeDisplayStatus="Collapsed">
+    <Panel ID="pnl_KPI_ActiveUse" Caption="Active Use Last 30 Days">
+      <PanelContent>
+        <Division ID="divActiveUseChart">
+          <Chart Type="XY" ID="chtActiveUse" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" YAxisTitle="Active Users (thousands)" BorderColor="Black" ChartDataColumn="MAU" ChartLabelColumn="date" LegendLabel="Monthly" BorderLeft="65" LineWidth="4" BorderBottom="75">
+            <Quicktip Description="@Chart.MAU~" Title="MAU : On @Chart.date~" ID="qtMAU" />
+            <DataLayer Type="Cached" ID="dlCacheActiveUse" CacheKey="GDOBDashActiveUse" ExpirationNow="False" ExpirationTimeSpan="00:30">
+              <DataLayer Type="SQL" ID="dlDataActiveUse" ConnectionID="connMySQL-P3Outright" Source="select &#xD;&#xA;	str_to_date(date_id, '%Y%m%d') as date&#xD;&#xA;	, sum(case when type = 'daily' then active end) as DAU&#xD;&#xA;	, sum(case when type = 'weekly' then active end) as WAU&#xD;&#xA;	, sum(case when type = 'monthly' then active end) as MAU&#xD;&#xA;from active_use_summaries&#xD;&#xA;where str_to_date(date_id, '%Y%m%d') between date_add(curdate(), interval -29 day) and curdate()&#xD;&#xA;	and interaction = 'aggregate'&#xD;&#xA;group by date&#xD;&#xA;order by date desc&#xD;&#xA;;" />
+            </DataLayer>
+            <DataScale Format="#mp" />
+            <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+            <ExtraXYDataColumn ID="dcWAU" ChartDataColumn="WAU" LegendLabel="Weekly" LineWidth="4">
+              <Quicktip Description="@Chart.WAU~" Title="WAU : On @Chart.date~" ID="qtWAU" />
+            </ExtraXYDataColumn>
+            <ExtraXYDataColumn ID="dcDAU" ChartDataColumn="DAU" LegendLabel="Daily" LineWidth="4">
+              <Quicktip Description="@Chart.DAU~" Title="DAU : On @Chart.date~" ID="qtDAU" />
+            </ExtraXYDataColumn>
+            <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeft~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+              <FontLegend FontColor="Black" />
+            </Legend>
+          </Chart>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </Division>
+      </PanelContent>
+      <RefreshElementTimer ElementID="divActiveUseChart" ID="refreshActiveUse" RefreshInterval="600" />
+    </Panel>
+  </SharedElement>
+  <SharedElement ID="sePnlLPFunnel" IdeDisplayStatus="Collapsed">
+    <Panel ID="pnl_Funnels_LP" Caption="GoDaddy Landing Page Last 30 Days by Weekly Cohort">
+      <PanelContent>
+        <Division ID="divLPFunnelChart">
+          <Chart Type="XY" ID="chtLPFunnel" XYChartType="Bar" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" YAxisTitle="Visitors" BorderColor="Black" ChartDataColumn="visitors" ChartLabelColumn="weekOf" LegendLabel="Visit LP" BorderLeft="65" LineWidth="4" BorderBottom="75" Color="#28b8d5" ExtraBarOptions="SideBySide">
+            <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="seDlCacheLPFunnel" ID="dlCacheLPFunnel" />
+            <Quicktip Description="@Chart.visitors~" Title="LP Visits : Week of @Chart.weekOf~" ID="qtVisits" />
+            <DataScale />
+            <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+            <ExtraXYDataColumn ID="dcCartAdds" ChartDataColumn="cartAdds" LegendLabel="Add to Cart" LineWidth="4" Color="#e88622">
+              <Quicktip Description="@Chart.cartAdds~" Title="Cart Adds : Week of @Chart.weekOf~" ID="qtCartAdds" />
+            </ExtraXYDataColumn>
+            <ExtraXYDataColumn ID="dcOrders" ChartDataColumn="purchases" LegendLabel="Order" LineWidth="4" Color="#36db65">
+              <Quicktip Description="@Chart.purchases~" Title="Orders : Week of @Chart.weekOf~" ID="qtOrders" />
+            </ExtraXYDataColumn>
+            <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeft~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+              <FontLegend FontColor="Black" />
+            </Legend>
+          </Chart>
+        </Division>
+        <Division ID="divLPFunnelChartDetail">
+          <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="addRate" ChartLabelColumn="weekOf" LegendLabel="Cart Add" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#28b8d5">
+            <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="seDlCacheLPFunnel" ID="dlCacheLPFunnel" />
+            <Quicktip Description="@Chart.addRate~" Title="Cart Add Rate : Week of @Chart.weekOf~" ID="qtAddRate" />
+            <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+            <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+            <ExtraXYDataColumn ID="dcCartCompleteRate" ChartDataColumn="completionRate" LegendLabel="Cart Complete" LineWidth="3" Color="#e88622">
+              <Quicktip Description="@Chart.completionRate~" Title="Cart Complete Rate : Week of @Chart.weekOf~" ID="qtCartCompleteRate" />
+            </ExtraXYDataColumn>
+            <ExtraXYDataColumn ID="dcConversionRate" ChartDataColumn="conversionRate" LegendLabel="Conversion" LineWidth="3" Color="#36db65">
+              <Quicktip Description="@Chart.conversionRate~" Title="Conversion Rate : Week of @Chart.weekOf~" ID="qtConversionRate" />
+            </ExtraXYDataColumn>
+            <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+              <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+            </Legend>
+          </Chart>
+        </Division>
+        <Division>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </Division>
+      </PanelContent>
+      <RefreshElementTimer ElementID="divLPFunnelChart, divLPFunnelChartDetail" ID="refreshLPFunnel" RefreshInterval="10800" />
+    </Panel>
+  </SharedElement>
+  <Remark>
+    <SharedElement ID="sePnlMYAFunnel" IdeDisplayStatus="Collapsed">
+      <Panel ID="pnl_Funnels_MYA" Caption="GoDaddy MYA Last 30 Days by Weekly Cohort">
+        <PanelContent>
+          <Division ID="divMYAFunnelChart">
+            <Chart Type="XY" ID="chtMYAFunnel" XYChartType="Bar" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" YAxisTitle="Users" BorderColor="Black" ChartDataColumn="clicks" ChartLabelColumn="weekOf" LegendLabel="Create Account" BorderLeft="65" LineWidth="4" BorderBottom="75" ExtraBarOptions="SideBySide" Color="#28b8d5">
+              <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="seDlCacheMYAFunnel" ID="dlCacheMYAFunnel" />
+              <Quicktip Description="@Chart.clicks~" Title="Account Creates : Week of @Chart.weekOf~" ID="qtAccountCreates" />
+              <DataScale />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ID="dcUpgrades" ChartDataColumn="purchases" LegendLabel="Upgrade" LineWidth="4" Color="#36db65">
+                <Quicktip Description="@Chart.purchases~" Title="Upgrades : Week of @Chart.weekOf~" ID="qtUpgrades" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeft~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divMYAFunnelChartDetail">
+            <Chart Type="XY" ID="chtMYAFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="conversionRate" ChartLabelColumn="weekOf" LegendLabel="Conversion" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#36db65">
+              <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="seDlCacheMYAFunnel" ID="dlCacheMYAFunnel" />
+              <Quicktip Description="@Chart.conversionRate~" Title="Conversion Rate : Week of @Chart.weekOf~" ID="qtConversionRate" />
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound=".3" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeft~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division>
+            <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+          </Division>
+        </PanelContent>
+        <RefreshElementTimer ElementID="divMYAFunnelChart, divMYAFunnelChartDetail" ID="refreshMYAFunnel" RefreshInterval="10800" />
+      </Panel>
+    </SharedElement>
+  </Remark>
+  <SharedElement ID="sePnlUpgradeFunnel" IdeDisplayStatus="Collapsed">
+    <Panel ID="pnl_Funnels_Upgrade" Caption="In-Product Upgrades Last 30 Days">
+      <PanelContent>
+        <Division ID="divUpgradeFunnelChart">
+          <Chart Type="XY" ID="chtUpgradeFunnel" XYChartType="Bar" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" YAxisTitle="Users" BorderColor="Black" ChartDataColumn="pageViews" ChartLabelColumn="weekOf" LegendLabel="View Upgrade Page" BorderLeft="65" LineWidth="4" BorderBottom="75" ExtraBarOptions="SideBySide" Color="#28b8d5">
+            <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="seDlCacheUpgradeFunnel" ID="dlCacheUpgradeFunnel" />
+            <Quicktip Description="@Chart.pageViews~" Title="Upgrade Page Views : Week of @Chart.weekOf~" ID="qtVisits" />
+            <DataScale />
+            <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+            <ExtraXYDataColumn ID="dcCartAdds" ChartDataColumn="ctaClicks" LegendLabel="Add to Cart" LineWidth="4" Color="#e88622">
+              <Quicktip Description="@Chart.ctaClicks~" Title="Cart Adds : Week of @Chart.weekOf~" ID="qtCartAdds" />
+            </ExtraXYDataColumn>
+            <ExtraXYDataColumn ID="dcUpgrades" ChartDataColumn="orders" LegendLabel="Upgrade" LineWidth="4" Color="#36db65">
+              <Quicktip Description="@Chart.orders~" Title="Upgrades : Week of @Chart.weekOf~" ID="qtUpgrades" />
+            </ExtraXYDataColumn>
+            <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+              <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+            </Legend>
+          </Chart>
+        </Division>
+        <Division ID="divUpgradeFunnelChartDetail">
+          <Chart Type="XY" ID="chtUpgradeFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="clickRate" ChartLabelColumn="weekOf" LegendLabel="Cart Add" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#28b8d5">
+            <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="seDlCacheUpgradeFunnel" ID="dlCacheUpgradeFunnel" />
+            <Quicktip Description="@Chart.clickRate~" Title="Cart Add Rate : Week of @Chart.weekOf~" ID="qtCartAddRate" />
+            <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+            <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+            <ExtraXYDataColumn ID="dcCartCompleteRate" ChartDataColumn="cartCompleteRate" LegendLabel="Cart Complete" LineWidth="3" Color="#e88622">
+              <Quicktip Description="@Chart.cartCompleteRate~" Title="Cart Complete Rate : Week of @Chart.weekOf~" ID="qtCartCompleteRate" />
+            </ExtraXYDataColumn>
+            <ExtraXYDataColumn ID="dcConversionRate" ChartDataColumn="conversionRate" LegendLabel="Conversion" LineWidth="3" Color="#36db65">
+              <Quicktip Description="@Chart.conversionRate~" Title="Conversion Rate : Week of @Chart.weekOf~" ID="qtConversionRate" />
+            </ExtraXYDataColumn>
+            <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+              <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+            </Legend>
+          </Chart>
+        </Division>
+        <Division>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </Division>
+      </PanelContent>
+      <RefreshElementTimer ElementID="divUpgradeFunnelChart, divUpgradeFunnelChartDetail" ID="refreshUpgradeFunnel" RefreshInterval="10800" />
+    </Panel>
+  </SharedElement>
+  <SharedElement ID="sePnlPaidSignupFunnel" IdeDisplayStatus="Collapsed">
+    <Panel ID="pnl_Funnels_PaidSignup" Caption="Paid Signups via Outright.com Last 30 Days">
+      <PanelContent>
+        <Division ID="divPaidSignupFunnelChart">
+          <Chart Type="XY" ID="chtPaidSignupFunnel" XYChartType="Bar" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" YAxisTitle="Visitors" BorderColor="Black" ChartDataColumn="visits" ChartLabelColumn="weekOf" LegendLabel="Visit Site" BorderLeft="65" LineWidth="4" BorderBottom="75" ExtraBarOptions="SideBySide" Color="#28b8d5">
+            <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="seDlCachePaidSignupFunnel" ID="dlCachePaidSignupFunnel" />
+            <Quicktip Description="@Chart.visits~" Title="Outright.com Visits : Week of @Chart.weekOf~" ID="qtVisits" />
+            <DataScale />
+            <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+            <ExtraXYDataColumn ID="dcPageViews" ChartDataColumn="pageViews" LegendLabel="View Pricing Page" LineWidth="4" Color="#d45ce2">
+              <Quicktip Description="@Chart.pageViews~" Title="Pricing Page Views : Week of @Chart.weekOf~" ID="qtPricingPageViews" />
+            </ExtraXYDataColumn>
+            <ExtraXYDataColumn ID="dcCartAdds" ChartDataColumn="clickThroughs" LegendLabel="Add to Cart" LineWidth="4" Color="#e88622">
+              <Quicktip Description="@Chart.clickThroughs~" Title="Cart Adds : Week of @Chart.weekOf~" ID="qtCartAdds" />
+            </ExtraXYDataColumn>
+            <ExtraXYDataColumn ID="dcOrders" ChartDataColumn="orders" LegendLabel="Order" LineWidth="4" Color="#36db65">
+              <Quicktip Description="@Chart.orders~" Title="Orders : Week of @Chart.weekOf~" ID="qtOrders" />
+            </ExtraXYDataColumn>
+            <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+              <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+            </Legend>
+          </Chart>
+        </Division>
+        <Division ID="divPaidSignupFunnelChartDetail">
+          <Chart Type="XY" ID="chtPaidSignupFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="clickRate" ChartLabelColumn="weekOf" LegendLabel="Cart Add" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#28b8d5">
+            <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="seDlCachePaidSignupFunnel" ID="dlCachePaidSignupFunnel" />
+            <Quicktip Description="@Chart.clickRate~" Title="Cart Add Rate : Week of @Chart.weekOf~" ID="qtCartAddRate" />
+            <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound=".3" />
+            <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+            <ExtraXYDataColumn ID="dcCartCompleteRate" ChartDataColumn="cartCompleteRate" LegendLabel="Cart Complete" LineWidth="3" Color="#e88622">
+              <Quicktip Description="@Chart.cartCompleteRate~" Title="Cart Complete Rate : Week of @Chart.weekOf~" ID="qtCartCompleteRate" />
+            </ExtraXYDataColumn>
+            <ExtraXYDataColumn ID="dcPageConversionRate" ChartDataColumn="pageConversionRate" LegendLabel="Page Conversion" LineWidth="3" Color="#d45ce2">
+              <Quicktip Description="@Chart.pageConversionRate~" Title="Page Conversion Rate : Week of @Chart.weekOf~" ID="qtPageConversionRate" />
+            </ExtraXYDataColumn>
+            <ExtraXYDataColumn ID="dcChannelConversionRate" ChartDataColumn="channelConversionRate" LegendLabel="Channel Conversion" LineWidth="3" Color="#36db65">
+              <Quicktip Description="@Chart.channelConversionRate~" Title="Channel Conversion Rate : Week of @Chart.weekOf~" ID="qtChannelConversionRate" />
+            </ExtraXYDataColumn>
+            <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+              <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+            </Legend>
+          </Chart>
+        </Division>
+        <Division>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </Division>
+      </PanelContent>
+      <RefreshElementTimer ElementID="divPaidSignupFunnelChart, divPaidSignupFunnelChartDetail" ID="refreshPaidSignupFunnel" RefreshInterval="10800" />
+    </Panel>
+  </SharedElement>
+  <SharedElement ID="seDlCacheLPFunnel" IdeDisplayStatus="Collapsed">
+    <DataLayer Type="Cached" ID="dlCacheLPFunnel" ExpirationTimeSpan="03:00" CacheKey="GDOBDashLPFunnel">
+      <DataLayer Type="SQL" ID="dlDataLPFunnel" ConnectionID="connODBC-TD-GD2-Prod" Source="--CREATE MULTISET TABLE BiSandbox.asham_LPFunnelByWeek (visitDate DATE, visitTracking_id BIGINT, shopperID VARCHAR(10))&#xD;&#xA;--   PRIMARY INDEX(shopperID), INDEX(visitDate);&#xD;&#xA;&#xD;&#xA;DELETE FROM BiSandbox.asham_LPFunnelByWeek;&#xD;&#xA;INSERT INTO BiSandbox.asham_LPFunnelByWeek&#xD;&#xA;SELECT DISTINCT&#xD;&#xA;	se.calDate AS visitDate&#xD;&#xA;	, pr.visitTracking_id&#xD;&#xA;    , vs.shopperID&#xD;&#xA;from P_Fastball.vtVisitPageRequest pr&#xD;&#xA;	JOIN WebsiteTraffic.visitPage vp ON pr.visitPageID = vp.visitPageID&#xD;&#xA;	    AND vp.visitPageName = '/accounting/accounting-software.aspx'&#xD;&#xA;    JOIN BiSandBox.visitShopperID vs ON pr.visitTracking_id = vs.visitTracking_id&#xD;&#xA;    CROSS JOIN BiSandbox.asham_StartEndLogi se&#xD;&#xA;WHERE&#xD;&#xA;	pr.visitTrackingDate = se.calDate&#xD;&#xA;    AND vs.visitTrackingDate = se.calDate&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;--CREATE MULTISET TABLE BiSandbox.asham_LPFunnelByWeekVisits (visit_date DATE, visitors INTEGER);&#xD;&#xA;DELETE FROM BiSandbox.asham_LPFunnelByWeekVisits;&#xD;&#xA;INSERT INTO BiSandbox.asham_LPFunnelByWeekVisits&#xD;&#xA;SELECT&#xD;&#xA;	se.weekOf AS visit_date&#xD;&#xA;	, COUNT(DISTINCT shopperID) AS visitors&#xD;&#xA;FROM BiSandbox.asham_LPFunnelByWeek lp&#xD;&#xA;    CROSS JOIN BiSandbox.asham_StartEndWeek se&#xD;&#xA;WHERE lp.visitDate = se.calDate&#xD;&#xA;GROUP BY 1&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;--CREATE MULTISET TABLE BiSandbox.asham_LPFunnelByWeekPurchases (order_date DATE, purchases INTEGER);&#xD;&#xA;DELETE FROM BiSandbox.asham_LPFunnelByWeekPurchases;&#xD;&#xA;INSERT INTO BiSandbox.asham_LPFunnelByWeekPurchases&#xD;&#xA;SELECT&#xD;&#xA;    se.weekOf AS visitDate&#xD;&#xA;    , ZEROIFNULL(COUNT(DISTINCT od.order_id)) AS purchases&#xD;&#xA;FROM&#xD;&#xA;    BiSandBox.asham_LPFunnelByWeek lh&#xD;&#xA;    JOIN BiSandbox.rptOrderDetail od ON lh.shopperID = od.shopper_id&#xD;&#xA;    JOIN BigReporting.Dim_Product dp ON od.pf_id = dp.pf_id&#xD;&#xA;        AND dp.PnL_Line = 'Online Bookkeeping' AND dp.PnL_SubLine = 'Plus'&#xD;&#xA;    CROSS JOIN BiSandbox.asham_StartEndWeek se&#xD;&#xA;WHERE&#xD;&#xA;    lh.visitDate = se.calDate&#xD;&#xA;	AND od.order_date &gt;= lh.visitDate&#xD;&#xA;    AND od.point_of_purchase_id = 1&#xD;&#xA;    AND od.item_tracking_code = 'slp_outright_plus'&#xD;&#xA;GROUP BY 1&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;--CREATE MULTISET TABLE BiSandbox.asham_LPFunnelByWeekCartAdds (visit_date DATE, cartAdds INTEGER);&#xD;&#xA;DELETE FROM BiSandbox.asham_LPFunnelByWeekCartAdds;&#xD;&#xA;INSERT INTO BiSandbox.asham_LPFunnelByWeekCartAdds&#xD;&#xA;SELECT &#xD;&#xA;    t1.visitDate AS visit_date&#xD;&#xA;    , ZEROIFNULL(t1.cartAbandons) + ZEROIFNULL(fp.purchases) AS cartAdds&#xD;&#xA;FROM&#xD;&#xA;    (&#xD;&#xA;    SELECT&#xD;&#xA;        se.weekOf AS visitDate&#xD;&#xA;        , COUNT(DISTINCT lh.shopperID) AS cartAbandons&#xD;&#xA;    FROM&#xD;&#xA;        WebsiteTraffic.visitBasketAbandoned ba&#xD;&#xA;    	JOIN WebsiteTraffic.visitBasketAbnItm ai ON ba.visitBasketAbandoned_id = ai.visitBasketAbandoned_id&#xD;&#xA;        JOIN BigReporting.Dim_Product dp ON ai.pf_id = dp.pf_id&#xD;&#xA;    		AND dp.PnL_Line = 'Online Bookkeeping' and dp.PnL_SubLine = 'Plus'&#xD;&#xA;        JOIN BiSandbox.asham_LPFunnelByWeek lh ON ba.visitTracking_id = lh.visitTracking_id&#xD;&#xA;        CROSS JOIN BiSandbox.asham_StartEndWeek se&#xD;&#xA;    WHERE ai.itemTrackingCode = 'slp_outright_plus'&#xD;&#xA;        AND se.calDate = CAST(ai.cartAddDate AS DATE)&#xD;&#xA;    GROUP BY 1&#xD;&#xA;    ) AS t1&#xD;&#xA;    LEFT JOIN BiSandbox.asham_LPFunnelByWeekPurchases fp ON t1.visitDate = fp.order_date&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;    CAST(v.visit_date AS VARCHAR(10)) AS weekOf&#xD;&#xA;    , v.visitors&#xD;&#xA;    , ZEROIFNULL(ca.cartAdds) AS cartAdds&#xD;&#xA;    , ZEROIFNULL(p.purchases) AS purchases&#xD;&#xA;    , ZEROIFNULL(CAST(ca.cartAdds AS DECIMAL(10,3)) / CAST(v.visitors AS DECIMAL(10,3))) AS addRate&#xD;&#xA;    , ZEROIFNULL(CAST(p.purchases AS DECIMAL(10,3)) / CAST(ca.cartAdds AS DECIMAL(10,3))) AS completionRate&#xD;&#xA;    , ZEROIFNULL(CAST(p.purchases AS DECIMAL(10,3)) / CAST(v.visitors AS DECIMAL(10,3))) AS conversionRate&#xD;&#xA;FROM&#xD;&#xA;    BiSandbox.asham_LPFunnelByWeekVisits v&#xD;&#xA;    LEFT JOIN BiSandbox.asham_LPFunnelByWeekCartAdds ca ON v.visit_date = ca.visit_date &#xD;&#xA;    LEFT JOIN BiSandbox.asham_LPFunnelByWeekPurchases p ON ca.visit_date = p.order_date&#xD;&#xA;ORDER BY 1" />
+    </DataLayer>
+  </SharedElement>
+  <Remark>
+    <SharedElement ID="seDlCacheMYAFunnel" IdeDisplayStatus="Collapsed">
+      <DataLayer Type="Cached" ID="dlCacheMYAFunnel" ExpirationTimeSpan="03:00" CacheKey="GDOBDashMYAFunnel">
+        <DataLayer Type="SQL" ID="dlDataMYAFunnel" ConnectionID="connODBC-TD-GD2-Prod" Source="&#xD;&#xA;--CREATE MULTISET TABLE BiSandbox.asham_MYAFunnelByWeek (visitDate DATE, visitTracking_id BIGINT, shopper_id VARCHAR(10))&#xD;&#xA;--    PRIMARY INDEX (shopper_id), INDEX (visitDate);&#xD;&#xA;DELETE FROM BiSandbox.asham_MYAFunnelByWeek;&#xD;&#xA;INSERT INTO BiSandbox.asham_MYAFunnelByWeek&#xD;&#xA;SELECT&#xD;&#xA;	se.calDate AS visitDate&#xD;&#xA;	, pr.visitTracking_id&#xD;&#xA;    , vs.shopperID&#xD;&#xA;from P_Fastball.vtVisitPageRequest pr&#xD;&#xA;	JOIN WebsiteTraffic.visitPage vp ON pr.visitPageID = vp.visitPageID&#xD;&#xA;	    AND vp.visitPageName = '/Products/Outright/welcome.aspx'&#xD;&#xA;    JOIN BiSandBox.visitShopperID vs ON pr.visitTracking_id = vs.visitTracking_id&#xD;&#xA;    CROSS JOIN BiSandbox.asham_StartEndLogi se&#xD;&#xA;WHERE&#xD;&#xA;	pr.visitTrackingDate = se.calDate&#xD;&#xA;    AND vs.visitTrackingDate = se.calDate&#xD;&#xA;;&#xD;&#xA;    &#xD;&#xA;--CREATE MULTISET TABLE BiSandbox.asham_MYAFunnelByWeekClicks (visit_date DATE, clicks INTEGER);&#xD;&#xA;DELETE FROM BiSandbox.asham_MYAFunnelByWeekClicks;&#xD;&#xA;INSERT INTO BiSandbox.asham_MYAFunnelByWeekClicks&#xD;&#xA;SELECT&#xD;&#xA;	se.weekOf AS visitDate&#xD;&#xA;	, COUNT(DISTINCT shopper_id) AS clicks&#xD;&#xA;FROM BiSandbox.asham_MYAFunnelByWeek lh&#xD;&#xA;    CROSS JOIN BiSandbox.asham_StartEndWeek se&#xD;&#xA;WHERE lh.visitDate = se.calDate&#xD;&#xA;GROUP BY 1&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;--CREATE MULTISET TABLE BiSandbox.asham_MYAFunnelByWeekPurchases (visit_date DATE, purchases INTEGER);&#xD;&#xA;DELETE FROM BiSandbox.asham_MYAFunnelByWeekPurchases;&#xD;&#xA;INSERT INTO BiSandbox.asham_MYAFunnelByWeekPurchases&#xD;&#xA;SELECT&#xD;&#xA;    se.weekOf AS visit_date&#xD;&#xA;    , ZEROIFNULL(COUNT(DISTINCT od.order_id)) AS purchases&#xD;&#xA;FROM&#xD;&#xA;    BiSandBox.asham_MYAFunnelByWeek lh&#xD;&#xA;    JOIN BiSandbox.rptOrderDetail od ON lh.shopper_id = od.shopper_id&#xD;&#xA;    JOIN BigReporting.CDWDim_Product dp ON od.pf_id = dp.pf_id&#xD;&#xA;		AND dp.PnL_Line = 'Online Bookkeeping' and dp.PnL_SubLine = 'Plus'&#xD;&#xA;    CROSS JOIN BiSandbox.asham_StartEndWeek se&#xD;&#xA;WHERE&#xD;&#xA;    lh.visitDate = se.calDate&#xD;&#xA;    AND od.point_of_purchase_id = 1&#xD;&#xA;    AND od.item_tracking_code &lt;&gt; 'slp_outright_plus'&#xD;&#xA;	AND od.source_code NOT IN('GDB2525', 'GDBOUT')&#xD;&#xA;GROUP BY 1&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;    CAST(vi.visit_date AS VARCHAR(10)) as weekOf&#xD;&#xA;    , ZEROIFNULL(vi.clicks) AS clicks&#xD;&#xA;    , ZEROIFNULL(p.purchases) AS purchases&#xD;&#xA;    , ZEROIFNULL(CAST(ZEROIFNULL(p.purchases) AS DECIMAL(10,3)) / CAST(ZEROIFNULL(vi.clicks) AS DECIMAL(10, 3))) AS conversionRate&#xD;&#xA;FROM&#xD;&#xA;    BiSandbox.asham_MYAFunnelByWeekClicks vi&#xD;&#xA;    LEFT JOIN BiSandbox.asham_MYAFunnelByWeekPurchases p ON vi.visit_date = p.visit_date&#xD;&#xA;ORDER BY 1&#xD;&#xA;;" />
+      </DataLayer>
+    </SharedElement>
+  </Remark>
+  <SharedElement ID="seDlCacheUpgradeFunnel" IdeDisplayStatus="Collapsed">
+    <DataLayer Type="Cached" ID="dlCacheUpgradeFunnel" ExpirationTimeSpan="03:00" CacheKey="GDOBDashUpgradeFunnel">
+      <DataLayer Type="SQL" ID="dlDataUpgradeFunnel" ConnectionID="connM1BIG-BIGReporting" Source="IF OBJECT_ID('tempdb.dbo.#GDOBDashStartEnd') IS NULL CREATE TABLE #GDOBDashStartEnd (&#xD;&#xA;	calDate DATE&#xD;&#xA;	, calDateInt INT&#xD;&#xA;	, weekOf DATE&#xD;&#xA;);&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#GDOBDashUpgradeViews') IS NULL CREATE TABLE #GDOBDashUpgradeViews (&#xD;&#xA;	date_id DATE&#xD;&#xA;	, pageViews INT&#xD;&#xA;);&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#GDOBDashClicks') IS NULL CREATE TABLE #GDOBDashClicks (&#xD;&#xA;	date_id DATE&#xD;&#xA;	, ctaClicks INT&#xD;&#xA;);&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#GDOBDashUpgradeOrders') IS NULL CREATE TABLE #GDOBDashUpgradeOrders (&#xD;&#xA;	date_id DATE&#xD;&#xA;	, orders INT&#xD;&#xA;);&#xD;&#xA;&#xD;&#xA;DECLARE @weekOf DATE = DATEADD(WEEK, -4, DATEADD(DAY, 2-DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE)));&#xD;&#xA;DECLARE @startdate DATE = @weekOf;&#xD;&#xA;&#xD;&#xA;DELETE FROM #GDOBDashStartEnd;&#xD;&#xA;WHILE (@startdate &lt;= CAST(DATEADD(DAY, -1, GETDATE()) AS DATE))&#xD;&#xA;BEGIN&#xD;&#xA;	DECLARE @startdate_int INT = CONVERT(INT, CONVERT(VARCHAR(10), @startdate, 112), 112)&#xD;&#xA;	INSERT INTO #GDOBDashStartEnd&#xD;&#xA;	SELECT&#xD;&#xA;		@startdate AS calDate&#xD;&#xA;		, @startdate_int AS calDateInt&#xD;&#xA;		, @weekOf AS weekOf&#xD;&#xA;	SET @startdate = DATEADD(DAY, 1, @startdate)&#xD;&#xA;	IF DATEPART(WEEKDAY, @startdate) = 2 SET @weekOf = @startdate&#xD;&#xA;END&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;DELETE FROM #GDOBDashUpgradeViews;&#xD;&#xA;INSERT INTO #GDOBDashUpgradeViews&#xD;&#xA;SELECT&#xD;&#xA;	se.weekOf&#xD;&#xA;	, COUNT(DISTINCT kf.user_id)&#xD;&#xA;FROM &#xD;&#xA;	BiOutrightDwExports.dbo.kiss_web_funnel_fcts kf&#xD;&#xA;	JOIN BiOutrightDwExports.dbo.user_dims ud ON kf.user_id = ud.id&#xD;&#xA;	CROSS JOIN #GDOBDashStartEnd se&#xD;&#xA;WHERE &#xD;&#xA;	kf.date_id = se.calDateInt&#xD;&#xA;	AND funnel_name = 'billing'&#xD;&#xA;	AND funnel_step = 'view_upgrade_page'&#xD;&#xA;	AND NOT	(ud.user_email LIKE '%@outright.com' OR ud.user_email LIKE '%@godaddy.com')&#xD;&#xA;GROUP BY se.weekOf&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;DELETE FROM #GDOBDashClicks;&#xD;&#xA;INSERT INTO #GDOBDashClicks&#xD;&#xA;SELECT&#xD;&#xA;	se.weekOf&#xD;&#xA;	, COUNT(DISTINCT kf.user_id)&#xD;&#xA;FROM &#xD;&#xA;	BiOutrightDwExports.dbo.kiss_web_funnel_fcts (NOLOCK) kf&#xD;&#xA;	JOIN BiOutrightDwExports.dbo.user_dims (NOLOCK) ud ON kf.user_id = ud.id&#xD;&#xA;	CROSS JOIN #GDOBDashStartEnd se&#xD;&#xA;WHERE &#xD;&#xA;	kf.date_id = se.calDateInt&#xD;&#xA;	AND funnel_name = 'billing'&#xD;&#xA;	AND funnel_step LIKE 'click_upgrade%'&#xD;&#xA;	AND NOT	(ud.user_email LIKE '%@outright.com' OR ud.user_email LIKE '%@godaddy.com')&#xD;&#xA;GROUP BY se.weekOf &#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;DELETE FROM #GDOBDashUpgradeOrders;&#xD;&#xA;INSERT INTO #GDOBDashUpgradeOrders&#xD;&#xA;SELECT se.weekOf&#xD;&#xA;	, COUNT(*)&#xD;&#xA;FROM &#xD;&#xA;	BIGReporting.dbo.rptOrderDetail (NOLOCK) od&#xD;&#xA;	JOIN DMStaging.dbo.Dim_Product (NOLOCK) dp ON od.pf_id = dp.pf_id&#xD;&#xA;		AND dp.PnL_Line = 'Online Bookkeeping' AND dp.PnL_SubLine = 'Plus' -- AND dp.PnL_New_Renewal = 'New Purchase'&#xD;&#xA;	CROSS JOIN #GDOBDashStartEnd se&#xD;&#xA;WHERE&#xD;&#xA;	CAST(od.order_date AS DATE) = se.calDate&#xD;&#xA;	AND od.source_code = 'GDB2525'&#xD;&#xA;	AND od.point_of_purchase_id = '1'&#xD;&#xA;	AND od.item_tracking_code &lt;&gt; 'slp_outright_plus'&#xD;&#xA;	AND PATINDEX('%[^0123456789]%', od.shopper_id) = 0 &#xD;&#xA;GROUP BY se.weekOf&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;SELECT CAST(vi.date_id AS VARCHAR(10)) as weekOf&#xD;&#xA;	, vi.pageViews&#xD;&#xA;	, cl.ctaClicks&#xD;&#xA;	, ISNULL(od.orders, 0) as orders&#xD;&#xA;	, CAST(ISNULL(CAST(cl.ctaClicks AS DECIMAL(10,3)) / CASt(vi.pageViews AS DECIMAL(10,3)), 0) AS DECIMAL(10,3)) as clickRate&#xD;&#xA;	, CAST(ISNULL(CAST(od.orders AS DECIMAL(10,3)) / CASt(cl.ctaClicks AS DECIMAL(10,3)), 0) AS DECIMAL(10,3)) as cartCompleteRate&#xD;&#xA;	, CAST(ISNULL(CAST(od.orders AS DECIMAL(10,3)) / CASt(vi.pageViews AS DECIMAL(10,3)), 0) AS DECIMAL(10,3)) as conversionRate&#xD;&#xA;FROM #GDOBDashUpgradeViews vi&#xD;&#xA;	LEFT JOIN #GDOBDashClicks cl ON vi.date_id = cl.date_id&#xD;&#xA;	LEFT JOIN #GDOBDashUpgradeOrders od ON vi.date_id = od.date_id&#xD;&#xA;	;" />
+    </DataLayer>
+  </SharedElement>
+  <SharedElement ID="seDlCachePaidSignupFunnel" IdeDisplayStatus="Collapsed">
+    <DataLayer Type="Cached" ID="dlCachePaidSignupFunnel" ExpirationTimeSpan="03:00" CacheKey="GDOBDashPaidSignupFunnel">
+      <DataLayer Type="SQL" ID="dlDataPaidSignupFunnel" ConnectionID="connM1BIG-BIGReporting" Source="IF OBJECT_ID('tempdb.dbo.#GDOBDashStartEnd') IS NULL CREATE TABLE #GDOBDashStartEnd (&#xD;&#xA;	calDate DATE&#xD;&#xA;	, calDateInt INT&#xD;&#xA;	, weekOf DATE&#xD;&#xA;);&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#GDOBDashNewVisits') IS NULL CREATE TABLE #GDOBDashNewVisits (&#xD;&#xA;	date_id DATE&#xD;&#xA;	, visits INT&#xD;&#xA;);&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#GDOBDashViewedPricingPage') IS NULL CREATE TABLE #GDOBDashViewedPricingPage (&#xD;&#xA;	date_id DATE&#xD;&#xA;	, pageViews INT&#xD;&#xA;);&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#GDOBDashClickThroughs') IS NULL CREATE TABLE #GDOBDashClickThroughs (&#xD;&#xA;	date_id DATE&#xD;&#xA;	, clickThroughs INT&#xD;&#xA;);&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#GDOBDashPaidSignups') IS NULL CREATE TABLE #GDOBDashPaidSignups (&#xD;&#xA;	date_id DATE&#xD;&#xA;	, orders INT&#xD;&#xA;);&#xD;&#xA;&#xD;&#xA;DECLARE @weekOf DATE = DATEADD(WEEK, -4, DATEADD(DAY, 2-DATEPART(WEEKDAY, GETDATE()), CAST(GETDATE() AS DATE)));&#xD;&#xA;DECLARE @startdate DATE = @weekOf;&#xD;&#xA;&#xD;&#xA;DELETE FROM #GDOBDashStartEnd;&#xD;&#xA;WHILE (@startdate &lt;= CAST(DATEADD(DAY, -1, GETDATE()) AS DATE))&#xD;&#xA;BEGIN&#xD;&#xA;	DECLARE @startdate_int INT = CONVERT(INT, CONVERT(VARCHAR(10), @startdate, 112), 112)&#xD;&#xA;	INSERT INTO #GDOBDashStartEnd&#xD;&#xA;	SELECT&#xD;&#xA;		@startdate AS calDate&#xD;&#xA;		, @startdate_int AS calDateInt&#xD;&#xA;		, @weekOf AS weekOf&#xD;&#xA;	SET @startdate = DATEADD(DAY, 1, @startdate)&#xD;&#xA;	IF DATEPART(WEEKDAY, @startdate) = 2 SET @weekOf = @startdate&#xD;&#xA;END&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;DELETE FROM #GDOBDashNewVisits;&#xD;&#xA;INSERT INTO #GDOBDashNewVisits&#xD;&#xA;SELECT &#xD;&#xA;	se.weekOf&#xD;&#xA;	, COUNT(DISTINCT kf.visitor_id) AS visits&#xD;&#xA;FROM &#xD;&#xA;	BiOutrightDwExports.dbo.kiss_web_funnel_fcts (NOLOCK) kf&#xD;&#xA;	CROSS JOIN #GDOBDashStartEnd se&#xD;&#xA;WHERE &#xD;&#xA;	kf.date_id = se.calDateInt&#xD;&#xA;	AND kf.site = 'marketing'&#xD;&#xA;	AND kf.source_page like 'http://outright.com/%'&#xD;&#xA;	AND kf.funnel_name = 'signup' -- OR kf.funnel_name = 'outright_paid_signup')&#xD;&#xA;	AND NOT EXISTS (&#xD;&#xA;			SELECT k1.visitor_id&#xD;&#xA;			FROM BiOutrightDwExports.dbo.kiss_web_funnel_fcts (NOLOCK) k1&#xD;&#xA;			WHERE k1.visitor_id = kf.visitor_id&#xD;&#xA;				AND k1.date_id = se.calDateInt&#xD;&#xA;				AND k1.funnel_name ='emerald_activation'&#xD;&#xA;		)&#xD;&#xA;GROUP BY&#xD;&#xA;	se.weekOf&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;DELETE FROM #GDOBDashViewedPricingPage;&#xD;&#xA;INSERT INTO #GDOBDashViewedPricingPage&#xD;&#xA;SELECT &#xD;&#xA;	se.weekOf&#xD;&#xA;	, COUNT(DISTINCT kf.visitor_id) AS pageviews&#xD;&#xA;FROM &#xD;&#xA;	BiOutrightDwExports.dbo.kiss_web_funnel_fcts (NOLOCK) kf&#xD;&#xA;	CROSS JOIN #GDOBDashStartEnd se&#xD;&#xA;WHERE &#xD;&#xA;	kf.date_id = se.calDateInt&#xD;&#xA;	AND kf.funnel_name = 'outright_paid_signup'&#xD;&#xA;	AND kf.funnel_step = 'view_pricing'&#xD;&#xA;GROUP BY&#xD;&#xA;	se.weekOf&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;DELETE FROM #GDOBDashClickThroughs;&#xD;&#xA;INSERT INTO #GDOBDashClickThroughs&#xD;&#xA;SELECT &#xD;&#xA;	se.weekOf&#xD;&#xA;	, COUNT(vt.visitTracking_id)&#xD;&#xA;	--, COUNT(vod.order_id)&#xD;&#xA;FROM &#xD;&#xA;	godaddyWebsiteTraffic.dbo.visitTracking (NOLOCK) vt&#xD;&#xA;	CROSS JOIN #GDOBDashStartEnd se&#xD;&#xA;WHERE &#xD;&#xA;	CAST(vt.visitDate AS DATE) = se.calDate&#xD;&#xA;	AND vt.iscCode = 'GDBOUT'&#xD;&#xA;	AND vt.isInternalTraffic = 0&#xD;&#xA;GROUP BY se.weekOf&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;DELETE FROM #GDOBDashPaidSignups;&#xD;&#xA;INSERT INTO #GDOBDashPaidSignups&#xD;&#xA;SELECT &#xD;&#xA;	se.weekOf&#xD;&#xA;	, COUNT(*)&#xD;&#xA;FROM &#xD;&#xA;	BIGReporting.dbo.rptOrderDetail (NOLOCK) od&#xD;&#xA;	JOIN DMStaging.dbo.Dim_Product (NOLOCK) dp ON od.pf_id = dp.pf_id&#xD;&#xA;		AND dp.PnL_Line = 'Online Bookkeeping' AND dp.PnL_SubLine = 'Plus'&#xD;&#xA;	CROSS JOIN #GDOBDashStartEnd se&#xD;&#xA;WHERE &#xD;&#xA;	CAST(od.order_date AS DATE) = se.calDate&#xD;&#xA;	AND od.point_of_purchase_id = '1'&#xD;&#xA;	AND od.source_code = 'GDBOUT'&#xD;&#xA;	AND od.item_tracking_code &lt;&gt; 'slp_outright_plus'&#xD;&#xA;	AND PATINDEX('%[^0123456789]%', od.shopper_id) = 0 &#xD;&#xA;GROUP BY se.weekOf&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;SELECT CAST(vi.date_id AS VARCHAR(10)) as weekOf&#xD;&#xA;	, vi.visits as visits&#xD;&#xA;	, ISNULL(vp.pageViews, 0) as pageViews&#xD;&#xA;	, ISNULL(ct.clickThroughs, 0) as clickThroughs&#xD;&#xA;	, ISNULL(od.orders, 0) as orders&#xD;&#xA;	, CAST(ISNULL(CAST(ct.clickThroughs AS DECIMAL(10,3)) / CASt(vp.pageViews AS DECIMAL(10,3)), 0) AS DECIMAL(10,3)) as clickRate&#xD;&#xA;	, CAST(ISNULL(CAST(od.orders AS DECIMAL(10,3)) / CASt(ct.clickThroughs AS DECIMAL(10,3)), 0) AS DECIMAL(10,3)) as cartCompleteRate&#xD;&#xA;	, CAST(ISNULL(CAST(od.orders AS DECIMAL(10,3)) / CASt(vp.pageViews AS DECIMAL(10,3)), 0) AS DECIMAL(10,3)) as pageConversionRate&#xD;&#xA;	, CAST(ISNULL(CAST(od.orders AS DECIMAL(10,3)) / CASt(vi.visits AS DECIMAL(10,3)), 0) AS DECIMAL(10,3)) as channelConversionRate&#xD;&#xA;FROM #GDOBDashNewVisits vi&#xD;&#xA;	LEFT JOIN #GDOBDashViewedPricingPage vp ON vi.date_id = vp.date_id&#xD;&#xA;	LEFT JOIN #GDOBDashClickThroughs ct ON vi.date_id = ct.date_id&#xD;&#xA;	LEFT JOIN #GDOBDashPaidSignups od ON vi.date_id = od.date_id&#xD;&#xA;	;" />
+    </DataLayer>
+  </SharedElement>
+  <SharedElement ID="sePnlRetentionCancelsAnnualPlan" IdeDisplayStatus="Collapsed">
+    <Panel Caption="GoDaddy Cancels by Cohort Last 13 Months (Annual and Multi-Year Plans)" ID="pnl_Retention_CancelsAnnualPlan">
+      <DefaultRequestParams RetentionGroup="year" />
+      <PanelContent>
+        <Division ID="divRetentionAnnualPlan">
+          <DataTable ID="dtRetentionAnnualPlan">
+            <Remark>
+              <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="seDlCacheRetentionCancels" />
+            </Remark>
+            <DataLayer Type="Cached" CacheKey="GDOBDashRetention" ExpirationTimeSpan="06:00" ID="dlCacheRetentionCancels">
+              <DataLayer Type="REST" ConnectionID="connBIDataApi" UrlPath="/r.xml?id=GDOB_CancelsByCohort.r" ID="dlDataRetention1" />
+              <DataLayerLink ID="dllDataRetention" />
+              <ContainFilter DataColumn="group" SearchString="year" ID="cfRetentionAnnualPlan" />
+            </DataLayer>
+            <HeaderRow ID="hrRetentionHeader" HeaderPosition="Top">
+              <Column ID="colSpace" ColSpan="1" />
+              <Column ID="colSpace" ColSpan="1" />
+              <Column ID="churnMonth" ColSpan="14">
+                <Label Caption="Churn Months After Signup" />
+              </Column>
+            </HeaderRow>
+            <DataTableColumn ID="colCohortMonth" Header="Purchase Month">
+              <Label Caption="@Data.monthOfOrder~" Format="MMM yyyy" />
+            </DataTableColumn>
+            <DataTableColumn ID="colCohortUnits" Header="Units" Width="45" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.cohortSize~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth0" Header="0" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth0~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits0Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month0~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth1" Header="1" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth1~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits1Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month1~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth2" Header="2" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth2~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits2Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month2~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth3" Header="3" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth3~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits3Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month3~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth4" Header="4" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth4~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits4Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month4~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth5" Header="5" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth5~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits5Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month5~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth6" Header="6" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth6~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits6Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month6~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth7" Header="7" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth7~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits7Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month7~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth8" Header="8" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth8~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits8Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month8~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth9" Header="9" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth9~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits9Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month9~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth10" Header="10" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth10~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits10Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month10~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth11" Header="11" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth11~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits11Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month11~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth12" Header="12" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth12~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits12Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month12~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth13" Header="13" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth13~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits13Annual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month13~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colStillActive" Header="Active" Width="45" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentStillActive~" Format="0.0%" />
+              <TooltipPanel ID="qtUnitsStillActiveAnnual" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.stillActive~" />
+              </TooltipPanel>
+            </DataTableColumn>
+          </DataTable>
+        </Division>
+        <Division>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </Division>
+      </PanelContent>
+      <RefreshElementTimer ElementID="divRetentionAnnualPlan" ID="refreshRetentionAnnualPlan" RefreshInterval="21600" />
+    </Panel>
+  </SharedElement>
+  <SharedElement ID="sePnlRetentionCancelsMonthlyPlan" IdeDisplayStatus="Collapsed">
+    <Panel Caption="GoDaddy Cancels by Cohort Last 13 Months (Monthly Plan)" ID="pnl_Retention_CancelsMonthlyPlan">
+      <PanelContent>
+        <DefaultRequestParams RetentionGroup="month" />
+        <Division ID="divRetentionMonthlyPlan">
+          <DataTable ID="dtRetentionMonthlyPlan">
+            <Remark>
+              <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="seDlCacheRetentionCancels" />
+            </Remark>
+            <DataLayer Type="Linked" LinkedDataLayerID="dllDataRetention" ID="dlDataRetention2">
+              <ContainFilter DataColumn="group" SearchString="month" ID="cfRetentionMonthlyPlan" />
+            </DataLayer>
+            <HeaderRow ID="hrRetentionMonthlyPlan" HeaderPosition="Top">
+              <Column ID="colSpace" ColSpan="1" />
+              <Column ID="colSpace" ColSpan="1" />
+              <Column ID="churnMonth" ColSpan="14">
+                <Label Caption="Churn Months After Signup" />
+              </Column>
+            </HeaderRow>
+            <DataTableColumn ID="colCohortMonth" Header="Purchase Month" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.monthOfOrder~" Format="MMM yyyy" />
+            </DataTableColumn>
+            <DataTableColumn ID="colCohortUnits" Header="Units" Width="45" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.cohortSize~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth0" Header="0" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth0~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits0Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month0~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth1" Header="1" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth1~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits1Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month1~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth2" Header="2" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth2~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits2Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month2~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth3" Header="3" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth3~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits3Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month3~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth4" Header="4" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth4~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits4Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month4~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth5" Header="5" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth5~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits5Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month5~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth6" Header="6" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth6~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits6Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month6~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth7" Header="7" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth7~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits7Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month7~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth8" Header="8" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth8~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits8Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month8~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth9" Header="9" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth9~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits9Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month9~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth10" Header="10" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth10~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits10Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month10~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth11" Header="11" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth11~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits11Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month11~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth12" Header="12" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth12~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits12Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month12~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colMonth13" Header="13" Width="@Request.TableColWidth~" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentMonth13~" Format="0.0%" />
+              <TooltipPanel ID="qtUnits13Monthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.Month13~" />
+              </TooltipPanel>
+            </DataTableColumn>
+            <DataTableColumn ID="colStillActive" Header="Active" Width="45" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.percentStillActive~" Format="0.0%" />
+              <TooltipPanel ID="qtUnitsStillActiveMonthly" IdeDisplayStatus="Collapsed">
+                <Label Caption="Units: @Data.stillActive~" />
+              </TooltipPanel>
+            </DataTableColumn>
+          </DataTable>
+        </Division>
+        <Division>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </Division>
+      </PanelContent>
+      <RefreshElementTimer ElementID="divRetentionMonthlyPlan" ID="refreshRetentionMonthlyPlan" RefreshInterval="21600" />
+    </Panel>
+  </SharedElement>
+  <Remark>
+    <SharedElement ID="seDlCacheRetentionCancels" IdeDisplayStatus="Collapsed">
+      <DataLayer Type="Cached" ID="dlCacheMYAFunnel" ExpirationTimeSpan="06:00" CacheKey="GDOBDashMYAFunnel">
+        <DataLayer Type="REST" ConnectionID="connBIDataApi" UrlPath="/r.xml?id=GDOB_CancelsByCohort.r" ID="dlDataRetention1">
+          <ContainFilter DataColumn="group" SearchString="@Request.RetentionGroup~" ID="cfRetentionPlanGroup" />
+        </DataLayer>
+      </DataLayer>
+    </SharedElement>
+  </Remark>
+  <SharedElement ID="sePnlRetentionActiveUse" IdeDisplayStatus="Collapsed">
+    <Panel Caption="4-Week Active Use by New Purchasing Cohort Last 13 Weeks" ID="pnl_Retention_ActiveUse">
+      <PanelContent>
+        <Division>
+          <Chart Type="XY" ID="chtRetentionActiveUse" XYChartType="Bar" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" YAxisTitle="% of Cohort" BorderColor="Black" ChartDataColumn="productRate" ChartLabelColumn="weekOf" LegendLabel="Product" BorderLeft="65" LineWidth="4" BorderBottom="75" ExtraBarOptions="SideBySide" ChartLabelColumnDataType="Date">
+            <Quicktip ID="qtProduct" Description="@Data.productRate~" />
+            <DataLayer Type="Cached" CacheKey="GDOBDashRetentionActiveUse" ExpirationTimeSpan="06:00" ID="dlCacheRetentionActiveUse">
+              <DataLayer Type="SQL" Source="create temporary table if not exists 4WeekActiveMob (weekOf date, cohortSize int, mobile int);&#xD;&#xA;create temporary table if not exists 4WeekActiveProd (weekOf date, cohortSize int, product int);&#xD;&#xA;create temporary table if not exists 4WeekActiveEmail (weekOf date, cohortSize int, email int);&#xD;&#xA;&#xD;&#xA;-- set @startdate  =  date_format(date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week), '%Y%m%d');&#xD;&#xA;-- set @enddate = date_format(curdate(), '%Y%m%d');&#xD;&#xA;&#xD;&#xA;delete from 4WeekActiveMob;&#xD;&#xA;insert into 4WeekActiveMob&#xD;&#xA;select &#xD;&#xA;	t1.weekOf&#xD;&#xA;	, count(t1.company_id)&#xD;&#xA;	, sum(t1.is4WeekActiveMob)&#xD;&#xA;from&#xD;&#xA;	(&#xD;&#xA;	select &#xD;&#xA;		pc.*&#xD;&#xA;		, case when sum(&#xD;&#xA;			case when mlf.date_id between date_format(date_add(pc.updated_at, interval 1 day), '%Y%m%d') and date_format(date_add(pc.updated_at, interval 30 day), '%Y%m%d') then 1 end&#xD;&#xA;			) is not null then 1 else 0 end as is4WeekActiveMob&#xD;&#xA;	from asham_paidCohorts pc&#xD;&#xA;		join user_dims ud on pc.company_id = ud.company_id&#xD;&#xA;		left join mobile_log_fcts mlf on ud.company_id = mlf.company_id&#xD;&#xA;			and mlf.date_id between date_format(date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week), '%Y%m%d') and date_format(curdate(), '%Y%m%d')&#xD;&#xA;	where ud.user_created_first_day_of_week = pc.weekOf&#xD;&#xA;		and ud.user_created_first_day_of_week between date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week) and curdate()&#xD;&#xA;	group by pc.company_id&#xD;&#xA;	) t1&#xD;&#xA;group by t1.weekOf&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;delete from 4WeekActiveProd;&#xD;&#xA;insert into 4WeekActiveProd&#xD;&#xA;select t1.weekOf&#xD;&#xA;	, count(t1.company_id)&#xD;&#xA;	, sum(t1.is4WeekActiveProd)&#xD;&#xA;from&#xD;&#xA;	(&#xD;&#xA;	select &#xD;&#xA;		pc.*&#xD;&#xA;		, case when sum(&#xD;&#xA;			case when uaf.date_id between date_format(date_add(pc.updated_at, interval 1 day), '%Y%m%d') and date_format(date_add(pc.updated_at, interval 30 day), '%Y%m%d') then 1 end&#xD;&#xA;			) is not null then 1 else 0 end as is4WeekActiveProd&#xD;&#xA;	from asham_paidCohorts pc&#xD;&#xA;		join user_dims ud on pc.company_id = ud.company_id&#xD;&#xA;		left join user_action_fcts uaf on ud.id = uaf.user_id&#xD;&#xA;			and uaf.date_id between date_format(date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week), '%Y%m%d') and date_format(curdate(), '%Y%m%d')&#xD;&#xA;			and uaf.type = 'production_log'&#xD;&#xA;	where ud.user_created_first_day_of_week = pc.weekOf&#xD;&#xA;		and ud.user_created_first_day_of_week between date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week) and curdate()&#xD;&#xA;	group by pc.company_id&#xD;&#xA;	) t1&#xD;&#xA;group by t1.weekOf&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;delete from 4WeekActiveEmail;&#xD;&#xA;insert into 4WeekActiveEmail&#xD;&#xA;select &#xD;&#xA;	t1.weekOf&#xD;&#xA;	, count(t1.company_id)&#xD;&#xA;	, sum(t1.is4WeekActiveEmail)&#xD;&#xA;from&#xD;&#xA;	(&#xD;&#xA;	select &#xD;&#xA;		pc.*&#xD;&#xA;		, case when sum(&#xD;&#xA;			case when sgf.opened_date_id between date_format(date_add(pc.updated_at, interval 1 day), '%Y%m%d') and date_format(date_add(pc.updated_at, interval 30 day), '%Y%m%d') then 1 end&#xD;&#xA;			) is not null then 1 else 0 end as is4WeekActiveEmail&#xD;&#xA;	from asham_paidCohorts pc&#xD;&#xA;		join user_dims ud on pc.company_id = ud.company_id&#xD;&#xA;		left join send_grid_email_fcts sgf on ud.id = sgf.user_id&#xD;&#xA;			and sgf.opened_date_id between date_format(date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week), '%Y%m%d') and date_format(curdate(), '%Y%m%d')&#xD;&#xA;	where ud.user_created_first_day_of_week = pc.weekOf&#xD;&#xA;		and ud.user_created_first_day_of_week between date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week) and curdate()&#xD;&#xA;	group by pc.company_id&#xD;&#xA;	) t1&#xD;&#xA;group by t1.weekOf&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;select &#xD;&#xA;	pr.weekOf&#xD;&#xA;	, pr.cohortSize&#xD;&#xA;	, pr.product&#xD;&#xA;	, mob.mobile&#xD;&#xA;	, em.email&#xD;&#xA;	, truncate(cast(pr.product as decimal(10,2)) / cast(pr.cohortSize as decimal(10,2)), 2) as productRate&#xD;&#xA;	, truncate(cast(mob.mobile as decimal(10,2)) / cast(pr.cohortSize as decimal(10,2)), 2) as mobileRate&#xD;&#xA;	, truncate(cast(em.email as decimal(10,2)) / cast(pr.cohortSize as decimal(10,2)), 2) as emailRate&#xD;&#xA;from 4WeekActiveProd pr&#xD;&#xA;	left join 4WeekActiveMob mob on pr.weekOf = mob.weekOf&#xD;&#xA;	left join 4WeekActiveEmail em on pr.weekOf = em.weekOf" ID="dlDataRetentionActiveUse" ConnectionID="connMySQL-P3Outright" />
+            </DataLayer>
+            <DataScale ScaleLowerBound="0" ScaleUpperBound="1" Format="##%" />
+            <LabelScale Format="M/d/yyyy" LinearTickIncrement="Months" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+            <Legend LegendLeft="@Request.LegendLeft~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~" BorderColor="Transparent">
+              <FontLegend FontColor="Black" />
+            </Legend>
+            <ExtraXYDataColumn ChartDataColumn="emailRate" ID="dcEmail" LegendLabel="Email">
+              <Quicktip ID="qtEmail" Description="@Data.emailRate~" />
+            </ExtraXYDataColumn>
+            <ExtraXYDataColumn ChartDataColumn="mobileRate" ID="dcMobile" LegendLabel="Mobile">
+              <Quicktip ID="qtMobile" Description="@Data.mobileRate~" />
+            </ExtraXYDataColumn>
+          </Chart>
+        </Division>
+      </PanelContent>
+    </Panel>
+  </SharedElement>
+  <SharedElement ID="sePnlInvoiceUsers" IdeDisplayStatus="Collapsed">
+    <Panel ID="pnl_Invoicing_Users" Caption="Total Invoicers Last 30 Days">
+      <PanelContent>
+        <Division ID="divInvoicingUsersChart">
+          <Chart Type="XY" ID="chtInvoicingUsers" XYChartType="Line" ChartDataColumn="ShopperCount" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ChartLabelColumn="date" YAxisTitle="Invoicing Users (US)" BorderColor="Black" LineWidth="4" GridVerticalColor="#DFDADA" BorderBottom="75" BorderLeft="55" Color="#e88622" LegendLabel="US Invoicers">
+            <DataLayer Type="Linked" LinkedDataLayerID="dllDataInvoiceUsage" ID="dlDataInvoiceUsage">
+              <ContainFilter DataColumn="ShopperCountry" SearchString="1" ID="cfInvoiceUsageShopperCountry" />
+            </DataLayer>
+            <Remark>
+              <DataLayer Type="SQL" ID="dlDataInvoiceUsage" ConnectionID="connMySQL-P3Outright" Source="create temporary table if not exists InvoicerDims (&#xD;&#xA;	company_id BIGINT&#xD;&#xA;	, country varchar(2)&#xD;&#xA;	, invoiceId int&#xD;&#xA;	, invoiceAmount decimal(15,2)&#xD;&#xA;	, paidAmount decimal(15,2)&#xD;&#xA;	, invoiceCreatedOn datetime&#xD;&#xA;	, paymentReceivedOn datetime&#xD;&#xA;	, index index_on_company_id(company_id)&#xD;&#xA;);&#xD;&#xA;&#xD;&#xA;delete from InvoicerDims;&#xD;&#xA;insert into InvoicerDims&#xD;&#xA;select distinct&#xD;&#xA;	a.company_id&#xD;&#xA;	, a.country&#xD;&#xA;	, i1.invoice_id as InvoiceID&#xD;&#xA;	, case &#xD;&#xA;		when i1.tax is not null and i2.discount is null then sum(i2.quantity * i2.price)&#xD;&#xA;		when i1.tax is not null and i2.discount is not null then sum(i2.quantity * i2.price) * (1 - i2.discount/100) &#xD;&#xA;		when i1.tax is null and i2.discount is not null then (sum(i2.quantity * i2.price) * (1 - i2.discount/100)) * (1 + (i1.tax/100))&#xD;&#xA;		when i1.tax is null and i2.discount is null then sum(i2.quantity * i2.price) * (1 + (i1.tax/100))&#xD;&#xA;		end as InvoiceAmount&#xD;&#xA;	, case when p.amount is null then 0 else p.amount end as paidAmount&#xD;&#xA;	, i1.created_at as invoiceCreatedOn&#xD;&#xA;	, p.created_at as paymentReceivedOn&#xD;&#xA;	-- , se.weekOf&#xD;&#xA;from &#xD;&#xA;	ronin_invoice_dims i1 &#xD;&#xA;	join ronin_invoice_item_dims i2 on i1.invoice_id = i2.invoice_id&#xD;&#xA;	join ronin_account_dims a on i1.account_id = a.account_id&#xD;&#xA;	left join ronin_payment_dims p on i1.invoice_id = p.invoice_id&#xD;&#xA;	-- cross join StartEnd se&#xD;&#xA;where&#xD;&#xA;	i1.created_at &gt;= '2013-09-20' &#xD;&#xA;	-- and i1.created_at &gt; se.weekOf&#xD;&#xA;	and not exists (&#xD;&#xA;		select company_id&#xD;&#xA;		from user_dims ud&#xD;&#xA;		where (ud.user_email like '%outright.com%' or ud.user_email like '%godaddy.com%')&#xD;&#xA;			and ud.company_id = a.company_id&#xD;&#xA;		)&#xD;&#xA;group by i1.invoice_id&#xD;&#xA;;&#xD;&#xA;-- break by country across invoiceCount, invoiceAmount, etc&#xD;&#xA;&#xD;&#xA;select &#xD;&#xA;	se.fullDate as date&#xD;&#xA;	, case&#xD;&#xA;		when iu.country = 'US' then 1&#xD;&#xA;		else 0&#xD;&#xA;		end as ShopperCountry&#xD;&#xA;	, count(distinct iu.company_id) as ShopperCount&#xD;&#xA;	, count(distinct invoiceID) as InvoiceCount&#xD;&#xA;	, cast(sum(invoiceAmount) as decimal(15, 2)) as InvoiceAmount&#xD;&#xA;	, count(distinct case when paidAmount &lt;&gt; 0 then invoiceID end) as PaidInvoiceCount&#xD;&#xA;	, cast(sum(paidAmount) as decimal(15, 2)) as PaidInvoiceAmount&#xD;&#xA;from&#xD;&#xA;	InvoicerDims iu&#xD;&#xA;	cross join (select distinct user_created_first_day_of_week as weekOf, user_created_full_date fullDate from user_dims where user_created_full_date between date_add(curdate(), interval -29 day) and curdate()) se&#xD;&#xA;where&#xD;&#xA;	cast(iu.invoiceCreatedOn as date) &lt;= se.fullDate&#xD;&#xA;	and (cast(iu.paymentReceivedOn as date) &lt;= se.fullDate or iu.paymentReceivedOn is null)&#xD;&#xA;	-- and datediff(se.fullDate, se.weekOf) = 6&#xD;&#xA;group by se.fullDate, ShopperCountry&#xD;&#xA;;">
+                <DataLayerLink ID="dllDataInvoiceUsage" />
+                <ContainFilter DataColumn="ShopperCountry" SearchString="1" ID="cfInvoiceUsageShopperCountry" />
+              </DataLayer>
+            </Remark>
+            <Quicktip Description="@Chart.ShopperCount~" Title="Total Invoicing Users : On @Chart.date~" ID="qtUSInvoicers" />
+            <DataScale Format="#.#mp" />
+            <Legend BorderColor="Transparent" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~" LegendLeft="@Request.LegendLeft~">
+              <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+            </Legend>
+            <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+            <ExtraXYLayer XYChartType="Line" ChartDataColumn="ShopperCount" LineWidth="4" Transparency="0" ID="glNonUSInvoicers" LegendLabel="Non-US Invoicers">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataInvoiceUsage" ID="dlDataInvoiceUsage2">
+                <ContainFilter DataColumn="ShopperCountry" SearchString="0" ID="cfInvoiceUsageShopperCountry" />
+              </DataLayer>
+              <Quicktip Description="@Chart.ShopperCount~" Title="Total Invoicing Users : On @Chart.date~" ID="qtNonUSInvoicers" />
+            </ExtraXYLayer>
+            <SecondaryAxis YAxisTitle="Invoicing Users (non-US)">
+              <DataScale Format="#mp" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontYAxisTitle FontColor="Black" FontSize="10" FontAngle="90" />
+            </SecondaryAxis>
+          </Chart>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </Division>
+      </PanelContent>
+      <RefreshElementTimer ElementID="divInvoicingUsersChart" ID="refreshInvoicingUsers" RefreshInterval="21600" />
+    </Panel>
+  </SharedElement>
+  <SharedElement ID="sePnlInvoicesSent" IdeDisplayStatus="Collapsed">
+    <Panel ID="pnl_Invoicing_InvoicesSent" Caption="Total Invoices Sent Last 30 Days">
+      <PanelContent>
+        <Division ID="divInvoicesSentChart">
+          <Chart Type="XY" ID="chtInvoicesSent" XYChartType="Line" ChartDataColumn="InvoiceCount" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ChartLabelColumn="date" YAxisTitle="Invoices Sent (US)" BorderColor="Black" LineWidth="4" GridVerticalColor="#DFDADA" BorderBottom="75" BorderLeft="55" Color="#e88622" LegendLabel="US Invoicers">
+            <DataLayer Type="Linked" LinkedDataLayerID="dllDataInvoiceUsage" ID="dlDataInvoiceUsage3">
+              <ContainFilter DataColumn="ShopperCountry" SearchString="1" ID="cfInvoiceUsageShopperCountry" />
+            </DataLayer>
+            <Quicktip Description="@Chart.ShopperCount~" Title="Total Invoicing Users : On @Chart.date~" ID="qtUSInvoicers" />
+            <DataScale Format="#mp" />
+            <Legend BorderColor="Transparent" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~" LegendLeft="@Request.LegendLeft~">
+              <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+            </Legend>
+            <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+            <ExtraXYLayer XYChartType="Line" ChartDataColumn="InvoiceCount" LineWidth="4" Transparency="0" ID="glNonUSInvoicers" LegendLabel="Non-US Invoicers">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataInvoiceUsage" ID="dlDataInvoiceUsage4">
+                <ContainFilter DataColumn="ShopperCountry" SearchString="0" ID="cfInvoiceUsageShopperCountry" />
+              </DataLayer>
+              <Quicktip Description="@Chart.ShopperCount~" Title="Total Invoicing Users : On @Chart.date~" ID="qtNonUSInvoicers" />
+            </ExtraXYLayer>
+            <SecondaryAxis YAxisTitle="Invoices Sent (non-US)">
+              <DataScale Format="#.#mp" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontYAxisTitle FontColor="Black" FontSize="10" FontAngle="90" />
+            </SecondaryAxis>
+          </Chart>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </Division>
+      </PanelContent>
+      <RefreshElementTimer ElementID="divInvoicesSentChart" ID="refreshInvoicesSent" RefreshInterval="21600" />
+    </Panel>
+  </SharedElement>
+  <SharedElement ID="sePnlInvoicesPaid" IdeDisplayStatus="Collapsed">
+    <Panel ID="pnl_Invoicing_InvoicesPaid" Caption="Total Invoices Paid Last 30 Days">
+      <PanelContent>
+        <Division ID="divInvoicesPaidChart">
+          <Chart Type="XY" ID="chtInvoicesPaid" XYChartType="Line" ChartDataColumn="PaidInvoiceCount" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ChartLabelColumn="date" YAxisTitle="Invoices Paid (US)" BorderColor="Black" LineWidth="4" GridVerticalColor="#DFDADA" BorderBottom="75" BorderLeft="55" Color="#e88622" LegendLabel="US Invoicers">
+            <DataLayer Type="Linked" LinkedDataLayerID="dllDataInvoiceUsage" ID="dlDataInvoiceUsage5">
+              <ContainFilter DataColumn="ShopperCountry" SearchString="1" ID="cfInvoiceUsageShopperCountry" />
+            </DataLayer>
+            <Quicktip Description="@Chart.ShopperCount~" Title="Total Invoicing Users : On @Chart.date~" ID="qtUSInvoicers" />
+            <DataScale Format="#mp" />
+            <Legend BorderColor="Transparent" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~" LegendLeft="@Request.LegendLeft~">
+              <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+            </Legend>
+            <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+            <FontData FontColor="Black" FontSize="8" />
+            <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+            <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+            <ExtraXYLayer XYChartType="Line" ChartDataColumn="PaidInvoiceCount" LineWidth="4" Transparency="0" ID="glNonUSInvoicers" LegendLabel="Non-US Invoicers">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataInvoiceUsage" ID="dlDataInvoiceUsage6">
+                <ContainFilter DataColumn="ShopperCountry" SearchString="0" ID="cfInvoiceUsageShopperCountry" />
+              </DataLayer>
+              <Quicktip Description="@Chart.ShopperCount~" Title="Total Invoicing Users : On @Chart.date~" ID="qtNonUSInvoicers" />
+            </ExtraXYLayer>
+            <SecondaryAxis YAxisTitle="Invoices Paid (non-US)">
+              <DataScale Format="#.#mp" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontYAxisTitle FontColor="Black" FontSize="10" FontAngle="90" />
+            </SecondaryAxis>
+          </Chart>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </Division>
+      </PanelContent>
+      <RefreshElementTimer ElementID="divInvoicesPaidChart" ID="refreshInvoicesPaid" RefreshInterval="21600" />
+    </Panel>
+  </SharedElement>
+  <Remark>
+    <SharedElement ID="sePnlInvoicesPaidAmount" IdeDisplayStatus="Collapsed">
+      <Panel ID="pnl_Invoicing_InvoicesPaidAmount" Caption="Total Invoices Paid Last 30 Days">
+        <PanelContent>
+          <Division ID="divInvoicesPaidChart">
+            <Chart Type="XY" ID="chtInvoicesPaid" XYChartType="Line" ChartDataColumn="PaidInvoiceCount" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ChartLabelColumn="date" YAxisTitle="Invoices Paid (US)" BorderColor="Black" LineWidth="4" GridVerticalColor="#DFDADA" BorderBottom="75" BorderLeft="55" Color="#e88622" LegendLabel="US Invoicers">
+              <Quicktip Description="@Chart.ShopperCount~" Title="Total Invoicing Users : On @Chart.date~" ID="qtUSInvoicers" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataInvoiceUsage" ID="dlDataInvoiceUsage5">
+                <ContainFilter DataColumn="ShopperCountry" SearchString="1" ID="cfInvoiceUsageShopperCountry" />
+              </DataLayer>
+              <DataScale Format="#mp" />
+              <Legend BorderColor="Transparent" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~" LegendLeft="@Request.LegendLeft~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYLayer XYChartType="Line" ChartDataColumn="PaidInvoiceCount" LineWidth="4" Transparency="0" ID="glNonUSInvoicers" LegendLabel="Non-US Invoicers">
+                <DataLayer Type="Linked" LinkedDataLayerID="dllDataInvoiceUsage" ID="dlDataInvoiceUsage6">
+                  <ContainFilter DataColumn="ShopperCountry" SearchString="0" ID="cfInvoiceUsageShopperCountry" />
+                </DataLayer>
+              </ExtraXYLayer>
+              <SecondaryAxis YAxisTitle="Invoices Paid (non-US)">
+                <DataScale Format="#.#mp" />
+                <FontData FontColor="Black" FontSize="8" />
+                <FontYAxisTitle FontColor="Black" FontSize="10" FontAngle="90" />
+              </SecondaryAxis>
+            </Chart>
+            <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+          </Division>
+        </PanelContent>
+        <RefreshElementTimer ElementID="divInvoicesPaidChart" ID="refreshInvoicesPaid" RefreshInterval="21600" />
+      </Panel>
+    </SharedElement>
+  </Remark>
+  <SharedElement ID="seLclDataInvoiceUsage" IdeDisplayStatus="Collapsed">
+    <DataLayer Type="SQL" ID="dlDataInvoiceUsage" ConnectionID="connMySQL-P3Outright" Source="create temporary table if not exists InvoicerDims (&#xD;&#xA;	company_id BIGINT&#xD;&#xA;	, country varchar(2)&#xD;&#xA;	, invoiceId int&#xD;&#xA;	, invoiceAmount decimal(15,2)&#xD;&#xA;	, paidAmount decimal(15,2)&#xD;&#xA;	, invoiceCreatedOn datetime&#xD;&#xA;	, paymentReceivedOn datetime&#xD;&#xA;	, index index_on_company_id(company_id)&#xD;&#xA;);&#xD;&#xA;&#xD;&#xA;delete from InvoicerDims;&#xD;&#xA;insert into InvoicerDims&#xD;&#xA;select distinct&#xD;&#xA;	a.company_id&#xD;&#xA;	, a.country&#xD;&#xA;	, i1.invoice_id as InvoiceID&#xD;&#xA;	, case &#xD;&#xA;		when i1.tax is not null and i2.discount is null then sum(i2.quantity * i2.price)&#xD;&#xA;		when i1.tax is not null and i2.discount is not null then sum(i2.quantity * i2.price) * (1 - i2.discount/100) &#xD;&#xA;		when i1.tax is null and i2.discount is not null then (sum(i2.quantity * i2.price) * (1 - i2.discount/100)) * (1 + (i1.tax/100))&#xD;&#xA;		when i1.tax is null and i2.discount is null then sum(i2.quantity * i2.price) * (1 + (i1.tax/100))&#xD;&#xA;		end as InvoiceAmount&#xD;&#xA;	, case when p.amount is null then 0 else p.amount end as paidAmount&#xD;&#xA;	, i1.created_at as invoiceCreatedOn&#xD;&#xA;	, p.created_at as paymentReceivedOn&#xD;&#xA;	-- , se.weekOf&#xD;&#xA;from &#xD;&#xA;	ronin_invoice_dims i1 &#xD;&#xA;	join ronin_invoice_item_dims i2 on i1.invoice_id = i2.invoice_id&#xD;&#xA;	join ronin_account_dims a on i1.account_id = a.account_id&#xD;&#xA;	left join ronin_payment_dims p on i1.invoice_id = p.invoice_id&#xD;&#xA;	-- cross join StartEnd se&#xD;&#xA;where&#xD;&#xA;	i1.created_at &gt;= '2013-09-20' &#xD;&#xA;	-- and i1.created_at &gt; se.weekOf&#xD;&#xA;	and not exists (&#xD;&#xA;		select company_id&#xD;&#xA;		from user_dims ud&#xD;&#xA;		where (ud.user_email like '%outright.com%' or ud.user_email like '%godaddy.com%')&#xD;&#xA;			and ud.company_id = a.company_id&#xD;&#xA;		)&#xD;&#xA;group by i1.invoice_id&#xD;&#xA;;&#xD;&#xA;-- break by country across invoiceCount, invoiceAmount, etc&#xD;&#xA;&#xD;&#xA;select &#xD;&#xA;	se.fullDate as date&#xD;&#xA;	, case&#xD;&#xA;		when iu.country = 'US' then 1&#xD;&#xA;		else 0&#xD;&#xA;		end as ShopperCountry&#xD;&#xA;	, count(distinct iu.company_id) as ShopperCount&#xD;&#xA;	, count(distinct invoiceID) as InvoiceCount&#xD;&#xA;	, cast(sum(invoiceAmount) as decimal(15, 2)) as InvoiceAmount&#xD;&#xA;	, count(distinct case when paidAmount &lt;&gt; 0 then invoiceID end) as PaidInvoiceCount&#xD;&#xA;	, cast(sum(paidAmount) as decimal(15, 2)) as PaidInvoiceAmount&#xD;&#xA;from&#xD;&#xA;	InvoicerDims iu&#xD;&#xA;	cross join (select distinct user_created_first_day_of_week as weekOf, user_created_full_date fullDate from user_dims where user_created_full_date between date_add(curdate(), interval -29 day) and curdate()) se&#xD;&#xA;where&#xD;&#xA;	cast(iu.invoiceCreatedOn as date) &lt;= se.fullDate&#xD;&#xA;	and (cast(iu.paymentReceivedOn as date) &lt;= se.fullDate or iu.paymentReceivedOn is null)&#xD;&#xA;	-- and datediff(se.fullDate, se.weekOf) = 6&#xD;&#xA;group by se.fullDate, ShopperCountry&#xD;&#xA;;">
+      <DataLayerLink ID="dllDataInvoiceUsage" />
+    </DataLayer>
+  </SharedElement>
+  <ideTestParams ChartHeight="" ChartWidth="" LegendTop="" LegendLeft="" ShowSignupValues="" LegendLeftLongTitle="" LegendFontLongTitle="" TableColWidth="" RetentionGroup="" />
+</Report>

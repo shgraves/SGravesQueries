@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Patching.SpaceWalk_Patching_Compliance_ServerTeam" SavedBy="JOMAX\slyoung" SavedAt="2/10/2014 4:00:40 PM" EngineVersion="11.0.43" SecurityReportRightID="LogiCT">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader />
+  <Body>
+    <Rows>
+      <Row>
+        <Column>
+          <DataTable SortArrows="True" ID="dtSpaceWalkPatchingServerTeam" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="7px" Width="850" WidthScale="px">
+            <DataLayer Type="Linked" LinkedDataLayerID="dlPatchData" IdeDisplayStatus="Collapsed">
+              <CompareFilter DataColumn="PATCHGROUP_Name" CompareValue="@Request.PatchGroup~" CompareType="=" />
+              <CalculatedColumn Formula="IIF(&quot;@Data.LastInstalledPackageDate~&quot; = &quot;&quot;,&quot;@Date.Tomorrow~&quot;,&quot;@Data.LastInstalledPackageDate~&quot;)" ID="formattedLPD2" />
+              <CalculatedColumn Formula="@Data.MaxNeededAge~" ID="calcAge2" />
+              <CalculatedColumn ID="Group2ThirtyDays" Formula="iif(&quot;@Data.calcAge2~&quot; &lt;&gt; &quot;&quot; AND @Data.calcAge2~ &gt; -1 AND @Data.calcAge2~ &lt; 31,1,0)" />
+              <CalculatedColumn ID="Group2ThirtyOnetoSixty" Formula="iif(@Data.calcAge2~ &gt; 30 AND @Data.calcAge2~ &lt;= 60, 1, 0)" />
+              <CalculatedColumn ID="Group2SixtyOneToNinety" Formula="iif(@Data.calcAge2~ &gt; 60 AND @Data.calcAge2~ &lt;= 90, 1, 0)" />
+              <CalculatedColumn ID="Group2NinetyOnePlus" Formula="iif(@Data.calcAge2~ &gt; 90, 1, 0)" />
+              <CalculatedColumn Formula="iif(&quot;@Data.calcAge2~&quot; &lt; 0,1,0)" ID="Group2NeverBeenPatched" />
+              <GroupFilter GroupColumn="PATCHGROUP_Name,ServerTeamName" ID="gfilterServerTeamGroup" IdeDisplayStatus="Collapsed">
+                <GroupAggregateColumn AggregateFunction="Sum" AggregateColumn="Group2ThirtyDays" ID="group2aggThirty" />
+                <GroupAggregateColumn AggregateColumn="Group2ThirtyOnetoSixty" AggregateFunction="Sum" ID="group2aggThirtyOnetoSixty" />
+                <GroupAggregateColumn AggregateColumn="Group2SixtyOneToNinety" AggregateFunction="Sum" ID="group2aggSixtyOneToNinety" />
+                <GroupAggregateColumn AggregateColumn="Group2NinetyOnePlus" AggregateFunction="Sum" ID="group2aggNinetyOnePlus" />
+                <GroupAggregateColumn AggregateFunction="Sum" ID="group2aggNeverBeenPatched" AggregateColumn="Group2NeverBeenPatched" />
+                <GroupAggregateColumn AggregateColumn="SYSTEM_FQDN" AggregateFunction="Count" ID="group2aggServerCount" />
+                <GroupAggregateColumn AggregateColumn="QtyCompliant" AggregateFunction="Sum" ID="group2aggQtyCompliant" />
+              </GroupFilter>
+              <CalculatedColumn Formula="@Data.group2aggQtyCompliant~ / @Data.group2aggServerCount~" ID="group2percentCompliant" />
+            </DataLayer>
+            <DataTableColumn ID="group2colServerTeam" Header="Server Team Name">
+              <Label Caption="@Data.ServerTeamName~" IdeDisplayStatus="Collapsed">
+                <Action Type="ShowElement" ID="actShowFinalRow" ElementID="mirDetailRow" Display="Toggle" />
+              </Label>
+              <DataColumnSort DataColumn="ServerTeamName" DataType="Text" />
+            </DataTableColumn>
+            <DataTableColumn ID="group2ColServerCount" Header="Server Count" Class="ThemeAlignCenter" Width="50" WidthScale="px">
+              <Label Caption="@Data.group2aggServerCount~" />
+              <DataColumnSort DataColumn="group2aggServerCount" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="group2colpercentCompliant" Header="% Compliant" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+              <Label Caption="@Data.group2percentCompliant~" Format="Percent" />
+              <DataColumnSort DataColumn="group2percentCompliant" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn Header="0 - 30" ID="group2colaggThirty" Class="ThemeAlignCenter" Width="75" WidthScale="px">
+              <Label Caption="@Data.group2aggThirty~" />
+              <DataColumnSort DataColumn="group2aggThirty" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="group2colAggThirtyOnetoSixty" Header="31 - 60" Class="ThemeAlignCenter" Width="75" WidthScale="px">
+              <Label Caption="@Data.group2aggThirtyOnetoSixty~" />
+              <DataColumnSort DataColumn="group2aggThirtyOnetoSixty" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="group2colAggSixtyOneToNinety" Header="61 - 90" Class="ThemeAlignCenter" Width="75" WidthScale="px">
+              <Label Caption="@Data.group2aggSixtyOneToNinety~" />
+              <DataColumnSort DataColumn="group2aggSixtyOneToNinety" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="group2colAggNinetyOnePlus" Header="&gt; 90" Class="ThemeAlignCenter" Width="75" WidthScale="px">
+              <Label Caption="@Data.group2aggNinetyOnePlus~" />
+              <DataColumnSort DataColumn="group2aggNinetyOnePlus" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="colgroup2NeverBeenPatched" Header="Never Been Patched" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+              <Label Caption="@Data.group2aggNeverBeenPatched~" />
+              <DataColumnSort DataColumn="group2aggNeverBeenPatched" DataType="Number" />
+            </DataTableColumn>
+            <MoreInfoRow ShowModes="None" ID="mirDetailRow">
+              <Remark>
+                <HR Size="5" />
+              </Remark>
+              <Rows>
+                <Row>
+                  <Column Class="gdColumnCellSubRpt">
+                    <IncludeFrame SubReportMode="IncludeFrame" ID="subRepServerTeam" FrameBorder="False" SecurityRightID="ENG-Desktop Engineering,BIG-Developer,RSDevelopers,logict,CIO_Org" IdeDisplayStatus="Collapsed">
+                      <Target Type="IncludeFrameReport" Report="Patching.SpaceWalk_Patching_Compliance_ServerDetails" ID="tgtLaptopDetailsPatchServerDet" LinkDataLayers="True" ReportShowModes="woot" />
+                      <LinkParams ServerTeamName="@Data.ServerTeamName~" PatchGroup="@Data.PATCHGROUP_Name~" />
+                    </IncludeFrame>
+                  </Column>
+                </Row>
+              </Rows>
+              <Remark>
+                <SubDataTable ID="sdlTableDetails" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="7 px" IdeDisplayStatus="Collapsed">
+                  <SubDataLayer ID="sdlMoreInfo">
+                    <DataLayer Type="SP" ConnectionID="connSMDB" Command="patch.reportGetServerLevelCompliance_sp">
+                      <CalculatedColumn Formula="IIF(&quot;@Data.LastInstalledPackageDate~&quot; = &quot;&quot;,&quot;@Date.Tomorrow~&quot;,&quot;@Data.LastInstalledPackageDate~&quot;)" ID="formattedLPD3" />
+                      <CalculatedColumn Formula="@Data.MaxNeededAge~" ID="calcAge3" />
+                      <Remark>
+                        <ContainFilter DataColumn="PATCHGROUP_Name" SearchString="iif(&quot;@Request.checkPatchGroups~&quot; &lt;&gt; &quot;&quot;,&quot;@Request.checkPatchGroups~&quot;,&quot;~&quot;)" ID="containFPatchGroup3" />
+                      </Remark>
+                      <SortFilter SortColumn="subdatacalcAge" SortSequence="Descending" DataType="Number" />
+                      <SortFilter SortColumn="ServerTeamName" DataType="Text" SortSequence="Ascending" />
+                      <SPParameters>
+                        <SPParameter ID="isToIncludeDetail" Value="@Request.isToIncludeDetail~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-11" />
+                        <SPParameter ID="vc_oc_TeamIDList" Value="@Request.vc_oc_TeamIDList~" SPParamDirection="Input" SPParamSize="2000" SPParamType="dt-200" />
+                        <SPParameter ID="vc_PATCHGROUP_NAMEList" Value="@Request.vc_PATCHGROUP_NAMEList~" SPParamDirection="Input" SPParamSize="2000" SPParamType="dt-200" />
+                        <SPParameter ID="vc_SourceName" Value="@Request.vc_SourceName~" SPParamDirection="Input" SPParamSize="128" SPParamType="dt-202" />
+                      </SPParameters>
+                    </DataLayer>
+                    <SubDataLayerRelationColumn ID="relColumnpatch" ChildColumn="PATCHGROUP_Name" ParentColumn="PATCHGROUP_Name" />
+                    <SubDataLayerRelationColumn ID="relcolumnserverteam" ChildColumn="ServerTeamName" ParentColumn="ServerTeamName" />
+                  </SubDataLayer>
+                  <DataTableColumn ID="dtServerName" Header="Server Name" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.SYSTEM_FQDN~" Class="ThemeAlignLeft" />
+                    <Remark>
+                      <DataColumnSort DataType="Text" DataColumn="SYSTEM_FQDN" />
+                    </Remark>
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtServerID" Class="ThemeAlignCenter" Header="Server ID" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.SERVER_ID~" />
+                  </DataTableColumn>
+                  <Remark>
+                    <DataTableColumn ID="colServerTeamName" Header="Server Team Name" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.ServerTeamName~" />
+                    </DataTableColumn>
+                  </Remark>
+                  <DataTableColumn ID="dtLastInstalledPackageDate" Header="Last Installed Package" WidthScale="px" Width="90" Class="ThemeAlignLeft" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.LastInstalledPackageDate~" Format="Short Date" Class="ThemeAlignRight" />
+                    <Remark>
+                      <DataColumnSort DataColumn="LastInstalledPackageDate" DataType="Date" />
+                    </Remark>
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtAge" Header="Max Needed Age" Tooltip="Number of days since last package was installed." Width="50" WidthScale="px" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.MaxNeededAge~" Class="ThemeAlignRight" />
+                    <Remark>
+                      <DataColumnSort DataColumn="subdatacalcAge" DataType="Number" />
+                    </Remark>
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtPackagesNeeded" Header="Packages Needed" Width="90" WidthScale="px" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.PackagesNeeded~" Class="ThemeAlignRight" />
+                    <Remark>
+                      <DataColumnSort DataColumn="PackagesNeeded" DataType="Number" />
+                    </Remark>
+                  </DataTableColumn>
+                  <Remark>
+                    <DataTableColumn ID="dtMaxNeededAge" Header="Max Needed Age" Width="90" WidthScale="px" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.MaxNeededAge~" Class="ThemeAlignRight" />
+                      <Remark>
+                        <DataColumnSort DataColumn="MaxNeededAge" DataType="Number" />
+                      </Remark>
+                    </DataTableColumn>
+                  </Remark>
+                  <Remark>
+                    <DataTableColumn ID="dtCompliant" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.QtyCompliant~" />
+                    </DataTableColumn>
+                  </Remark>
+                  <Remark>
+                    <DataTableColumn ID="dtDuplicate" />
+                  </Remark>
+                </SubDataTable>
+              </Remark>
+              <Remark>
+                <HR Size="5" />
+              </Remark>
+            </MoreInfoRow>
+          </DataTable>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter />
+  <ideTestParams checkPatchGroups="" isToIncludeDetail="" vc_oc_TeamIDList="" vc_PATCHGROUP_NAMEList="" vc_SourceName="" PatchGroup="" />
+</Report>

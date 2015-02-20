@@ -1,0 +1,1718 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.INTLreportWithPOPdash" SavedBy="JOMAX\mxnguyen" SavedAt="12/11/2014 10:53:28 PM" EngineVersion="11.0.43" SecurityReportRightID="LogiCT">
+  <RefreshElementTimer ElementID="chtWebOrdersMin, chtWebOrdersZoom, chtWebGCRMin, chtWebTrafficMin, chtC3OrdersMin, chtC3OrdersZoom, chtC3GCRMin, chtC3CallsMin, hmSalesbyRegion, dtOffendingShoppers, dtOffendingSourceCodes" ID="refCharts" RefreshInterval="65" />
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <LocalData>
+    <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;SET NOCOUNT ON;&#xD;&#xA;DECLARE @ReportDate DATETIME&#xD;&#xA;DECLARE @EndDate DATETIME&#xD;&#xA;DECLARE @Days INT&#xD;&#xA;DECLARE @EndMinutes INT&#xD;&#xA;&#xD;&#xA;SELECT @EndDate = DATEADD(MINUTE,-1,CONVERT(SMALLDATETIME,GETDATE()))&#xD;&#xA;SELECT @ReportDate = CONVERT(DATE,GETDATE())&#xD;&#xA;SELECT @Days = -7&#xD;&#xA;&#xD;&#xA;DECLARE @Msg varchar(255)&#xD;&#xA;&#xD;&#xA;DECLARE @BaselineDates TABLE &#xD;&#xA;                              (     BaselineKey INT IDENTITY&#xD;&#xA;                                    , Baseline DATETIME&#xD;&#xA;                              )&#xD;&#xA;&#xD;&#xA;       SET @Msg = '  Reading from GDAnalyticDW.dbo.rptDimDate ' + CONVERT(VARCHAR(100), getdate(), 114)&#xD;&#xA;       RAISERROR(@Msg, 0, 1) WITH NOWAIT&#xD;&#xA;&#xD;&#xA;WHILE (SELECT COUNT(*) FROM @BASELINEDATES) &lt; 5&#xD;&#xA;&#xD;&#xA;BEGIN&#xD;&#xA;      INSERT INTO @BASELINEDATES&#xD;&#xA;      SELECT dd.&quot;Date&quot; as Baseline&#xD;&#xA;        FROM GDAnalyticDW.dbo.rptDimDate dd&#xD;&#xA;        WHERE Date = DATEADD(DAY,@Days,CONVERT(DATE,@ReportDate))&#xD;&#xA;        AND HolidayFlag &lt;&gt; 1&#xD;&#xA;SET @Days = @Days -7&#xD;&#xA;END&#xD;&#xA;&#xD;&#xA;SELECT @EndMinutes   = (DATEPART(HOUR, @EndDate) * 60) +&#xD;&#xA;                                 (DATEPART(MINUTE, @EndDate))&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;DECLARE @DateRanges TABLE (&#xD;&#xA;                                          StartDate DATETIME PRIMARY KEY CLUSTERED NOT NULL&#xD;&#xA;                                          , EndDate DATETIME&#xD;&#xA;                                          , WeekType VARCHAR(10)&#xD;&#xA;                                      )&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;       SET @Msg = '  Populating date ranges and baseline dates ' + CONVERT(VARCHAR(100), getdate(), 114)&#xD;&#xA;       RAISERROR(@Msg, 0, 1) WITH NOWAIT&#xD;&#xA;&#xD;&#xA;INSERT INTO @DateRanges&#xD;&#xA;SELECT @ReportDate&#xD;&#xA;            , @EndDate&#xD;&#xA;            , 'Current'&#xD;&#xA;UNION&#xD;&#xA;SELECT Baseline&#xD;&#xA;            , DATEADD(MINUTE,@EndMinutes,Baseline)&#xD;&#xA;            , 'Baseline'&#xD;&#xA;FROM @BASELINEDATES &#xD;&#xA;WHERE BaselineKey = 1&#xD;&#xA;UNION&#xD;&#xA;SELECT Baseline&#xD;&#xA;            , DATEADD(MINUTE,@EndMinutes,Baseline)&#xD;&#xA;            , 'Baseline'&#xD;&#xA;FROM @BASELINEDATES &#xD;&#xA;WHERE BaselineKey = 2&#xD;&#xA;UNION&#xD;&#xA;SELECT Baseline&#xD;&#xA;            , DATEADD(MINUTE,@EndMinutes,Baseline)&#xD;&#xA;            , 'Baseline'&#xD;&#xA;FROM @BASELINEDATES &#xD;&#xA;WHERE BaselineKey = 3&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;       SET @Msg = '  Select from the VIEW ' + CONVERT(VARCHAR(100), getdate(), 114)&#xD;&#xA;       RAISERROR(@Msg, 0, 1) WITH NOWAIT&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT * INTO #currentOrders &#xD;&#xA;FROM BIGReporting.dbo.rptOrderDetailLive_vw r&#xD;&#xA;&#xD;&#xA;       SET @Msg = '  Select from the cte ' + CONVERT(VARCHAR(100), getdate(), 114)&#xD;&#xA;       RAISERROR(@Msg, 0, 1) WITH NOWAIT&#xD;&#xA;;&#xD;&#xA;WITH myordersCTE AS (&#xD;&#xA;SELECT  CAST(CONVERT(TIME, DATEADD(MI,(DATEDIFF(mi,-1,order_date)),-1)) AS DATETIME) AS &quot;DATE&quot;&#xD;&#xA;, COUNT (DISTINCT CASE WHEN weektype = 'current' AND point_of_purchase_id = 1 THEN order_id END) AS current_web_orders &#xD;&#xA;, COUNT (DISTINCT CASE WHEN weektype = 'baseline' AND point_of_purchase_id = 1 THEN order_id END) / 3 AS baseline_web_orders &#xD;&#xA;, COUNT (DISTINCT CASE WHEN weektype = 'current' AND point_of_purchase_id = 3 THEN order_id END) AS current_c3_orders &#xD;&#xA;, COUNT (DISTINCT CASE WHEN weektype = 'baseline' AND point_of_purchase_id = 3 THEN order_id END) / 3 AS baseline_c3_orders &#xD;&#xA;, ISNULL(SUM (CASE WHEN weektype = 'current' AND point_of_purchase_id = 1 THEN adjusted_price * .01 END),0) AS current_web_gcr&#xD;&#xA;, ISNULL(SUM (CASE WHEN weektype = 'baseline' AND point_of_purchase_id = 1 THEN adjusted_price * .01 END) / 3,0) AS baseline_web_gcr&#xD;&#xA;, ISNULL(SUM (CASE WHEN weektype = 'current' AND point_of_purchase_id = 3 THEN adjusted_price * .01 END),0) AS current_c3_gcr&#xD;&#xA;, ISNULL(SUM (CASE WHEN weektype = 'baseline' AND point_of_purchase_id = 3 THEN adjusted_price * .01 END) / 3,0) AS baseline_c3_gcr&#xD;&#xA;, CASE WHEN CONVERT(TIME, DATEADD(MI,(DATEDIFF(mi,-1,order_date)),-1))  &gt;= DATEADD(mi,-60,CONVERT(TIME, DATEADD(MI,(DATEDIFF(mi,-1,GETDATE())),-1)) ) THEN 1 ELSE 0 END AS zoom_flag&#xD;&#xA;FROM BIGReporting.dbo.rptOrderDetail r WITH (NOLOCK)&#xD;&#xA;JOIN @DateRanges b  ON r.order_date &gt;= b.startdate AND  r.order_date &lt; b.enddate&#xD;&#xA;WHERE point_of_purchase_id IN (1,3)&#xD;&#xA;GROUP BY  CAST(CONVERT(TIME, DATEADD(MI,(DATEDIFF(mi,-1,order_date)),-1)) AS DATETIME)&#xD;&#xA;, CASE WHEN CONVERT(TIME, DATEADD(MI,(DATEDIFF(mi,-1,order_date)),-1))  &gt;= DATEADD(mi,-60,CONVERT(TIME, DATEADD(MI,(DATEDIFF(mi,-1,GETDATE())),-1)) ) THEN 1 ELSE 0 END&#xD;&#xA;UNION ALL&#xD;&#xA;SELECT  CAST(CONVERT(TIME, DATEADD(MI,(DATEDIFF(mi,-1,order_date)),-1)) AS DATETIME) AS &quot;DATE&quot;&#xD;&#xA;, COUNT (DISTINCT CASE WHEN weektype = 'current' AND point_of_purchase_id = 1 THEN order_id END) AS current_web_orders &#xD;&#xA;, COUNT (DISTINCT CASE WHEN weektype = 'baseline' AND point_of_purchase_id = 1 THEN order_id END) / 3 AS baseline_web_orders &#xD;&#xA;, COUNT (DISTINCT CASE WHEN weektype = 'current' AND point_of_purchase_id = 3 THEN order_id END) AS current_c3_orders &#xD;&#xA;, COUNT (DISTINCT CASE WHEN weektype = 'baseline' AND point_of_purchase_id = 3 THEN order_id END) / 3 AS baseline_c3_orders &#xD;&#xA;, ISNULL(SUM (CASE WHEN weektype = 'current' AND point_of_purchase_id = 1 THEN adjusted_price * .01 END),0) AS current_web_gcr&#xD;&#xA;, ISNULL(SUM (CASE WHEN weektype = 'baseline' AND point_of_purchase_id = 1 THEN adjusted_price * .01 END) / 3,0) AS baseline_web_gcr&#xD;&#xA;, ISNULL(SUM (CASE WHEN weektype = 'current' AND point_of_purchase_id = 3 THEN adjusted_price * .01 END),0) AS current_c3_gcr&#xD;&#xA;, ISNULL(SUM (CASE WHEN weektype = 'baseline' AND point_of_purchase_id = 3 THEN adjusted_price * .01 END) / 3,0) AS baseline_c3_gcr&#xD;&#xA;, CASE WHEN CONVERT(TIME, DATEADD(MI,(DATEDIFF(mi,-1,order_date)),-1))  &gt;= DATEADD(mi,-60,CONVERT(TIME, DATEADD(MI,(DATEDIFF(mi,-1,GETDATE())),-1)) ) THEN 1 ELSE 0 END AS zoom_flag&#xD;&#xA;FROM #currentOrders r&#xD;&#xA;JOIN @DateRanges b  ON r.order_date &gt;= b.startdate AND  r.order_date &lt; b.enddate&#xD;&#xA;WHERE point_of_purchase_id IN (1,3)&#xD;&#xA;AND EXISTS (SELECT MAX(ORDER_DATE) newestRecord, GETDATE() currentDate FROM BIGReporting.dbo.rptOrderDetail WITH (NOLOCK))&#xD;&#xA;GROUP BY CAST(CONVERT(TIME, DATEADD(MI,(DATEDIFF(mi,-1,order_date)),-1)) AS DATETIME)&#xD;&#xA;, CASE WHEN CONVERT(TIME, DATEADD(MI,(DATEDIFF(mi,-1,order_date)),-1))  &gt;= DATEADD(mi,-60,CONVERT(TIME, DATEADD(MI,(DATEDIFF(mi,-1,GETDATE())),-1)) ) THEN 1 ELSE 0 END&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT &quot;Date&quot;,&#xD;&#xA;            SUM(current_web_orders) AS current_web_orders,&#xD;&#xA;            SUM(baseline_web_orders) AS baseline_web_orders,&#xD;&#xA;            SUM(current_c3_orders) AS current_c3_orders,&#xD;&#xA;            SUM(baseline_c3_orders) AS baseline_c3_orders,&#xD;&#xA;            SUM(current_web_gcr) AS current_web_gcr,&#xD;&#xA;            SUM(baseline_web_gcr) AS baseline_web_gcr,&#xD;&#xA;            SUM(current_c3_gcr) AS current_c3_gcr,&#xD;&#xA;            SUM(baseline_c3_gcr) AS baseline_c3_gcr,&#xD;&#xA;            MAX(zoom_flag) AS zoom_flag&#xD;&#xA;FROM myordersCTE&#xD;&#xA;GROUP BY &quot;Date&quot;&#xD;&#xA;&#xD;&#xA;drop table #currentOrders&#xD;&#xA;" ConnectionID="connM1BIG-biLogiReporting" ID="dlPOPsalesbyMin">
+      <DataLayerLink ID="dlPOPSales" />
+    </DataLayer>
+    <DataLayer Type="SQL" ID="dlOffendingShoppers" ConnectionID="connM1BIG-BIGReporting" Source="select top 10 shopper_id, sum (margin * .01) as margin&#xD;&#xA;, count (distinct order_id) as orders&#xD;&#xA;FROM bigreporting.dbo.rptorderdetail r (nolock)&#xD;&#xA;where order_date &gt;= dateadd(hh,-1,getdate())&#xD;&#xA;and order_date &lt; getdate()&#xD;&#xA;and point_of_purchase_id = 1&#xD;&#xA;and margin is not null&#xD;&#xA;group by shopper_id&#xD;&#xA;order by margin ASC">
+      <DataLayerLink ID="dlOffendingShoppers" />
+    </DataLayer>
+    <DataLayer Type="SQL" ID="dlOffendingSourceCodes" ConnectionID="connM1BIG-BIGReporting" Source="select top 10 source_code, sum (margin * .01) as margin&#xD;&#xA;, count (distinct shopper_id) as shoppers&#xD;&#xA;, count (distinct order_id) as orders&#xD;&#xA;FROM bigreporting.dbo.rptorderdetail r (nolock)&#xD;&#xA;where order_date &gt;= dateadd(hh,-1,getdate())&#xD;&#xA;and order_date &lt; getdate()&#xD;&#xA;and point_of_purchase_id = 1&#xD;&#xA;and margin is not null&#xD;&#xA;group by source_code&#xD;&#xA;order by margin ASC">
+      <DataLayerLink ID="dlOffendingSourceCodes" />
+    </DataLayer>
+  </LocalData>
+  <Note Note="Brian's stuff above here" />
+  <Remark>
+    <RefreshElementTimer ID="INTLtimer" RefreshInterval="60" ElementID="IntlTab, TEMPreporter" />
+  </Remark>
+  <LocalData>
+    <DataLayer Type="SQL" Source="Declare @rotator as INT&#xD;&#xA;&#xD;&#xA;Select @rotator = DatePart(Minute,getdate())%3+1&#xD;&#xA;&#xD;&#xA;Select Case When @rotator = 1 THEN 'CA'&#xD;&#xA;			When @rotator = 2 THEN 'CN'&#xD;&#xA;			When @rotator = 3 THEN 'AU' END as CountryCodeOne,&#xD;&#xA;		Case When @rotator = 1 THEN 'MX'&#xD;&#xA;			When @rotator = 2 THEN 'IN'&#xD;&#xA;			When @rotator = 3 THEN 'UK' END as CountryCodeTWO" ConnectionID="connM1BIG-biLogiReporting" ID="CtryLookup" />
+  </LocalData>
+  <LocalData>
+    <DataLayer Type="SQL" Source="&#xD;&#xA;Select CASE When DatePart(Minute,getdate())%2 = 0 THEN 'IntlChartsTab' ELSE 'DefaultChartsTab' END as Charter	&#xD;&#xA;" ConnectionID="connM1BIG-biLogiReporting" ID="TabRotator" />
+  </LocalData>
+  <LocalData>
+    <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="0:20" ID="dlCountrySalesHourly">
+      <DataLayer Type="SQL" ConnectionID="connM1BIG-biLogiReporting" ID="dlCountrySalesHourly" Source="SET NOCOUNT ON;&#xD;&#xA;&#xD;&#xA;DECLARE @ReportDate DATETIME &#xD;&#xA;DECLARE @EndDate DATETIME &#xD;&#xA;DECLARE @Days INT&#xD;&#xA;DEclare @endhour as INT&#xD;&#xA;DECLARE @ChartRotator INT&#xD;&#xA;Declare @Msg VARCHAR(255)&#xD;&#xA;&#xD;&#xA;SELECT @EndDate = dateadd(hour, datediff(hour, 0,GETDATE()),0)&#xD;&#xA;SELECT @ReportDate = DATEADD(DAY,-1,@endDate)&#xD;&#xA;&#xD;&#xA;SELECT @Days = -7&#xD;&#xA;&#xD;&#xA;DECLARE @BaselineDates TABLE &#xD;&#xA;					(	BaselineKey INT IDENTITY&#xD;&#xA;						, Baseline DATETIME&#xD;&#xA;					)&#xD;&#xA;/*&#xD;&#xA;Select @endDate&#xD;&#xA;Select @ReportDate&#xD;&#xA;Select DATEADD(DAY,@Days,CONVERT(DATE,@ReportDate))&#xD;&#xA;*/&#xD;&#xA;&#xD;&#xA;WHILE (SELECT COUNT(*) FROM @BASELINEDATES) &lt; 5&#xD;&#xA;&#xD;&#xA;BEGIN&#xD;&#xA;	INSERT INTO @BASELINEDATES&#xD;&#xA;	SELECT DATEADD(DAY,@days,@ReportDate) as Baseline&#xD;&#xA;	  FROM GDAnalyticDW.dbo.rptDimDate dd&#xD;&#xA;	  WHERE dd.Date = DATEADD(DAY,@Days,CONVERT(DATE,@ReportDate))&#xD;&#xA;	  AND HolidayFlag &lt;&gt; 1&#xD;&#xA;SET @Days = @Days -7&#xD;&#xA;END&#xD;&#xA;&#xD;&#xA;SELECT @EndHOUR   = (DATEPART(HOUR, @EndDate))&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;DECLARE @DateRanges TABLE (&#xD;&#xA;							StartDate DATETIME PRIMARY KEY CLUSTERED NOT NULL&#xD;&#xA;							, EndDate DATETIME&#xD;&#xA;							, WeekType VARCHAR(10)&#xD;&#xA;						  )&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;INSERT INTO @DateRanges&#xD;&#xA;SELECT @ReportDate&#xD;&#xA;		, @EndDate&#xD;&#xA;		, 'Current'&#xD;&#xA;UNION&#xD;&#xA;SELECT Baseline&#xD;&#xA;		, DATEADD(HOUR,24,Baseline)&#xD;&#xA;		, 'Baseline'&#xD;&#xA;FROM @BASELINEDATES &#xD;&#xA;WHERE BaselineKey = 1&#xD;&#xA;UNION&#xD;&#xA;SELECT Baseline&#xD;&#xA;		, DATEADD(HOUR,24,Baseline)&#xD;&#xA;		, 'Baseline'&#xD;&#xA;FROM @BASELINEDATES &#xD;&#xA;WHERE BaselineKey = 2&#xD;&#xA;UNION&#xD;&#xA;SELECT Baseline&#xD;&#xA;		, DATEADD(HOUR,24,Baseline)&#xD;&#xA;		, 'Baseline'&#xD;&#xA;FROM @BASELINEDATES &#xD;&#xA;WHERE BaselineKey = 3&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;/*&#xD;&#xA;Select * from @dateRanges;&#xD;&#xA;*/&#xD;&#xA;&#xD;&#xA;WITH cjordersCTE AS (&#xD;&#xA;SELECT  DATEADD(HOUR,(DATEDIFF(hh,0,Order_Date)),0) AS &quot;DATE&quot;&#xD;&#xA;, bill_to_country as CountryCode&#xD;&#xA;, CountryName as CountryName&#xD;&#xA;, COUNT (DISTINCT CASE WHEN weektype = 'current' THEN order_id END) AS current_orders &#xD;&#xA;, COUNT (DISTINCT CASE WHEN weektype = 'baseline' THEN order_id END) / 3 AS baseline_orders &#xD;&#xA;, ISNULL(SUM (CASE WHEN weektype = 'current' THEN adjusted_price * .01 END),0) AS current_gcr&#xD;&#xA;, ISNULL(SUM (CASE WHEN weektype = 'baseline' THEN adjusted_price * .01 END) / 3,0) AS baseline_gcr&#xD;&#xA;&#xD;&#xA;FROM BIGReporting.dbo.rptOrderDetail r WITH (NOLOCK)&#xD;&#xA;	JOIN @DateRanges b  ON r.order_date &gt;= b.startdate AND  r.order_date &lt; b.enddate&#xD;&#xA;	Join [GoDaddy].[dbo].[lu_country] luc (NOLOCK) on luc.CountryCode = r.bill_to_country&#xD;&#xA;Where Point_of_Purchase_ID in (1,3)	&#xD;&#xA;GROUP BY  DATEADD(HOUR,(DATEDIFF(hh,0,Order_Date)),0)&#xD;&#xA;	, bill_to_country&#xD;&#xA;	, CountryName)&#xD;&#xA;&#xD;&#xA;SELECT DatePart (hh,&quot;Date&quot;) as DateHOUR,&#xD;&#xA;		max (&quot;date&quot;) as DateSorter,&#xD;&#xA;		UPPER(CountryCode) as CountryCode,&#xD;&#xA;		CountryName,&#xD;&#xA;		SUM(current_orders) AS current_orders,&#xD;&#xA;		SUM(baseline_orders) AS baseline_orders,&#xD;&#xA;		SUM(current_gcr) AS current_gcr,&#xD;&#xA;		SUM(baseline_gcr) AS baseline_gcr&#xD;&#xA;FROM cjordersCTE &#xD;&#xA;	--WHERE CountryCode = 'CA'&#xD;&#xA;GROUP BY DatePart (hh,&quot;Date&quot;),UPPER(CountryCode), CountryName&#xD;&#xA;Order by max(&quot;Date&quot;)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;">
+        <Remark>
+          <DataLayerLink ID="dlCountrySalesHRLY" />
+        </Remark>
+      </DataLayer>
+    </DataLayer>
+  </LocalData>
+  <ReportHeader IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body IdeDisplayStatus="Collapsed">
+    <Tabs ID="IntlTab" TabbingStyle="Static" TabLocation="left">
+      <Remark>
+        <TabPanel Caption="Int'l Charts" ID="IntlChartsTab" IdeDisplayStatus="Collapsed">
+          <Rows ID="INTL" Class="gdDefaultRowBground">
+            <Row ID="INTLMetrics">
+              <Column ID="colTEMPcj" Class="gdDefaultDivision">
+                <Division Class="ThemeAlignCenter">
+                  <Rows>
+                    <Remark>
+                      <Row IdeDisplayStatus="Collapsed">
+                        <Column Class="gdColumnCell">
+                          <Label Caption="@Local.CountryCodeOne~" ID="GraphOneCaption" />
+                          <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="260" ChartWidth="440" ChartTitle="Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#F9A85F" ID="chtINTL" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="Orders" BorderColor="transparent">
+                            <DataLayer Type="Linked" LinkedDataLayerID="linkCountrySalesHRLY" ID="dlCountrySalesHourly.Linked">
+                              <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;@Local.CountryCodeOne~&quot;" ID="CondChart1" />
+                            </DataLayer>
+                            <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="#010101" LegendLabel="Baseline" ID="chtINTL2" />
+                            <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                            <LabelScale Format="General Number" ScalingMode="Standard" />
+                            <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                            <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                            <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                            <DataScale Format="General Number" ZeroAffinity=".1" />
+                            <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                            <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                              <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                            </Legend>
+                          </Chart>
+                        </Column>
+                        <Column Class="gdColumnCell">
+                          <Label Caption="@Local.CountryCodeTwo~" ID="GraphTwoCaption" />
+                          <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="260" ChartWidth="440" ChartTitle="Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#F9A85F" ID="chtINTL3" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="Orders" BorderColor="transparent">
+                            <DataLayer Type="Linked" LinkedDataLayerID="linkCountrySalesHRLY" ID="dlCountrySalesHourly.Linked2">
+                              <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;@Local.CountryCodeTwo~&quot;" ID="CondChart2" />
+                            </DataLayer>
+                            <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="#010101" LegendLabel="Baseline" ID="chtINTL4" />
+                            <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                            <LabelScale Format="General Number" ScalingMode="Standard" />
+                            <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                            <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                            <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                            <DataScale Format="General Number" ZeroAffinity=".1" />
+                            <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                            <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                              <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                            </Legend>
+                          </Chart>
+                        </Column>
+                      </Row>
+                    </Remark>
+                    <Row>
+                      <Column Class="gdColumnCell">
+                        <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Canada Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#FF0000" ID="chtINTLCAO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                          <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                            <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;CA&quot;" ID="CondChartCA" />
+                            <DataLayer Type="Static" />
+                          </DataLayer>
+                          <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                          <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                          <LabelScale Format="General Number" ScalingMode="Standard" />
+                          <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                          <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                          <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                          <DataScale Format="General Number" ZeroAffinity=".1" />
+                          <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                          <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                            <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                          </Legend>
+                        </Chart>
+                      </Column>
+                      <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                        <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Canada GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#FF0000" ID="chtINTLCAG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                          <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                            <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;CA&quot;" ID="CondChartCA" />
+                            <DataLayer Type="Static" />
+                          </DataLayer>
+                          <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                          <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                          <LabelScale Format="General Number" ScalingMode="Standard" />
+                          <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                          <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                          <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                          <DataScale Format="$#,K" ZeroAffinity=".1" />
+                          <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                          <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                            <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                          </Legend>
+                        </Chart>
+                      </Column>
+                      <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                        <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Mexico Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLMXO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                          <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00" IdeDisplayStatus="Collapsed">
+                            <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;MX&quot;" ID="CondChartMX" />
+                            <DataLayer Type="Static" />
+                          </DataLayer>
+                          <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                          <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                          <LabelScale Format="General Number" ScalingMode="Standard" />
+                          <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                          <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                          <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                          <DataScale Format="General Number" ZeroAffinity=".1" />
+                          <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                          <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                            <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                          </Legend>
+                        </Chart>
+                      </Column>
+                      <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                        <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Mexico GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLMXG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                          <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                            <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;MX&quot;" ID="CondChartMX" />
+                            <DataLayer Type="Static" />
+                          </DataLayer>
+                          <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                          <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                          <LabelScale Format="General Number" ScalingMode="Standard" />
+                          <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                          <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                          <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                          <DataScale Format="$#,K" ZeroAffinity=".1" />
+                          <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                          <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                            <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                          </Legend>
+                        </Chart>
+                      </Column>
+                    </Row>
+                  </Rows>
+                  <Rows IdeDisplayStatus="Collapsed">
+                    <Row IdeDisplayStatus="Collapsed">
+                      <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                        <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="United Kingdom Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLUKO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                          <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                            <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;UK&quot;" ID="CondChartUK" />
+                            <DataLayer Type="Static" />
+                          </DataLayer>
+                          <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                          <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                          <LabelScale Format="General Number" ScalingMode="Standard" />
+                          <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                          <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                          <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                          <DataScale Format="General Number" ZeroAffinity=".1" />
+                          <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                          <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                            <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                          </Legend>
+                        </Chart>
+                      </Column>
+                      <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                        <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="United Kingdom GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLUKG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                          <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                            <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;UK&quot;" ID="CondChartUK" />
+                            <DataLayer Type="Static" />
+                          </DataLayer>
+                          <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                          <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                          <LabelScale Format="General Number" ScalingMode="Standard" />
+                          <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                          <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                          <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                          <DataScale Format="$#,K" ZeroAffinity=".1" />
+                          <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                          <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                            <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                          </Legend>
+                        </Chart>
+                      </Column>
+                      <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                        <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Australia Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#E8112D" ID="chtINTLAUO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                          <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00" IdeDisplayStatus="Collapsed">
+                            <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;AU&quot;" ID="CondChartAU" />
+                            <DataLayer Type="Static" />
+                          </DataLayer>
+                          <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                          <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                          <LabelScale Format="General Number" ScalingMode="Standard" />
+                          <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                          <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                          <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                          <DataScale Format="General Number" ZeroAffinity=".1" />
+                          <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                          <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                            <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                          </Legend>
+                        </Chart>
+                      </Column>
+                      <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                        <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Australia GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#E8112D" ID="chtINTLAUG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                          <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                            <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;AU&quot;" ID="CondChartAU" />
+                            <DataLayer Type="Static" />
+                          </DataLayer>
+                          <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                          <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                          <LabelScale Format="General Number" ScalingMode="Standard" />
+                          <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                          <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                          <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                          <DataScale Format="$#,K" ZeroAffinity=".1" />
+                          <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                          <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                            <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                          </Legend>
+                        </Chart>
+                      </Column>
+                    </Row>
+                  </Rows>
+                  <Rows IdeDisplayStatus="Collapsed">
+                    <Row IdeDisplayStatus="Collapsed">
+                      <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                        <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="China Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#DE2910" ID="chtINTLCNO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                          <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00" IdeDisplayStatus="Collapsed">
+                            <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;CN&quot;" ID="CondChartCN" />
+                            <DataLayer Type="Static" />
+                          </DataLayer>
+                          <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                          <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                          <LabelScale Format="General Number" ScalingMode="Standard" />
+                          <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                          <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                          <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                          <DataScale Format="General Number" ZeroAffinity=".1" />
+                          <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                          <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                            <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                          </Legend>
+                        </Chart>
+                      </Column>
+                      <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                        <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="China GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#DE2910" ID="chtINTLCNG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                          <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00" IdeDisplayStatus="Collapsed">
+                            <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;CN&quot;" ID="CondChartCN" />
+                            <DataLayer Type="Static" />
+                          </DataLayer>
+                          <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                          <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                          <LabelScale Format="General Number" ScalingMode="Standard" />
+                          <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                          <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                          <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                          <DataScale Format="$#,K" ZeroAffinity=".1" />
+                          <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                          <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                            <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                          </Legend>
+                        </Chart>
+                      </Column>
+                      <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                        <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="India Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#128807" ID="chtINTLINO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                          <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                            <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;IN&quot;" ID="CondChartIN" />
+                            <DataLayer Type="Static" />
+                          </DataLayer>
+                          <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                          <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                          <LabelScale Format="General Number" ScalingMode="Standard" />
+                          <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                          <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                          <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                          <DataScale Format="General Number" ZeroAffinity=".1" />
+                          <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                          <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                            <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                          </Legend>
+                        </Chart>
+                      </Column>
+                      <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                        <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="India GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#128807" ID="chtINTLING" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                          <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                            <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;IN&quot;" ID="CondChartIN" />
+                            <DataLayer Type="Static" />
+                          </DataLayer>
+                          <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                          <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                          <LabelScale Format="General Number" ScalingMode="Standard" />
+                          <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                          <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                          <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                          <DataScale Format="$#,K" ZeroAffinity=".1" />
+                          <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                          <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                            <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                          </Legend>
+                        </Chart>
+                      </Column>
+                    </Row>
+                  </Rows>
+                </Division>
+              </Column>
+            </Row>
+          </Rows>
+        </TabPanel>
+      </Remark>
+      <TabPanel Caption="Americas" ID="IntlChartsAmericas" IdeDisplayStatus="Collapsed">
+        <Rows ID="Americas" Class="gdDefaultRowBground">
+          <Row ID="AmericasMetrics">
+            <Column ID="colAmericas" Class="gdDefaultDivision">
+              <Division Class="ThemeAlignCenter">
+                <Rows IdeDisplayStatus="Collapsed">
+                  <Row IdeDisplayStatus="Collapsed">
+                    <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="US Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#FF0000" ID="chtINTLUSO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;US&quot;" ID="CondChartUS" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="US GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#FF0000" ID="chtINTLUSG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;US&quot;" ID="CondChartUS" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Canada Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLCAO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;CA&quot;" ID="CondChartCA" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Canada GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLCAG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;CA&quot;" ID="CondChartCA" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Mexico Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLMXO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00" IdeDisplayStatus="Collapsed">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;MX&quot;" ID="CondChartMX" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Mexico GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLMXG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;MX&quot;" ID="CondChartMX" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Colombia Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLCOO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;CO&quot;" ID="CondChartCO" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Colombia GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLCOG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;CO&quot;" ID="CondChartCO" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+                <Rows>
+                  <Row IdeDisplayStatus="Collapsed">
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Brazil Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#DE2910" ID="chtINTLBRO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;BR&quot;" ID="CondChartBR" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Brazil GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#DE2910" ID="chtINTLBRG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;BR&quot;" ID="CondChartBR" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Argentina Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLARO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;AR&quot;" ID="CondChartAR" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Argentina GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLARG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;AR&quot;" ID="CondChartAR" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+          </Row>
+        </Rows>
+      </TabPanel>
+      <TabPanel Caption="EMEA" ID="IntlChartsEMEA" IdeDisplayStatus="Collapsed">
+        <Rows ID="EMEA" Class="gdDefaultRowBground" IdeDisplayStatus="Collapsed">
+          <Row ID="EMEAMetrics">
+            <Column ID="colEMEA" Class="gdDefaultDivision">
+              <Division Class="ThemeAlignCenter">
+                <Rows IdeDisplayStatus="Collapsed">
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="United Kingdom Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLUKO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;UK&quot;" ID="CondChartUK" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="United Kingdom GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLUKG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;UK&quot;" ID="CondChartUK" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Spain Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLESO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;ES&quot;" ID="CondChartES" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Spain GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLESG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;ES&quot;" ID="CondChartES" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+                <Rows IdeDisplayStatus="Collapsed">
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Turkey Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLTRO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;TR&quot;" ID="CondChartTR" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Turkey GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLTRG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;TR&quot;" ID="CondChartTR" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Germany Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLDEO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;DE&quot;" ID="CondChartDE" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Germany GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLDEG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;DE&quot;" ID="CondChartDE" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+                <Rows>
+                  <Row IdeDisplayStatus="Collapsed">
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Italy Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLITO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;IT&quot;" ID="CondChartUK" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Italy GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLITG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;IT&quot;" ID="CondChartIT" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell" IdeDisplayStatus="Collapsed">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="France Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLFRO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;FR&quot;" ID="CondChartFR" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="France GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLFRG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent" IdeDisplayStatus="Collapsed">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;FR&quot;" ID="CondChartFR" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+          </Row>
+        </Rows>
+      </TabPanel>
+      <TabPanel Caption="APAC" ID="IntlChartsAPAC" IdeDisplayStatus="Collapsed">
+        <Rows ID="APAC" Class="gdDefaultRowBground">
+          <Row ID="APACMetrics">
+            <Column ID="colAPAC" Class="gdDefaultDivision">
+              <Division Class="ThemeAlignCenter">
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Australia Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLAUO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent" IdeDisplayStatus="Collapsed">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;AU&quot;" ID="CondChartAU" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Australia GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLAUG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;AU&quot;" ID="CondChartAU" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="China Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLCNO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;CN&quot;" ID="CondChartCN" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="China GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLCNG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;CN&quot;" ID="CondChartCN" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="India Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLINO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;IN&quot;" ID="CondChartIN" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="India GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLING" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;IN&quot;" ID="CondChartIN" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Hong Kong Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLHKO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;HK&quot;" ID="CondChartHK" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Hong Kong GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLHKG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;HK&quot;" ID="CondChartHK" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Singapore Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLSGO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;SG&quot;" ID="CondChartSG" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Singapore GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLSGG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;SG&quot;" ID="CondChartSG" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="New Zealand Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLNZO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;NZ&quot;" ID="CondChartNZ" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="New Zealand GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLNZG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;NZ&quot;" ID="CondChartNZ" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+          </Row>
+        </Rows>
+      </TabPanel>
+      <TabPanel Caption="Other Intl" ID="IntlChartsOther" IdeDisplayStatus="Collapsed">
+        <Rows ID="Other" Class="gdDefaultRowBground">
+          <Row ID="OtherIntlMetrics">
+            <Column ID="colOther" Class="gdDefaultDivision">
+              <Division Class="ThemeAlignCenter">
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Thailand Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLTHO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;TH&quot;" ID="CondChartTH" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Thailand GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLTHG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;TH&quot;" ID="CondChartTH" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Philippines Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLPHO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;PH&quot;" ID="CondChartPH" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Philippines GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLPHG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;PH&quot;" ID="CondChartPH" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Netherlands Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLNLO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;NL&quot;" ID="CondChartNL" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Netherlands GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLNLG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;NL&quot;" ID="CondChartNL" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Russia Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLRUO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;RU&quot;" ID="CondChartRU" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Russia GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLRUG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;RU&quot;" ID="CondChartRU" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="UAE Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLAEO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;AE&quot;" ID="CondChartAE" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="UAE GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#CC0000" ID="chtINTLAEG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;AE&quot;" ID="CondChartAE" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL6" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_orders" ChartHeight="240" ChartWidth="360" ChartTitle="Israel Orders" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLILO" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;IL&quot;" ID="CondChartIL" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_orders" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_gcr" ChartHeight="240" ChartWidth="360" ChartTitle="Israel GCR" ChartLabelColumn="DateHOUR" ChartLabelColumnDataType="Number" BackgroundColor="White" Color="#006847" ID="chtINTLILG" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="GCR" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="IntlDashHourly" ExpirationTimeSpan="1:00">
+                          <ConditionFilter Condition="&quot;@Data.CountryCode~&quot; = &quot;IL&quot;" ID="CondChartIL" />
+                          <DataLayer Type="Static" />
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="baseline_gcr" Color="Black" LegendLabel="Baseline" ID="chtINTL8" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="General Number" ScalingMode="Standard" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="$#,K" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="210" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+          </Row>
+        </Rows>
+      </TabPanel>
+      <TabPanel ID="DefaultChartsTab" Caption="POP Dash by Minute">
+        <Rows ID="rowReportHeader" Class="gdReportHeader" IdeDisplayStatus="Collapsed">
+          <Row ID="rowReportTitle" Class="gdReportHeader">
+            <Column>
+              <Label Caption="POP Dashboard by Minute" Class="gdReportHeaderNameBI" />
+            </Column>
+          </Row>
+        </Rows>
+        <Rows ID="Web" Class="gdDefaultRowBground" IdeDisplayStatus="Collapsed">
+          <Row ID="POPMetrics">
+            <Column ID="colWebOrders" Class="gdDefaultDivision">
+              <Division Class="ThemeAlignCenter">
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_web_orders" ChartHeight="260" ChartWidth="400" ChartTitle="Web Orders – by Minute" ChartLabelColumn="Date" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#F9A85F" ID="chtWebOrdersMin" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="30" BorderRight="10" BorderBottom="70" LineWidth="1" LegendLabel="Orders" BorderColor="transparent">
+                        <ExtraXYDataColumn ChartDataColumn="baseline_web_orders" Color="#010101" LegendLabel="Baseline" />
+                        <DataLayer Type="Linked" LinkedDataLayerID="dlPOPSales">
+                          <FormattedColumn DataColumn="Date" Format="hh:mm" ID="fcDate" />
+                        </DataLayer>
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="HH:mm" ScalingMode="LinearTime" LinearTickIncrement="Hours" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                        <ZoomChart Location="None" />
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+            <Column ID="colWebOrderZoom" Class="gdDefaultDivision">
+              <Division Class="ThemeAlignCenter">
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_web_orders" ChartHeight="260" ChartWidth="400" ChartTitle="Web Order Zoom – Last 60 Minutes" ChartLabelColumn="Date" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#F9A85F" ID="chtWebOrdersZoom" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="25" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="Orders" BorderColor="transparent">
+                        <ExtraXYDataColumn ChartDataColumn="baseline_web_orders" Color="#010101" LegendLabel="Baseline" />
+                        <DataLayer Type="Linked" LinkedDataLayerID="dlPOPSales">
+                          <ConditionFilter Condition="@Data.zoom_flag~ = 1" />
+                        </DataLayer>
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="HH:mm" ScalingMode="LinearTime" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+            <Column ID="colWebGCR" Class="gdDefaultDivision">
+              <Division Class="ThemeAlignCenter">
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_web_gcr" ChartHeight="260" ChartWidth="400" ChartTitle="Web GCR – by Minute" ChartLabelColumn="Date" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#F9A85F" ID="chtWebGCRMin" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="55" BorderRight="10" BorderBottom="70" LineWidth="1" LegendLabel="GCR" BorderColor="transparent">
+                        <ExtraXYDataColumn ChartDataColumn="baseline_web_gcr" Color="#010101" LegendLabel="Baseline" LineWidth="1" />
+                        <DataLayer Type="Linked" LinkedDataLayerID="dlPOPSales" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="HH:mm" ScalingMode="LinearTime" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="Currency" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                        <ZoomChart Location="None" />
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+            <Column ID="colWebTraffic" Class="gdDefaultDivision">
+              <Division Class="ThemeAlignCenter">
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="Current_Traffic" ChartHeight="260" ChartWidth="400" ChartTitle="Web Traffic – by Minute" ChartLabelColumn="Date" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#F9A85F" ID="chtWebTrafficMin" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="55" BorderRight="10" BorderBottom="70" LineWidth="1" LegendLabel="Traffic" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="TrafficbyMin" ExpirationNow="False" ExpirationTimeSpan="00:01" ID="dlTrafficbyMinCached">
+                          <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;&#xD;&#xA;DECLARE @ReportDate DATETIME&#xD;&#xA;DECLARE @EndDate DATETIME&#xD;&#xA;DECLARE @Days INT&#xD;&#xA;DECLARE @StartSeconds INT&#xD;&#xA;DECLARE @EndSeconds INT&#xD;&#xA;&#xD;&#xA;SELECT @EndDate = CONVERT(SMALLDATETIME,GETDATE())&#xD;&#xA;SELECT @ReportDate = CONVERT(DATE,GETDATE())&#xD;&#xA;SELECT @Days = -7&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;DECLARE @BaselineDates TABLE &#xD;&#xA;					(	BaselineKey INT IDENTITY&#xD;&#xA;						, Baseline DATETIME&#xD;&#xA;					)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;WHILE (SELECT COUNT(*) FROM @BASELINEDATES) &lt; 5&#xD;&#xA;&#xD;&#xA;BEGIN&#xD;&#xA;	INSERT INTO @BASELINEDATES&#xD;&#xA;	SELECT dd.&quot;Date&quot; as Baseline&#xD;&#xA;	  FROM GDAnalyticDW.dbo.rptDimDate dd&#xD;&#xA;	  WHERE Date = DATEADD(DAY,@Days,CONVERT(DATE,@ReportDate))&#xD;&#xA;	  AND HolidayFlag &lt;&gt; 1&#xD;&#xA;SET @Days = @Days -7&#xD;&#xA;END&#xD;&#xA;&#xD;&#xA;SELECT @StartSeconds = (DATEPART(HOUR, @ReportDate) * 3600) +&#xD;&#xA;					   (DATEPART(MINUTE, @ReportDate) * 60) +&#xD;&#xA;						DATEPART(SECOND, @ReportDate)&#xD;&#xA;&#xD;&#xA;SELECT @EndSeconds   = (DATEPART(HOUR, @EndDate) * 3600) +&#xD;&#xA;					   (DATEPART(MINUTE, @EndDate) * 60) +&#xD;&#xA;						DATEPART(SECOND, @EndDate)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;DECLARE @DateRanges TABLE (&#xD;&#xA;							StartDate DATETIME&#xD;&#xA;							, EndDate DATETIME&#xD;&#xA;							, WeekType VARCHAR(10)&#xD;&#xA;						   )&#xD;&#xA;&#xD;&#xA;INSERT INTO @DateRanges&#xD;&#xA;SELECT @ReportDate&#xD;&#xA;		, @EndDate&#xD;&#xA;		, 'Current'&#xD;&#xA;UNION&#xD;&#xA;SELECT DATEADD(SECOND,@StartSeconds,Baseline)&#xD;&#xA;		, DATEADD(SECOND,@EndSeconds,Baseline)&#xD;&#xA;		, 'Baseline'&#xD;&#xA;FROM @BASELINEDATES &#xD;&#xA;WHERE BaselineKey = 1&#xD;&#xA;UNION&#xD;&#xA;SELECT DATEADD(SECOND,@StartSeconds,Baseline)&#xD;&#xA;		, DATEADD(SECOND,@EndSeconds,Baseline)&#xD;&#xA;		, 'Baseline'&#xD;&#xA;FROM @BASELINEDATES &#xD;&#xA;WHERE BaselineKey = 2&#xD;&#xA;UNION&#xD;&#xA;SELECT DATEADD(SECOND,@StartSeconds,Baseline)&#xD;&#xA;		, DATEADD(SECOND,@EndSeconds,Baseline)&#xD;&#xA;		, 'Baseline'&#xD;&#xA;FROM @BASELINEDATES &#xD;&#xA;WHERE BaselineKey = 3&#xD;&#xA;&#xD;&#xA;SELECT CAST(CONVERT(TIME,TM.dateInterval) AS DATETIME) AS &quot;Date&quot;&#xD;&#xA;	,COALESCE(SUM(CASE WHEN DR.weektype = 'Current' THEN TM.visits END),1.7e308) AS Current_Traffic&#xD;&#xA;	,SUM(CASE WHEN DR.weektype = 'Baseline' THEN TM.visits END) / 3 AS Baseline_Traffic&#xD;&#xA;FROM BIGDashboards.dbo.iDashboardTrafficMart TM (NOLOCK)&#xD;&#xA;JOIN @DateRanges DR&#xD;&#xA;	ON TM.dateInterval &gt;= DR.StartDate&#xD;&#xA;	AND TM.dateInterval &lt; DR.EndDate&#xD;&#xA;WHERE isReady = 1&#xD;&#xA;	AND siteID = 1&#xD;&#xA;GROUP BY CAST(CONVERT(TIME,TM.dateInterval) AS DATETIME) " ConnectionID="connM1BIG-biLogiReporting" ID="dlTrafficbyMin">
+                            <SortFilter SortColumn="Date" SortSequence="Ascending" />
+                          </DataLayer>
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="Baseline_Traffic" Color="#010101" LegendLabel="Baseline" LineWidth="1" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="HH:mm" ScalingMode="LinearTime" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="#,##0" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                        <ZoomChart Location="None" />
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+          </Row>
+        </Rows>
+        <Rows Class="gdDefaultRowBground" ID="C3" IdeDisplayStatus="Collapsed">
+          <Row ID="C3Metrics">
+            <Column ID="colC3Orders" Class="gdDefaultDivision">
+              <Division Class="ThemeAlignCenter">
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_c3_orders" ChartHeight="260" ChartWidth="400" ChartTitle="C3 Orders – by Minute" ChartLabelColumn="Date" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#E55CDB" ID="chtC3OrdersMin" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" XAxisTitle="Minute" BorderLeft="25" BorderRight="10" BorderBottom="70" LineWidth="1" LegendLabel="Orders" BorderColor="transparent">
+                        <ExtraXYDataColumn ChartDataColumn="baseline_c3_orders" Color="#010101" LegendLabel="Baseline" />
+                        <DataLayer Type="Linked" LinkedDataLayerID="dlPOPSales" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="HH:mm" ScalingMode="LinearTime" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                        <ZoomChart Location="None" />
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+            <Column ID="colC3OrderZoom" Class="gdDefaultDivision">
+              <Division Class="ThemeAlignCenter">
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_c3_orders" ChartHeight="260" ChartWidth="400" ChartTitle="C3 Order Zoom – Last 60 Minutes" ChartLabelColumn="Date" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#E55CDB" ID="chtC3OrdersZoom" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" XAxisTitle="Minute" BorderLeft="25" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="Orders" BorderColor="transparent">
+                        <ExtraXYDataColumn ChartDataColumn="baseline_c3_orders" Color="#010101" LegendLabel="Baseline" />
+                        <DataLayer Type="Linked" LinkedDataLayerID="dlPOPSales" IdeDisplayStatus="Collapsed">
+                          <ConditionFilter Condition="@Data.zoom_flag~ = 1" />
+                        </DataLayer>
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="HH:mm" ScalingMode="LinearTime" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="General Number" ZeroAffinity=".1" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+            <Column ID="colC3GCR" Class="gdDefaultDivision">
+              <Division Class="ThemeAlignCenter">
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_c3_gcr" ChartHeight="260" ChartWidth="400" ChartTitle="C3 GCR – by Minute" ChartLabelColumn="Date" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#E55CDB" ID="chtC3GCRMin" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" XAxisTitle="Minute" BorderLeft="55" BorderRight="10" BorderBottom="70" LineWidth="1" LegendLabel="GCR" BorderColor="transparent">
+                        <ExtraXYDataColumn ChartDataColumn="baseline_c3_gcr" Color="#010101" LegendLabel="Baseline" />
+                        <DataLayer Type="Linked" LinkedDataLayerID="dlPOPSales" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="HH:mm" ScalingMode="LinearTime" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="Currency" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                        <ZoomChart Location="None" />
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+            <Column ID="colC3Calls" Class="gdDefaultDivision">
+              <Division Class="ThemeAlignCenter">
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="Current_Calls" ChartHeight="260" ChartWidth="400" ChartTitle="C3 Inbound Calls – by Half Hour" ChartLabelColumn="Date" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#E55CDB" ID="chtC3CallsMin" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderLeft="55" BorderRight="10" BorderBottom="70" LineWidth="2" LegendLabel="Calls" BorderColor="transparent">
+                        <DataLayer Type="Cached" CacheKey="CallsByMin" ExpirationNow="False" ExpirationTimeSpan="00:01" ID="dlCallsbyMinCached">
+                          <DataLayer Type="SQL" Source="USE BIGDashboards&#xD;&#xA;&#xD;&#xA;SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;&#xD;&#xA;DECLARE @ReportDate DATETIME&#xD;&#xA;DECLARE @EndDate DATETIME&#xD;&#xA;DECLARE @Days INT&#xD;&#xA;DECLARE @StartMinutes INT&#xD;&#xA;DECLARE @EndMinutes INT&#xD;&#xA;&#xD;&#xA;SELECT @EndDate = CONVERT(SMALLDATETIME,GETDATE())&#xD;&#xA;SELECT @ReportDate = CONVERT(DATE,GETDATE())&#xD;&#xA;SELECT @Days = -7&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;DECLARE @BaselineDates TABLE &#xD;&#xA;					(	BaselineKey INT IDENTITY&#xD;&#xA;						, Baseline DATETIME&#xD;&#xA;					)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;WHILE (SELECT COUNT(*) FROM @BASELINEDATES) &lt; 5&#xD;&#xA;&#xD;&#xA;BEGIN&#xD;&#xA;	INSERT INTO @BASELINEDATES&#xD;&#xA;	SELECT dd.&quot;Date&quot; as Baseline&#xD;&#xA;	  FROM GDAnalyticDW.dbo.rptDimDate dd&#xD;&#xA;	  WHERE Date = DATEADD(DAY,@Days,CONVERT(DATE,@ReportDate))&#xD;&#xA;	  AND HolidayFlag &lt;&gt; 1&#xD;&#xA;SET @Days = @Days -7&#xD;&#xA;END&#xD;&#xA;&#xD;&#xA;SELECT @StartMinutes = (DATEPART(HOUR, @ReportDate) * 60) +&#xD;&#xA;					   (DATEPART(MINUTE, @ReportDate))&#xD;&#xA;&#xD;&#xA;SELECT @EndMinutes   = (DATEPART(HOUR, @EndDate) * 60) +&#xD;&#xA;					   (DATEPART(MINUTE, @EndDate))&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;DECLARE @DateRanges TABLE (&#xD;&#xA;							StartDate DATETIME&#xD;&#xA;							, EndDate DATETIME&#xD;&#xA;							, WeekType VARCHAR(10)&#xD;&#xA;						   )&#xD;&#xA;&#xD;&#xA;INSERT INTO @DateRanges&#xD;&#xA;SELECT @ReportDate&#xD;&#xA;		, @EndDate&#xD;&#xA;		, 'Current'&#xD;&#xA;UNION&#xD;&#xA;SELECT DATEADD(MINUTE,@StartMinutes,Baseline)&#xD;&#xA;		, DATEADD(MINUTE,@EndMinutes,Baseline)&#xD;&#xA;		, 'Baseline'&#xD;&#xA;FROM @BASELINEDATES &#xD;&#xA;WHERE BaselineKey = 1&#xD;&#xA;UNION&#xD;&#xA;SELECT DATEADD(MINUTE,@StartMinutes,Baseline)&#xD;&#xA;		, DATEADD(MINUTE,@EndMinutes,Baseline)&#xD;&#xA;		, 'Baseline'&#xD;&#xA;FROM @BASELINEDATES &#xD;&#xA;WHERE BaselineKey = 2&#xD;&#xA;UNION&#xD;&#xA;SELECT DATEADD(MINUTE,@StartMinutes,Baseline)&#xD;&#xA;		, DATEADD(MINUTE,@EndMinutes,Baseline)&#xD;&#xA;		, 'Baseline'&#xD;&#xA;FROM @BASELINEDATES &#xD;&#xA;WHERE BaselineKey = 3&#xD;&#xA;&#xD;&#xA;SELECT CAST(CONVERT(TIME,CM.dateInterval) AS DATETIME) AS &quot;Date&quot;&#xD;&#xA;	,COALESCE(SUM(CASE WHEN DR.weektype = 'Current' THEN CM.nco END),1.7e308) AS Current_Calls&#xD;&#xA;	,SUM(CASE WHEN DR.weektype = 'Baseline' THEN CM.nco END) / 3 AS Baseline_Calls&#xD;&#xA;FROM dbo.iDashboardCallsMart CM (NOLOCK)&#xD;&#xA;JOIN @DateRanges DR&#xD;&#xA;	ON CM.dateInterval &gt;= DR.StartDate&#xD;&#xA;	AND CM.dateInterval &lt; DR.EndDate&#xD;&#xA;WHERE isReady = 1&#xD;&#xA;GROUP BY CAST(CONVERT(TIME,CM.dateInterval) AS DATETIME) " ConnectionID="connM1BIG-biLogiReporting" ID="dlCallsbyMin">
+                            <SortFilter SortColumn="Date" SortSequence="Ascending" />
+                          </DataLayer>
+                        </DataLayer>
+                        <ExtraXYDataColumn ChartDataColumn="Baseline_Calls" Color="#010101" LegendLabel="Baseline" LineWidth="2" />
+                        <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="14" Alignment="Center" />
+                        <LabelScale Format="HH:mm" ScalingMode="LinearTime" />
+                        <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                        <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                        <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                        <DataScale Format="#,##0" />
+                        <FontData FontFilename="arial" FontColor="black" FontSize="10" />
+                        <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                          <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                        </Legend>
+                        <ZoomChart Location="None" />
+                      </Chart>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+          </Row>
+        </Rows>
+        <Rows Class="gdDefaultRowBground" ID="RegionOffending" IdeDisplayStatus="Collapsed">
+          <Row ID="RegionOffending" IdeDisplayStatus="Collapsed">
+            <Remark>
+              <Column ID="SalesRegion" IdeDisplayStatus="Collapsed">
+                <Division Class="ThemeAlignCenter">
+                  <Rows>
+                    <Row>
+                      <Column ColSpan="2" Class="gdColumnCell">
+                        <Label Caption="Sales by Region (Excl. US)" Class="gdColumnCellTitle" />
+                        <LineBreak LineCount="1" />
+                        <Label Caption="Prior Hour" Class="gdColumnCellTitle" />
+                        <LineBreak LineCount="1" />
+                        <Chart Type="Heatmap" HeatmapLabelDataColumn="region_name" HeatmapColorDataColumn="gcr" HeatmapSizeDataColumn="gcr" ChartHeight="265" ChartWidth="525" HighValueColor="#2EB925" LowValueColor="#B40101" MediumValueColor="#f7e238" ID="hmSalesbyRegion" OuterBorderColor="White" CellBorderColor="#e6e6e6" CellBorder="1" LightBackgroundFontColor="White" DarkBackgroundFontColor="White">
+                          <DataLayer Type="Cached" CacheKey="SalesByRegion" ExpirationNow="False" ExpirationTimeSpan="00:01" ID="dlSalesByRegionCached">
+                            <DataLayer Type="SQL" ConnectionID="connM1BIG-BIGReporting" Source="--Country&#xD;&#xA;select r.bill_to_country as region_name&#xD;&#xA;, sum (adjusted_price * .01) as gcr&#xD;&#xA;FROM bigreporting.dbo.rptorderdetail r (nolock)&#xD;&#xA;JOIN bigreporting.dbo.rptcountry c (nolock) on r.bill_to_country = c.country_code&#xD;&#xA;JOIN bigreporting.dbo.rptregion rg (nolock) on rg.region_id = c.region_id&#xD;&#xA;where order_date &gt;= dateadd(hh,-1,getdate())&#xD;&#xA;and order_date &lt; getdate()&#xD;&#xA;and bill_to_country not in ('US')&#xD;&#xA;group by bill_to_country--region_name &#xD;&#xA;order by 2 desc&#xD;&#xA;" ID="dlMap">
+                              <FormattedColumn DataColumn="region_name" ID="fcRegion" Format="Standard" />
+                              <FormattedColumn DataColumn="gcr" ID="fcGCR" Format="Currency" />
+                            </DataLayer>
+                          </DataLayer>
+                          <HeatmapFontTitle Alignment="Center" FontColor="Black" FontName="arial" FontSize="14" />
+                          <HeatmapLabel Caption="@Chart.fcgcr~">
+                            <HeatmapFontLabel />
+                          </HeatmapLabel>
+                          <Quicktip Title="@Chart.fcgr~">
+                            <QuicktipRow Value="@Chart.fcRegion~" />
+                            <QuicktipRow Value="@Chart.fcGCR~" />
+                          </Quicktip>
+                          <Quicktip />
+                        </Chart>
+                      </Column>
+                    </Row>
+                  </Rows>
+                </Division>
+              </Column>
+            </Remark>
+            <Column ID="OffendingShoppers" IdeDisplayStatus="Collapsed">
+              <Division Class="ThemeAlignCenter">
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell" Width="300" WidthScale="px">
+                      <Label Caption="Top 10 Offending Shoppers​ (Web)" Class="gdColumnCellTitle" />
+                      <LineBreak LineCount="1" />
+                      <Label Caption="Prior Hour" Class="gdColumnCellTitle" />
+                      <LineBreak LineCount="1.5" />
+                      <DataTable SortArrows="True" ID="dtOffendingShoppers" Width="300" WidthScale="px" RememberSort="True" AltRowClass="gdThemeAltRowNoPadding td">
+                        <DataLayer Type="Linked" LinkedDataLayerID="dlOffendingShoppers" />
+                        <HeaderRow ID="hrOffendingShoppers" HeaderPosition="Top" />
+                        <DataTableColumn ID="dtcShopperID" Header="Shopper" Class="ThemeAlignCenter">
+                          <Label Caption="@Data.shopper_id~" Class="ThemeAlignCenter" />
+                          <LineBreak />
+                          <DataColumnSort FirstSortSequence="Descending" DataType="Number" DataColumn="shopper_id" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="dtcMargin" Header="Margin">
+                          <Label Caption="@Data.margin~" Format="Currency" Class="gdFont12Red" />
+                          <DataColumnSort FirstSortSequence="Descending" DataType="Number" DataColumn="margin" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="dtcOrders" Header="Orders">
+                          <Label Caption="@Data.orders~" />
+                          <DataColumnSort FirstSortSequence="Descending" DataType="Number" DataColumn="orders" />
+                        </DataTableColumn>
+                      </DataTable>
+                      <LineBreak LineCount="1" />
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+            <Column ID="OffendingSourceCodes">
+              <Division Class="ThemeAlignCenter">
+                <Rows>
+                  <Row>
+                    <Column Class="gdColumnCell" Width="355" WidthScale="px">
+                      <Label Caption="Top 10 Offending Source Codes​ (Web)" Class="gdColumnCellTitle" />
+                      <LineBreak LineCount="3.1" />
+                      <DataTable SortArrows="True" ID="dtOffendingSourceCodes" AltRowClass="gdThemeAltRowNoPadding td" Width="375" WidthScale="px" RememberSort="True" CaptionClass="gdColumnCellTitle">
+                        <DataLayer Type="Linked" LinkedDataLayerID="dlOffendingSourceCodes" />
+                        <HeaderRow ID="hrOffendingSourceCodes" HeaderPosition="Top" />
+                        <DataTableColumn ID="dtcSourceCode" Header="Source Code" Class="ThemeAlignLeft" Width="110" WidthScale="px">
+                          <Label Caption="@Data.source_code~" Class="gdThemeAlignLeftPadLeft" />
+                          <DataColumnSort FirstSortSequence="Descending" DataType="Text" DataColumn="source_code" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="dtcMargin" Header="Margin" Width="85" WidthScale="px">
+                          <Label Caption="@Data.margin~" Format="Currency" Class="gdFont12Red" />
+                          <DataColumnSort FirstSortSequence="Descending" DataType="Number" DataColumn="margin" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="dtcShoppers" Header="Shoppers">
+                          <Label Caption="@Data.shoppers~" />
+                          <DataColumnSort FirstSortSequence="Descending" DataType="Number" DataColumn="shoppers" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="dtcOrders" Header="Orders">
+                          <Label Caption="@Data.orders~" />
+                          <DataColumnSort FirstSortSequence="Descending" DataType="Number" DataColumn="orders" />
+                        </DataTableColumn>
+                      </DataTable>
+                      <LineBreak LineCount="1" />
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+            <Column ID="map">
+              <Division>
+                <Rows>
+                  <Row>
+                    <Column Width="420" WidthScale="px">
+                      <LineBreak />
+                      <Division>
+                        <Remark>
+                          <Label Caption="World Sales" Class="gdrTableHeader" />
+                        </Remark>
+                      </Division>
+                      <Remark>
+                        <AnimatedMap MapType="World8" Height="260" Width="400" RegionNameColumn="region_name" RegionValueColumn="gcr" IncludeValueInLabels="1" ID="amWorldSales" BorderColor="White" FontFilename="arial" HoverColor="#F7E238" OuterBorderColor="transparent" ShowLabels="False" IdeDisplayStatus="Collapsed">
+                          <DataLayer Type="SQL" ConnectionID="connM1BIG-BIGReporting" Source="--Country&#xD;&#xA;select case when region_name = 'North America' then '04'&#xD;&#xA;			when region_name = 'South America' then '05'&#xD;&#xA;			when region_name = 'Asia' then '01'&#xD;&#xA;			when region_name in ('Caribbean','Central America') then '06'&#xD;&#xA;			when region_name = 'Europe' then '02'&#xD;&#xA;			when region_name = 'Africa' then '03'&#xD;&#xA;			when region_name = 'Middle East' then '08'&#xD;&#xA;			when region_name = 'Australia and Oceania' then '07' else region_name end as region_name &#xD;&#xA;, sum (adjusted_price * .01) as gcr&#xD;&#xA;FROM bigreporting.dbo.rptorderdetail r (nolock)&#xD;&#xA;JOIN bigreporting.dbo.rptcountry c (nolock) on r.bill_to_country = c.country_code&#xD;&#xA;JOIN bigreporting.dbo.rptregion rg (nolock) on rg.region_id = c.region_id&#xD;&#xA;where order_date &gt;= dateadd(hh,-1,getdate())&#xD;&#xA;and order_date &lt; getdate()&#xD;&#xA;group by case when region_name = 'North America' then '04'&#xD;&#xA;			when region_name = 'South America' then '05'&#xD;&#xA;			when region_name = 'Asia' then '01'&#xD;&#xA;			when region_name in ('Caribbean','Central America') then '06'&#xD;&#xA;			when region_name = 'Europe' then '02'&#xD;&#xA;			when region_name = 'Africa' then '03'&#xD;&#xA;			when region_name = 'Middle East' then '08'&#xD;&#xA;			when region_name = 'Australia and Oceania' then '07' else region_name end&#xD;&#xA;order by 2 desc&#xD;&#xA;" ID="dlMap">
+                            <ColorSpectrumColumn HighValueColor="#2eb925" LowValueColor="#76B9F5" MediumValueColor="#d27a23" DataColumn="gcr" ID="cscGCR" MaxRange="200000" MinRange="0" />
+                          </DataLayer>
+                          <Remark>
+                            <AnimatedMapColorSpectrumLegend Caption="Gross Cash Receipts" ID="legend" Location="Bottom" Format="General Number" />
+                          </Remark>
+                        </AnimatedMap>
+                      </Remark>
+                      <Remark>
+                        <AnimatedMap MapType="World8" Height="260" Width="400" RegionNameColumn="region_name" RegionValueColumn="gcr" IncludeValueInLabels="1" ID="amWorldSales" BorderColor="White" FontFilename="arial" HoverColor="#F7E238" OuterBorderColor="transparent" ShowLabels="False" IdeDisplayStatus="Collapsed">
+                          <DataLayer Type="SQL" ConnectionID="connM1BIG-BIGReporting" Source="--Country&#xD;&#xA;select case when region_name = 'North America' then '04'&#xD;&#xA;			when region_name = 'South America' then '05'&#xD;&#xA;			when region_name = 'Asia' then '01'&#xD;&#xA;			when region_name in ('Caribbean','Central America') then '06'&#xD;&#xA;			when region_name = 'Europe' then '02'&#xD;&#xA;			when region_name = 'Africa' then '03'&#xD;&#xA;			when region_name = 'Middle East' then '08'&#xD;&#xA;			when region_name = 'Australia and Oceania' then '07' else region_name end as region_name &#xD;&#xA;, sum (adjusted_price * .01) as gcr&#xD;&#xA;FROM bigreporting.dbo.rptorderdetail r (nolock)&#xD;&#xA;JOIN bigreporting.dbo.rptcountry c (nolock) on r.bill_to_country = c.country_code&#xD;&#xA;JOIN bigreporting.dbo.rptregion rg (nolock) on rg.region_id = c.region_id&#xD;&#xA;where order_date &gt;= dateadd(hh,-1,getdate())&#xD;&#xA;and order_date &lt; getdate()&#xD;&#xA;group by case when region_name = 'North America' then '04'&#xD;&#xA;			when region_name = 'South America' then '05'&#xD;&#xA;			when region_name = 'Asia' then '01'&#xD;&#xA;			when region_name in ('Caribbean','Central America') then '06'&#xD;&#xA;			when region_name = 'Europe' then '02'&#xD;&#xA;			when region_name = 'Africa' then '03'&#xD;&#xA;			when region_name = 'Middle East' then '08'&#xD;&#xA;			when region_name = 'Australia and Oceania' then '07' else region_name end&#xD;&#xA;order by 2 desc&#xD;&#xA;" ID="dlMap">
+                            <Remark>
+                              <ColorSpectrumColumn HighValueColor="#76B9F5" LowValueColor="#d6deb6" MediumValueColor="#E4F1FD" DataColumn="gcr" ID="cscGCR" />
+                            </Remark>
+                          </DataLayer>
+                          <MapColorRange Color="#cc1c5d" MaxValue="200000" MinValue="150000" />
+                          <MapColorRange Color="#399c07" MaxValue="150000" MinValue="100000" />
+                          <Remark>
+                            <AnimatedMapColorSpectrumLegend Caption="Gross Cash Receipts" ID="legend" Location="Bottom" />
+                          </Remark>
+                          <MapColorRange Color="#76b95f" MaxValue="100000" MinValue="50000" />
+                          <MapColorRange Color="#BBC885" MinValue="0" MaxValue="50000" />
+                        </AnimatedMap>
+                      </Remark>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </Column>
+          </Row>
+        </Rows>
+      </TabPanel>
+    </Tabs>
+    <Remark>
+      <Label Caption="&quot;@Local.Charter~&quot;" ID="TEMPreporter" />
+    </Remark>
+  </Body>
+  <ReportFooter>
+    <Division Class="ThemeAlignCenter">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams />
+</Report>

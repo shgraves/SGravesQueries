@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Reports.ConversionRateReport.ConvRate" SavedBy="JOMAX\slyoung" SavedAt="2/13/2013 5:47:18 PM" EngineVersion="10.2.424">
+  <DefaultRequestParams islReportDate="1/23/2012" islVisitType="FOS Sales" islCountry="All" islChannel="Applications" />
+  <LocalData>
+    <DataLayer Type="SQL" ConnectionID="connM1BIG-biLogiReporting" Source="&#xD;&#xA;--declare @ReportDate datetime = '1/30/13'--'@Request.islReportDate~'&#xD;&#xA;declare @ReportDate datetime = '@Request.islReportDate~'&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;--create baselines table&#xD;&#xA;&#xD;&#xA;DECLARE @BASELINEDATES Table (BaselineKey int Identity, Baseline DateTime)&#xD;&#xA;&#xD;&#xA;DECLARE @Days INT = -7&#xD;&#xA;&#xD;&#xA;WHILE (SELECT COUNT(*) FROM @BASELINEDATES) &lt; 3&#xD;&#xA;&#xD;&#xA;BEGIN&#xD;&#xA;&#xD;&#xA;INSERT INTO @BASELINEDATES&#xD;&#xA;SELECT dd.&quot;Date&quot; as Baseline&#xD;&#xA;  FROM GDAnalyticDW.dbo.rptDimDate dd&#xD;&#xA;  WHERE Date = DATEADD(DAY,@Days,@ReportDate)&#xD;&#xA;  AND HolidayFlag &lt;&gt; 1&#xD;&#xA;&#xD;&#xA;SET @Days = @Days -7&#xD;&#xA;&#xD;&#xA;END&#xD;&#xA;&#xD;&#xA;--select * FROM @BASELINEDATES&#xD;&#xA;&#xD;&#xA;--Build Dates Table&#xD;&#xA;DECLARE @DateRanges TABLE (&#xD;&#xA;							StartDate DATETIME&#xD;&#xA;							, EndDate DATETIME&#xD;&#xA;							, WeekType VARCHAR(10)&#xD;&#xA;						   )&#xD;&#xA;&#xD;&#xA;INSERT INTO @DateRanges&#xD;&#xA;SELECT @ReportDate, DateADD(day,1,@ReportDate), 'Current'&#xD;&#xA;UNION&#xD;&#xA;SELECT Baseline, DateADD(day,1,baseline), 'Baseline'&#xD;&#xA;FROM @BASELINEDATES WHERE BaselineKey = 1&#xD;&#xA;UNION&#xD;&#xA;SELECT Baseline, DateADD(day,1,baseline), 'Baseline'&#xD;&#xA;FROM @BASELINEDATES WHERE BaselineKey = 2&#xD;&#xA;UNION&#xD;&#xA;SELECT Baseline, DateADD(day,1,baseline), 'Baseline'&#xD;&#xA;FROM @BASELINEDATES WHERE BaselineKey = 3&#xD;&#xA;UNION&#xD;&#xA;SELECT  DATEADD(WEEK,-52,@ReportDate), DateADD(day,1,DATEADD(WEEK,-52,@ReportDate)), 'Past'&#xD;&#xA;&#xD;&#xA;--select * FROM @DateRanges&#xD;&#xA;&#xD;&#xA;--select * FROM @baselinedates&#xD;&#xA;&#xD;&#xA;if object_id('tempdb.dbo.#temp') is not null drop table #temp&#xD;&#xA;SELECT  datepart(hour,visitMonth) as hour, weektype, visitType, sum (visits) as visits, sum(orderingVisits) as orderingVisits&#xD;&#xA;, sum (bouncingvisits) as bouncingVisits, sum (GCR) as GCR, sum (cartCreates) as cartCreates&#xD;&#xA;, sum (bouncingvisits * 1.00) /  nullif(sum (visits),0)  as bounceRate&#xD;&#xA;, sum (cartCreates * 1.00) / nullif(sum (visits - bouncingVisits),0) as cartCreateRate&#xD;&#xA;, sum (orderingVisits * 1.00) / nullif(sum (cartCreates),0) as CheckoutRate&#xD;&#xA;, sum (orderingVisits * 1.00) / nullif(sum (visits),0) as ConvRate&#xD;&#xA; into #temp&#xD;&#xA; FROM [BiLogiReporting].[dbo].[EDWBigCRFile] a (nolock)&#xD;&#xA; JOIN @DateRanges b  on a.visitmonth &gt;= b.startdate and a.visitmonth &lt; b.enddate&#xD;&#xA; where  visittype = '@Request.islVisitType~'  &#xD;&#xA; and (country = '@Request.islCountry~' or '@Request.islCountry~' = 'All')&#xD;&#xA; and (Channel = '@Request.islChannel~' or '@Request.islChannel~' = 'All')&#xD;&#xA; GROUP BY datepart(hour,visitMonth),weektype, visitType&#xD;&#xA;order by 1,2&#xD;&#xA;&#xD;&#xA;select hour, visittype&#xD;&#xA;, sum (case when weektype = 'current' then visits end) as current_visits&#xD;&#xA;, sum (case when weektype = 'baseline' then visits end) / 3 as baseline_visits&#xD;&#xA;, sum (case when weektype = 'current' then orderingVisits end) as current_orderingvisits&#xD;&#xA;, sum (case when weektype = 'baseline' then orderingVisits end) / 3 as baseline_orderingvisits&#xD;&#xA;, sum (case when weektype = 'current' then bouncingVisits end) as current_bouncingvisits&#xD;&#xA;, sum (case when weektype = 'baseline' then bouncingVisits end) / 3 as baseline_bouncingvisits&#xD;&#xA;, sum (case when weektype = 'current' then GCR end) as current_GCR&#xD;&#xA;, sum (case when weektype = 'baseline' then GCR end) / 3 as baseline_GCR&#xD;&#xA;, sum (case when weektype = 'current' then cartCreates end) as current_cartCreates&#xD;&#xA;, sum (case when weektype = 'baseline' then cartCreates end) / 3 as baseline_cartCreates&#xD;&#xA;, sum (case when weektype = 'current' then bounceRate end) as current_bounceRate&#xD;&#xA;, sum (case when weektype = 'baseline' then bounceRate end)  as baseline_bounceRate&#xD;&#xA;, sum (case when weektype = 'current' then cartCreateRate end) as current_cartCreateRate&#xD;&#xA;, sum (case when weektype = 'baseline' then cartCreateRate end)  as baseline_cartCreateRate&#xD;&#xA;, sum (case when weektype = 'current' then CheckoutRate end) as current_CheckoutRate&#xD;&#xA;, sum (case when weektype = 'baseline' then CheckoutRate end)  as baseline_CheckoutRate&#xD;&#xA;, sum (case when weektype = 'current' then ConvRate end) as current_ConvRate&#xD;&#xA;, sum (case when weektype = 'baseline' then ConvRate end)  as baseline_ConvRate&#xD;&#xA;FROM #temp&#xD;&#xA;group by hour, visittype&#xD;&#xA;order by hour&#xD;&#xA;" ID="dlTrafficByHour" IdeDisplayStatus="Collapsed">
+      <DataLayerLink ID="dlTrafficByHourLink" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeader" ID="seHeader" />
+  </ReportHeader>
+  <Remark>
+    <RefreshElementTimer RefreshInterval="5" ElementID="divChartRows" ID="Refresh" />
+  </Remark>
+  <Body>
+    <InputDate ID="islReportDate" DefaultValue="@Request.islReportDate~">
+      <Remark>
+        <EventHandler DhtmlEvent="onchange" ID="ehDateChange">
+          <Action Type="RefreshElement" ElementID="divChartRows" ID="reDateChange" RequestForwarding="True">
+            <LinkParams islReportDate="@Request.islReportDate~" />
+          </Action>
+        </EventHandler>
+      </Remark>
+    </InputDate>
+    <InputSelectList OptionCaptionColumn="visitType" ID="islVisitType" OptionValueColumn="visitType" Caption="Visit Type" IncludeBlank="False" DefaultValue="@Request.islVisitType~">
+      <DataLayer Type="SQL" ConnectionID="connM1BIG-biLogiReporting" Source="&#xD;&#xA;SELECT distinct visitType as visitType&#xD;&#xA;FROM [BiLogiReporting].[dbo].[EDWBigCRFile] a (nolock)&#xD;&#xA;where     visitmonth &gt;= '1/30/12' and visitmonth &lt; '1/31/12'&#xD;&#xA;and visittype in ('FOS Sales','Mobile Sales')&#xD;&#xA;order by 1" ID="dlVisitType" />
+      <Remark>
+        <EventHandler DhtmlEvent="onchange" ID="ehVisitTypeChange">
+          <Action Type="RefreshElement" ElementID="divChartRows" ID="reVisitType" RequestForwarding="True">
+            <LinkParams islVisitType="@Request.islVisitType~" />
+          </Action>
+        </EventHandler>
+      </Remark>
+    </InputSelectList>
+    <InputSelectList OptionCaptionColumn="channel" ID="islchannel" OptionValueColumn="Channel" Caption="Channel" IncludeBlank="True" IncludeBlankCaption="All" IncludeBlankValue="All" DefaultValue="@Request.islChannel~">
+      <DataLayer Type="SQL" ConnectionID="connM1BIG-biLogiReporting" Source="&#xD;&#xA;SELECT distinct cast(Channel as varchar(128)) as Channel&#xD;&#xA;FROM [BiLogiReporting].[dbo].[EDWBigCRFile] a (nolock)&#xD;&#xA;where     visitmonth &gt;= '1/30/12' and visitmonth &lt; '1/31/12'&#xD;&#xA;and visittype in ('FOS Sales','Mobile Sales')&#xD;&#xA;order by 1" ID="dlChannel" />
+    </InputSelectList>
+    <InputSelectList OptionCaptionColumn="country" ID="islcountry" OptionValueColumn="country" Caption="Country" IncludeBlank="True" IncludeBlankCaption="All" IncludeBlankValue="All" DefaultValue="@Request.islCountry~">
+      <DataLayer Type="SQL" ConnectionID="connM1BIG-biLogiReporting" Source="&#xD;&#xA;SELECT distinct country as country&#xD;&#xA;FROM [BiLogiReporting].[dbo].[EDWBigCRFile] a (nolock)&#xD;&#xA;where     visitmonth &gt;= '1/30/12' and visitmonth &lt; '1/31/12'&#xD;&#xA;and visittype in ('FOS Sales','Mobile Sales')&#xD;&#xA;order by 1" ID="dlcountry" />
+    </InputSelectList>
+    <Button Caption="Submit">
+      <Action Type="Report" ID="ar">
+        <Target Type="Report" Report="CurrentReport" />
+      </Action>
+    </Button>
+    <Division ID="divChartRows">
+      <Rows>
+        <Row>
+          <Column>
+            <Label Caption="@Request.islVisitType~" />
+          </Column>
+          <Column>
+            <Label Caption="@Request.islChannel~" />
+          </Column>
+        </Row>
+        <Row ID="ChartsRow1">
+          <Column>
+            <Division ID="divTrafficChart" Class="ThemeAlignCenter">
+              <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_visits" ChartHeight="250" ChartWidth="300" ChartLabelColumn="hour" LineStyle="SolidLine" ID="chtTraffic" ChartLabelColumnDataType="Text" LegendLabel="Current" XAxisTitle="Hour" ChartTitle="Hourly Visits" ChartBackgroundGradientColor="White" ChartBackgroundColor="White" RoundedBorder="0" OuterBorderColor="#DDDDDD" Color="#077FC2" GridHorizontalColor="#DDDDDD">
+                <DataLayer Type="Linked" LinkedDataLayerID="dlTrafficByHourLink" ID="dlTrafficByHourLink" IdeDisplayStatus="Collapsed">
+                  <FormattedColumn DataColumn="visitMonth" Format="hh" ID="visitMonthhh" />
+                </DataLayer>
+                <LabelScale />
+                <FontLabel FontAngle="0" FontSize="6" FontColor="Black" FontFilename="arial" />
+                <FontData FontColor="Black" FontSize="8" FontFilename="arial" />
+                <FontChartTitle FontSize="12" FontColor="Black" />
+                <ExtraXYDataColumn ChartDataColumn="baseline_visits" LegendLabel="Baseline" Color="Black" />
+                <Legend LegendTop="225" LegendOrientation="Horizontal" LegendLeft="70" BorderColor="White" BorderThickness="0,0,0,0" LegendFilter="True">
+                  <FontLegend FontSize="6" FontFilename="arial" FontColor="Black" />
+                </Legend>
+              </Chart>
+            </Division>
+            <Remark>
+              <Division>
+                <DataTable />
+              </Division>
+            </Remark>
+          </Column>
+          <Column>
+            <Division ID="divBounceRateChart">
+              <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_bounceRate" ChartHeight="250" ChartWidth="300" ChartLabelColumn="hour" LineStyle="SolidLine" ID="chtBounceRate" ChartLabelColumnDataType="Text" LegendLabel="Current" XAxisTitle="Hour" ChartTitle="Hourly Bounce Rate" ChartBackgroundColor="White" ChartBackgroundGradientColor="White" RoundedBorder="0" OuterBorderColor="#dddddd" GridHorizontalColor="#DDDDDD" Color="#077FC2">
+                <DataLayer Type="Linked" LinkedDataLayerID="dlTrafficByHourLink" ID="dlTrafficByHourLink">
+                  <FormattedColumn DataColumn="visitMonth" Format="hh" ID="visitMonthhh" />
+                </DataLayer>
+                <FontData FontColor="Black" FontSize="8" FontFilename="arial" />
+                <FontChartTitle FontSize="12" FontColor="Black" />
+                <DataScale Format="Percent" ZeroAffinity="0" />
+                <LabelScale />
+                <FontLabel FontAngle="0" FontSize="6" FontColor="Black" FontFilename="arial" />
+                <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                  <FontLegend FontColor="Black" FontSize="8" FontFilename="arial" />
+                </Legend>
+                <ExtraXYDataColumn ChartDataColumn="baseline_bounceRate" LegendLabel="Baseline" Color="Black" />
+              </Chart>
+            </Division>
+          </Column>
+          <Column>
+            <Division ID="divCartCreateRateChart">
+              <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_cartCreateRate" ChartHeight="250" ChartWidth="300" ChartLabelColumn="hour" LineStyle="SolidLine" ID="chtCartCreateRate" ChartLabelColumnDataType="Text" LegendLabel="Current" XAxisTitle="Hour" ChartTitle="Hourly Cart Create Rate" OuterBorderColor="#DDDDDD" RoundedBorder="0" ChartBackgroundColor="White" ChartBackgroundGradientColor="White" GridHorizontalColor="#DDDDDD" Color="#077FC2">
+                <DataLayer Type="Linked" LinkedDataLayerID="dlTrafficByHourLink" ID="dlTrafficByHourLink">
+                  <FormattedColumn DataColumn="visitMonth" Format="hh" ID="visitMonthhh" />
+                </DataLayer>
+                <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                  <FontLegend FontColor="Black" FontSize="8" FontFilename="arial" />
+                </Legend>
+                <FontData FontColor="Black" FontSize="8" FontFilename="arial" />
+                <FontChartTitle FontSize="12" FontColor="Black" />
+                <DataScale Format="Percent" ZeroAffinity="0" />
+                <FontLabel FontAngle="0" FontSize="6" FontColor="Black" FontFilename="arial" />
+                <ExtraXYDataColumn ChartDataColumn="baseline_cartCreateRate" LegendLabel="Baseline" ID="Baseline" Color="Black" />
+              </Chart>
+            </Division>
+          </Column>
+          <Column>
+            <Division ID="divCheckoutRateChart">
+              <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_CheckoutRate" ChartHeight="250" ChartWidth="300" ChartLabelColumn="hour" LineStyle="SolidLine" ID="chtCheckoutRate" ChartLabelColumnDataType="Text" LegendLabel="Current" XAxisTitle="Hour" ChartTitle="Hourly Checkout Rate" OuterBorderColor="#DDDDDD" RoundedBorder="0" ChartBackgroundColor="White" ChartBackgroundGradientColor="White" GridHorizontalColor="#DDDDDD" Color="#077FC2">
+                <DataLayer Type="Linked" LinkedDataLayerID="dlTrafficByHourLink" ID="dlTrafficByHourLink">
+                  <FormattedColumn DataColumn="visitMonth" Format="hh" ID="visitMonthhh" />
+                </DataLayer>
+                <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                  <FontLegend FontColor="Black" FontSize="8" FontFilename="arial" />
+                </Legend>
+                <FontData FontColor="Black" FontSize="8" FontFilename="arial" />
+                <FontChartTitle FontSize="12" FontColor="Black" />
+                <DataScale Format="Percent" ZeroAffinity="0" />
+                <FontLabel FontAngle="0" FontSize="6" FontColor="Black" FontFilename="arial" />
+                <ExtraXYDataColumn ChartDataColumn="baseline_CheckoutRate" LegendLabel="Baseline" ID="Baseline" Color="Black" />
+              </Chart>
+            </Division>
+          </Column>
+          <Column>
+            <Division ID="divConvRateChart">
+              <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_ConvRate" ChartHeight="250" ChartWidth="300" ChartLabelColumn="hour" LineStyle="SolidLine" ID="chtCheckoutRate" ChartLabelColumnDataType="Text" LegendLabel="Current" XAxisTitle="Hour" ChartTitle="Hourly Conversion Rate" OuterBorderColor="#DDDDDD" RoundedBorder="0" ChartBackgroundColor="White" ChartBackgroundGradientColor="White" Color="#077FC2" GridHorizontalColor="#DDDDDD">
+                <DataLayer Type="Linked" LinkedDataLayerID="dlTrafficByHourLink" ID="dlTrafficByHourLink">
+                  <FormattedColumn DataColumn="visitMonth" Format="hh" ID="visitMonthhh" />
+                </DataLayer>
+                <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                  <FontLegend FontColor="Black" FontSize="8" FontFilename="arial" />
+                </Legend>
+                <FontData FontColor="Black" FontSize="8" FontFilename="arial" />
+                <FontChartTitle FontSize="12" FontColor="Black" />
+                <LabelScale LinearTickIncrement="Auto" />
+                <DataScale Format="Percent" ZeroAffinity="0" />
+                <FontLabel FontAngle="0" FontSize="6" FontColor="Black" FontFilename="arial" />
+                <ExtraXYDataColumn ChartDataColumn="baseline_ConvRate" LegendLabel="Baseline" ID="Baseline" Color="Black" />
+              </Chart>
+            </Division>
+          </Column>
+        </Row>
+      </Rows>
+    </Division>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement ID="seFooter" DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" />
+  </ReportFooter>
+  <ideTestParams islVisitType="" islReportDate="" islCountry="" islChannel="" />
+</Report>

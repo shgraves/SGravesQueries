@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Orchid.Attendance" SavedBy="JOMAX\dezell" SavedAt="1/21/2014 2:27:08 PM" EngineVersion="11.0.43">
+  <DefaultRequestParams startDate="2014-01-10" endDate="2014-01-11" />
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column IdeDisplayStatus="Collapsed">
+          <Label Caption="Attendance" Class="gdReportHeaderNameIT" />
+          <Spaces Size="200" />
+        </Column>
+        <Column Class="ThemeAlignLeft">
+          <Spaces Size="3" />
+          <InputDate ID="inpStartDate" Caption="Start Date:" DefaultValue="@Request.startDate~" CalendarLinkType="Image" Format="General Date" InputDateReformat="General Date" />
+          <Spaces Size="3" />
+          <InputDate CalendarLinkType="Image" ID="inpEndDate" Caption="End Date:" Format="General Date" InputDateReformat="General Date" DefaultValue="@Request.endDate~" />
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" Report="Orchid.Attendance" ID="tgtAdminsByServer" RequestForwarding="True" KeepShowElements="True" />
+            </Action>
+          </Button>
+          <Spaces Size="10" />
+          <Division>
+            <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+              <Action Type="NativeExcel" ID="excelExport">
+                <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" ExportDataTableID="dtTouchesByGroup" />
+              </Action>
+            </Image>
+          </Division>
+        </Column>
+      </Row>
+      <Remark>
+        <Row IdeDisplayStatus="Collapsed">
+          <Column />
+          <Column IdeDisplayStatus="Collapsed">
+            <Spaces Size="3" />
+            <InputCheckboxList MultiSelect="True" ID="checkIrisGroups" Caption="Group:" CheckboxListDropdown="True" OptionCaptionColumn="GroupDescription" OptionValueColumn="iris_groupID" SaveInLocalStorage="True">
+              <DataLayer Type="SP" Command="eRpt.irisGroupGetAll_sp" ConnectionID="prodC3Analytics" ID="dlGetIrisGroups" />
+            </InputCheckboxList>
+          </Column>
+        </Row>
+      </Remark>
+    </Rows>
+    <DataTable SortArrows="True" ID="DataTable1" CellSpacing="7 px" AltRowClass="gdThemeAltRowNoPadding td">
+      <DataLayer Type="SP" ID="SPDataLayer" ConnectionID="connEmployeeMaster" Command="eRpt.AttendanceReport_sp">
+        <SPParameters>
+          <SPParameter ID="startDate" Value="@Request.startDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+          <SPParameter ID="endDate" Value="@Request.endDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+        </SPParameters>
+      </DataLayer>
+      <DataTableColumn ID="colDate" Header="Date">
+        <Label ID="lblDate" Caption="@Data.Date~" Format="Short Date" />
+        <DataColumnSort DataColumn="Date" DataType="Date" />
+        <ExcelColumnFormat ExcelFormat="Short Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colManagerUserID" Header="ManagerUserID">
+        <Label ID="lblManagerUserID" Caption="@Data.ManagerUserID~" />
+        <DataColumnSort DataColumn="ManagerUserID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colFirstName" Header="FirstName">
+        <Label ID="lblFirstName" Caption="@Data.FirstName~" />
+        <DataColumnSort DataColumn="FirstName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colMiddleName" Header="MiddleName">
+        <Label ID="lblMiddleName" Caption="@Data.MiddleName~" />
+        <DataColumnSort DataColumn="MiddleName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colLastName" Header="LastName">
+        <Label ID="lblLastName" Caption="@Data.LastName~" />
+        <DataColumnSort DataColumn="LastName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSupervisorID" Header="SupervisorID">
+        <Label ID="lblSupervisorID" Caption="@Data.SupervisorID~" />
+        <DataColumnSort DataColumn="SupervisorID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSupervisorFirstName" Header="SupervisorFirstName">
+        <Label ID="lblSupervisorFirstName" Caption="@Data.SupervisorFirstName~" />
+        <DataColumnSort DataColumn="SupervisorFirstName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSupervisorMiddleName" Header="SupervisorMiddleName">
+        <Label ID="lblSupervisorMiddleName" Caption="@Data.SupervisorMiddleName~" />
+        <DataColumnSort DataColumn="SupervisorMiddleName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSupervisorLastName" Header="SupervisorLastName">
+        <Label ID="lblSupervisorLastName" Caption="@Data.SupervisorLastName~" />
+        <DataColumnSort DataColumn="SupervisorLastName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colEMDepartmentID" Header="EMDepartmentID">
+        <Label ID="lblEMDepartmentID" Caption="@Data.EMDepartmentID~" />
+        <DataColumnSort DataColumn="EMDepartmentID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colDepartmentName" Header="DepartmentName">
+        <Label ID="lblDepartmentName" Caption="@Data.DepartmentName~" />
+        <DataColumnSort DataColumn="DepartmentName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colPresent" Header="Present">
+        <Label ID="lblPresent" Caption="@Data.Present~" />
+        <DataColumnSort DataColumn="Present" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colNotPresent" Header="NotPresent">
+        <Label ID="lblNotPresent" Caption="@Data.NotPresent~" />
+        <DataColumnSort DataColumn="NotPresent" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colStatus" Header="Status">
+        <Label ID="lblStatus" Caption="@Data.Status~" />
+        <DataColumnSort DataColumn="Status" />
+      </DataTableColumn>
+      <DataTableColumn ID="colIsOverride" Header="IsOverride">
+        <Label ID="lblIsOverride" Caption="@Data.IsOverride~" />
+        <DataColumnSort DataColumn="IsOverride" />
+      </DataTableColumn>
+      <DataTableColumn ID="colApprovedTimeOffType" Header="ApprovedTimeOffType">
+        <Label ID="lblApprovedTimeOffType" Caption="@Data.ApprovedTimeOffType~" />
+        <DataColumnSort DataColumn="ApprovedTimeOffType" />
+      </DataTableColumn>
+      <InteractivePaging PageRowCount="50" ShowPageNumber="True" Location="Top" CaptionType="Image" />
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams startDate="" endDate="" />
+</Report>

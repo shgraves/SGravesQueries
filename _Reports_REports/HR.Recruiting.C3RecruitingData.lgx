@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="HR.Recruiting.C3RecruitingData2" SavedBy="JOMAX\twakefield" SavedAt="11/18/2014 8:45:34 AM" EngineVersion="11.0.43">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows Width="4500" WidthScale="px">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Spaces Size="2" />
+          <Label Caption="C3 Recruiting Data" Class="gdReportHeaderNameIT" />
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <AnalysisGrid ID="AGC3RecuritingData" ShowPageNumber="True" SortArrows="True" Width="4500" WidthScale="px" AjaxPaging="True" DraggableColumns="True" PageRowCount="50">
+            <DataLayer Type="SP" ID="SPDataLayer2" ConnectionID="connOrchid" Command="eRpt.NewHireStatGet_sp">
+              <SPParameters />
+            </DataLayer>
+            <AnalysisGridColumn ID="colaccounting_id" Header="Employee Number" DataColumn="accounting_id" DataType="Text" Width="70" WidthScale="px" Class="ThemeAlignLeft" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colAgent" Header="Agent" DataColumn="RepName" DataType="Text" Width="150" WidthScale="px" Class="ThemeAlignLeft" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colGender" Header="Gender" DataColumn="Gender" DataType="Text" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colTrainStartDate" Header="Start Date" DataColumn="TrainStartDate" DataType="Date" Format="MM/dd/yyyy" Class="ThemeAlignCenter" Width="40" WidthScale="px" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colClassID" Header="Class ID" DataColumn="ClassID" DataType="Number" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colHiringDepartment" Header="Hiring Department" DataColumn="HiringDepartment" DataType="Text" Width="140" WidthScale="px" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colTerminationDate" Header="Termination Date" DataColumn="TerminationDate" DataType="Date" Format="MM/dd/yyyy" Width="40" WidthScale="px" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colRecruiter" Header="Recruiter" DataColumn="Recruiter" DataType="Text" Width="150" WidthScale="px" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colHiringManager" Header="Hiring Manager" DataColumn="HiringManager" DataType="Text" Width="130" WidthScale="px" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colHiringSource" Header="Hiring Source" DataColumn="HiringSource" DataType="Text" Width="130" WidthScale="px" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colTrainer" Header="Trainer" DataColumn="Trainer" DataType="Text" Width="150" WidthScale="px" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colTrainingFinalResults" Header="Training Final Results" DataColumn="TrainingFinalResults" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colTrainingRPD" Header="Training RPD" DataColumn="TrainingRPD" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colTrainingRPDqtr" Header="Training RPD Quartile" DataColumn="TrainingRPDqtr" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colTrainingNewRPD" Header="Training New RPD" DataColumn="TrainingNewRPD" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colTrainingNewRPDqtr" Header="Training New RPD Quartile" DataColumn="TrainingNewRPDqtr" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colTrainingCSS" Header="Training CSS" DataColumn="TrainingCSS" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colTrainingCSSqtr" Header="Training CSS Quartile" DataColumn="TrainingCSSqtr" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colTrainingRanchRanking" Header="Training Ranch Ranking" DataColumn="TrainingRanchRanking" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colTrainingOverallQuartile" Header="Training Overall Quartile" DataColumn="TrainingOverallQuartile" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay30Supervisor" Header="Day 30 Supervisor" DataColumn="Day30Supervisor" DataType="Text" Width="130" WidthScale="px" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay30RPD" Header="Day 30 RPD" DataColumn="Day30RPD" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay30RPDqtr" Header="Day 30 RPD Quartile" DataColumn="Day30RPDqtr" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay30NewRPD" Header="Day 30 New RPD" DataColumn="Day30NewRPD" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay30NewRPDqtr" Header="Day 30 New RPD Quartile" DataColumn="Day30NewRPDqtr" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay30CSS" Header="Day 30 CSS" DataColumn="Day30CSS" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay30CSSqtr" Header="Day 30 CSS Quartile" DataColumn="Day30CSSqtr" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay30CustAvail" Header="Day 30 CustAvail" DataColumn="Day30CustAvail" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay30CustAvailqtr" Header="Day 30 CustAvail Quartile" DataColumn="Day30CustAvailqtr" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay30RanchRanking" Header="Day 30 Ranch Ranking" DataColumn="Day30RanchRanking" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay30OverallQuartile" Header="Day 30 Overall Quartile" DataColumn="Day30OverallQuartile" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay90Supervisor" Header="Day 90 Supervisor" DataColumn="Day90Supervisor" DataType="Text" Width="130" WidthScale="px" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay90RPD" Header="Day 90 RPD" DataColumn="Day90RPD" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay90RPDqtr" Header="Day 90 RPD Quartile" DataColumn="Day90RPDqtr" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay90NewRPD" Header="Day 90 New RPD" DataColumn="Day90NewRPD" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay90NewRPDqtr" Header="Day 90 New RPD Quartile" DataColumn="Day90NewRPDqtr" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay90CSS" Header="Day 90 CSS" DataColumn="Day90CSS" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay90CSSqtr" Header="Day 90 CSS Quartile" DataColumn="Day90CSSqtr" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay90CustAvail" Header="Day 90 CustAvail" DataColumn="Day90CustAvail" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay90CustAvailqtr" Header="Day 90 CustAvail Quartile" DataColumn="Day90CustAvailqtr" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay90RanchRanking" Header="Day 90 Ranch Ranking" DataColumn="Day90RanchRanking" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <AnalysisGridColumn ID="colDay90OverallQuartile" Header="Day 90 Overall Quartile" DataColumn="Day90OverallQuartile" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+            <WaitPage />
+            <AnalysisGridColumn ID="colTenure" Header="Tenure (Days)" DataColumn="Tenure" DataType="Number" IdeDisplayStatus="Collapsed">
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </AnalysisGridColumn>
+          </AnalysisGrid>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter />
+</Report>

@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="IT.FailedLoginsByAuthMethod" SavedBy="JOMAX\twakefield" SavedAt="5/19/2014 1:48:08 PM" EngineVersion="11.0.43" Caption="Failed Validations By Authentication Method" Class="gdReportHeaderNameIT">
+  <DefaultRequestParams DaysBack="14" />
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column Class="ThemeAlignLeft">
+          <Label Caption="Failed Validations By Authentication Method" Class="gdReportHeaderNameIT" />
+          <LineBreak LineCount="2" />
+          <InputDate ID="inpStartDate" Caption="Start Date:" DefaultValue="@Request.inpStartDate~" CalendarLinkType="Image" Format="MM/dd/yyyy" InputDateReformat="General Date" CaptionClass="ThemeAlignLeft" />
+          <Spaces Size="5" />
+          <InputDate CalendarLinkType="Image" ID="inpEndDate" Caption="End Date:" Format="MM/dd/yyyy" InputDateReformat="General Date" DefaultValue="@Request.inpEndDate~" />
+          <Spaces Size="5" />
+          <LineBreak LineCount="2" />
+          <InputText ID="inpShopperIDs" Caption="Shopper ID (comma seperated)" DefaultValue="@Request.inpShopperIDs~" InputMaxLength="4000" InputSize="80" />
+          <Spaces Size="5" />
+          <LineBreak LineCount="2" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" Report="IT.FailedLoginsByAuthMethod" ID="tgtFailedLoginsByAuthMethod" RequestForwarding="True" KeepShowElements="True" />
+            </Action>
+          </Button>
+          <Spaces Size="30" />
+          <Division IdeDisplayStatus="Collapsed">
+            <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+              <Action Type="NativeExcel" ID="excelExport">
+                <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" />
+              </Action>
+            </Image>
+          </Division>
+        </Column>
+      </Row>
+      <Row>
+        <Column Class="ThemeAlignCenter" Condition="(&quot;@Request.InpStartDate~&quot; = &quot;&quot;) Or (&quot;@Request.InpEndDate~&quot; = &quot;&quot;)">
+          <Label Caption="Past 14 Days" Class="ThemeAlignCenter" />
+        </Column>
+      </Row>
+    </Rows>
+    <DataTable SortArrows="True" ID="dtFailedAttemptsLastHour" CellSpacing="9 px" AltRowClass="gdThemeAltRowNoPadding td" CaptionClass="gdTableHeaderBold" Class="gdBody" WidthScale="%" Width="48">
+      <DataLayer Type="SP" ID="SPDataLayer" ConnectionID="connGDNote" Command="eRpt.RollingFailValidationsByMethod_sp" IdeDisplayStatus="Collapsed">
+        <DataLayerLink ID="dllFailedAttemptsByAuthMethod" />
+        <GroupFilter ID="gfShopperVilidationType" GroupColumn="shopper_id, validationTypeDescription" IdeDisplayStatus="Collapsed">
+          <GroupAggregateColumn ID="gacNumberOfFailures" DataType="Number" AggregateColumn="validationTypeDescription" AggregateFunction="Count" />
+          <GroupAggregateColumn ID="gacCounOfDistinctReps" DataType="Number" AggregateFunction="DistinctCount" AggregateColumn="managerUserID" />
+        </GroupFilter>
+        <SPParameters IdeDisplayStatus="Collapsed">
+          <SPParameter ID="daysback" Value="@Request.daysback~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+          <SPParameter ID="startDate" Value="@Request.inpStartDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+          <SPParameter ID="enddate" Value="@Request.inpEndDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+          <SPParameter ID="shopperlist" Value="@Request.inpShopperIDs~" SPParamDirection="Input" SPParamSize="4000" SPParamType="dt-202" />
+        </SPParameters>
+      </DataLayer>
+      <DataTableColumn ID="colshopper_id" Header="Shopper" Class="ThemeAlignLeft" HeaderType="Text" IdeDisplayStatus="Collapsed">
+        <Label ID="lblshopper_id" Caption="@Data.shopper_id~" Tooltip="Click here to see shopper in CRM." Class="gdReportHeaderLinkIT" />
+        <DataColumnSort DataColumn="shopper_id" />
+        <Action Type="Link" ID="actLink">
+          <Target Type="Link" Link="https://crm.intranet.gdg/crmsilverlight.web/ShopperSearchPage.aspx?ShopperID=@Data.shopper_id~&amp;QuickSearch=1" ID="tlShopper" />
+        </Action>
+      </DataTableColumn>
+      <DataTableColumn ID="colvalidationTypeDescription" Header="Validation Type Description" WidthScale="%" Width="35" HeaderType="Text" IdeDisplayStatus="Collapsed">
+        <Label ID="lblvalidationTypeDescription" Caption="@Data.validationTypeDescription~" />
+        <DataColumnSort DataColumn="validationTypeDescription" />
+      </DataTableColumn>
+      <DataTableColumn ID="colgacNumberOfFailures" Header="Number Of Failures" WidthScale="%" Width="24" IdeDisplayStatus="Collapsed">
+        <Label ID="lblgacNumberOfFailures" Caption="@Data.gacNumberOfFailures~" Tooltip="Click here to see who made attempt." />
+        <DataColumnSort DataColumn="gacNumberOfFailures" DataType="Number" />
+        <Action Type="ShowElement" ID="actShowDetails" ElementID="mirRepsAttempts" />
+      </DataTableColumn>
+      <DataTableColumn ID="colgacCounOfDistinctReps" Header="Count Of Distinct Agent" IdeDisplayStatus="Collapsed" WidthScale="%" Width="25">
+        <Label ID="lblgacCounOfDistinctReps" Caption="@Data.gacCounOfDistinctReps~" Tooltip="Click here to see who made attempt." />
+        <DataColumnSort DataColumn="gacCounOfDistinctReps" DataType="Number" />
+        <Action Type="ShowElement" ID="actShowDetails" ElementID="mirRepsAttempts" />
+      </DataTableColumn>
+      <InteractivePaging PageRowCount="100" ShowPageNumber="Numbered" Location="Top" HideShowPrevNextCaptions="True" CaptionType="Text" HideWhenOnePage="True" />
+      <MoreInfoRow ID="mirRepsAttempts" ShowModes="None" IdeDisplayStatus="Collapsed">
+        <IncludeFrame ID="srRepAttempts" FrameBorder="False" SubReportMode="IncludeFrame">
+          <Target Type="IncludeFrameReport" ID="trgFailedReps" Report="IT.FailedLoginsByAuthMethodByRep" />
+          <LinkParams shopper_id="@Data.shopper_id~" validationTypeDescription="@Data.validationTypeDescription~" />
+        </IncludeFrame>
+      </MoreInfoRow>
+    </DataTable>
+    <Rows />
+  </Body>
+  <ReportFooter />
+  <ideTestParams daysback="" inpStartDate="" inpEndDate="" inpShopperIDs="" InpEndDate="" InpStartDate="" />
+</Report>

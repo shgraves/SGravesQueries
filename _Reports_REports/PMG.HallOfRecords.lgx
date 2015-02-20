@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.HallOfRecords" SavedBy="JOMAX\bgaer" SavedAt="9/12/2013 5:40:07 AM" EngineVersion="11.0.43">
+  <DefaultRequestParams islMetricList="" islAccountingCompany="" parmStartDate="" parmEndDate="" txtValue="" />
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="seHeader" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="ReportHeader" Class="gdReportHeader" Height="50px" IdeDisplayStatus="Collapsed">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Caption="Go Daddy - Hall of Records" Class="gdReportHeaderNameBI" />
+        </Column>
+      </Row>
+    </Rows>
+    <LineBreak />
+    <Rows IdeDisplayStatus="Collapsed">
+      <Row Class="gdDefaultRowBground" ID="rowReportParams1">
+        <Column Class="ThemeAlignLeft" ID="colParms">
+          <InputGrid ID="igInputGrid" WidthScale="%" GridWidth="100" Layout="Auto">
+            <InputDate ID="parmStartDate" Caption="Start Date (optional):" DefaultValue="@Request.parmStartDate~" CaptionClass="rdAlternateTextColorWhite" />
+            <InputDate ID="parmEndDate" Caption="End Date (optional):" DefaultValue="@Request.parmEndDate~" CaptionClass="rdAlternateTextColorWhite" />
+            <InputSelectList OptionCaptionColumn="description" OptionValueColumn="metric_id" ID="islMetricList" Caption="Select a Metric: " IncludeBlank="True" DefaultValue="@Request.islMetricList~" IncludeBlankCaption="All" IdeDisplayStatus="Collapsed" MultiSelect="True">
+              <DataLayer Type="Cached" CacheKey="GetMetricsList" ExpirationNow="False" ExpirationTimeSpan="02:00" ID="cacheDLGetMetricList" IdeDisplayStatus="Collapsed">
+                <DataLayer Type="SP" Command="rptLogiHallOfRecordsMetricsGet_sp" ConnectionID="connM1BIG-biLogiReporting" />
+              </DataLayer>
+            </InputSelectList>
+            <InputSelectList OptionCaptionColumn="Display" OptionValueColumn="Value" ID="islAccountingCompany" Caption="Select Company: " DefaultValue="@Request.islAccountingCompany~" IncludeBlank="True" IncludeBlankCaption="All" IncludeBlankValue="0" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Static" IdeDisplayStatus="Collapsed">
+                <StaticDataRow Display="Go Daddy" Value="1" />
+                <StaticDataRow Display="Wild West Domains" Value="2" />
+                <StaticDataRow Display="Go Daddy Group" Value="99" />
+              </DataLayer>
+            </InputSelectList>
+          </InputGrid>
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtCurrentReport" Report="PMG.HallOfRecords" RequestForwarding="True" />
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+      <Row IdeDisplayStatus="Collapsed">
+        <Column>
+          <DataTable ID="dtMetricDetails" AltRowClass="gdThemeAlternatingRow td" CellSpacing="7px" IdeDisplayStatus="Collapsed">
+            <DataLayer Type="SP" Command="rptLogiHallOfRecordsMetricsDetailGet_sp" ConnectionID="connM1BIG-biLogiReporting" ID="dlGetMetricDetails">
+              <SPParameters>
+                <SPParameter SPParamDirection="Input" SPParamSize="3" SPParamType="dt-3" ID="@metric_id" Value="@Request.islMetricList~" />
+                <SPParameter SPParamDirection="Input" Value="@Request.islAccountingCompany~" ID="@accounting_company_id" SPParamType="dt-3" SPParamSize="3" />
+                <SPParameter ID="@StartDate" SPParamDirection="Input" SPParamType="dt-7" SPParamSize="7" Value="@Request.parmStartDate~" />
+                <SPParameter ID="@EndDate" SPParamSize="7" SPParamType="dt-7" SPParamDirection="Input" Value="@Request.parmEndDate~" />
+              </SPParameters>
+            </DataLayer>
+            <DataTableColumn ID="coldescription" Header="Metric" IdeDisplayStatus="Collapsed">
+              <Label ID="lbldescription" Caption="@Data.description~" />
+              <DataColumnSort DataColumn="description" />
+            </DataTableColumn>
+            <DataTableColumn ID="colaccounting_company" Header="Accounting Company" IdeDisplayStatus="Collapsed">
+              <Label ID="lblaccounting_company" Caption="@Data.accounting_company~" />
+              <DataColumnSort DataColumn="accounting_company" />
+            </DataTableColumn>
+            <DataTableColumn ID="colordinal" Header="Ordinal" IdeDisplayStatus="Collapsed">
+              <Label ID="lblordinal" Caption="@Data.ordinal~" />
+              <DataColumnSort DataColumn="ordinal" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="coldate" Header="Date" IdeDisplayStatus="Collapsed">
+              <Label ID="lbldate" Caption="@Data.date~" Format="Short Date" />
+              <DataColumnSort DataColumn="date" DataType="Date" />
+            </DataTableColumn>
+            <DataTableColumn ID="colvalue" Header="Value" IdeDisplayStatus="Collapsed">
+              <Label ID="lblvalue" Caption="@Data.value~" Format="###,###,##0.00" />
+              <DataColumnSort DataColumn="value" DataType="Number" />
+            </DataTableColumn>
+          </DataTable>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <Division Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams islMetricList="" islAccountingCompany="" parmStartDate="" parmEndDate="" />
+</Report>

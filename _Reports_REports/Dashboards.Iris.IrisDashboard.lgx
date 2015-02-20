@@ -1,0 +1,332 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.Iris.IrisDashboard" SavedBy="JOMAX\dezell" SavedAt="8/28/2014 4:55:23 PM" EngineVersion="11.0.43-SP27" Class="ThemeBold">
+  <StyleSheet Theme="Silver" StyleSheet="IrisDashboard.css" />
+  <ReportHeader />
+  <DefaultRequestParams startDate="=DateAdd(&quot;d&quot;,-30,Date())" endDate="=DateAdd(&quot;d&quot;,0,Date())" irisServices="=&quot;@Cookie.checkIrisServices~&quot;" irisGroups="=&quot;@Cookie.checkIrisGroups~&quot;" />
+  <Body>
+    <Rows ID="rowHeader">
+      <Row>
+        <Column>
+          <Division ID="divTitle" Class="rdAlternateTextColorWhite">
+            <IncludeHtml Html="&lt;h2&gt;Iris Dashboard&lt;/h2&gt;" />
+          </Division>
+        </Column>
+        <Column>
+          <Spaces Size="6" />
+          <InputDate ID="startDate" Caption="Start Date:" DefaultValue="@Request.startDate~" CaptionClass="rdAlternateTextColorWhite" />
+          <Spaces Size="6" />
+          <InputDate ID="endDate" Caption="End Date:" DefaultValue="@Request.endDate~" CaptionClass="rdAlternateTextColorWhite" />
+          <Spaces Size="3" />
+          <InputCheckboxList MultiSelect="True" ID="checkIrisGroups" Caption="Groups:     " CheckboxListDropdown="True" OptionCaptionColumn="GroupDescription" OptionValueColumn="iris_groupID" SaveInCookie="True" DefaultValue="@Cookie.checkIrisGroups~" DropdownNoneSelectedCaption="Select Groups">
+            <DataLayer Type="SP" Command="dbo.dimIRISGroupGet_sp" ConnectionID="prodC3Analytics" ID="dlGetIrisGroups" IdeDisplayStatus="Collapsed">
+              <SortFilter SortColumn="GroupDescription" SortSequence="Ascending" DataType="Text" />
+            </DataLayer>
+            <Remark>
+              <DataLayer Type="Cached" ExpirationNow="False" ExpirationTime="08:30" ExpirationTimeSpan="24:00" ID="dlCachedGroups" CacheKey="IrisDashGroupCache" />
+            </Remark>
+          </InputCheckboxList>
+          <Spaces Size="3" />
+          <InputCheckboxList MultiSelect="True" ID="checkIrisServices" Caption="Services:" CheckboxListDropdown="True" OptionCaptionColumn="ServiceDescription" OptionValueColumn="iris_serviceID" SaveInCookie="True" DefaultValue="@Cookie.checkIrisServices~" DropdownNoneSelectedCaption="Select Services">
+            <DataLayer Type="SP" Command="dbo.dimIRISServiceGet_sp" ConnectionID="prodC3Analytics" ID="dlGetIrisServices" IdeDisplayStatus="Collapsed">
+              <SortFilter SortColumn="ServiceDescription" SortSequence="Ascending" DataType="Text" />
+            </DataLayer>
+            <Remark>
+              <DataLayer Type="Cached" CacheKey="IrisDashServiceCache" ID="dlCachedServices" ExpirationNow="False" ExpirationTime="08:30" ExpirationTimeSpan="24:00" />
+            </Remark>
+          </InputCheckboxList>
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtReport" Report="Dashboards.Iris.IrisDashboard" LinkDataLayers="True" />
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+    </Rows>
+    <Dashboard2 ID="dashIris" AllowFreeformLayout="False" DashboardAdjustable="True" DashboardColumns="4" DashboardTabs="False" SaveFile="@Function.AppPhysicalPath~\Dashboard\IrisDashboard_@Function.UserName~.xml" SaveFileStarter="@Function.AppPhysicalPath~\Dashboard\IrisDashdefault.xml">
+      <Panel Caption="Incidents Created By Subscriber" ID="pnlIncidentsCreatedBySubscriber" IdeDisplayStatus="Collapsed">
+        <LocalData>
+          <DataLayer Type="SP" ConnectionID="prodC3Analytics" Command="dbo.irisIncidentsCreatedBySubscriber_sp" ID="dlIncidentsbySubscriber">
+            <RelevanceFilter DataColumn="Incident" RelevanceType="NumberOfRows" RelevanceValue="10" />
+            <DataLayerLink ID="dllIncidentsCreatedBySubscriberx" />
+            <SPParameters>
+              <SPParameter ID="dt_Lo" Value="@Request.startDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+              <SPParameter ID="dt_Hi" Value="@Request.endDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+            </SPParameters>
+          </DataLayer>
+          <Remark>
+            <DataLayer Type="Cached" CacheKey="IncidentsCreatedBySubscriber,@Request.startDate~,@Request.endDate~" ExpirationNow="True" ExpirationTime="08:30" ExpirationTimeSpan="24:00" ID="dlCacheIncidentsCreatedBySubscriber" />
+          </Remark>
+        </LocalData>
+        <PanelContent IdeDisplayStatus="Collapsed">
+          <Division ID="divIncidentsCreatedBySubChart">
+            <Chart Type="XY" ID="chtIncidentsCreatedBySub" ChartWidth="420" ChartHeight="280" ChartDataColumn="Incident" ChartLabelColumn="Subscriber" XYChartType="Bar" ChartOrientation="Horizontal" Color="#a6cee3,#1f78b4,#b2df8a,#33a02c,#fb9a99,#e31a1c,#fdbf6f,#ff7f00,#cab2d6">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllIncidentsCreatedBySubscriberx" ID="linkedIncidentsCreatedSubChart">
+                <SortFilter SortColumn="Incident" DataType="Number" SortSequence="Ascending" />
+              </DataLayer>
+              <HoverHighlight />
+              <Quicktip>
+                <QuicktipRow Value="@Chart.Incident~" Format="###,###,##" />
+              </Quicktip>
+              <DataScale Format="mp" />
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+              <ZeroRowsMessage FontColor="Black" FontSize="8" Caption="There is no data to display for the specified dashboard parameters." />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divIncidentsCreatedBySubscriberTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divIncidentsCreatedBySubscriberTable" ShowModes="None">
+            <DataTable ID="dtIncidentsCreatedBySub">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllIncidentsCreatedBySubscriberx" ID="linkedIncidentsCreatedSubTable">
+                <SortFilter SortColumn="Incident" DataType="Number" SortSequence="Descending" />
+              </DataLayer>
+              <DataTableColumn ID="colSubscriber" Header="Subscriber">
+                <Label ID="lblSubscriber" Caption="@Data.Subscriber~" />
+                <DataColumnSort DataColumn="Subscriber" />
+              </DataTableColumn>
+              <DataTableColumn ID="colIncident" Header="Created">
+                <Label ID="lblIncident" Caption="@Data.Incident~" Format="###,###,##" />
+                <DataColumnSort DataColumn="Incident" DataType="Number" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Incidents Created By Type" ID="pnlIncidentsCreatedByDocType" IdeDisplayStatus="Collapsed">
+        <LocalData>
+          <DataLayer Type="SP" ConnectionID="prodC3Analytics" Command="dbo.irisIncidentsCreatedByType_sp">
+            <RelevanceFilter DataColumn="Incident" RelevanceType="NumberOfRows" RelevanceValue="10" />
+            <DataLayerLink ID="dllIncidentsCreatedByType" />
+            <SPParameters>
+              <SPParameter ID="dt_Lo" Value="@Request.startDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+              <SPParameter ID="dt_Hi" Value="@Request.endDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+            </SPParameters>
+          </DataLayer>
+          <Remark>
+            <DataLayer Type="Cached" ID="dlCachedIncidentsCreatedbyType" ExpirationNow="False" ExpirationTime="08:30" ExpirationTimeSpan="24:00" CacheKey="IrisDashIncidentsCreatedByTypeCache,@Request.startDate~,@Request.endDate~" />
+          </Remark>
+        </LocalData>
+        <PanelContent>
+          <Division ID="divIncidentsCreatedByTypeChart">
+            <Chart Type="XY" ID="chtIncidentsCreatedByType" ChartWidth="420" ChartHeight="280" ChartDataColumn="Incident" ChartLabelColumn="documentTypeDescription" XYChartType="Bar" ChartOrientation="Horizontal" Color="#a6cee3,#1f78b4,#b2df8a,#33a02c,#fb9a99,#e31a1c,#fdbf6f,#ff7f00,#cab2d6">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllIncidentsCreatedByType" ID="linkedIncidentsCreatedTypeChart">
+                <SortFilter SortColumn="Incident" DataType="Number" SortSequence="Ascending" />
+              </DataLayer>
+              <HoverHighlight />
+              <Quicktip>
+                <QuicktipRow Value="@Chart.Incident~" Format="###,###,##" />
+              </Quicktip>
+              <DataScale Format="mp" />
+              <FontLabel FontAngle="0" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+              <ZeroRowsMessage FontColor="Black" FontSize="8" Caption="There is no data to display for the specified dashboard parameters." />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divIncidentsCreatedByTypeTable" ID="actShowData" />
+            </Label>
+            <LineBreak />
+          </Division>
+          <Division ID="divIncidentsCreatedByTypeTable" ShowModes="None">
+            <DataTable ID="dtIncidentsCreatedByType">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllIncidentsCreatedByType" ID="linkedIncidentsCreatedTypeTable">
+                <SortFilter SortColumn="Incident" DataType="Number" SortSequence="Descending" />
+              </DataLayer>
+              <DataTableColumn ID="coldocumentTypeDescription" Header="Document Type" IdeDisplayStatus="Collapsed">
+                <Label ID="lbldocumentTypeDescription" Caption="@Data.documentTypeDescription~" />
+                <DataColumnSort DataColumn="documentTypeDescription" />
+              </DataTableColumn>
+              <DataTableColumn ID="colIncident" Header="Created">
+                <Label ID="lblIncident" Caption="@Data.Incident~" Format="###,###,##" />
+                <DataColumnSort DataColumn="Incident" DataType="Number" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Incidents Resolved By Group" ID="pnlIncidentsResolvedByGroup" IdeDisplayStatus="Collapsed">
+        <LocalData>
+          <DataLayer Type="SP" ID="dlIncidentsResolvedByGroup" ConnectionID="prodC3Analytics" Command="dbo.irisClosedResolvedIncidentCountByGroup_sp">
+            <RelevanceFilter DataColumn="QuantityClosedOrResolvedPerGroup" RelevanceType="NumberOfRows" RelevanceValue="10" />
+            <SortFilter SortColumn="QuantityClosedOrResolvedPerGroup" DataType="Number" SortSequence="Ascending" />
+            <DataLayerLink ID="dllIncidentsResolvedByGroupx" />
+            <SPParameters>
+              <SPParameter ID="dt_Lo" Value="@Request.startDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+              <SPParameter ID="dt_Hi" Value="@Request.endDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+              <SPParameter ID="v_group" Value="@Request.irisGroups~" SPParamDirection="Input" SPParamSize="2500" SPParamType="dt-200" />
+            </SPParameters>
+          </DataLayer>
+          <Remark>
+            <DataLayer Type="Cached" ExpirationTime="08:30" ExpirationTimeSpan="24:00" ID="dlCacheIncidentsResolvedByGroup" CacheKey="IrisDashIncidentsResolvedByGroup,@Request.startDate~,@Request.endDate~,@Request.checkIrisGroups~" ExpirationNow="False" />
+          </Remark>
+        </LocalData>
+        <PanelContent IdeDisplayStatus="Collapsed">
+          <Division ID="divIncidentsResolvedByGroupChart" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" ID="ChtIncidentsResolvedByGroup" ChartWidth="420" ChartHeight="280" ChartDataColumn="QuantityClosedOrResolvedPerGroup" ChartLabelColumn="GroupDescription" XYChartType="Bar" ChartOrientation="Horizontal" Color="#a6cee3,#1f78b4,#b2df8a,#33a02c,#fb9a99,#e31a1c,#fdbf6f,#ff7f00,#cab2d6">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllIncidentsResolvedByGroupx" ID="linkedIncidentsResolvedByGroupChart">
+                <SortFilter SortColumn="QuantityClosedOrResolvedPerGroup" DataType="Number" SortSequence="Ascending" />
+              </DataLayer>
+              <HoverHighlight />
+              <Quicktip>
+                <QuicktipRow Value="@Chart.QuantityClosedOrResolvedPerGroup~" Format="###,###,##" />
+              </Quicktip>
+              <DataScale Format="mp" />
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+              <ZeroRowsMessage FontColor="Black" FontSize="8" Caption="There is no data to display for the specified dashboard parameters." />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divIncidentsResolvedByGroupTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divIncidentsResolvedByGroupTable" ShowModes="None">
+            <DataTable ID="dtIncidentsResolvedByGroup">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllIncidentsResolvedByGroupx" ID="linkedIncidentsResolvedByGroupTable">
+                <SortFilter SortColumn="QuantityClosedOrResolvedPerGroup" DataType="Number" SortSequence="Descending" />
+              </DataLayer>
+              <DataTableColumn ID="colGroupDescription" Header="Group">
+                <Label ID="lblGroupDescription" Caption="@Data.GroupDescription~" />
+                <DataColumnSort DataColumn="GroupDescription" />
+              </DataTableColumn>
+              <DataTableColumn ID="colQuantityClosedOrResolvedPerGroup" Header="Resolved">
+                <Label ID="lblQuantityClosedOrResolvedPerGroup" Caption="@Data.QuantityClosedOrResolvedPerGroup~" Format="###,###,##" />
+                <DataColumnSort DataColumn="QuantityClosedOrResolvedPerGroup" DataType="Number" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Incidents Resolved by Service" ID="pnlIncidentsResolvedByService" IdeDisplayStatus="Collapsed">
+        <LocalData>
+          <DataLayer Type="SP" ID="dlIncidentsResolvedByService" ConnectionID="prodC3Analytics" Command="dbo.irisClosedResolvedIncidentCountByService_sp">
+            <RelevanceFilter DataColumn="QuantityClosedOrResolvedPerService" RelevanceType="NumberOfRows" RelevanceValue="10" />
+            <DataLayerLink ID="dllIncidentsResolvedByService" />
+            <SPParameters>
+              <SPParameter ID="dt_Lo" Value="@Request.startDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+              <SPParameter ID="dt_Hi" Value="@Request.endDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+              <SPParameter ID="v_service" Value="@Request.irisServices~" SPParamDirection="Input" SPParamSize="2500" SPParamType="dt-200" />
+            </SPParameters>
+          </DataLayer>
+          <Remark>
+            <DataLayer Type="Cached" ExpirationNow="False" ExpirationTime="08:30" ExpirationTimeSpan="24:00" ID="dlCacheIncidentsResolvedByService" CacheKey="IrisDashIncidentsResolvedByService,@Request.startDate~,@Request.endDate~,@Request.checkIrisServices~" />
+          </Remark>
+        </LocalData>
+        <PanelContent>
+          <Division ID="divIncidentsByServiceChart">
+            <Chart Type="XY" ChartWidth="420" ChartHeight="280" ChartDataColumn="QuantityClosedOrResolvedPerService" ChartLabelColumn="ServiceDescription" XYChartType="Bar" ChartOrientation="Horizontal" Color="#a6cee3,#1f78b4,#b2df8a,#33a02c,#fb9a99,#e31a1c,#fdbf6f,#ff7f00,#cab2d6" ID="chtIncidentsResolvedByService">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllIncidentsResolvedByService" ID="linkedIncidentsResByServiceChart">
+                <SortFilter SortColumn="QuantityClosedOrResolvedPerService" DataType="Number" SortSequence="Ascending" />
+              </DataLayer>
+              <HoverHighlight />
+              <Quicktip>
+                <QuicktipRow Value="@Chart.QuantityClosedOrResolvedPerService~" Format="###,###,##" />
+              </Quicktip>
+              <DataScale Format="mp" />
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+              <ZeroRowsMessage FontColor="Black" FontSize="8" Caption="There is no data to display for the specified dashboard parameters." />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divIncidentbyServiceTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divIncidentbyServiceTable" ShowModes="None">
+            <DataTable ID="dtIncidentsResolvedByService">
+              <DataTableColumn ID="colServiceDescription" Header="Service" IdeDisplayStatus="Collapsed">
+                <Label ID="lblServiceDescription" Caption="@Data.ServiceDescription~" />
+                <DataColumnSort DataColumn="ServiceDescription" />
+              </DataTableColumn>
+              <DataTableColumn ID="colQuantityClosedOrResolvedPerService" Header="Resolved">
+                <Label ID="lblQuantityClosedOrResolvedPerService" Caption="@Data.QuantityClosedOrResolvedPerService~" Format="###,###,##" />
+                <DataColumnSort DataColumn="QuantityClosedOrResolvedPerService" DataType="Number" />
+              </DataTableColumn>
+              <DataLayer Type="Linked" LinkedDataLayerID="dllIncidentsResolvedByService" ID="linkedIncidentsResByServiceTable">
+                <SortFilter SortColumn="QuantityClosedOrResolvedPerService" DataType="Number" SortSequence="Descending" />
+              </DataLayer>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlIncidentVolumeKPI" Caption="Incident Volume" IdeDisplayStatus="Collapsed">
+        <PanelContent Height="308">
+          <LineBreak LineCount="8" />
+          <Division ID="divIncidentVolume">
+            <Rows Width="100" WidthScale="%">
+              <Row>
+                <Column Class="ThemeAlignCenter" WidthScale="%" Width="50">
+                  <Label Caption="Incidents Created" Class="theme12ptTextBold" />
+                </Column>
+                <Remark>
+                  <Column>
+                    <Spaces Size="80" />
+                  </Column>
+                </Remark>
+                <Column Class="ThemeAlignCenter" Width="50" WidthScale="%">
+                  <Label Caption="Incidents Resolved" Class="theme12ptTextBold" />
+                </Column>
+              </Row>
+              <Row>
+                <Column Class="ThemeAlignCenter">
+                  <Label Class="theme20ptTextBold" Caption="@Local.qtyCreatedPerServiceAndGroup~" Format="###,###,##" />
+                </Column>
+                <Remark>
+                  <Column>
+                    <Spaces Size="80" />
+                  </Column>
+                </Remark>
+                <Column Class="ThemeAlignCenter">
+                  <Label Caption="@Local.qtyClosedResolvedPerServiceAndGroup~" Class="theme20ptTextBold" Format="###,###,##" />
+                </Column>
+              </Row>
+            </Rows>
+            <LineBreak LineCount="6" />
+            <Rows Width="100" WidthScale="%">
+              <Row Class="ThemeAlignCenter">
+                <Column Class="ThemeAlignCenter">
+                  <Label Caption="Resolved incidents are defined as those in a resolved or closed status." Class="ThemeBold" />
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </PanelContent>
+        <LocalData ID="varIncidentsCreated">
+          <DataLayer Type="SP" ConnectionID="prodC3Analytics" Command="dbo.irisIncidentsCreatedCountByServiceAndGroup_sp" ID="dlIncidentsCreatedbyServiceAndGroup">
+            <SPParameters>
+              <SPParameter ID="dt_Lo" Value="@Request.startDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+              <SPParameter ID="dt_Hi" Value="@Request.endDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+              <SPParameter ID="v_service" Value="@Request.checkIrisServices~" SPParamDirection="Input" SPParamSize="2500" SPParamType="dt-200" />
+              <SPParameter ID="v_group" Value="@Request.checkIrisGroups~" SPParamDirection="Input" SPParamSize="2500" SPParamType="dt-200" />
+            </SPParameters>
+          </DataLayer>
+          <Remark>
+            <DataLayer Type="Cached" ID="dlCachedIncidentsCreatedKPI" ExpirationNow="False" ExpirationTime="08:30" ExpirationTimeSpan="24:00" CacheKey="IrisDashIncidentsCreatedKPI,@Request.startDate~,@Request.endDate~,@Request.checkIrisServices~,@Request.checkIrisGroups~" />
+          </Remark>
+        </LocalData>
+        <LocalData ID="varIncidentCountClosed">
+          <DataLayer Type="SP" Command="dbo.irisClosedResolvedIncidentCountByServiceAndGroup_sp" ConnectionID="prodC3Analytics" ID="dlIncidentsCountClosed">
+            <SPParameters>
+              <SPParameter ID="dt_Lo" Value="@Request.startDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+              <SPParameter ID="dt_Hi" Value="@Request.endDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+              <SPParameter ID="v_service" Value="@Request.irisServices~" SPParamDirection="Input" SPParamSize="2500" SPParamType="dt-200" />
+              <SPParameter ID="v_group" Value="@Request.irisGroups~" SPParamDirection="Input" SPParamSize="2500" SPParamType="dt-200" />
+            </SPParameters>
+          </DataLayer>
+          <Remark>
+            <DataLayer Type="Cached" CacheKey="IrisDashIncidentsClosedKPI,@Request.startDate~,@Request.endDate~,@Request.checkIrisServices~,@Request.checkIrisGroups~" ExpirationNow="False" ExpirationTime="08:30" ExpirationTimeSpan="24:00" ID="dlCachedIncidentsClosedKPI" />
+          </Remark>
+        </LocalData>
+      </Panel>
+    </Dashboard2>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <Division Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="sharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams startDate="" endDate="" checkIrisGroups="" checkIrisServices="" irisGroups="" irisServices="" />
+</Report>

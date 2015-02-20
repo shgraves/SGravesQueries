@@ -1,0 +1,655 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="C3Dash.RepScoreCard" SavedBy="JOMAX\jkaplan" SavedAt="4/9/2014 10:42:40 PM" EngineVersion="11.2.040-SP2">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <LocalData>
+    <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3RankMetricTrendGet_sp" ConnectionID="connP3BIG-BiLogiReporting" IdeDisplayStatus="Collapsed">
+      <SPParameters>
+        <SPParameter SPParamDirection="Input" ID="@rptEnd" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepID" SPParamDirection="Input" Value="@Request.RepID~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepType" SPParamDirection="Input" Value="@Request.RepType~" />
+      </SPParameters>
+      <DataLayerLink ID="rptMetricTrend" />
+    </DataLayer>
+    <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3RankMetricPlotGet_sp" ConnectionID="connP3BIG-BiLogiReporting" IdeDisplayStatus="Collapsed">
+      <SPParameters>
+        <SPParameter SPParamDirection="Input" ID="@rptStart" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+        <SPParameter SPParamDirection="Input" ID="@rptEnd" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepID" SPParamDirection="Input" Value="@Request.RepID~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepType" SPParamDirection="Input" Value="@Request.RepType~" />
+      </SPParameters>
+      <DataLayerLink ID="rptMetricPlot" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.C3Header" SharedElementID="sharedHeader" ID="sharedHeaderElement" />
+    <IncludeHtml Html="&lt;style&gt;&#xD;&#xA;.gdColTitle {&#xD;&#xA;vertical-align: middle;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;input[type=&quot;submit&quot;]:enabled {&#xD;&#xA;background: #278dc1 !important;&#xD;&#xA;border: 1px solid #278dc1 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;width: 120px;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;submit&quot;]:hover:enabled {&#xD;&#xA;background: #545454 !important;&#xD;&#xA;border: 1px solid #545454 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;width: 120px;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;button&quot;] {&#xD;&#xA;background: #278dc1 !important;&#xD;&#xA;border: 1px solid #278dc1 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;width: 120px;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;button&quot;]:hover {&#xD;&#xA;background: #545454 !important;&#xD;&#xA;border: 1px solid #545454 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;width: 120px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&lt;/style&gt;" ID="CustomCSS" />
+  </ReportHeader>
+  <Body>
+    <LineBreak LineCount="0.5" />
+    <Rows ID="rowsTitle" Class="gdDefaultRowBground" WidthScale="px" Width="1350">
+      <Row Class="gdReportHeader" ID="rowTitle" IdeDisplayStatus="Collapsed">
+        <Column ID="colTitle" ShowModes="rdBrowser,rdExportPdf">
+          <Label Caption="@Request.MgrName~ - Ranked @Request.OverallDisplayRank~ (@Request.rptStart~ to @Request.rptEnd~)" Class="gdReportHeaderNameBI,gdColTitle" ID="Title" />
+        </Column>
+        <Column ID="colBack" Width="60" WidthScale="px" ShowModes="rdBrowser" Tooltip="Back to results.">
+          <IncludeHtml Html="&lt;a href=&quot;#&quot; onclick=&quot;javascript:history.go(-1);return false;&quot;&gt;&lt;IMG src=&quot;_SupportFiles/c3dash.backward.png&quot; id=&quot;Backward&quot; CLASS=&quot;a&quot; &gt;&lt;/IMG&gt;&lt;/a&gt;" ID="BackButton" />
+        </Column>
+        <Column ColSpan="colSpacer" ShowModes="rdBrowser">
+          <Button ID="ExporttoPDF" Caption="Export to PDF">
+            <Action Type="PDF">
+              <Target Type="PDF" Report="CurrentReport" ReportShowModes="rdExportPdf" RequestForwarding="True" />
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+    </Rows>
+    <Rows Class="gdDefaultRowBground" Width="1350" WidthScale="px">
+      <Row ID="rowOne">
+        <Column ID="colMetricPlot" Class="ThemeAlignTop" RowSpan="1" IdeDisplayStatus="Collapsed">
+          <Division ID="divMetricPlot">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colMetricPlotTitle" Width="400" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                  <Label Caption="New RPR vs CSS (@Request.rptStart~ to @Request.rptEnd~)" Class="gdChartTitle, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colMetricPlotChart" Class="gdColumnCell" Width="400" IdeDisplayStatus="Collapsed">
+                  <Division ID="divMetricPlotChart">
+                    <Chart Type="Scatter" ChartHeight="265" ChartWidth="400" ChartXDataColumn="CSS" YAxisTitle="New RPR" XAxisTitle="CSS" ChartSymbol="SymbolTriangle" Tooltip="@Data.Name~" ChartSymbolFillColor="#F58426" GridHorizontalColor="#f2f2f2" GridVerticalColor="#f2f2f2" ID="chtMetricPlot" ChartSymbolSize="12" ChartYDataColumn="New_x0020_RPR" BorderRight="20" BorderLeft="60" BackgroundColor="transparent" ChartBackgroundColor="transparent" ChartSymbolEdgeColor="transparent" BorderColor="#69737b">
+                      <DataLayer Type="Linked" LinkedDataLayerID="rptMetricPlot" ID="dlMetricPlot.Linked1">
+                        <ConditionFilter Condition="@Data.ID~ = -1" />
+                      </DataLayer>
+                      <ExtraScatterLayer ChartYDataColumn="New_x0020_RPR" ChartXDataColumn="CSS" ID="chtUser" ChartSymbolFillColor="#8CC63F" ChartSymbol="SymbolSquare" ChartSymbolSize="10" ChartSymbolEdgeColor="transparent">
+                        <DataLayer Type="Linked" LinkedDataLayerID="rptMetricPlot" ID="dlMetricPlot.Linked2">
+                          <ConditionFilter Condition="@Data.ID~ = @Request.RepID~" />
+                        </DataLayer>
+                      </ExtraScatterLayer>
+                      <ExtraScatterLayer ChartYDataColumn="New_x0020_RPR" ChartXDataColumn="CSS" ID="chtDept" ChartSymbolFillColor="#69737b" ChartSymbol="SymbolTriangle" ChartSymbolSize="6" ChartSymbolEdgeColor="transparent">
+                        <DataLayer Type="Linked" LinkedDataLayerID="rptMetricPlot" ID="dlMetricPlot.Linked3">
+                          <ConditionFilter Condition="@Data.ID~ != @Request.RepID~ AND @Data.ID~ != -1" />
+                        </DataLayer>
+                      </ExtraScatterLayer>
+                      <HoverHighlight BorderColor="red" BorderWidth="1" />
+                      <DataScale Format="$#,##0" />
+                      <LabelScale ScaleUpperBound="10" ScaleLowerBound="5" Format="General Number" />
+                    </Chart>
+                  </Division>
+                  <Spaces Size="40" />
+                  <Image Caption="c3dash.repplotpoint.png" ID="imgRep" />
+                  <Spaces Size="2" />
+                  <Label Caption="Rep" />
+                  <Spaces Size="5" />
+                  <Image Caption="c3dash.deptplotpoint.png" ID="imgDept" />
+                  <Spaces Size="2" />
+                  <Label Caption="Dept Avg" />
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+        <Column ID="colRPR" Class="ThemeAlignTop" IdeDisplayStatus="Collapsed">
+          <Division ID="divRPR">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colRPRTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="RPR" Class="gdChartTitle, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colRPRChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divRPRChart" IdeDisplayStatus="Collapsed">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="MetricValue" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#8cc63f" ID="chtRPR" GridVerticalColor="#f5f5f5" GridHorizontalColor="#f5f5f5" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="5" LineWidth="3" LegendLabel="Rep" BorderColor="transparent">
+                      <DataLayer Type="Linked" ID="dlMetricTrend.Linked1" LinkedDataLayerID="rptMetricTrend">
+                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;RPR&quot;" />
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="deptMetricValue" LegendLabel="Avg" Color="#69737b" LineWidth="3" />
+                      <ExtraXYDataColumn ChartDataColumn="Top20" LegendLabel="Top 20" Color="#278DC1" LineWidth="3" />
+                      <ExtraXYDataColumn ChartDataColumn="Bot20" LegendLabel="Bot 20" Color="#EE3123" LineWidth="3" />
+                      <DataScale Format="$#,##0" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <ZoomChart Location="None" />
+                      <ZeroRowsMessage Caption="No Previous Bonus Periods in Department" />
+                    </Chart>
+                    <Rows>
+                      <Row ID="rowDrillThrough">
+                        <Column ID="colShowData" Class="ThemeAlignLeft" WidthScale="px" Width="200" ShowModes="rdBrowser">
+                          <Label Caption="Show Data" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="divRPRTable" ID="actShowData" />
+                          </Label>
+                        </Column>
+                      </Row>
+                    </Rows>
+                    <Division ID="divRPRTable" ShowModes="None">
+                      <DataTable ID="dtRPR" AltRowClass="gdThemeAltRowNoPadding td" Width="400">
+                        <DataLayer Type="Linked" ID="dlMetricTrend.Linked2" LinkedDataLayerID="rptMetricTrend">
+                          <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;RPR&quot;" />
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colRep" Header="Rep" Class="ThemeAlignRight">
+                          <Label Caption="@Data.MetricValue~" Format="$#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDept" Header="Dept Avg" Class="ThemeAlignRight">
+                          <Label Caption="@Data.deptMetricValue~" Format="$#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colTop20" Header="Top 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Top20~" Format="$#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colBot20" Header="Bot 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Bot20~" Format="$#,##0" />
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+        <Column ID="colNewRPR" Class="ThemeAlignTop" IdeDisplayStatus="Collapsed">
+          <Division ID="divNewRPR">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colNewRPRTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="New RPR" Class="gdChartTitle, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colNewRPRChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divNewRPRChart" IdeDisplayStatus="Collapsed">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="MetricValue" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#8CC63F" ID="chtNewRPR" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="3" LegendLabel="Rep" BorderColor="transparent">
+                      <DataLayer Type="Linked" ID="dlMetricTrend.Linked3" LinkedDataLayerID="rptMetricTrend">
+                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;New RPR&quot;" />
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="deptMetricValue" LegendLabel="Avg" Color="#69737b" />
+                      <ExtraXYDataColumn ChartDataColumn="Top20" LegendLabel="Top 20" Color="#278DC1" />
+                      <ExtraXYDataColumn ChartDataColumn="Bot20" LegendLabel="Bot 20" Color="#ee3123" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <DataScale Format="$#,##0" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <ZoomChart Location="None" />
+                      <ZeroRowsMessage Caption="No Previous Bonus Periods in Department" />
+                    </Chart>
+                    <Rows IdeDisplayStatus="Collapsed">
+                      <Row ID="rowDrillThrough">
+                        <Column ID="colShowData" Class="ThemeAlignLeft" WidthScale="px" Width="200" ShowModes="rdBrowser">
+                          <Label Caption="Show Data" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="divNewRPRTable" ID="actShowData" />
+                          </Label>
+                        </Column>
+                      </Row>
+                    </Rows>
+                    <Division ID="divNewRPRTable" ShowModes="None" IdeDisplayStatus="Collapsed">
+                      <DataTable ID="dtNewRPR" AltRowClass="gdThemeAltRowNoPadding td" Width="400">
+                        <DataLayer Type="Linked" ID="dlMetricTrend.Linked4" LinkedDataLayerID="rptMetricTrend">
+                          <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;New RPR&quot;" />
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colRep" Header="Rep" Class="ThemeAlignRight">
+                          <Label Caption="@Data.MetricValue~" Format="$#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDept" Header="Dept Avg" Class="ThemeAlignRight">
+                          <Label Caption="@Data.deptMetricValue~" Format="$#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colTop20" Header="Top 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Top20~" Format="$#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colBot20" Header="Bot 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Bot20~" Format="$#,##0" />
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+      </Row>
+      <Row>
+        <Column IdeDisplayStatus="Collapsed">
+          <LineBreak />
+        </Column>
+      </Row>
+      <Row ID="rowTwo">
+        <Column ID="colAOS" Class="ThemeAlignTop" IdeDisplayStatus="Collapsed">
+          <Division ID="divAOS">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colAOSTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="AOS" Class="gdChartTitle, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colAOSChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divAOSChart">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="MetricValue" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#8CC63F" ID="chtAOS" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="3" LegendLabel="Rep" BorderColor="transparent">
+                      <DataLayer Type="Linked" ID="dlMetricTrend.Linked5" LinkedDataLayerID="rptMetricTrend">
+                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;AOS&quot;" />
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="deptMetricValue" LegendLabel="Avg" Color="#69737b" />
+                      <ExtraXYDataColumn ChartDataColumn="Top20" LegendLabel="Top 20" Color="#278dc1" />
+                      <ExtraXYDataColumn ChartDataColumn="Bot20" LegendLabel="Bot 20" Color="#ee3123" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <DataScale Format="$#,##0.#0" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <ZoomChart Location="None" />
+                      <ZeroRowsMessage Caption="No Previous Bonus Periods in Department" />
+                    </Chart>
+                    <Rows>
+                      <Row ID="rowDrillThrough">
+                        <Column ID="colShowData" Class="ThemeAlignLeft" WidthScale="px" Width="200" ShowModes="rdBrowser">
+                          <Label Caption="Show Data" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="divAOSTable" ID="actShowData" />
+                          </Label>
+                        </Column>
+                      </Row>
+                    </Rows>
+                    <Division ID="divAOSTable" ShowModes="None">
+                      <DataTable ID="dtAOS" AltRowClass="gdThemeAltRowNoPadding td" Width="400">
+                        <DataLayer Type="Linked" ID="dlMetricTrend.Linked6" LinkedDataLayerID="rptMetricTrend">
+                          <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;AOS&quot;" />
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colRep" Header="Rep" Class="ThemeAlignRight">
+                          <Label Caption="@Data.MetricValue~" Format="$#,##0.#0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDept" Header="Dept Avg" Class="ThemeAlignRight">
+                          <Label Caption="@Data.deptMetricValue~" Format="$#,##0.#0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colTop20" Header="Top 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Top20~" Format="$#,##0.#0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colBot20" Header="Bot 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Bot20~" Format="$#,##0.#0" />
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+        <Column ID="colConversion" Class="ThemeAlignTop" IdeDisplayStatus="Collapsed">
+          <Division ID="divConversion">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colConversionTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="Conversion %" Class="gdChartTitle ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colConversionChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divConversionChart">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="MetricValue" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#8CC63F" ID="chtConversion" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="3" LegendLabel="Rep" BorderColor="transparent">
+                      <DataLayer Type="Linked" ID="dlMetricTrend.Linked7" LinkedDataLayerID="rptMetricTrend">
+                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;Conversion %&quot;" />
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="deptMetricValue" LegendLabel="Avg" Color="#69737b" />
+                      <ExtraXYDataColumn ChartDataColumn="Top20" LegendLabel="Top 20" Color="#278DC1" />
+                      <ExtraXYDataColumn ChartDataColumn="Bot20" LegendLabel="Bot 20" Color="#ee3123" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <DataScale Format="#0%" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <ZoomChart Location="None" />
+                      <ZeroRowsMessage Caption="No Previous Bonus Periods in Department" />
+                    </Chart>
+                    <Rows>
+                      <Row ID="rowDrillThrough">
+                        <Column ID="colShowData" Class="ThemeAlignLeft" WidthScale="px" Width="200" ShowModes="rdBrowser">
+                          <Label Caption="Show Data" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="divConversionTable" ID="actShowData" />
+                          </Label>
+                        </Column>
+                      </Row>
+                    </Rows>
+                    <Division ID="divConversionTable" ShowModes="None">
+                      <DataTable ID="dtConversion" AltRowClass="gdThemeAltRowNoPadding td" Width="400">
+                        <DataLayer Type="Linked" ID="dlMetricTrend.Linked8" LinkedDataLayerID="rptMetricTrend">
+                          <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;Conversion %&quot;" />
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colRep" Header="Rep" Class="ThemeAlignRight">
+                          <Label Caption="@Data.MetricValue~" Format="Percent" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDept" Header="Dept Avg" Class="ThemeAlignRight">
+                          <Label Caption="@Data.deptMetricValue~" Format="Percent" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colTop20" Header="Top 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Top20~" Format="Percent" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colBot20" Header="Bot 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Bot20~" Format="Percent" />
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+        <Column ID="colCSS" Class="ThemeAlignTop" IdeDisplayStatus="Collapsed">
+          <Division ID="divCSS">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colCSSTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="CSS" Class="gdChartTitle, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colCSSChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divCSSChart">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="MetricValue" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#8CC63F" ID="chtCSS" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="3" LegendLabel="Rep" BorderColor="transparent">
+                      <DataLayer Type="Linked" ID="dlMetricTrend.Linked9" LinkedDataLayerID="rptMetricTrend">
+                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;CSS&quot;" />
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="deptMetricValue" LegendLabel="Avg" Color="#69737B" />
+                      <ExtraXYDataColumn ChartDataColumn="Top20" LegendLabel="Top 20" Color="#278dc1" />
+                      <ExtraXYDataColumn ChartDataColumn="Bot20" LegendLabel="Bot 20" Color="#ee3123" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <DataScale Format="##.#0" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <ZoomChart Location="None" />
+                      <ZeroRowsMessage Caption="No Previous Bonus Periods in Department" />
+                    </Chart>
+                    <Rows>
+                      <Row ID="rowDrillThrough">
+                        <Column ID="colShowData" Class="ThemeAlignLeft" WidthScale="px" Width="200" ShowModes="rdBrowser">
+                          <Label Caption="Show Data" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="divCSSTable" ID="actShowData" />
+                          </Label>
+                        </Column>
+                      </Row>
+                    </Rows>
+                    <Division ID="divCSSTable" ShowModes="None">
+                      <DataTable ID="dtCSS" AltRowClass="gdThemeAltRowNoPadding td" Width="400">
+                        <DataLayer Type="Linked" ID="dlMetricTrend.Linked10" LinkedDataLayerID="rptMetricTrend">
+                          <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;CSS&quot;" />
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colRep" Header="Rep" Class="ThemeAlignRight">
+                          <Label Caption="@Data.MetricValue~" Format="##.#0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDept" Header="Dept Avg" Class="ThemeAlignRight">
+                          <Label Caption="@Data.deptMetricValue~" Format="##.#0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colTop20" Header="Top 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Top20~" Format="##.#0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colBot20" Header="Bot 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Bot20~" Format="##.#0" />
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+      </Row>
+      <Row>
+        <Column IdeDisplayStatus="Collapsed">
+          <LineBreak />
+        </Column>
+      </Row>
+      <Row ID="rowThree">
+        <Column ID="colContacts" Class="ThemeAlignTop" IdeDisplayStatus="Collapsed">
+          <Division ID="divContacts">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colContactsTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="Contacts Per Day" Class="gdChartTitle, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colContactsChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divContactsChart">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="MetricValue" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#8cc63f" ID="chtContacts" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="3" LegendLabel="Rep" BorderColor="transparent">
+                      <DataLayer Type="Linked" ID="dlMetricTrend.Linked11" LinkedDataLayerID="rptMetricTrend">
+                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;Contacts per Day&quot;" />
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="deptMetricValue" LegendLabel="Avg" Color="#69737b" />
+                      <ExtraXYDataColumn ChartDataColumn="Top20" LegendLabel="Top 20" Color="#278dc1" />
+                      <ExtraXYDataColumn ChartDataColumn="Bot20" LegendLabel="Bot 20" Color="#ee3123" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <DataScale Format="#,##0" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <ZoomChart Location="None" />
+                      <ZeroRowsMessage Caption="No Previous Bonus Periods in Department" />
+                    </Chart>
+                    <Rows>
+                      <Row ID="rowDrillThrough">
+                        <Column ID="colShowData" Class="ThemeAlignLeft" WidthScale="px" Width="200" ShowModes="rdBrowser">
+                          <Label Caption="Show Data" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="divContactsTable" ID="actShowData" />
+                          </Label>
+                        </Column>
+                      </Row>
+                    </Rows>
+                    <Division ID="divContactsTable" ShowModes="None">
+                      <DataTable ID="dtContacts" AltRowClass="gdThemeAltRowNoPadding td" Width="400">
+                        <DataLayer Type="Linked" ID="dlMetricTrend.Linked12" LinkedDataLayerID="rptMetricTrend">
+                          <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;Contacts per Day&quot;" />
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colRep" Header="Rep" Class="ThemeAlignRight">
+                          <Label Caption="@Data.MetricValue~" Format="#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDept" Header="Dept Avg" Class="ThemeAlignRight">
+                          <Label Caption="@Data.deptMetricValue~" Format="#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colTop20" Header="Top 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Top20~" Format="#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colBot20" Header="Bot 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Bot20~" Format="#,##0" />
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+        <Column ID="colAHT" Class="ThemeAlignTop" IdeDisplayStatus="Collapsed">
+          <Division ID="divAHT">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colAHTTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="IB AHT" Class="gdChartTitle, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colAHTChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divAHTChart">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="MetricValue" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#8cc63f" ID="chtAHT" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="3" LegendLabel="Rep" BorderColor="transparent">
+                      <DataLayer Type="Linked" ID="dlMetricTrend.Linked5" LinkedDataLayerID="rptMetricTrend">
+                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;IB AHT&quot;" />
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="deptMetricValue" LegendLabel="Avg" Color="#69737b" />
+                      <ExtraXYDataColumn ChartDataColumn="Top20" LegendLabel="Top 20" Color="#278dc1" />
+                      <ExtraXYDataColumn ChartDataColumn="Bot20" LegendLabel="Bot 20" Color="#ee3123" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <DataScale Format="#,##0" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <ZoomChart Location="None" />
+                      <ZeroRowsMessage Caption="No Previous Bonus Periods in Department" />
+                    </Chart>
+                    <Rows>
+                      <Row ID="rowDrillThrough">
+                        <Column ID="colShowData" Class="ThemeAlignLeft" WidthScale="px" Width="200" ShowModes="rdBrowser">
+                          <Label Caption="Show Data" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="divAHTTable" ID="actShowData" />
+                          </Label>
+                        </Column>
+                      </Row>
+                    </Rows>
+                    <Division ID="divAHTTable" ShowModes="None">
+                      <DataTable ID="dtAHT" AltRowClass="gdThemeAltRowNoPadding td" Width="400">
+                        <DataLayer Type="Linked" ID="dlMetricTrend.Linked6" LinkedDataLayerID="rptMetricTrend">
+                          <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;IB AHT&quot;" />
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colRep" Header="Rep" Class="ThemeAlignRight">
+                          <Label Caption="@Data.MetricValue~" Format="#,##0.#0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDept" Header="Dept Avg" Class="ThemeAlignRight">
+                          <Label Caption="@Data.deptMetricValue~" Format="#,##0.#0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colTop20" Header="Top 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Top20~" Format="#,##0.#0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colBot20" Header="Bot 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Bot20~" Format="#,##0.#0" />
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+        <Column ID="colRefund" Class="ThemeAlignTop">
+          <Division ID="divRefund">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colRefundTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="Refund Per $100" Class="gdChartTitle, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colRefundChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divRefundChart">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="MetricValue" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#8cc63f" ID="chtRefund" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="3" LegendLabel="Rep" BorderColor="transparent">
+                      <DataLayer Type="Linked" ID="dlMetricTrend.Linked7" LinkedDataLayerID="rptMetricTrend">
+                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;Refunds per $100 in Sales&quot;" />
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="deptMetricValue" LegendLabel="Avg" Color="#69737b" />
+                      <ExtraXYDataColumn ChartDataColumn="Top20" LegendLabel="Top 20" Color="#278dc1" />
+                      <ExtraXYDataColumn ChartDataColumn="Bot20" LegendLabel="Bot 20" Color="#ee3123" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <DataScale Format="-$#,##0.00" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <ZoomChart Location="None" />
+                      <ZeroRowsMessage Caption="No Previous Bonus Periods in Department" />
+                    </Chart>
+                    <Rows>
+                      <Row ID="rowDrillThrough">
+                        <Column ID="colShowData" Class="ThemeAlignLeft" WidthScale="px" Width="200" ShowModes="rdBrowser">
+                          <Label Caption="Show Data" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="divRefundTable" ID="actShowData" />
+                          </Label>
+                        </Column>
+                      </Row>
+                    </Rows>
+                    <Division ID="divRefundTable" ShowModes="None">
+                      <DataTable ID="dtRefund" AltRowClass="gdThemeAltRowNoPadding td" Width="400">
+                        <DataLayer Type="Linked" ID="dlMetricTrend.Linked8" LinkedDataLayerID="rptMetricTrend">
+                          <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;Refunds per $100 in Sales&quot;" />
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colRep" Header="Rep" Class="ThemeAlignRight">
+                          <Label Caption="@Data.MetricValue~" Format="$#,##0.#0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDept" Header="Dept Avg" Class="ThemeAlignRight">
+                          <Label Caption="@Data.deptMetricValue~" Format="$#,##0.#0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colTop20" Header="Top 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Top20~" Format="$#,##0.#0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colBot20" Header="Bot 20" Class="ThemeAlignRight">
+                          <Label Caption="@Data.Bot20~" Format="$#,##0.#0" />
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter>
+    <Division Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams rptEnd="" DepartmentID="" RepID="" RepType="" MgrName="" OverallDisplayRank="" rptStart="" />
+</Report>

@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Aprimo.JZJ_Dev.Gallactica2" SavedBy="JOMAX\jzwayerjones" SavedAt="12/10/2013 3:41:56 PM" EngineVersion="11.0.43">
+  <Remark>
+    <FormulaScriptFile />
+  </Remark>
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams idEndDate1="2013-11-07" idEndDate2="2013-11-15" idStartDate1="2013-11-01" idStartDate2="2013-11-08" rdAgRefreshData="True" />
+  <Remark>
+    <StyleSheet />
+  </Remark>
+  <ReportHeader />
+  <Body>
+    <Rows ID="rowDropDowns" Class="gdDefaultDropDownBground">
+      <Row>
+        <Column ID="colDateRangeOneSelect">
+          <Rows Caption="Choose Date Ranges">
+            <Row ID="rowStartDT1">
+              <Column>
+                <Label Caption="StartDate1:" />
+              </Column>
+              <Column>
+                <InputDate ID="idStartDate1" Format="yyyy-MM-dd" DefaultValue="@Request.idStartDate1~">
+                  <Validation Type="Date" ErrorMsg="Incorrect Date Format" />
+                  <Validation Type="Required" ErrorMsg="Incorrect Date Format" />
+                </InputDate>
+                <Remark>
+                  <EventHandler DhtmlEvent="onchange">
+                    <Action Type="RefreshElement" ElementID="idStartDate1" ID="actRefreshStartDate1" RequestForwarding="True">
+                      <WaitPage Caption="Loading..." />
+                    </Action>
+                  </EventHandler>
+                </Remark>
+              </Column>
+            </Row>
+            <Row ID="rowEndDT1">
+              <Column>
+                <Label Caption="EndDate1:" />
+              </Column>
+              <Column>
+                <InputDate ID="idEndDate1" Format="yyyy-MM-dd" DefaultValue="@Request.idEndDate1~">
+                  <Validation Type="Date" ErrorMsg="Incorrect Date Format" />
+                  <Validation Type="Required" ErrorMsg="Incorrect Date Format" />
+                </InputDate>
+                <Remark>
+                  <EventHandler DhtmlEvent="onchange">
+                    <Action Type="RefreshElement" ElementID="idEndDate1" ID="actRefreshEndDate1" RequestForwarding="True">
+                      <WaitPage Caption="Loading..." />
+                    </Action>
+                  </EventHandler>
+                </Remark>
+              </Column>
+            </Row>
+            <Row ID="rowStartDT2">
+              <Column>
+                <Label Caption="StartDate2:" />
+              </Column>
+              <Column>
+                <InputDate ID="idStartDate2" DefaultValue="@Request.idStartDate2~" Format="yyyy-MM-dd">
+                  <Validation Type="Date" ErrorMsg="Incorrent Date Format" />
+                  <Validation Type="Required" ErrorMsg="Incorrect Date Format" />
+                </InputDate>
+                <Remark>
+                  <EventHandler DhtmlEvent="onchange">
+                    <Action Type="RefreshElement" ElementID="idStartDate2" ID="actRefreshStartDate2" RequestForwarding="True">
+                      <WaitPage Caption="Loading..." />
+                    </Action>
+                  </EventHandler>
+                </Remark>
+              </Column>
+            </Row>
+            <Row ID="rowEndDT2">
+              <Column>
+                <Label Caption="EndDate2:" />
+              </Column>
+              <Column>
+                <InputDate ID="idEndDate2" DefaultValue="@Request.idEndDate2~" Format="yyyy-MM-dd">
+                  <Validation Type="Date" ErrorMsg="Incorrent Date Format" />
+                  <Validation Type="Required" ErrorMsg="Incorrect Date Format" />
+                </InputDate>
+                <Remark>
+                  <EventHandler DhtmlEvent="onchange">
+                    <Action Type="RefreshElement" ElementID="idEndDate2" ID="actRefreshEndDate2" RequestForwarding="True">
+                      <WaitPage Caption="Loading..." />
+                    </Action>
+                  </EventHandler>
+                </Remark>
+              </Column>
+            </Row>
+            <Row ID="rowSubmit">
+              <Column ID="colSubmit" ColSpan="5" RowSpan="1">
+                <Button ID="Submit" Caption="Submit">
+                  <Remark>
+                    <EventHandler DhtmlEvent="onclick">
+                      <Action Type="Javascript" ID="actValidate" Javascript="ValidateForm()" />
+                    </EventHandler>
+                  </Remark>
+                  <Action Type="Report">
+                    <Target Type="Report" ID="trgDateInput1" Report="Aprimo.JZJ_Dev.Gallactica2" RequestForwarding="True">
+                      <WaitPage Caption="Loading..." />
+                    </Target>
+                  </Action>
+                </Button>
+              </Column>
+            </Row>
+          </Rows>
+          <Remark>
+            <Rows Caption="Choose Date Range Two" IdeDisplayStatus="Collapsed">
+              <Row ID="rowSubmit">
+                <Column ID="colSubmit" ColSpan="5" RowSpan="1">
+                  <Button ID="Submit" Caption="Submit">
+                    <EventHandler DhtmlEvent="onclick">
+                      <Action Type="Javascript" ID="actValidate" Javascript="ValidateForm()" />
+                    </EventHandler>
+                    <Action Type="Report">
+                      <Target Type="Report" ID="trgDateInput2" Report="CurrentReport" RequestForwarding="True">
+                        <WaitPage Caption="Loading..." />
+                      </Target>
+                    </Action>
+                  </Button>
+                </Column>
+              </Row>
+            </Rows>
+          </Remark>
+        </Column>
+        <Remark>
+          <Column ID="colDateRangeTwoSelect" />
+        </Remark>
+      </Row>
+    </Rows>
+    <Remark>
+      <CrosstabTable ID="CrosstabTable2" IdeDisplayStatus="Collapsed">
+        <DataLayer Type="SQL" ID="SQLDataLayer" ConnectionID="connM1BIG-biLogiReporting" Source="&#xD;&#xA;SELECT&#xD;&#xA;CASE WHEN IC.channel_id &gt; 0 then IC.name ELSE 'Billing_Agent' END AS ctLabel&#xD;&#xA;, CASE WHEN point_of_purchase_id = 1 then 'Web'&#xD;&#xA;	   WHEN point_of_purchase_id = 2 then 'Billing_Agent'&#xD;&#xA;	   WHEN point_of_purchase_id = 3 then 'C3' ELSE 'Other_POP' END AS ctSubLabel&#xD;&#xA;, 'GCR' AS ctColumn&#xD;&#xA;, SUM(GCR) AS ctValue&#xD;&#xA;FROM&#xD;&#xA;BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;JOIN&#xD;&#xA;GoDaddy.dbo.isc_channel IC (NOLOCK)&#xD;&#xA;ON RLPOD.channel_id = IC.channel_id&#xD;&#xA;AND RLPOD.rptDate &gt; '2013-12-01'&#xD;&#xA;&#xD;&#xA;GROUP BY CASE WHEN IC.channel_id &gt; 0 then IC.name ELSE 'Billing_Agent' END&#xD;&#xA;, CASE WHEN point_of_purchase_id = 1 then 'Web'&#xD;&#xA;	   WHEN point_of_purchase_id = 2 then 'Billing_Agent'&#xD;&#xA;	   WHEN point_of_purchase_id = 3 then 'C3' ELSE 'Other_POP' END&#xD;&#xA;&#xD;&#xA;UNION ALL&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;CASE WHEN IC.channel_id &gt; 0 then IC.name ELSE 'Billing_Agent' END AS ctLabel&#xD;&#xA;, CASE WHEN point_of_purchase_id = 1 then 'Web'&#xD;&#xA;	   WHEN point_of_purchase_id = 2 then 'Billing_Agent'&#xD;&#xA;	   WHEN point_of_purchase_id = 3 then 'C3' ELSE 'Other_POP' END AS ctSubLabel&#xD;&#xA;, 'Months' AS ctColumn&#xD;&#xA;, Sum(Months) AS ctValue&#xD;&#xA;FROM&#xD;&#xA;BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;JOIN&#xD;&#xA;GoDaddy.dbo.isc_channel IC (NOLOCK)&#xD;&#xA;ON RLPOD.channel_id = IC.channel_id&#xD;&#xA;AND RLPOD.rptDate &gt; '2013-12-01'&#xD;&#xA;&#xD;&#xA;GROUP BY CASE WHEN IC.channel_id &gt; 0 then IC.name ELSE 'Billing_Agent' END&#xD;&#xA;, CASE WHEN point_of_purchase_id = 1 then 'Web'&#xD;&#xA;	   WHEN point_of_purchase_id = 2 then 'Billing_Agent'&#xD;&#xA;	   WHEN point_of_purchase_id = 3 then 'C3' ELSE 'Other_POP' END&#xD;&#xA;&#xD;&#xA;UNION ALL&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;CASE WHEN IC.channel_id &gt; 0 then IC.name ELSE 'Billing_Agent' END AS ctLabel&#xD;&#xA;, CASE WHEN point_of_purchase_id = 1 then 'Web'&#xD;&#xA;	   WHEN point_of_purchase_id = 2 then 'Billing_Agent'&#xD;&#xA;	   WHEN point_of_purchase_id = 3 then 'C3' ELSE 'Other_POP' END AS ctSubLabel&#xD;&#xA;, 'Units' AS ctColumn&#xD;&#xA;, SUM(Units) AS ctValue&#xD;&#xA;FROM&#xD;&#xA;BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;JOIN&#xD;&#xA;GoDaddy.dbo.isc_channel IC (NOLOCK)&#xD;&#xA;ON RLPOD.channel_id = IC.channel_id&#xD;&#xA;AND RLPOD.rptDate &gt; '2013-12-01'&#xD;&#xA;&#xD;&#xA;GROUP BY CASE WHEN IC.channel_id &gt; 0 then IC.name ELSE 'Billing_Agent' END&#xD;&#xA;, CASE WHEN point_of_purchase_id = 1 then 'Web'&#xD;&#xA;	   WHEN point_of_purchase_id = 2 then 'Billing_Agent'&#xD;&#xA;	   WHEN point_of_purchase_id = 3 then 'C3' ELSE 'Other_POP' END">
+          <CompareFilter DataColumn="ctLabel" CompareType="=" CompareValue="@Request.ctLabel~" DataType="Text" />
+          <CrosstabFilter CrosstabColumn="ctColumn" CrosstabLabelColumn="ctLabel" CrosstabValueColumn="ctValue" CrosstabValueFunction="Sum">
+            <Remark>
+              <ExtraCrosstabLabelColumn ID="Channel_ID" CrosstabLabelColumn="@Data.Channel_ID~" />
+            </Remark>
+            <Remark>
+              <ExtraCrosstabLabelColumn CrosstabLabelColumn="@Data.POP_ID~" ID="POP_ID" />
+            </Remark>
+          </CrosstabFilter>
+        </DataLayer>
+        <CrosstabTableLabelColumn ID="colChannelID" Header="Channel ID">
+          <Label ID="lblctLabel" Caption="@Data.ctLabel~">
+            <Action Type="ShowElement" ElementID="mirChannelIDDetail" ID="actShowChannelIDDetails" Display="Toggle" />
+          </Label>
+          <DataColumnSort DataColumn="ctLabel" DataType="Text" />
+        </CrosstabTableLabelColumn>
+        <Remark>
+          <CrosstabTableLabelColumn ID="colPOPID" Header="POP ID">
+            <Label ID="lblctSubLabel" Caption="@Data.ctSubLabel~" />
+            <DataColumnSort DataColumn="ctSubLabel" DataType="Text" />
+          </CrosstabTableLabelColumn>
+        </Remark>
+        <CrosstabTableValueColumns ID="colctColumn" Header="@Data.rdCrosstabColumn~">
+          <Label ID="lblctColumn" Caption="=iif(@Data.rdCrosstabValCount~=0,&quot;&quot;,&quot;@Data.rdCrosstabValue~&quot;)" />
+          <CrosstabValueColumnSort DataType="Number" />
+        </CrosstabTableValueColumns>
+        <Remark>
+          <InteractivePaging PageRowCount="20" ShowPageNumber="True" Location="Top" CaptionType="Image" />
+        </Remark>
+        <MoreInfoRow ID="mirChannelIDDetail" ShowModes="None">
+          <IncludeFrame ID="subChannelIDDetail" SubReportMode="Embedded">
+            <Target Type="IncludeFrameReport" ID="trgChannelIDDetail" Report="ChannelIDDetailSubRpt" />
+            <LinkParams POP_ID="@Data.ctLabel~" />
+          </IncludeFrame>
+        </MoreInfoRow>
+      </CrosstabTable>
+    </Remark>
+    <AnalysisGrid ID="agChannel_ID" ShowPageNumber="True" SortArrows="True" DraggableColumns="True" AjaxPaging="True">
+      <DataLayer Type="SQL" ID="dlChannelID" ConnectionID="connM1BIG-biLogiReporting" Source="&#xA;SELECT CASE WHEN IC.channel_id &gt; 0 then IC.name ELSE 'Billing Agent' END AS Channel_ID&#xA;, SUM(Units) AS Units&#xA;, COMP.Units2&#xA;, SUM(Months) AS Months&#xA;, COMP.Months2&#xA;, SUM(GCR) AS GCR&#xA;, COMP.GCR2&#xA;FROM&#xA;BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xA;JOIN&#xA;GoDaddy.dbo.isc_channel IC (NOLOCK)&#xA;ON RLPOD.channel_id = IC.channel_id&#xA;AND RLPOD.rptDate &gt;= '@Request.idStartDate1~' AND RLPOD.rptDate &lt;= '@Request.idEndDate1~'&#xA;JOIN&#xA;(&#xA;					SELECT&#xA;					IC.channel_id AS Channel_ID&#xA;					, SUM(Units) AS Units2&#xA;					, SUM(Months) AS Months2&#xA;					, SUM(GCR) AS GCR2&#xA;					FROM&#xA;					BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xA;					JOIN&#xA;					GoDaddy.dbo.isc_channel IC (NOLOCK)&#xA;					ON RLPOD.channel_id = IC.channel_id&#xA;					AND RLPOD.rptDate &gt;= '@Request.idStartDate2~' AND RLPOD.rptDate &lt;= '@Request.idEndDate2~'&#xA;&#xA;					GROUP BY IC.channel_id&#xA;					) COMP&#xA;ON IC.channel_id = COMP.Channel_ID&#xA;&#xA;GROUP BY CASE WHEN IC.channel_id &gt; 0 then IC.name ELSE 'Billing Agent' END, COMP.Units2, COMP.Months2, COMP.GCR2&#xA;&#xA;					" />
+      <DataTableColumn Header="Channel_ID" ID="colChannelID">
+        <Label Caption="@Data.Channel_ID~" ID="lblChannel_ID" Format="Expanded Spaces">
+          <Action Type="ShowElement" ElementID="mirChannelIDDetail" ID="actShowChannelIDDetails" Display="Toggle" />
+        </Label>
+      </DataTableColumn>
+      <AnalysisGridColumn ID="colUnits" Header="Units" DataColumn="Units" DataType="Number" />
+      <AnalysisGridColumn ID="colUnits2" Header="Units2" DataColumn="Units2" DataType="Number" />
+      <AnalysisGridColumn ID="colMonths" Header="Months" DataColumn="Months" DataType="Number" />
+      <AnalysisGridColumn ID="colMonths2" Header="Months2" DataColumn="Months2" DataType="Number" />
+      <AnalysisGridColumn ID="colGCR" Header="GCR" DataColumn="GCR" DataType="Number" />
+      <AnalysisGridColumn ID="colGCR2" Header="GCR2" DataColumn="GCR2" DataType="Number" />
+      <WaitPage />
+      <MoreInfoRow ID="mirChannelIDDetail" ShowModes="None" ColumnSpanFirst="1" ColumnSpanLast="8">
+        <IncludeFrame ID="subChannelIDDetail" SubReportMode="Embedded">
+          <Target Type="IncludeFrameReport" ID="trgChannelIDDetail" Report="Aprimo.JZJ_Dev.ChannelIDDetailsSubRpt" LinkDataLayers="True" />
+          <LinkParams Channel_ID="@Data.Channel_ID~" />
+        </IncludeFrame>
+      </MoreInfoRow>
+    </AnalysisGrid>
+  </Body>
+  <ReportFooter />
+  <ideTestParams ctLabel="" idStartDate1="" idEndDate1="" idStartDate2="" idEndDate2="" />
+</Report>

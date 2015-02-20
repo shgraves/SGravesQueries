@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.Iris.IrisDash" SavedBy="JOMAX\dezell" SavedAt="10/28/2013 10:28:26 AM" EngineVersion="11.0.43" SecurityReportRightID="LogiC3Sups">
+  <StyleSheet />
+  <ReportHeader />
+  <Body />
+  <Body>
+    <Rows ID="rowHeader" IdeDisplayStatus="Collapsed">
+      <Row>
+        <Column Width="205" Class="gdTextNormalWhite">
+          <IncludeHtml Html="&lt;h2&gt;Iris Dashboard&lt;/h2&gt;" />
+        </Column>
+        <Column Class="ThemeAlignLeft">
+          <InputDate ID="rptStartDate" Caption="Start Date:" DefaultValue="@Request.rptStartDate~" CaptionClass="rdAlternateTextColorWhite" />
+          <Spaces Size="6" />
+          <InputDate ID="rptEndDate" Caption="End Date:" DefaultValue="@Request.rptEndDate~" CaptionClass="rdAlternateTextColorWhite" />
+          <Spaces Size="6" />
+          <InputCheckboxList OptionCaptionColumn="ServiceDescription" ID="inpServiceList" OptionValueColumn="iris_serviceID" CheckboxListDropdown="True" SaveInLocalStorage="True" MultiSelect="True" Caption="Service:" CaptionClass="rdAlternateTextColorWhite">
+            <DataLayer Type="SP" ConnectionID="connDevIris" ID="dlGetIrisServices" Command="dbo.IRIS_ServiceGetAll_sp" />
+          </InputCheckboxList>
+          <Spaces Size="2" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtIrisDashboard" Report="Dashboards.Iris.IrisDash" RequestForwarding="True" />
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+      <Remark>
+        <Row IdeDisplayStatus="Collapsed">
+          <Column ColSpan="2">
+            <Division ID="divDates" ShowModes="All" IdeDisplayStatus="Collapsed">
+              <Division ID="divBaselineDates" ShowModes="None" IdeDisplayStatus="Collapsed">
+                <HR />
+                <Division ID="divUpdateMessage" ShowModes="None">
+                  <Label Caption="Data updating, please wait to click &quot;Submit&quot;." Class="gdTextNegative" />
+                  <LineBreak />
+                  <LineBreak />
+                </Division>
+                <InputDate ID="DateBaseline1" Caption="Baseline 1:" DefaultValue="=DateAdd(&quot;d&quot;,-7,&quot;@Request.dateStart~&quot;)" ChangeFlagElementID="inpDateBaseline1Changed" CaptionClass="rdAlternateTextColorWhite">
+                  <Validation Type="Date" />
+                </InputDate>
+                <Spaces Size="9" />
+                <InputDate ID="DateBaseline2" DefaultValue="=DateAdd(&quot;d&quot;,-14,&quot;@Request.dateStart~&quot;)" CaptionClass="rdAlternateTextColorWhite" Caption="Baseline 2:">
+                  <Validation Type="Date" />
+                </InputDate>
+                <Spaces Size="9" />
+                <InputDate ID="DateBaseline3" DefaultValue="=DateAdd(&quot;d&quot;,-21,&quot;@Request.dateStart~&quot;)" CaptionClass="rdAlternateTextColorWhite" Caption="Baseline 3:">
+                  <Validation Type="Date" />
+                </InputDate>
+                <Spaces Size="9" />
+                <InputDate ID="DatePast" Caption="Last Year Date:" DefaultValue="=DateAdd(&quot;ww&quot;,-52,&quot;@Request.dateStart~&quot;)" CaptionClass="rdAlternateTextColorWhite">
+                  <Validation Type="Date" />
+                </InputDate>
+                <LineBreak />
+                <LineBreak />
+              </Division>
+              <Division ID="divActiveDates" ShowModes="None">
+                <Label Caption="Active Report Dates: @Request.dateStart~, @Request.dateBaseline1~, @Request.dateBaseline2~, @Request.dateBaseline3~, @Request.datePast~" Class="gdTextNormalWhite" />
+                <LineBreak />
+                <HR />
+              </Division>
+            </Division>
+          </Column>
+        </Row>
+      </Remark>
+    </Rows>
+    <Dashboard2 SaveFile="@Function.AppPhysicalPath~\Dashboard\IrisDashboard_@Function.UserName~.xml" DashboardColumns="4" ID="dashIris" SaveFileStarter="@Function.AppPhysicalPath~\Dashboard\Irisdefault.xml" DashboardTabs="False">
+      <Panel ID="pnlCreatedIncidentsByService" Caption="Incidents Created by Service">
+        <PanelContent>
+          <Division ID="divCIncByServiceChart">
+            <Chart Type="XY" ID="chartIncidentsbyService" ChartWidth="450" ChartHeight="300" ChartDataColumn="sumiris_incidentID" ChartLabelColumn="servicedescription" XYChartType="Bar" ChartOrientation="Horizontal" BackgroundColor="White" BorderBottom="60" Color="#077fc2" ChartSymbolEdgeColor="Black" GridHorizontalColor="#DDDDDD">
+              <DataLayer Type="Linked" LinkedDataLayerID="dlIrisCreateDataLink" ID="dlIrisCreateDataLinked1">
+                <GroupFilter GroupColumn="servicedescription">
+                  <GroupAggregateColumn AggregateColumn="IncidentCount" AggregateFunction="Sum" ID="sumiris_incidentID" />
+                </GroupFilter>
+                <SortFilter SortColumn="sumiris_incidentID" DataType="Number" SortSequence="Descending" />
+                <RelevanceFilter DataColumn="sumiris_incidentID" RelevanceType="NumberOfRows" RelevanceValue="10" IrrelevanceLabel="Other" LabelColumn="servicedescription" />
+              </DataLayer>
+              <Quicktip IdeDisplayStatus="Collapsed">
+                <QuicktipRow Value="@Chart.sumiris_incidentID~" />
+              </Quicktip>
+              <DataScale Format="mp" />
+              <Resizer />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+            </Chart>
+            <Remark>
+              <Label Caption="View Details" Class="gdDecorated" IdeDisplayStatus="Collapsed">
+                <Action Type="Report" ID="actShowCreateDeets">
+                  <Target Type="Report" Report="Dashboards.Iris.IrishIncidentCreateDetail" RequestForwarding="True" />
+                  <Remark>
+                    <LinkParams rptDay="@Request.rptDay~" rptType="@Request.rptType~" />
+                  </Remark>
+                </Action>
+              </Label>
+            </Remark>
+            <Label Caption="View Details" IdeDisplayStatus="Collapsed">
+              <Action Type="ShowElement" ElementID="pnlServiceCreatedDetails" ID="actShowServiceCreateDetails" />
+            </Label>
+            <PopupPanel ID="pnlServiceCreatedDetails" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="Incidents By Service Details" IdeDisplayStatus="Collapsed">
+              <IncludeFrame ID="srServiceCreatedDetails" Class="ThemeAlignBottomLeft" SubReportMode="IncludeFrame">
+                <Target Type="IncludeFrameReport" ID="tgtIncidentCreateDetail" Report="Dashboards.Iris.IrishIncidentCreateDetail" RequestForwarding="True" />
+                <LinkParams rptStartDate="@Request.rptStartDate~" rptEndDate="@Request.rptEndDate~" />
+              </IncludeFrame>
+            </PopupPanel>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlCreatedIncidentsByCategory" Caption="Incidents Created by Category" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divCIncByCatChart">
+            <Chart Type="XY" ID="Chart2" ChartWidth="450" ChartHeight="300" ChartDataColumn="colAggIncidentCount" ChartLabelColumn="categorydescription" XYChartType="Bar" ChartOrientation="Horizontal" BackgroundColor="White" BorderBottom="60" Color="#077fc2" ChartSymbolEdgeColor="Black" GridHorizontalColor="#DDDDDD">
+              <DataLayer Type="Linked" LinkedDataLayerID="dlIrisCreateDataLink" ID="dlIrisCreateDataLink2">
+                <GroupFilter GroupColumn="categorydescription">
+                  <GroupAggregateColumn AggregateColumn="IncidentCount" AggregateFunction="Sum" ID="colAggIncidentCount" />
+                </GroupFilter>
+                <SortFilter SortColumn="colAggIncidentCount" DataType="Number" SortSequence="Descending" />
+                <RelevanceFilter DataColumn="colAggIncidentCount" RelevanceType="NumberOfRows" RelevanceValue="10" IrrelevanceLabel="Other" LabelColumn="categorydescription" />
+              </DataLayer>
+              <Quicktip>
+                <QuicktipRow Value="@Chart.colAggIncidentCount~" />
+              </Quicktip>
+              <DataScale Format="mp" />
+              <Resizer />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+            </Chart>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlClosedIncidentsByService" Caption="Incidents Closed by Service" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divClosedIncByServiceChart">
+            <Chart Type="XY" ID="chartClosedIncidentsbyService" ChartWidth="450" ChartHeight="300" ChartDataColumn="colAggIncidentCount3" ChartLabelColumn="servicedescription" XYChartType="Bar" ChartOrientation="Horizontal" BackgroundColor="White" BorderBottom="60" Color="#077fc2" ChartSymbolEdgeColor="Black" GridHorizontalColor="#DDDDDD">
+              <DataLayer Type="Linked" LinkedDataLayerID="dlIrisCloseDataLink" ID="dlIrisCloseDataLinked1">
+                <GroupFilter GroupColumn="servicedescription">
+                  <GroupAggregateColumn AggregateColumn="IncidentCount" AggregateFunction="Sum" ID="colAggIncidentCount3" />
+                </GroupFilter>
+                <SortFilter SortColumn="colAggIncidentCount3" DataType="Number" SortSequence="Descending" />
+                <RelevanceFilter DataColumn="colAggIncidentCount3" RelevanceType="NumberOfRows" RelevanceValue="10" IrrelevanceLabel="Other" LabelColumn="servicedescription" />
+              </DataLayer>
+              <Quicktip>
+                <QuicktipRow Value="@Chart.colAggIncidentCount3~" />
+              </Quicktip>
+              <DataScale Format="mp" />
+              <Resizer />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+            </Chart>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlClosedIncidentsByCategory" Caption="Incidents Closed by Category" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divClosedByCatChart">
+            <Chart Type="XY" ID="chartIncidentsClosedbyCat" ChartWidth="450" ChartHeight="300" ChartDataColumn="colAggIncidentCount4" ChartLabelColumn="categorydescription" XYChartType="Bar" ChartOrientation="Horizontal" BackgroundColor="White" BorderBottom="60" Color="#077fc2" ChartSymbolEdgeColor="Black" GridHorizontalColor="#DDDDDD">
+              <DataLayer Type="Linked" LinkedDataLayerID="dlIrisCloseDataLink" ID="dlIrisCloseDataLink2">
+                <GroupFilter GroupColumn="categorydescription">
+                  <GroupAggregateColumn AggregateColumn="IncidentCount" AggregateFunction="Sum" ID="colAggIncidentCount4" />
+                </GroupFilter>
+                <SortFilter SortColumn="colAggIncidentCount4" DataType="Number" SortSequence="Descending" />
+                <RelevanceFilter DataColumn="colAggIncidentCount4" RelevanceType="NumberOfRows" RelevanceValue="10" IrrelevanceLabel="Other" LabelColumn="categorydescription" />
+              </DataLayer>
+              <Quicktip>
+                <QuicktipRow Value="@Chart.colAggIncidentCount4~" />
+              </Quicktip>
+              <DataScale Format="mp" />
+              <Resizer />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+            </Chart>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlOldestUntouchedIncidents" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <DataTable ID="dtOldestUntouchedIncidents" Caption="Oldest Untouched Incidents">
+            <DataLayer Type="Linked" LinkedDataLayerID="dlIrisCurrentDataLink" ID="dlIrisCurrentDataLink1" />
+            <DataTableColumn ID="coliris_incidentID" Header="Incident">
+              <Label ID="lbliris_incidentID" Caption="@Data.iris_incidentID~" />
+              <DataColumnSort DataColumn="iris_incidentID" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="colIncidentDescription" Header="Description">
+              <Label ID="lblIncidentDescription" Caption="@Data.IncidentDescription~" />
+              <DataColumnSort DataColumn="IncidentDescription" />
+            </DataTableColumn>
+            <DataTableColumn ID="colModifyAge" Header="Age" Tooltip="Age is defined as the number of days since the Incident was modified.">
+              <Label ID="lblModifyAge" Caption="@Data.ModifyAge~" />
+              <DataColumnSort DataColumn="ModifyAge" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="colGroupDescription" Header="Group">
+              <Label ID="lblGroupDescription" Caption="@Data.GroupDescription~" />
+              <DataColumnSort DataColumn="GroupDescription" />
+            </DataTableColumn>
+            <DataTableColumn ID="colServiceDescription" Header="Service">
+              <Label ID="lblServiceDescription" Caption="@Data.ServiceDescription~" />
+              <DataColumnSort DataColumn="ServiceDescription" />
+            </DataTableColumn>
+            <DataTableColumn ID="colCategoryDescription" Header="Category">
+              <Label ID="lblCategoryDescription" Caption="@Data.CategoryDescription~" />
+              <DataColumnSort DataColumn="CategoryDescription" />
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="crosstab test" ID="pnlcrosstabtest" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <CrosstabTable ID="ctTable">
+            <DataLayer Type="SQL" ID="sqlcrosstabVolume" ConnectionID="devc3Analytics" Source="USE c3analytics &#xD;&#xA;&#xD;&#xA;SET TRANSACTION isolation level READ uncommitted &#xD;&#xA;&#xD;&#xA;DECLARE @rptStartDate DATETIME,&#xD;&#xA;		@rptEndDate DATETIME,&#xD;&#xA;        @rptType      VARCHAR(10),&#xD;&#xA;		@vc_ServiceList VARCHAR(200)&#xD;&#xA;&#xD;&#xA; DECLARE @ServiceList TABLE&#xD;&#xA;	(&#xD;&#xA;	Service	NVARCHAR(200)&#xD;&#xA;	)&#xD;&#xA;	;&#xD;&#xA;&#xD;&#xA;SELECT @rptType = '@Request.rptType~'&#xD;&#xA;SELECT @rptStartDate = '6/1/2013'&#xD;&#xA;SELECT @rptEndDate = '6/18/2013'&#xD;&#xA;SELECT @vc_ServiceList = 'Domain Services,Iris'&#xD;&#xA;INSERT INTO @ServiceList&#xD;&#xA;			(Service)&#xD;&#xA;	SELECT	 Item&#xD;&#xA;		FROM [master].[dbo].[fn_Split8K](@vc_ServiceList, ',');&#xD;&#xA;&#xD;&#xA;/*&#xD;&#xA;--select *&#xD;&#xA;--	from [C3Analytics].[dbo].[irisincidentwide_vw] irisincidentwide_vw&#xD;&#xA;--		  JOIN @ServiceList ServiceList&#xD;&#xA;--			  ON ServiceList.Service = irisincidentwide_vw.ServiceDescription&#xD;&#xA;--	where TicketCreateDate between @rptStartDate and @rptEndDate&#xD;&#xA;*/&#xD;&#xA;&#xD;&#xA;  BEGIN&#xD;&#xA;  &#xD;&#xA;  With cteDates as&#xD;&#xA;(&#xD;&#xA;select TheDate = @rptStartDate&#xD;&#xA;union ALL&#xD;&#xA;select TheDate = TheDate + 1&#xD;&#xA;	from cteDates&#xD;&#xA;	where TheDate &lt; @rptEndDate&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;      SELECT&#xD;&#xA;&#xD;&#xA;		     convert(date,[TheDate]) As TheDate,&#xD;&#xA;			 [iris_incidentID],&#xD;&#xA;			 [categorydescription], &#xD;&#xA;             [servicedescription]&#xD;&#xA;			 --Cast([TicketCreateDate] AS date) As CreateDate,&#xD;&#xA;             --Count(*) AS [IncidentCount] &#xD;&#xA;      FROM   cteDates&#xD;&#xA;	  &#xD;&#xA;	 &#xD;&#xA;	  LEFT JOIN [C3Analytics].[dbo].[irisincidentwide_vw] irisincidentwide_vw&#xD;&#xA;		  JOIN @ServiceList ServiceList&#xD;&#xA;			  ON ServiceList.Service = irisincidentwide_vw.ServiceDescription&#xD;&#xA;	  ON cteDates.TheDate = convert(date,irisincidentwide_vw.TicketCreateDate)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;--      WHERE  &#xD;&#xA;	  --([ticketcreatedate] BETWEEN @rptStartDate AND @rptEndDate)&#xD;&#xA;	  --AND&#xD;&#xA;	   --[servicedescription] IN (Select * From @ServiceList)&#xD;&#xA;&#xD;&#xA;      --GROUP  BY --[categorydescription], &#xD;&#xA;                --[servicedescription],&#xD;&#xA;				--Cast([TicketCreateDate] AS date)&#xD;&#xA;				--[TheDate]&#xD;&#xA;&#xD;&#xA;  END">
+              <CrosstabFilter CrosstabColumn="TheDate" CrosstabLabelColumn="servicedescription" CrosstabValueColumn="iris_incidentID" CrosstabValueFunction="Count" />
+            </DataLayer>
+            <CrosstabTableLabelColumn ID="colsCat" Header="@Data.rdCrosstabColumn~">
+              <Label Caption="@Data.servicedescription~" />
+            </CrosstabTableLabelColumn>
+            <CrosstabTableValueColumns ID="colData" Header="@Data.rdCrosstabColumn~" Format="Short Date">
+              <Label Caption="@Data.rdCrosstabValue~" />
+            </CrosstabTableValueColumns>
+          </CrosstabTable>
+        </PanelContent>
+      </Panel>
+    </Dashboard2>
+  </Body>
+  <ReportFooter />
+  <ideTestParams rptStartDate="" rptEndDate="" dateStart="" dateBaseline1="" dateBaseline2="" dateBaseline3="" datePast="" rptDay="" rptType="" />
+</Report>

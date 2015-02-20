@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="C3Dash.C3Dash" SavedBy="JOMAX\vyancey" SavedAt="10/17/2013 3:05:44 PM" EngineVersion="11.0.43">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.C3Header" SharedElementID="sharedHeader" ID="sharedHeaderElement" />
+    <IncludeHtml Html="&lt;style&gt;&#xD;&#xA;&#xD;&#xA;html, body {&#xD;&#xA;    height: 100%;&#xD;&#xA;    padding: 0;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;#myiframe-wrap {&#xD;&#xA;    position: absolute;&#xD;&#xA;    top: 50px;&#xD;&#xA;    right: 10px;&#xD;&#xA;    bottom: 10px;&#xD;&#xA;    left: 10px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;#toolbar {&#xD;&#xA;    position: absolute;&#xD;&#xA;    height: 30px;&#xD;&#xA;    width: 100%;&#xD;&#xA;    line-height: 30px;&#xD;&#xA;    background: #eee;&#xD;&#xA;    top: -40px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;#myiframe {&#xD;&#xA;    position: absolute;&#xD;&#xA;    display: block;&#xD;&#xA;    border: 0;&#xD;&#xA;    height: 100%;&#xD;&#xA;    width: 100%;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&lt;/style&gt;" ID="CustomCSS" />
+  </ReportHeader>
+  <Body>
+    <IncludeHtml Html="&#xD;&#xA;&lt;div id=&quot;myiframe-wrap&quot;&gt;&#xD;&#xA;    &lt;iframe id=&quot;myiframe&quot; src=&quot;http://bizintelc3.intranet.gdg/c3dashboard&quot; border=&quot;0&quot;&gt;&lt;/iframe&gt;&#xD;&#xA;&lt;/div&gt;" ID="iframe" />
+  </Body>
+  <ReportFooter />
+</Report>

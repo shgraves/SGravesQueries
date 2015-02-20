@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.IAPNewPublisherReport" SavedBy="JOMAX\shgraves" SavedAt="8/26/2013 3:04:11 PM" EngineVersion="11.0.43">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams rptEndDate="@Date.Today~" rptStartDate="=DateAdd(&quot;d&quot;,-7,&quot;@Date.Today~&quot;)" />
+  <LocalData>
+    <DataLayer Type="SQL" Source="&#xD;&#xA;DECLARE @StartDate DATETIME = '@Request.rptStartDate~' &#xD;&#xA;DECLARE @EndDate DATETIME = '@Request.rptEndDate~' &#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;publisherID as 'PublisherID'&#xD;&#xA;, shopperID as 'ShopperID'&#xD;&#xA;, Country_Name as 'Country'&#xD;&#xA;, p.ApplicationApprovalDate as 'AppAppvDate'&#xD;&#xA;, s.Name as 'status'&#xD;&#xA;FROM [gdAffiliate].[dbo].[Publisher] p (nolock)&#xD;&#xA;JOIN gdAffiliate.dbo.AccountStatus s (nolock) on p.AccountStatusCode = s.AccountStatusCode&#xD;&#xA;join bigreporting.dbo.rptnewcustomerdetail nc on p.shopperid = nc.shopper_id&#xD;&#xA;LEFT OUTER JOIN BIGReporting.dbo.rptCountry rC ON nc.bill_to_country = rC.country_code&#xD;&#xA;WHERE ApplicationApprovalDate &gt;= '@Request.rptStartDate~'&#xD;&#xA;	AND ApplicationApprovalDate &lt; '@Request.rptEndDate~'&#xD;&#xA;ORDER BY p.ApplicationApprovalDate&#xD;&#xA;;" ID="dsAffiliateData" ConnectionID="connM1BIG-BIGReporting" IdeDisplayStatus="Collapsed">
+      <DataLayerLink ID="dllAffiliateData" />
+      <SqlParameters>
+        <SqlParameter SqlParamType="dt-7" Value="@Request.rptEndDate~" ID="sqlParmEndDate" />
+        <SqlParameter SqlParamType="dt-7" Value="@Request.rptStartDate~" ID="sqlParmStartDate" />
+      </SqlParameters>
+    </DataLayer>
+  </LocalData>
+  <ReportHeader IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="ReportHeader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Caption="IAP New Publisher Report" Class="gdReportHeaderNameBI" ID="lblRptName" />
+        </Column>
+      </Row>
+    </Rows>
+    <Rows Class="gdDefaultRowBground" ID="ReportTitle">
+      <Row Class="gdReportHeader" ID="rowReportTitle">
+        <Column Class="ThemeAlignLeft" ID="colDates">
+          <Spaces Size="3" />
+          <InputDate ID="rptStartDate" Caption="Start Date:" DefaultValue="@Request.rptStartDate~" CaptionClass="rdAlternateTextColorWhite">
+            <InputDateCalendar ID="calStartDate" />
+          </InputDate>
+          <Spaces Size="3" />
+          <InputDate ID="rptEndDate" Caption="End Date:" DefaultValue="@Request.rptEndDate~" CaptionClass="rdAlternateTextColorWhite">
+            <InputDateCalendar ID="calEndDate" />
+          </InputDate>
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <LinkParams rdAgRefreshData="True" />
+              <Target Type="Report" ID="tgtCurrentReport" Report="PMG.IAPNewPublisherReport" RequestForwarding="True">
+                <WaitPage Caption="Updating Data..." />
+              </Target>
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+    </Rows>
+    <LineBreak />
+    <Button Caption="Export to Excel" ID="bExport">
+      <Action Type="NativeExcel" ID="aneExportExcel">
+        <Target Type="NativeExcel" ExcelOutputFormat="Excel2007" ExportDataTableID="dtPublisherList" ExportFilename="PublisherList" />
+      </Action>
+    </Button>
+    <LineBreak LineCount="2" />
+    <Division>
+      <DataTable ID="dtPublisherList" AltRowClass="gdThemeAltRowNoPadding td" TableBorder="1" CellSpacing="0" ColumnHeaderClass="ThemeHeader" SortArrows="True">
+        <DataLayer Type="Linked" LinkedDataLayerID="dllAffiliateData" ID="dllAffilliateDataList" />
+        <DataTableColumn ID="dtcPublisherID" Header="Publisher ID" Width="100" WidthScale="px" Class="ThemeAlignCenter">
+          <Label Caption="@Data.PublisherID~" />
+          <DataColumnSort DataColumn="PublisherID" DataType="Number" FirstSortSequence="Ascending" ReverseSortSequence="Descending" />
+          <ExcelColumnFormat ExcelColumnWidth="14" DataType="Number" ExcelAutoFitRow="True" ExcelFormat="000" />
+        </DataTableColumn>
+        <DataTableColumn ID="dtcShopperID" Header="Shopper ID" Width="75" WidthScale="px" Class="ThemeAlignCenter">
+          <Label Caption="@Data.ShopperID~" />
+          <DataColumnSort DataColumn="ShopperID" DataType="Number" FirstSortSequence="Ascending" ReverseSortSequence="Descending" />
+          <ExcelColumnFormat ExcelAutoFitRow="True" ExcelColumnWidth="15" DataType="Number" ExcelFormat="000" />
+        </DataTableColumn>
+        <DataTableColumn ID="dtcCountryCd" Header="Billing Country" Width="150" WidthScale="px" Class="ThemeAlignCenter">
+          <Label Caption="@Data.Country~" />
+          <DataColumnSort DataColumn="Country" DataType="Text" FirstSortSequence="Ascending" ReverseSortSequence="Descending" />
+          <ExcelColumnFormat ExcelAutoFitRow="True" ExcelColumnWidth="35" />
+        </DataTableColumn>
+        <DataTableColumn ID="dtcApplicationAppvDate" Header="Application Appv. Date" Width="150" WidthScale="px" Class="ThemeAlignCenter">
+          <Label Caption="@Data.AppAppvDate~" Format="General Date" />
+          <DataColumnSort DataColumn="AppAppvDate" DataType="Date" />
+          <ExcelColumnFormat ExcelAutoFitRow="True" ExcelColumnWidth="25" ExcelFormat="m/d/yyyy h:mm AM/PM" />
+        </DataTableColumn>
+        <DataTableColumn ID="dtcStatus" Header="Status" Width="50" WidthScale="px" Class="ThemeAlignCenter">
+          <Label Caption="@Data.status~" />
+          <DataColumnSort DataColumn="status" DataType="Text" />
+          <ExcelColumnFormat ExcelAutoFitRow="True" ExcelColumnWidth="10" />
+        </DataTableColumn>
+      </DataTable>
+    </Division>
+  </Body>
+  <ReportFooter />
+  <ideTestParams rptEndDate="" rptStartDate="" />
+</Report>

@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Iris.MaxResponseTimeByGroup" SavedBy="JOMAX\dezell" SavedAt="10/28/2013 10:17:17 AM" EngineVersion="11.0.43" DefaultShowModes="NotEmailSub" SecurityReportRightID="LogiC3Sups">
+  <FormulaScriptFile ScriptFile="gdITJscript.js" ID="scriptgdJScript" />
+  <DefaultRequestParams vc_group="@Request.checkIrisGroups~" />
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="ReportHeader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Caption="Max Response Time by Group" Class="gdReportHeaderNameIT" />
+        </Column>
+      </Row>
+    </Rows>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column Class="ThemeAlignLeft" ShowModes="NotEmailSub">
+          <InputCheckboxList MultiSelect="True" ID="checkIrisGroups" Caption="Group:     " CheckboxListDropdown="True" OptionCaptionColumn="GroupDescription" OptionValueColumn="iris_groupID" SaveInLocalStorage="True">
+            <DataLayer Type="SP" Command="dbo.IRIS_GroupGetALL_sp" ConnectionID="connIris" ID="dlGetIrisGroups" />
+          </InputCheckboxList>
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit" IdeDisplayStatus="Collapsed">
+            <Action Type="Report" ID="actSubmitReport" Validate="True">
+              <Target Type="Report" Report="Iris.MaxResponseTimeByGroup" ID="tgtReport" RequestForwarding="True" />
+            </Action>
+          </Button>
+        </Column>
+        <Column>
+          <Spaces Size="5" />
+          <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+            <Action Type="NativeExcel" ID="excelExport">
+              <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" ExportDataTableID="dtMaxReponseTime" Report="Iris.MaxResponseTimeByGroup" />
+            </Action>
+          </Image>
+        </Column>
+      </Row>
+    </Rows>
+    <DataTable ID="dtMaxReponseTime" CellSpacing="10px" HideWhenZeroRows="True" AltRowClass="gdThemeAlternatingRow td">
+      <DataLayer Type="SP" ConnectionID="connIris" Command="eRpt.OpenAndClosedTicketCountsByGroup_sp" ID="dlOpenandClosedTicketCounts" IdeDisplayStatus="Collapsed">
+        <SPParameters IdeDisplayStatus="Collapsed">
+          <SPParameter ID="vc_group" Value="@Request.vc_group~" SPParamDirection="Input" SPParamSize="8000" SPParamType="dt-200" />
+        </SPParameters>
+        <CalculatedColumn ID="calcMaxResponseTime" Formula="DateDiff(&quot;s&quot;, CXMLDate(&quot;@Data.OldestTicket~&quot;), CXMLDate(Now()) )" />
+      </DataLayer>
+      <DataTableColumn ID="colGroupDescription" Header="GROUP">
+        <Label ID="lblGroupDescription" Caption="@Data.GroupDescription~" />
+        <DataColumnSort DataColumn="GroupDescription" />
+      </DataTableColumn>
+      <DataTableColumn ID="colcalcMaxResponseTime" Header="Max Response Time">
+        <Label ID="lblcalcMaxResponseTime" Caption="=convertSecondstoDHM(@Data.calcMaxResponseTime~)" Tooltip="Response time is displayed in Hours : Minutes : Seconds." />
+        <DataColumnSort DataColumn="calcMaxResponseTime" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams vc_group="" checkIrisGroups="" />
+</Report>

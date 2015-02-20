@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.Calls.InternationalDash" SavedBy="JOMAX\dezell" SavedAt="12/11/2013 5:12:57 PM" EngineVersion="11.0.43">
+  <StyleSheet Theme="GDRPortal" StyleSheet="ERHubTheme.css" />
+  <FormulaScriptFile ScriptFile="gdITReportsLibrary.js" />
+  <ReportHeader IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeader" ID="sharedHeaderElement" SharedElementID="sharedHeader" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rowHeader" IdeDisplayStatus="Collapsed">
+      <Row>
+        <Column Width="205" Class="gdTextNormalWhite">
+          <IncludeHtml Html="&lt;h2&gt;Call Center Dashboard&lt;/h2&gt;" />
+        </Column>
+      </Row>
+    </Rows>
+    <Dashboard2 SaveFile="@Function.AppPhysicalPath~\Dashboard\InternationalCallsDashboard_@Function.UserName~.xml" DashboardColumns="4" ID="dashInternationalCalls" DashboardTabs="False">
+      <Panel ID="pnlCallStats" MultipleInstances="True" Caption="Call Queue Stats">
+        <LocalData ID="localDataSkillTarg" IdeDisplayStatus="Collapsed">
+          <DataLayer Type="SP" ID="dlStatsBySkillTarg" ConnectionID="connIPCCReports" Command="dbo.wallboard_StatsBySkillTarget_sp" IdeDisplayStatus="Collapsed">
+            <SPParameters>
+              <SPParameter ID="SkillTargetID" Value="@Request.inpSkillTarg~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+            </SPParameters>
+            <DataLayerLink ID="dlCallStatsLink" />
+          </DataLayer>
+        </LocalData>
+        <DefaultRequestParams inpThreshold="12" inpWarn="8" />
+        <PanelParameters AllowCaptionRename="False" IdeDisplayStatus="Collapsed">
+          <InputSelectList OptionValueColumn="SkillTargetID" OptionCaptionColumn="SkillTargetID" ID="inpSkillTarg" DefaultValue="@Request.inpSkillTarg~" Caption="Skill Target:" CaptionClass="gdDivTitleWhite" IdeDisplayStatus="Collapsed">
+            <DataLayer Type="SP" ID="SPDataLayer" ConnectionID="connIPCCReports" Command="dbo.wallboard_SkillTargetGet_sp">
+              <SPParameters />
+            </DataLayer>
+          </InputSelectList>
+          <Spaces Size="2" />
+          <InputText Caption="Threshold (Minutes):" CaptionClass="gdDivTitleWhite" ID="inpThreshold" Format="General Number" DefaultValue="@Request.inpThreshold~" />
+          <Spaces Size="2" />
+          <InputText Caption="Warning (Minutes):" CaptionClass="gdDivTitleWhite" ID="inpWarn" Format="General Number" DefaultValue="@Request.inpWarn~" />
+        </PanelParameters>
+        <PanelContent>
+          <LineBreak LineCount="1" />
+          <Label Class="gdDashboardTitleCaption" Caption="Skilltarget: @Request.inpSkillTarg~" />
+          <LineBreak LineCount="2" />
+          <DataTable ID="tblCallStats" AjaxPaging="True" WidthScale="px" Width="600" IdeDisplayStatus="Collapsed">
+            <DataLayer Type="Linked" LinkedDataLayerID="dlCallStatsLink" />
+            <DataTableColumn ID="colPeripheralName" Header="Peripheral">
+              <Label ID="lblPeripheralName" Caption="@Data.PeripheralName~" />
+              <DataColumnSort DataColumn="PeripheralName" />
+            </DataTableColumn>
+            <Remark>
+              <DataTableColumn ID="colSkillTargetID" Header="Skill Target ID">
+                <Label ID="lblSkillTargetID" Caption="@Data.SkillTargetID~" Class="ThemeAlignCenter" />
+                <DataColumnSort DataColumn="SkillTargetID" DataType="Number" />
+              </DataTableColumn>
+            </Remark>
+            <Remark>
+              <DataTableColumn ID="colNotReady" Header="NotReady">
+                <Label ID="lblNotReady" Caption="@Data.NotReady~" />
+                <DataColumnSort DataColumn="NotReady" DataType="Number" />
+              </DataTableColumn>
+            </Remark>
+            <DataTableColumn ID="colRouterCallsQNow" Header="QNOW" Class="ThemeAlignCenter">
+              <Label ID="lblRouterCallsQNow" Caption="@Data.RouterCallsQNow~" Class="ThemeAlignCenter" />
+              <DataColumnSort DataColumn="RouterCallsQNow" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="colRouterLongestCallInQ" Header="Estimated Wait Time (EWT)" Class="ThemeAlignCenter">
+              <Label ID="lblEstWaitTime" Caption="=formatSecondsToHoursMinutesSecs(@Data.RouterLongestCallInQ~)">
+                <ConditionalClass Condition="(@Data.RouterLongestCallInQ~ &gt; (@Request.inpWarn~ * 60)) &amp;&amp; (@Data.RouterLongestCallInQ~ &lt; (@Request.inpThreshold~ * 60))" ID="condClassWarn" Class="TimeThresholdWarn" />
+                <ConditionalClass Class="TimeThresholdExceeded" Condition="@Data.RouterLongestCallInQ~ &gt; (@Request.inpThreshold~ * 60)" ID="condClassThreshold" />
+              </Label>
+              <DataColumnSort DataColumn="RouterLongestCallInQ" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="colLongestWaitTime" Header="Longest Wait Time (LWT)" Class="ThemeAlignCenter">
+              <Label ID="lblLongestWaitTime" Caption="=formatSecondsToHoursMinutesSecs(@Data.LongestWaitTime~)" />
+              <DataColumnSort DataColumn="LongestWaitTime" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="colLoggedOn" Header="Logged On" Class="ThemeAlignCenter">
+              <Label ID="lblLoggedOn" Caption="@Data.LoggedOn~" Class="ThemeAlignCenter" />
+              <DataColumnSort DataColumn="LoggedOn" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="colCallsHandled" Header="Customers Served" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+              <Label ID="lblCallsHandled" Caption="@Data.CallsHandled~" Class="ThemeAlignCenter" />
+              <DataColumnSort DataColumn="CallsHandled" DataType="Number" />
+            </DataTableColumn>
+            <Remark>
+              <DataTableColumn ID="colHandledCallsTime" IdeDisplayStatus="Collapsed">
+                <Label ID="lblHandledCallsTime" Caption="@Data.HandledCallsTime~" />
+                <DataColumnSort DataColumn="HandledCallsTime" DataType="Number" />
+              </DataTableColumn>
+            </Remark>
+            <Remark>
+              <DataTableColumn ID="colAHT" Header="AHT" IdeDisplayStatus="Collapsed">
+                <Label ID="lblAHT" Caption="@Data.AHT~" />
+                <DataColumnSort DataColumn="AHT" DataType="Number" />
+              </DataTableColumn>
+            </Remark>
+          </DataTable>
+        </PanelContent>
+        <RefreshElementTimer ID="refreshCallstats" RefreshInterval="15" ElementID="pnlCallStats" />
+      </Panel>
+    </Dashboard2>
+  </Body>
+  <ReportFooter />
+  <ideTestParams inpSkillTarg="" inpThreshold="" inpWarn="" />
+</Report>

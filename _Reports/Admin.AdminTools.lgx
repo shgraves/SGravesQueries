@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.Admin.AdminTools" SavedBy="JOMAX\bgaer" SavedAt="4/12/2013 3:10:27 PM" EngineVersion="10.2.424" SecurityReportRightID="BIG-Developer">
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderReport" ID="seReportHeader" SharedElementID="sharedHeader" />
+    <LineBreak />
+    <LineBreak />
+    <IncludeSharedElement DefinitionFile="SharedElements.AdminMenu" SharedElementID="seAdminMenu" ID="seAdminMenuLinks" />
+  </ReportHeader>
+  <Body Class="gdLightBackground" IdeDisplayStatus="Collapsed">
+    <LineBreak />
+    <LineBreak />
+    <Label Caption="NOTE: MODIFICATIONS TO THE MENU TAKE EFFECT IN ALL ENVIRONMENTS - If in doubt ask Brian or Rob before using this." />
+    <LineBreak />
+    <Division IdeDisplayStatus="Collapsed">
+      <Rows>
+        <Row>
+          <Column>
+            <Label Caption="Rebuild Menu in Session from Database" Class="ThemeAlignLeft" />
+          </Column>
+          <Column>
+            <Label Caption="Insert New Menu Item" Class="ThemeAlignLeft" />
+          </Column>
+          <Column>
+            <Label Caption="Update Menu Item" Class="ThemeAlignLeft" />
+          </Column>
+          <Column Width="25" WidthScale="%">
+            <Label Caption="Delete Menu Item" Class="ThemeAlignLeft" />
+          </Column>
+        </Row>
+        <Row>
+          <Column Width="25" WidthScale="%">
+            <Division>
+              <Button Caption="Rebuild CSS Menu " Tooltip="Updates Session menu from Database menu" ID="btnRebuildMenu">
+                <Action Type="Process" ID="actProcessMenuRebuild" Process="procGetNavMarkup" TaskID="tskGetAllNavMarkup" ConfirmMessage="Are you sure you want to rebuild the menu? Note: this will take your to default once complete.">
+                  <WaitPage Caption="Processing..." />
+                </Action>
+              </Button>
+            </Division>
+          </Column>
+          <Column Width="25" WidthScale="%">
+            <Division />
+            <Rows TableBorder="0">
+              <Row IdeDisplayStatus="Collapsed">
+                <Column />
+              </Row>
+              <Row IdeDisplayStatus="Collapsed">
+                <Column />
+              </Row>
+              <Row IdeDisplayStatus="Collapsed">
+                <Column />
+              </Row>
+              <Row IdeDisplayStatus="Collapsed">
+                <Column />
+              </Row>
+              <Row IdeDisplayStatus="Collapsed">
+                <Column />
+              </Row>
+              <Row IdeDisplayStatus="Collapsed">
+                <Column />
+              </Row>
+              <Row IdeDisplayStatus="Collapsed">
+                <Column />
+              </Row>
+            </Rows>
+            <LineBreak />
+            <InputText ID="txtNewMenuItemCaption" Caption="New Menu Item Caption">
+              <Validation Type="Required" ErrorMsg="Menu Item Caption Required." />
+            </InputText>
+            <LineBreak />
+            <InputText ID="txtOrder" Caption="Display Order" DefaultValue="0" />
+            <LineBreak />
+            <InputText ID="txtPath" Caption="Report Path (ex: Folder.Reportname)" Tooltip="Example: Dashboards.NPS.NPSDashboard" IdeDisplayStatus="Collapsed">
+              <Validation Type="Required" ErrorMsg="Path is Required." />
+            </InputText>
+            <LineBreak />
+            <InputText ID="txtRoles" Caption="Visible to Roles:" Tooltip="Comma Delimited List of Roles that should see the menu item - empty is default" />
+            <LineBreak />
+            <InputCheckbox ID="chkIsActive" Caption="Is Active (check for Active)" Tooltip="Checked = Active, Not Checked = Not Active" CheckedValue="true" />
+            <LineBreak />
+            <InputSelectList ID="islMenuItems" OptionCaptionColumn="Caption" OptionValueColumn="menuId" Caption="Select Parent Menu Item:" MultiSelect="False" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="SP" ConnectionID="connM1BIG-biLogiReporting" Command="rptLogiDashboardMenuGet_sp" ID="dlGetMenuItems" />
+            </InputSelectList>
+            <LineBreak />
+            <Button ID="btnAddNewMenuItem" Caption="Submit">
+              <Action Type="Process" ID="actInsertMenUItem" Process="procMenuItemEvents" TaskID="tskInsertMenuItem">
+                <WaitPage Caption="Processing..." />
+              </Action>
+            </Button>
+          </Column>
+          <Column Width="25" WidthScale="%" IdeDisplayStatus="Collapsed">
+            <Division />
+            <Label Caption="Update Menu Item:  ---- COMING SOON ---" Class="ThemeAlignLeft" />
+          </Column>
+          <Column Width="25" WidthScale="%" IdeDisplayStatus="Collapsed">
+            <Division />
+            <Label Caption="Delete Menu Item:  ---- COMING SOON ---" Class="ThemeAlignLeft" />
+          </Column>
+        </Row>
+      </Rows>
+    </Division>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="seFooter" />
+  </ReportFooter>
+</Report>

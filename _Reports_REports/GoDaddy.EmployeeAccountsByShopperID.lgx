@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="GoDaddy.EmployeeAccountsByShopperID" SavedBy="JOMAX\dezell" SavedAt="3/28/2014 1:48:54 PM" EngineVersion="11.2.040-SP4" SecurityReportRightID="Human Resources,BIG-Developer">
+  <DefaultRequestParams shopper_id="@Request.inpShopperID~" />
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Caption="Employee Accounts by Shopper ID" Class="gdReportHeaderNameIT" />
+        </Column>
+        <Column Class="ThemeAlignLeft">
+          <Spaces Size="10" />
+          <InputText ID="inpShopperID" Caption="Shopper ID:" DefaultValue="@Request.inpShopperID~" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport" Validate="True">
+              <Target Type="Report" Report="GoDaddy.EmployeeAccountsByShopperID" ID="tgtTouchesbyGroup" RequestForwarding="True" />
+            </Action>
+          </Button>
+          <Spaces Size="10" />
+          <Division IdeDisplayStatus="Collapsed">
+            <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel" IdeDisplayStatus="Collapsed">
+              <Action Type="NativeExcel" ID="excelExport">
+                <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" ExportDataTableID="dtEmployeesByShopperID" />
+              </Action>
+            </Image>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <LineBreak LineCount="1" />
+    <DataTable SortArrows="True" ID="dtEmployeesByShopperID" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="7 px" HideWhenZeroRows="True" ColumnHeaderClass="ThemeAlignLeft">
+      <DataLayer Type="SP" ID="SPDataLayer1" ConnectionID="connProdGoDaddyPSQL" Command="eRpt.EmployeeDiscountedShopper_sp">
+        <SPParameters>
+          <SPParameter ID="shopper_id" Value="@Request.shopper_id~" SPParamDirection="Input" SPParamSize="10" SPParamType="dt-200" />
+        </SPParameters>
+      </DataLayer>
+      <DataTableColumn ID="colEmpNo" Header="Employee ID">
+        <Label ID="lblEmpNo" Caption="@Data.EmpNo~" />
+        <DataColumnSort DataColumn="EmpNo" />
+      </DataTableColumn>
+      <DataTableColumn ID="colmanager_userID" Header="Manager User ID">
+        <Label ID="lblmanager_userID" Caption="@Data.manager_userID~" />
+        <DataColumnSort DataColumn="manager_userID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colshopper_id" Header="Shopper ID">
+        <Label ID="lblshopper_id" Caption="@Data.shopper_id~" />
+        <DataColumnSort DataColumn="shopper_id" />
+      </DataTableColumn>
+      <DataTableColumn ID="colchangedBy" Header="Changed By">
+        <Label ID="lblchangedBy" Caption="@Data.changedBy~" />
+        <DataColumnSort DataColumn="changedBy" />
+      </DataTableColumn>
+      <DataTableColumn ID="colcreateDate" Header="Created">
+        <Label ID="lblcreateDate" Caption="@Data.createDate~" Format="Short Date" />
+        <DataColumnSort DataColumn="createDate" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colipAddress" Header="IP Address">
+        <Label ID="lblipAddress" Caption="@Data.ipAddress~" />
+        <DataColumnSort DataColumn="ipAddress" />
+      </DataTableColumn>
+      <DataTableColumn ID="colEmployeeName" Header="Employee Name">
+        <Label ID="lblEmployeeName" Caption="@Data.EmployeeName~" />
+        <DataColumnSort DataColumn="EmployeeName" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams shopper_id="" inpShopperID="" />
+</Report>

@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Orchid.Dev.Orchid_1.0_Attendance" SavedBy="JOMAX\twakefield" SavedAt="7/29/2014 3:49:23 PM" EngineVersion="11.0.43" DefaultShowModes="rdBrowser" SecurityReportRightID="GDSP_C3_C3workforce_Owners, Dev-C3 Support, BIG-Developer, InternalToolsQA, overlord_test_users, LogiXMLOrchidReports, Human Resources">
+  <ReportHeader ShowModes="rdBrowser">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Remark>
+    <DefaultRequestParams username="@Function.UserName~" rdDataCache="=Math.floor((Math.random()*100000000)+1);" rptStart="=DateAdd(&quot;d&quot;,-28,Date())" rptEnd="@Date.Today~" />
+  </Remark>
+  <DefaultRequestParams LocationID="-1" MgrID="-1" RepID="-1" DepartmentID="-1" RoleValue="@Local.RoleValue~" deptStatus="1" ActiveUser="@Local.MgrUserID~" SupervisorID="@Local.SupID~" />
+  <Body>
+    <Rows Width="100" WidthScale="%" CellSpacing="15px" Class="gdDefaultRowBground">
+      <Row Class=".gdDefaultDropDownBground">
+        <Column>
+          <Division ID="divParameters" ShowModes="rdBrowser">
+            <Rows>
+              <Row Class="gdReportHeader">
+                <Column>
+                  <Spaces Size="2" />
+                  <Label Caption="Orchid 1.0 Attendance (Dev)" Class="gdReportHeaderNameIT" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colDropDowns" Width="900" WidthScale="px">
+                  <Rows ID="rowDropDowns" Class="gdDefaultDropDownBground">
+                    <Row ID="rowDropCols">
+                      <Column Width="350" WidthScale="px" ID="colLeft">
+                        <Rows Width="275" WidthScale="px" ID="rowsHeader">
+                          <Row ID="rowStartDate" IdeDisplayStatus="Collapsed">
+                            <Column ID="colStartDate" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption="Start (&gt;=):" />
+                            </Column>
+                            <Column ID="colRptStart" Width="250" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <InputDate ID="rptStart" DefaultValue="@Request.rptStart~" Class="gdSelectFixedWidth" CalendarLinkType="Image" CaptionClass="ThemeAlignTopRight" IdeDisplayStatus="Collapsed">
+                                <Validation Type="Date" />
+                                <Validation Type="Required" />
+                                <EventHandler DhtmlEvent="onchange" IdeDisplayStatus="Collapsed">
+                                  <Action Type="RefreshElement" ElementID="MgrID,SupervisorID,DepartmentID,LocationID" ID="actRefreshPerson" IdeDisplayStatus="Collapsed">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Action>
+                                </EventHandler>
+                              </InputDate>
+                            </Column>
+                          </Row>
+                          <Row ID="rowDepartment" IdeDisplayStatus="Collapsed">
+                            <Column ID="colDept" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption="Department: " />
+                            </Column>
+                            <Column ID="colDeptID" Width="250" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <InputSelectList ID="DepartmentID" OptionValueColumn="EMDepartmentID" OptionCaptionColumn="DepartmentName" IncludeBlank="True" IncludeBlankValue="-1" DefaultValue="@Request.DepartmentID~" Class="gdSelectFixedWidth" IncludeBlankCaption="&lt;ALL&gt;" IdeDisplayStatus="Collapsed">
+                                <DataLayer Type="SP" Command="orchid.eRpt.Orchid10AttendanceDeptGet_sp" ConnectionID="connDevOrchid" IdeDisplayStatus="Collapsed">
+                                  <SPParameters IdeDisplayStatus="Collapsed">
+                                    <SPParameter ID="startDate" Value="@Request.rptStart~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                                    <SPParameter ID="endDate" Value="@Request.rptEnd~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                                  </SPParameters>
+                                  <SortFilter SortColumn="DepartmentName" />
+                                </DataLayer>
+                              </InputSelectList>
+                              <EventHandler DhtmlEvent="onchange" IdeDisplayStatus="Collapsed">
+                                <Action Type="RefreshElement" ElementID="MgrID,SupervisorID,LocationID" ID="actRefreshPerson" IdeDisplayStatus="Collapsed">
+                                  <WaitPage Caption="Processing, please wait..." />
+                                </Action>
+                              </EventHandler>
+                            </Column>
+                          </Row>
+                          <Row ID="rowLocation" IdeDisplayStatus="Collapsed">
+                            <Column ID="colLocation" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption="Location: " />
+                            </Column>
+                            <Column ID="colLocationID" Width="250" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <InputSelectList ID="LocationID" OptionCaptionColumn="LocationName" OptionValueColumn="EMLocationID" DefaultValue="@Request.LocationID~" Class="gdSelectFixedWidth" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" IdeDisplayStatus="Collapsed">
+                                <DataLayer Type="SP" Command="orchid.eRpt.Orchid10AttendanceLocationGet_sp" ConnectionID="connDevOrchid" IdeDisplayStatus="Collapsed">
+                                  <SPParameters IdeDisplayStatus="Collapsed">
+                                    <SPParameter ID="startDate" Value="@Request.rptStart~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                                    <SPParameter ID="endDate" Value="@Request.rptEnd~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                                    <SPParameter ID="EMDepartmentID" Value="@Request.DepartmentID~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+                                  </SPParameters>
+                                </DataLayer>
+                                <EventHandler DhtmlEvent="onchange" IdeDisplayStatus="Collapsed">
+                                  <Action Type="RefreshElement" ElementID="MgrID,SupervisorID" ID="actRefreshPerson" IdeDisplayStatus="Collapsed">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Action>
+                                </EventHandler>
+                              </InputSelectList>
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Column Width="350" WidthScale="px" ID="colCenter">
+                        <Rows Width="275" WidthScale="px">
+                          <Row ID="rowEndDate" IdeDisplayStatus="Collapsed">
+                            <Column ID="colEndDate" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption="End (&lt;):" />
+                            </Column>
+                            <Column ID="colRptEnd" Width="250" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <InputDate ID="rptEnd" DefaultValue="@Request.rptEnd~" CalendarLinkType="Image" Class="gdSelectFixedWidth" CaptionClass="ThemeAlignTopRight" IdeDisplayStatus="Collapsed">
+                                <Validation Type="Date" />
+                                <Validation Type="Required" />
+                                <EventHandler DhtmlEvent="onchange" IdeDisplayStatus="Collapsed">
+                                  <Action Type="RefreshElement" ElementID="MgrID,SupervisorID,DepartmentID,LocationID" ID="actRefreshPerson" RequestForwarding="True" IdeDisplayStatus="Collapsed">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Action>
+                                </EventHandler>
+                              </InputDate>
+                              <Remark>
+                                <Spaces Size="3" />
+                              </Remark>
+                            </Column>
+                          </Row>
+                          <Row ID="rowManager">
+                            <Column ID="colManager" Width="160" WidthScale="px">
+                              <Label Caption="Supervisor: " />
+                            </Column>
+                            <Column ID="colManagerID" Width="250" WidthScale="px">
+                              <InputSelectList ID="MgrID" OptionValueColumn="PersonID" OptionCaptionColumn="SupName" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.MgrID~" Class="gdSelectFixedWidth">
+                                <DataLayer Type="SP" Command="orchid.eRpt.Orchid10SupervisorGet_sp" ConnectionID="connDevOrchid" IdeDisplayStatus="Collapsed">
+                                  <SortFilter SortColumn="MgrName" ID="sfName" />
+                                  <SPParameters IdeDisplayStatus="Collapsed">
+                                    <SPParameter ID="startDate" Value="@Request.rptStart~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                                    <SPParameter ID="endDate" Value="@Request.rptEnd~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                                    <SPParameter ID="EMDepartmentID" Value="@Request.DepartmentID~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+                                  </SPParameters>
+                                </DataLayer>
+                                <EventHandler DhtmlEvent="onchange" IdeDisplayStatus="Collapsed">
+                                  <Action Type="RefreshElement" ElementID="SupervisorID" ID="actRefreshPerson" IdeDisplayStatus="Collapsed">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Action>
+                                </EventHandler>
+                              </InputSelectList>
+                            </Column>
+                          </Row>
+                          <Row ID="rowSupv">
+                            <Column ID="colSupervisor" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption=" Agent:" />
+                            </Column>
+                            <Column ID="colSupID" Width="160" WidthScale="px">
+                              <InputSelectList ID="SupervisorID" OptionValueColumn="PersonID" OptionCaptionColumn="AgentName" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.SupervisorID~" Class="gdSelectFixedWidth">
+                                <DataLayer Type="SP" Command="orchid.eRpt.Orchid10AttendanceAgentGet_sp" ConnectionID="connDevOrchid" IdeDisplayStatus="Collapsed">
+                                  <SortFilter SortColumn="MgrName" ID="sfName" />
+                                  <SPParameters IdeDisplayStatus="Collapsed">
+                                    <SPParameter ID="startDate" Value="@Request.rptStart~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                                    <SPParameter ID="endDate" Value="@Request.rptEnd~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                                    <SPParameter ID="EMDepartmentID" Value="@Request.DepartmentID~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+                                    <SPParameter ID="SupervisorID" Value="@Request.MgrID~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+                                  </SPParameters>
+                                </DataLayer>
+                              </InputSelectList>
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                    </Row>
+                    <Row ID="rowSubmit">
+                      <Column ID="colSubmit" ColSpan="5" RowSpan="1">
+                        <Button ID="Submit" Caption="Submit" Tooltip="Click to Run Report">
+                          <EventHandler DhtmlEvent="onclick">
+                            <Action Type="Javascript" Javascript="validateForm()" ID="actValidate" />
+                          </EventHandler>
+                          <Action Type="Report" ID="actReport">
+                            <Target Type="Report" ID="tgtOrchidAttendance" Report="Orchid.Dev.Orchid_1.0_Attendance" />
+                          </Action>
+                        </Button>
+                        <Spaces Size="3" />
+                        <Button ID="btnExportExcel" Caption="Export" Tooltip="Click to Export to Excel">
+                          <Action Type="NativeExcel" ID="expExcel">
+                            <Target Type="NativeExcel" ID="tgtExcel" ExportFilename="Orchid_10_Attendance.xlsx" ExcelOutputFormat="Excel2007" ExportDataTableID="dtHiddentTable" ShowGridlines="True" />
+                          </Action>
+                        </Button>
+                      </Column>
+                    </Row>
+                  </Rows>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+          <Division ID="divCalendar">
+            <DataCalendar ID="dcAttendance" CalendarCaptionFormat="MMMM yyyy" CellSpacing="1" DataCalendarDate="@Request.rptStart~" DayCaptionFormat="MM/dd" Layout="Auto" TimePeriod="Month" DataColumn="AttendanceDate" WidthScale="px" Width="788">
+              <DataLayer Type="SP" ID="SPDataLayer1" ConnectionID="connDevOrchid" Command="eRpt.Orchid10Attendance_sp">
+                <DataLayerLink ID="dllOrchid1.0_AttendanceByDate" />
+                <GroupFilter ID="gfAttendanceDate" GroupColumn="AttendanceDate">
+                  <GroupAggregateColumn ID="gacCountOfPresent" DataType="Number" AggregateColumn="IsConsideredPresent" AggregateFunction="Sum" />
+                  <GroupAggregateColumn ID="gacCountOfNotPresent" DataType="Number" AggregateFunction="Sum" AggregateColumn="IsConsideredNotPresent" />
+                </GroupFilter>
+                <SPParameters>
+                  <SPParameter ID="startDate" Value="@Request.rptStart~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                  <SPParameter ID="endDate" Value="@Request.rptEnd~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                  <SPParameter ID="EMDepartmentID" Value="@Request.DepartmentID~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+                  <SPParameter ID="SupervisorID" Value="@Request.MgrID~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+                  <SPParameter ID="LocationID" Value="@Request.LocationID~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+                  <SPParameter ID="AgentID" Value="@Request.SupervisorID~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+                </SPParameters>
+              </DataLayer>
+              <DataCalendarDay>
+                <DataCalendarRows IdeDisplayStatus="Collapsed">
+                  <LineBreak />
+                  <Label Caption="Present:  @Data.gacCountOfPresent~" ID="lblgacCountOfPresent" IdeDisplayStatus="Collapsed">
+                    <Action Type="ShowElement" ID="actShowDetails" ElementID="ppPresent" />
+                  </Label>
+                  <LineBreak />
+                  <LineBreak />
+                  <Label ID="lblgacCountOfNotPresent" Caption="Not Present:  @Data.gacCountOfNotPresent~" Tooltip="Click here to see who made attempt." IdeDisplayStatus="Collapsed">
+                    <Action Type="ShowElement" ID="actShowDetails" ElementID="ppNotPresent" />
+                  </Label>
+                  <PopupPanel ID="ppPresent" Caption="Present Status" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                    <IncludeFrame ID="srPresent" Scrolling="True" Width="788" WidthScale="px">
+                      <Target Type="IncludeFrameReport" ID="trgStatus" Report="Orchid.Dev.Orchid1.0_AttendanceByDate" />
+                      <LinkParams AttendanceDate="@Data.AttendanceDate~" Present="Yes" />
+                    </IncludeFrame>
+                  </PopupPanel>
+                  <PopupPanel ID="ppNotPresent" Caption="Not Present Status" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                    <IncludeFrame ID="srNotPresent" Scrolling="True" Width="788" WidthScale="px">
+                      <Target Type="IncludeFrameReport" ID="trgStatus" Report="Orchid.Dev.Orchid1.0_AttendanceByDate" />
+                      <LinkParams AttendanceDate="@Data.AttendanceDate~" Present="No" />
+                    </IncludeFrame>
+                  </PopupPanel>
+                </DataCalendarRows>
+              </DataCalendarDay>
+            </DataCalendar>
+          </Division>
+          <Division ID="divHiddenTable" ShowModes="rdExport">
+            <DataTable ID="dtHiddentTable">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllOrchid1.0_AttendanceByDate" ID="dllOrchid1.0_AttendanceByDate" />
+              <DataTableColumn ID="colRepName" Header="RepName" ShowModes="rdExportExcel">
+                <Label ID="lblRepName" Caption="@Data.RepName~" />
+                <ExcelColumnFormat ExcelColumnWidth="25" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSupName" Header="SupName">
+                <Label ID="lblSupName" Caption="@Data.SupName~" />
+                <ExcelColumnFormat ExcelColumnWidth="25" />
+              </DataTableColumn>
+              <DataTableColumn ID="colAttendanceDate" Header="AttendanceDate">
+                <Label ID="lblAttendanceDate" Caption="@Data.AttendanceDate~" Format="Short Date" />
+                <ExcelColumnFormat ExcelColumnWidth="15" />
+              </DataTableColumn>
+              <DataTableColumn ID="colAttendanceStatus" Header="AttendanceStatus">
+                <Label ID="lblAttendanceStatus" Caption="@Data.AttendanceStatus~" />
+                <ExcelColumnFormat ExcelColumnWidth="17" />
+              </DataTableColumn>
+              <DataTableColumn ID="colIsConsideredNotPresent" Header="IsConsideredNotPresent">
+                <Label ID="lblIsConsideredNotPresent" Caption="@Data.IsConsideredNotPresent~" />
+                <ExcelColumnFormat ExcelColumnWidth="23" />
+              </DataTableColumn>
+              <DataTableColumn ID="colIsConsideredPresent" Header="IsConsideredPresent" ShowModes="rdExport">
+                <Label ID="lblIsConsideredPresent" Caption="@Data.IsConsideredPresent~" />
+                <ExcelColumnFormat ExcelColumnWidth="20" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ideTestParams rptStart="" rptEnd="" DepartmentID="" LocationID="" MgrID="" SupervisorID="" />
+</Report>

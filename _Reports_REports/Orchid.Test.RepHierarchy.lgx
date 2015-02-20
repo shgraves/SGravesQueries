@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Orchid.Test.RepHierarchy" SavedBy="JOMAX\twakefield" SavedAt="7/29/2014 2:55:34 PM" EngineVersion="11.0.43" SecurityReportRightID="GDSP_C3_C3workforce_Owners, Dev-C3 Support, BIG-Developer, InternalToolsQA, overlord_test_users, LogiXMLOrchidReports, Human Resources, C3Level2Sups, C3-Managers, Quality Service Team Folder Access">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Caption="Rep Hierarchy (TEST)" Class="gdReportHeaderNameIT" />
+          <Spaces Size="20" />
+        </Column>
+        <Column Class="ThemeAlignLeft">
+          <Spaces Size="10" />
+          <Division>
+            <Image Caption="ExportToExcel2.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+              <Action Type="NativeExcel" ID="excelExport">
+                <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" ExportDataTableID="DataTable1" ShowGridlines="True" ExportFilename="RepHierarchy" />
+              </Action>
+            </Image>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <DataTable SortArrows="True" ID="DataTable1" TableBorder="1" Width="2500" WidthScale="px" AltRowClass="gdThemeAltRowNoPadding td">
+      <DataLayer Type="SP" ID="SPDataLayer" ConnectionID="connTestEmployeeMaster" Command="eRpt.RepHierarchyExport_sp" />
+      <DataTableColumn ID="colManagerUserID" Header="ManagerUserID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblManagerUserID" Caption="@Data.ManagerUserID~" />
+        <DataColumnSort DataColumn="ManagerUserID" DataType="Number" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colRepVersionID" Header="RepVersionID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblRepVersionID" Caption="@Data.RepVersionID~" />
+        <DataColumnSort DataColumn="RepVersionID" DataType="Number" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colEmpNo" Header="EmpNo" IdeDisplayStatus="Collapsed">
+        <Label ID="lblEmpNo" Caption="@Data.EmpNo~" />
+        <DataColumnSort DataColumn="EmpNo" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colEmployeeName" Header="Employee" IdeDisplayStatus="Collapsed" Width="160" WidthScale="px">
+        <Label ID="lblEmployeeName" Caption="@Data.EmployeeName~" />
+        <DataColumnSort DataColumn="EmployeeName" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSupervisorName" Header="Supervisor" IdeDisplayStatus="Collapsed" Width="160" WidthScale="px">
+        <Label ID="lblSupervisorName" Caption="@Data.SupervisorName~" />
+        <DataColumnSort DataColumn="SupervisorName" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colDepartmentName" Header="Department" IdeDisplayStatus="Collapsed">
+        <Label ID="lblDepartmentName" Caption="@Data.DepartmentName~" />
+        <DataColumnSort DataColumn="DepartmentName" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colLocationName" Header="Location" IdeDisplayStatus="Collapsed">
+        <Label ID="lblLocationName" Caption="@Data.LocationName~" />
+        <DataColumnSort DataColumn="LocationName" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colRepType" Header="RepType" IdeDisplayStatus="Collapsed">
+        <Label ID="lblRepType" Caption="@Data.RepType~" />
+        <DataColumnSort DataColumn="RepType" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colJobCode" Header="JobCode" IdeDisplayStatus="Collapsed">
+        <Label ID="lblJobCode" Caption="@Data.JobCode~" />
+        <DataColumnSort DataColumn="JobCode" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colJobTitle" Header="Title" IdeDisplayStatus="Collapsed" Width="130 " WidthScale="px">
+        <Label ID="lblJobTitle" Caption="@Data.JobTitle~" />
+        <DataColumnSort DataColumn="JobTitle" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colShiftName" Header="Shift" IdeDisplayStatus="Collapsed">
+        <Label ID="lblShiftName" Caption="@Data.ShiftName~" />
+        <DataColumnSort DataColumn="ShiftName" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colShiftScheduleName" Header="Shift Schedule Name" IdeDisplayStatus="Collapsed">
+        <Label ID="lblShiftScheduleName" Caption="@Data.ShiftScheduleName~" />
+        <DataColumnSort DataColumn="ShiftScheduleName" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colShiftTypeName" Header="Shift Type" IdeDisplayStatus="Collapsed">
+        <Label ID="lblShiftTypeName" Caption="@Data.ShiftTypeName~" />
+        <DataColumnSort DataColumn="ShiftTypeName" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colDays" Header="Days" IdeDisplayStatus="Collapsed">
+        <Label ID="lblDays" Caption="@Data.Days~" />
+        <DataColumnSort DataColumn="Days" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSun" Header="Sun" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSun" Caption="@Data.Sun~" />
+        <DataColumnSort DataColumn="Sun" DataType="Number" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colMon" Header="Mon" IdeDisplayStatus="Collapsed">
+        <Label ID="lblMon" Caption="@Data.Mon~" />
+        <DataColumnSort DataColumn="Mon" DataType="Number" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colTue" Header="Tue" IdeDisplayStatus="Collapsed">
+        <Label ID="lblTue" Caption="@Data.Tue~" />
+        <DataColumnSort DataColumn="Tue" DataType="Number" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colWed" Header="Wed" IdeDisplayStatus="Collapsed">
+        <Label ID="lblWed" Caption="@Data.Wed~" />
+        <DataColumnSort DataColumn="Wed" DataType="Number" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colThu" Header="Thu" IdeDisplayStatus="Collapsed">
+        <Label ID="lblThu" Caption="@Data.Thu~" />
+        <DataColumnSort DataColumn="Thu" DataType="Number" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colFri" Header="Fri" IdeDisplayStatus="Collapsed">
+        <Label ID="lblFri" Caption="@Data.Fri~" />
+        <DataColumnSort DataColumn="Fri" DataType="Number" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSat" Header="Sat" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSat" Caption="@Data.Sat~" />
+        <DataColumnSort DataColumn="Sat" DataType="Number" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colStartTime" Header="StartTime">
+        <Label ID="lblStartTime" Caption="@Data.StartTime~" Format="HH:mm" />
+        <DataColumnSort DataColumn="StartTime" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" ExcelFormat="HH:mm" />
+      </DataTableColumn>
+      <DataTableColumn ID="colEndTime" Header="EndTime">
+        <Label ID="lblEndTime" Caption="@Data.EndTime~" Format="HH:mm" />
+        <DataColumnSort DataColumn="EndTime" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" ExcelFormat="HH:mm" />
+      </DataTableColumn>
+      <DataTableColumn ID="colGroupIdentifier" Header="GroupIdentifier" IdeDisplayStatus="Collapsed">
+        <Label ID="lblGroupIdentifier" Caption="@Data.GroupIdentifier~" />
+        <DataColumnSort DataColumn="GroupIdentifier" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colLastHireDate" Header="LastHireDate" IdeDisplayStatus="Collapsed">
+        <Label ID="lblLastHireDate" Caption="@Data.LastHireDate~" Format="MM/dd/yyyy" />
+        <DataColumnSort DataColumn="LastHireDate" DataType="Date" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colEmail" Header="Email" IdeDisplayStatus="Collapsed">
+        <Label ID="lblEmail" Caption="@Data.Email~" />
+        <DataColumnSort DataColumn="Email" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <DataTableColumn ID="colNTLogin" Header="NTLogin" IdeDisplayStatus="Collapsed">
+        <Label ID="lblNTLogin" Caption="@Data.NTLogin~" />
+        <DataColumnSort DataColumn="NTLogin" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" />
+      </DataTableColumn>
+      <InteractivePaging PageRowCount="50" ShowPageNumber="True" Location="Top" CaptionType="Image" />
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams />
+</Report>

@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.AdvancedSupport.AdvancedSupportDash" SavedBy="JOMAX\dezell" SavedAt="6/26/2013 11:59:05 AM" EngineVersion="11.0.43" Caption="Advanced Support Dashboard" SecurityReportRightID="LogiCT">
+  <StyleSheet Theme="GDRPortal" StyleSheet="ERHubTheme.css" />
+  <DefaultRequestParams rptType="Month" rptStartDate="=DateAdd(&quot;d&quot;, -30,Date()) " rptEndDate="=Date()" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeader" ID="sharedHeaderElement" SharedElementID="sharedHeader" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rowHeader" IdeDisplayStatus="Collapsed">
+      <Row>
+        <Column Width="275" Class="gdTextNormalWhite" IdeDisplayStatus="Collapsed">
+          <IncludeHtml Html="&lt;h2&gt;Advanced Support Dashboard&lt;/h2&gt;" />
+        </Column>
+        <Column Class="ThemeAlignLeft">
+          <InputDate ID="rptStartDate" Caption="Start Date:" DefaultValue="@Request.rptStartDate~" CaptionClass="rdAlternateTextColorWhite" />
+          <Spaces Size="6" />
+          <InputDate ID="rptEndDate" Caption="End Date:" DefaultValue="@Request.rptEndDate~" CaptionClass="rdAlternateTextColorWhite" />
+          <Spaces Size="6" />
+          <Remark>
+            <InputCheckboxList OptionCaptionColumn="ServiceDescription" ID="inpServiceList" OptionValueColumn="iris_serviceID" CheckboxListDropdown="True" SaveInLocalStorage="True" MultiSelect="True" Caption="Service:" CaptionClass="rdAlternateTextColorWhite">
+              <DataLayer Type="SP" ConnectionID="connDevIris" ID="dlGetIrisServices" Command="dbo.IRIS_ServiceGetAllActive_sp" />
+            </InputCheckboxList>
+          </Remark>
+          <Spaces Size="2" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtIrisDashboard" Report="Dashboards.AdvancedSupport.AdvancedSupportDash" RequestForwarding="True" />
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+    </Rows>
+    <Dashboard2 SaveFile="@Function.AppPhysicalPath~\Dashboard\AdvancedSupportDashboard_@Function.UserName~.xml" DashboardColumns="4" ID="dashIris" SaveFileStarter="@Function.AppPhysicalPath~\Dashboard\AdvancedSupportDashboard_default.xml" DashboardTabs="False">
+      <Panel Caption="Email Incident Volume by Iris Category" ID="pnlEmailIrisVolume">
+        <PanelContent>
+          <Division ID="divIrisChart">
+            <Chart Type="XY" ID="chtEmailIrisVolume" XYChartType="Bar" ChartHeight="360" ChartWidth="480" ShowWaitIcon="True" ShowDataValues="False" BorderTop="30" ChartLabelColumnDataType="Auto" ExtraBarOptions="Stacked" ChartLabelColumn="TheDate">
+              <DataLayer Type="SQL" ID="emailsqlIrisVolume" ConnectionID="prodC3Analytics" Source="USE c3analytics &#xD;&#xA;&#xD;&#xA;SET TRANSACTION isolation level READ uncommitted &#xD;&#xA;&#xD;&#xA;DECLARE @rptStartDate DATETIME,&#xD;&#xA;@rptEndDate DATETIME,&#xD;&#xA;@rptType VARCHAR(10),&#xD;&#xA;@vc_ServiceList VARCHAR(MAX)&#xD;&#xA;&#xD;&#xA;DECLARE @ServiceList TABLE&#xD;&#xA;(&#xD;&#xA;Service NVARCHAR(200)&#xD;&#xA;)&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;SELECT @rptStartDate = '@Request.rptStartDate~'&#xD;&#xA;SELECT @rptEndDate = '@Request.rptEndDate~'&#xD;&#xA;SELECT @vc_ServiceList = '110,10,196,9,153,218,60,15,14,11'&#xD;&#xA;&#xD;&#xA;INSERT INTO @ServiceList&#xD;&#xA;(Service)&#xD;&#xA;SELECT Item&#xD;&#xA;FROM [master].[dbo].[fn_Split8K](@vc_ServiceList, ',');&#xD;&#xA;&#xD;&#xA;BEGIN&#xD;&#xA;&#xD;&#xA;With cteDates as&#xD;&#xA;(&#xD;&#xA;select convert(date,[calendarDate]) AS [TheDate]&#xD;&#xA;FROM [C3Analytics].[dbo].[dimDay]&#xD;&#xA;WHERE [calendarDate] BETWEEN&#xD;&#xA;@rptStartDate AND @rptEndDate&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;&#xD;&#xA;convert(date,[TheDate]) As TheDate,&#xD;&#xA;[iris_incidentID],&#xD;&#xA;[categorydescription], &#xD;&#xA;[servicedescription]&#xD;&#xA;&#xD;&#xA;FROM cteDates&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;LEFT JOIN [C3Analytics].[dbo].[irisincidentwide_vw] irisincidentwide_vw&#xD;&#xA;JOIN @ServiceList ServiceList&#xD;&#xA;ON ServiceList.Service = irisincidentwide_vw.iris_serviceID&#xD;&#xA;ON cteDates.TheDate = convert(date,irisincidentwide_vw.TicketCreateDate)&#xD;&#xA;WHERE nullif(@vc_ServiceList,'') iS NOT NULL&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;END " HandleQuotesInTokens="True">
+                <Remark>
+                  <AggregateColumn AggregateColumn="categorydescription" AggregateFunction="Count" ID="aggCategoryCount" DataType="Text" />
+                </Remark>
+                <Remark>
+                  <RelevanceFilter DataColumn="categorydescription" />
+                </Remark>
+                <CrosstabFilter CrosstabColumn="categorydescription" CrosstabLabelColumn="TheDate" CrosstabValueColumn="iris_incidentID" CrosstabValueFunction="Count" />
+              </DataLayer>
+              <Quicktip>
+                <QuicktipRow Caption="@Chart.rdCrosstabColumn~ : @Chart.rdCrosstabValue~" Format="General Number" />
+              </Quicktip>
+              <Legend LegendOrientation="Vertical">
+                <FontLegend FontColor="Black" FontSize="8" />
+              </Legend>
+              <LabelScale Format="MM/dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" LinearTickMinorIncrement="Auto" />
+              <DataScale Format="#,###" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+              <ZeroRowsMessage Caption="There is no data for the specified dashboard parameters." FontColor="Black" FontSize="8" />
+            </Chart>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Hosting Incident Volume by Iris Category" ID="pnlHostIrisVolume" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divIrisChart">
+            <Chart Type="XY" ID="chtHostIrisVolume" XYChartType="Bar" ChartHeight="360" ChartWidth="480" ShowWaitIcon="True" ShowDataValues="False" BorderTop="30" ChartLabelColumnDataType="Auto" ExtraBarOptions="Stacked" ChartLabelColumn="TheDate">
+              <DataLayer Type="SQL" ID="hostsqlIrisVolume" ConnectionID="prodC3Analytics" Source="USE c3analytics &#xD;&#xA;&#xD;&#xA;SET TRANSACTION isolation level READ uncommitted &#xD;&#xA;&#xD;&#xA;DECLARE @rptStartDate DATETIME,&#xD;&#xA;@rptEndDate DATETIME,&#xD;&#xA;@rptType VARCHAR(10),&#xD;&#xA;@vc_ServiceList VARCHAR(MAX)&#xD;&#xA;&#xD;&#xA;DECLARE @ServiceList TABLE&#xD;&#xA;(&#xD;&#xA;Service NVARCHAR(200)&#xD;&#xA;)&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;SELECT @rptStartDate = '@Request.rptStartDate~'&#xD;&#xA;SELECT @rptEndDate = '@Request.rptEndDate~'&#xD;&#xA;SELECT @vc_ServiceList = '7,56,6,25,57,24'&#xD;&#xA;&#xD;&#xA;INSERT INTO @ServiceList&#xD;&#xA;(Service)&#xD;&#xA;SELECT Item&#xD;&#xA;FROM [master].[dbo].[fn_Split8K](@vc_ServiceList, ',');&#xD;&#xA;&#xD;&#xA;BEGIN&#xD;&#xA;&#xD;&#xA;With cteDates as&#xD;&#xA;(&#xD;&#xA;select convert(date,[calendarDate]) AS [TheDate]&#xD;&#xA;FROM [C3Analytics].[dbo].[dimDay]&#xD;&#xA;WHERE [calendarDate] BETWEEN&#xD;&#xA;@rptStartDate AND @rptEndDate&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;&#xD;&#xA;convert(date,[TheDate]) As TheDate,&#xD;&#xA;[iris_incidentID],&#xD;&#xA;[categorydescription], &#xD;&#xA;[servicedescription]&#xD;&#xA;&#xD;&#xA;FROM cteDates&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;LEFT JOIN [C3Analytics].[dbo].[irisincidentwide_vw] irisincidentwide_vw&#xD;&#xA;JOIN @ServiceList ServiceList&#xD;&#xA;ON ServiceList.Service = irisincidentwide_vw.iris_serviceID&#xD;&#xA;ON cteDates.TheDate = convert(date,irisincidentwide_vw.TicketCreateDate)&#xD;&#xA;WHERE nullif(@vc_ServiceList,'') iS NOT NULL&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;END " HandleQuotesInTokens="True">
+                <Remark>
+                  <AggregateColumn AggregateColumn="categorydescription" AggregateFunction="Count" ID="aggCategoryCount" DataType="Text" />
+                </Remark>
+                <Remark>
+                  <RelevanceFilter DataColumn="categorydescription" />
+                </Remark>
+                <CrosstabFilter CrosstabColumn="categorydescription" CrosstabLabelColumn="TheDate" CrosstabValueColumn="iris_incidentID" CrosstabValueFunction="Count" />
+              </DataLayer>
+              <Quicktip>
+                <QuicktipRow Caption="@Chart.rdCrosstabColumn~ : @Chart.rdCrosstabValue~" Format="General Number" />
+              </Quicktip>
+              <Legend LegendOrientation="Vertical">
+                <FontLegend FontColor="Black" FontSize="8" />
+              </Legend>
+              <LabelScale Format="MM/dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" LinearTickMinorIncrement="Auto" />
+              <DataScale Format="#,###" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+              <ZeroRowsMessage Caption="There is no data for the specified dashboard parameters." FontColor="Black" FontSize="8" />
+            </Chart>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Email Incidents Closed by Iris Category" ID="pnlEmailIrisClosedbyCat" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divIrisClosed">
+            <Chart Type="XY" ID="chtEmailIrisClosedbyCat" XYChartType="Bar" ChartHeight="360" ChartWidth="480" ShowWaitIcon="True" ShowDataValues="False" BorderTop="30" ChartLabelColumnDataType="Auto" ExtraBarOptions="Stacked" ChartLabelColumn="TheDate">
+              <DataLayer Type="SQL" ID="sqlEmailIrisClosedbyCat" ConnectionID="prodC3Analytics" Source="USE c3analytics &#xD;&#xA;&#xD;&#xA;SET TRANSACTION isolation level READ uncommitted &#xD;&#xA;&#xD;&#xA;DECLARE @rptStartDate DATETIME,&#xD;&#xA;@rptEndDate DATETIME,&#xD;&#xA;@rptType VARCHAR(10),&#xD;&#xA;@vc_ServiceList VARCHAR(MAX)&#xD;&#xA;&#xD;&#xA;DECLARE @ServiceList TABLE&#xD;&#xA;(&#xD;&#xA;Service NVARCHAR(200)&#xD;&#xA;)&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;SELECT @rptStartDate = '@Request.rptStartDate~'&#xD;&#xA;SELECT @rptEndDate = '@Request.rptEndDate~'&#xD;&#xA;SELECT @vc_ServiceList = '110,10,196,9,153,218,60,15,14,11'&#xD;&#xA;INSERT INTO @ServiceList&#xD;&#xA;(Service)&#xD;&#xA;SELECT Item&#xD;&#xA;FROM [master].[dbo].[fn_Split8K](@vc_ServiceList, ',');&#xD;&#xA;&#xD;&#xA;BEGIN&#xD;&#xA;&#xD;&#xA;With cteDates as&#xD;&#xA;(&#xD;&#xA;select convert(date,[calendarDate]) AS [TheDate]&#xD;&#xA;FROM [C3Analytics].[dbo].[dimDay]&#xD;&#xA;WHERE [calendarDate] BETWEEN&#xD;&#xA;@rptStartDate AND @rptEndDate&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;&#xD;&#xA;convert(date,[TheDate]) As TheDate,&#xD;&#xA;[iris_incidentID],&#xD;&#xA;[categorydescription], &#xD;&#xA;[servicedescription]&#xD;&#xA;&#xD;&#xA;FROM cteDates&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;LEFT JOIN [C3Analytics].[dbo].[irisincidentwide_vw] irisincidentwide_vw&#xD;&#xA;JOIN @ServiceList ServiceList&#xD;&#xA;ON ServiceList.Service = irisincidentwide_vw.iris_serviceID&#xD;&#xA;ON cteDates.TheDate = convert(date,irisincidentwide_vw.TicketModifyDate)&#xD;&#xA;AND (irisincidentwide_vw.iris_statusID = 3)&#xD;&#xA;WHERE nullif(@vc_ServiceList,'') iS NOT NULL&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;END " HandleQuotesInTokens="True">
+                <CrosstabFilter CrosstabColumn="categorydescription" CrosstabLabelColumn="TheDate" CrosstabValueColumn="iris_incidentID" CrosstabValueFunction="Count" />
+              </DataLayer>
+              <Quicktip>
+                <QuicktipRow Caption="@Chart.rdCrosstabColumn~ : @Chart.rdCrosstabValue~" Format="General Number" />
+              </Quicktip>
+              <Legend LegendOrientation="Vertical" IdeDisplayStatus="Collapsed">
+                <FontLegend FontColor="Black" FontSize="8" />
+              </Legend>
+              <LabelScale Format="MM/dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" LinearTickMinorIncrement="Auto" />
+              <DataScale Format="#,###" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+              <ZeroRowsMessage Caption="There is no data for the specified dashboard parameters." FontColor="Black" FontSize="8" />
+            </Chart>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Hosting Incidents Closed by Iris Category" ID="pnlHostIrisClosedbyCat">
+        <PanelContent>
+          <Division ID="divIrisClosed">
+            <Chart Type="XY" ID="chtHostIrisClosedbyCat" XYChartType="Bar" ChartHeight="360" ChartWidth="480" ShowWaitIcon="True" ShowDataValues="False" BorderTop="30" ChartLabelColumnDataType="Auto" ExtraBarOptions="Stacked" ChartLabelColumn="TheDate">
+              <DataLayer Type="SQL" ID="sqlHostIrisClosedbyCat" ConnectionID="prodC3Analytics" Source="USE c3analytics &#xD;&#xA;&#xD;&#xA;SET TRANSACTION isolation level READ uncommitted &#xD;&#xA;&#xD;&#xA;DECLARE @rptStartDate DATETIME,&#xD;&#xA;@rptEndDate DATETIME,&#xD;&#xA;@rptType VARCHAR(10),&#xD;&#xA;@vc_ServiceList VARCHAR(MAX)&#xD;&#xA;&#xD;&#xA;DECLARE @ServiceList TABLE&#xD;&#xA;(&#xD;&#xA;Service NVARCHAR(200)&#xD;&#xA;)&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;SELECT @rptStartDate = '@Request.rptStartDate~'&#xD;&#xA;SELECT @rptEndDate = '@Request.rptEndDate~'&#xD;&#xA;SELECT @vc_ServiceList = '7,56,6,25,57,24'&#xD;&#xA;INSERT INTO @ServiceList&#xD;&#xA;(Service)&#xD;&#xA;SELECT Item&#xD;&#xA;FROM [master].[dbo].[fn_Split8K](@vc_ServiceList, ',');&#xD;&#xA;&#xD;&#xA;BEGIN&#xD;&#xA;&#xD;&#xA;With cteDates as&#xD;&#xA;(&#xD;&#xA;select convert(date,[calendarDate]) AS [TheDate]&#xD;&#xA;FROM [C3Analytics].[dbo].[dimDay]&#xD;&#xA;WHERE [calendarDate] BETWEEN&#xD;&#xA;@rptStartDate AND @rptEndDate&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;&#xD;&#xA;convert(date,[TheDate]) As TheDate,&#xD;&#xA;[iris_incidentID],&#xD;&#xA;[categorydescription], &#xD;&#xA;[servicedescription]&#xD;&#xA;&#xD;&#xA;FROM cteDates&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;LEFT JOIN [C3Analytics].[dbo].[irisincidentwide_vw] irisincidentwide_vw&#xD;&#xA;JOIN @ServiceList ServiceList&#xD;&#xA;ON ServiceList.Service = irisincidentwide_vw.iris_serviceID&#xD;&#xA;ON cteDates.TheDate = convert(date,irisincidentwide_vw.TicketModifyDate)&#xD;&#xA;AND (irisincidentwide_vw.iris_statusID = 3)&#xD;&#xA;WHERE nullif(@vc_ServiceList,'') iS NOT NULL&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;END " HandleQuotesInTokens="True">
+                <CrosstabFilter CrosstabColumn="categorydescription" CrosstabLabelColumn="TheDate" CrosstabValueColumn="iris_incidentID" CrosstabValueFunction="Count" />
+              </DataLayer>
+              <Quicktip>
+                <QuicktipRow Caption="@Chart.rdCrosstabColumn~ : @Chart.rdCrosstabValue~" Format="General Number" />
+              </Quicktip>
+              <Legend LegendOrientation="Vertical" IdeDisplayStatus="Collapsed">
+                <FontLegend FontColor="Black" FontSize="8" />
+              </Legend>
+              <LabelScale Format="MM/dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" LinearTickMinorIncrement="Auto" />
+              <DataScale Format="#,###" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+              <ZeroRowsMessage Caption="There is no data for the specified dashboard parameters." FontColor="Black" FontSize="8" />
+            </Chart>
+          </Division>
+        </PanelContent>
+      </Panel>
+    </Dashboard2>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <Division Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="sharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams rptStartDate="" rptEndDate="" />
+</Report>

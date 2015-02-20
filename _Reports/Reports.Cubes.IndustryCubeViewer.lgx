@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Reports.Cubes.IndustryCubeViewer" SavedBy="JOMAX\bgaer" SavedAt="3/19/2013 3:35:03 PM" EngineVersion="10.2.424" SecurityReportRightID="BIGCubes-Industry,BIGCubes-IndustryALL">
+  <StyleSheet StyleSheet="ERHubTheme.css" ID="cssGD" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeader" SharedElementID="sharedHeader" ID="seHeader" />
+  </ReportHeader>
+  <Body>
+    <Division>
+      <OlapGrid ID="olapIndustryGrid" BatchSelection="True" DrilldownAll="True" Caption="Industry Cube" LevelIndent="15" OlapCellColors="True" PickMemberProperties="True" SavedOlapGridFolder="@Function.AppPhysicalPath~\SavedOlapGrids">
+        <DataLayer Type="OlapMdx" ConnectionID="connOlapIndustry" ID="dlOlapIndustry">
+          <MdxQuery Cube="rptIndustryCube" ID="mdxQueryIndustry" NonEmpty="True" />
+        </DataLayer>
+      </OlapGrid>
+    </Division>
+    <Division ID="divSaveMenu" ShowModes="rdBrowser">
+      <LineBreak />
+      <Label Caption="Reset Cube View" ID="lblReset" Class="gdTextNormalWhiteLarger" IdeDisplayStatus="Collapsed">
+        <Action Type="Report" ID="actRestart" IdeDisplayStatus="Collapsed">
+          <Target Type="Report" ID="tgtRestart" />
+          <LinkParams rdOgReset="True" />
+        </Action>
+      </Label>
+      <Spaces />
+      <Label Caption=" | " ID="lblDividerBar" Class="gdTextNormalWhiteLarger" />
+      <Spaces />
+      <Label Caption="Save Cube View" ID="lblSave" Class="gdTextNormalWhiteLarger" IdeDisplayStatus="Collapsed">
+        <Action Type="Process" Process="procSaveOlapGridState" ConfirmMessage="Are you sure you want to save the OLAP Grid layout?" TaskID="tskSaveIndustryGrid" ID="actSave" />
+        <Remark>
+          <Action Type="Popup">
+            <PopupOption />
+          </Action>
+        </Remark>
+      </Label>
+      <Spaces />
+      <Label Caption=" | " ID="lblDividerBar" Class="gdTextNormalWhiteLarger" />
+      <Spaces />
+      <Label Caption="Restore Cube View" ID="lblRestore" Class="gdTextNormalWhiteLarger">
+        <Action Type="Report" ID="actRestore">
+          <Target Type="Report" ID="trgRestore" />
+          <LinkParams rdOgLoadSaved="@Cookie.IndustryGridFileName~" />
+        </Action>
+      </Label>
+    </Division>
+  </Body>
+  <ReportFooter>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="seFooter" />
+  </ReportFooter>
+  <ideTestParams />
+</Report>

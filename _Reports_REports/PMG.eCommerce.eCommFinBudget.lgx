@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.eCommerce.eCommFinBudget" SavedBy="JOMAX\tpieh" SavedAt="9/12/2013 10:00:34 AM" EngineVersion="11.0.43">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams rptDay="=DateAdd(&quot;d&quot;,&quot;-1&quot;,Date())" rptYesterday="=DateAdd(&quot;d&quot;,&quot;-1&quot;,Date())" />
+  <LocalData ID="ldSalesBudgetCache">
+    <DataLayer Type="Cached" CacheKey="SalesBudget,@Request.rptDay~" ID="dlSalesBudgetDataCache" ExpirationTimeSpan="24:00" ExpirationNow="True">
+      <DataLayer Type="SP" ConnectionID="connM1BIG-biLogiReporting" ID="dtSalesBudget" Command="dbo.rptEcommLogiDashFinanceBudget_Get_sp">
+        <SPParameters>
+          <SPParameter ID="@ReportDay" Value="@Request.rptDay~" SPParamDirection="Input" SPParamType="dt-7" SPParamSize="7" />
+        </SPParameters>
+      </DataLayer>
+      <DataLayerLink ID="dlSalesBudgetDataLink" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <LineBreak />
+    <Rows Class="gdDefaultRowBground">
+      <Row Class="gdReportHeader" ID="rowTitle">
+        <Column ID="colHeader" Width="50" ColSpan="10">
+          <Label Caption="eCommerce Dash" Class="ThemeTextSmall">
+            <Action Type="Link" ID="actLinkeComm">
+              <Target Type="Link" ID="tgtrpteCommerce" Link="@Function.AppVirtualPath~?rdReport=PMG.eCommerce.eCommDash" />
+            </Action>
+          </Label>
+          <Label Caption=" | " Class="ThemeTextSmall" />
+          <Label Caption="Finance Budget" Class="ThemeTextSmall">
+            <Action Type="Link" ID="actLinkBudget">
+              <Target Type="Link" ID="tgtrptFinBudget" Link="@Function.AppVirtualPath~?rdReport=PMG.eCommerce.eCommFinBudget" />
+            </Action>
+          </Label>
+          <LineBreak LineCount="2" />
+          <Label Caption="vs Finance Budget" Class="gdReportHeaderNameBI" />
+          <LineBreak LineCount="2" />
+          <Remark>
+            <Spaces Size="3" />
+          </Remark>
+          <Spaces Size="3" />
+          <InputDate ID="rptDay" Caption="Report Date:" DefaultValue="@Request.rptDay~" CaptionClass="rdAlternateTextColorWhite">
+            <Validation Type="Date" ErrorMsg="Data for this date is not available at this time" RangeStart="1/1/2013" RangeEnd="@Request.rptYesterday~" Class="ThemeErrorText" />
+          </InputDate>
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport" Validate="True" EnterKeyDefault="True">
+              <Target Type="Report" ID="tgtCurrentReport" Report="PMG.eCommerce.eCommFinBudget" RequestForwarding="True" />
+            </Action>
+          </Button>
+          <LineBreak LineCount="1" />
+        </Column>
+      </Row>
+      <Row ID="RowOne">
+        <Column ID="colSalesBudgetCall" Class="gdColumnCell">
+          <Division>
+            <DataTable ID="dtSalesBudget" CellSpacing="5 px" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="gdTableHeader" CaptionClass="gdColumnCellTitle" Width="900">
+              <DataLayer Type="Linked" LinkedDataLayerID="dlSalesBudgetDataLink" ID="dlSalesBudgetDataLinked1" />
+              <DataTableColumn ID="colMetric" Header="Web Sales" Width="400" WidthScale="px">
+                <Label ID="lbMetric" Caption="@Data.metric~">
+                  <ConditionalClass Condition="&quot;@Data.metric~&quot; &lt;&gt; &quot;Revenue [New]&quot; AND &quot;@Data.metric~&quot; &lt;&gt; &quot;Revenue [Renew]&quot; AND &quot;@Data.metric~&quot; &lt;&gt; &quot;Revenue [Total]&quot;" Class="gdThemeAlignLeftPadLeft" />
+                </Label>
+              </DataTableColumn>
+              <DataTableColumn ID="colDaily" Header="Daily" Width="100" WidthScale="px" Class="ThemeAlignRight">
+                <Label ID="lblDaily" Caption="@Data.Daily~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colDailyGoal" Header="Daily Budget" Width="100" WidthScale="px" Class="ThemeAlignRight">
+                <Label ID="lblDailyGoal" Caption="@Data.DailyGoal~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colDailyAbsVariance" Header="Daily Variance" Width="100" WidthScale="px" Class="ThemeAlignRight">
+                <Label ID="lblDailyAbsVariance" Caption="@Data.DailyAbsVariance~">
+                  <ConditionalClass Class="ThemeTextNegative" Condition="Left(&quot;@Data.DailyAbsVariance~&quot;,1) = &quot;-&quot;" />
+                </Label>
+              </DataTableColumn>
+              <DataTableColumn ID="colDailyPerVariance" Header="% Daily Variance" Width="100" WidthScale="px" Class="ThemeAlignRight">
+                <Label ID="lblDailyPerVariance" Caption="@Data.DailyPerVariance~">
+                  <ConditionalClass Class="ThemeTextNegative" Condition="Left(&quot;@Data.DailyPerVariance~&quot;,1) = &quot;-&quot;" />
+                </Label>
+              </DataTableColumn>
+              <DataTableColumn ID="colMTD" Header="MTD" Width="100" WidthScale="px" Class="ThemeAlignRight">
+                <Label ID="lblMTD" Caption="@Data.Mtd~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colMTDGoal" Header="MTD Budget" Width="100" WidthScale="px" Class="ThemeAlignRight">
+                <Label ID="lblMTDGoal" Caption="@Data.MtdGoal~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colMTDAbsVariance" Header="MTD Variance" Width="100" WidthScale="px" Class="ThemeAlignRight">
+                <Label ID="lblMTDAbsVariance" Caption="@Data.MTDAbsVariance~">
+                  <ConditionalClass Class="ThemeTextNegative" Condition="Left(&quot;@Data.MTDAbsVariance~&quot;,1) = &quot;-&quot;" />
+                </Label>
+              </DataTableColumn>
+              <DataTableColumn ID="colMTDPerVariance" Header="% MTD Variance" Width="100" WidthScale="px" Class="ThemeAlignRight">
+                <Label ID="lblMTDPerVariance" Caption="@Data.MTDPerVariance~">
+                  <ConditionalClass Class="ThemeTextNegative" Condition="Left(&quot;@Data.MTDPerVariance~&quot;,1) = &quot;-&quot;" />
+                </Label>
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter />
+  <ideTestParams rptDay="" rptYesterday="" />
+</Report>

@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.IAPPublisherRefundReport" SavedBy="JOMAX\shgraves" SavedAt="7/11/2013 1:58:55 PM" EngineVersion="11.0.43">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams rptEndDate="" rptStartDate="" />
+  <LocalData>
+    <DataLayer Type="SQL" Source="&#xD;&#xA;DECLARE @StartDate DATETIME = '@Request.rptStartDate~' &#xD;&#xA;DECLARE @EndDate DATETIME = '@Request.rptEndDate~' &#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#RefundData') IS NOT NULL DROP TABLE #RefundData&#xD;&#xA;CREATE TABLE #RefundData&#xD;&#xA;  (	&#xD;&#xA;	[Order_id] [VARCHAR](50) NULL, &#xD;&#xA;	[AdjustedPrice] [INT] NULL,&#xD;&#xA;	[OriginalOrderId] [VARCHAR](50) NULL&#xD;&#xA;   )&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;INSERT INTO #RefundData (Order_id, AdjustedPrice, OriginalOrderId)&#xD;&#xA;SELECT order_id, SUM(adjusted_price) AS adjusted_price, Original_Order_id&#xD;&#xA;FROM [BIGReporting].[dbo].[rptRefundDetail] rf WITH (NOLOCK)&#xD;&#xA;WHERE order_date &gt;= @StartDate AND order_date &lt; @EndDate&#xD;&#xA;Group By Order_id, original_order_id&#xD;&#xA;option (maxdop 1)&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#rptrefunddetail') IS NOT NULL DROP TABLE #rptrefunddetail&#xD;&#xA;CREATE TABLE #rptrefunddetail&#xD;&#xA;  (	&#xD;&#xA;	[Order_id] [VARCHAR](50) NULL, &#xD;&#xA;	[AdjustedPrice] [INT] NULL&#xD;&#xA;   )&#xD;&#xA;INSERT INTO #rptrefunddetail (Order_id, AdjustedPrice)&#xD;&#xA;SELECT order_id, SUM(adjustedprice) &#xD;&#xA;FROM #RefundData rf WITH (NOLOCK)&#xD;&#xA;WHERE EXISTS (SELECT 1 FROM gdAffiliate.dbo.affiliateorder oo WHERE oo.gdorderid = rf.originalorderid)&#xD;&#xA;GROUP BY order_id&#xD;&#xA;option (maxdop 1)&#xD;&#xA;&#xD;&#xA;CREATE UNIQUE NONCLUSTERED INDEX x0 ON #rptrefunddetail (Order_Id) INCLUDE (AdjustedPrice)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#affiliateorder') IS NOT NULL DROP TABLE #affiliateorder&#xD;&#xA;CREATE TABLE #affiliateorder&#xD;&#xA;  (	&#xD;&#xA;	[Order_Id] [VARCHAR](50) NULL, &#xD;&#xA;	[ReferralID] [VARCHAR](50) NULL, &#xD;&#xA;	[GDOrderID] [VARCHAR](50) NULL,&#xD;&#xA;	[OriginalOrderID] [VARCHAR](50) NULL,&#xD;&#xA;	[SourceCode] [VARCHAR] (50) NULL,&#xD;&#xA;	[Shopper_id] [VARCHAR] (50) NULL,&#xD;&#xA;	[Order_Date] DATE,&#xD;&#xA;	[FraudStatus] [VarChar] (10) NULL&#xD;&#xA;   )&#xD;&#xA;&#xD;&#xA;INSERT INTO #affiliateorder (Order_Id, ReferralID, GDOrderID, OriginalOrderID, SourceCode, Shopper_id, Order_date)&#xD;&#xA;SELECT oo.OrderId, ReferralID, GDOrderID, OriginalOrderID, SourceCode, ShopperId, oo.OrderDate&#xD;&#xA;FROM gdAffiliate.dbo.affiliateorder oo WITH (NOLOCK)&#xD;&#xA;WHERE EXISTS (SELECT 1 FROM #rptrefunddetail rf WHERE oo.gdorderid = rf.order_id)&#xD;&#xA;	AND oo.OrderDate &gt;= @StartDate AND oo.OrderDate &lt; @EndDate&#xD;&#xA;option (maxdop 1)&#xD;&#xA;&#xD;&#xA;CREATE UNIQUE CLUSTERED INDEX x0 ON #affiliateorder (GDOrderID, Order_id)&#xD;&#xA;CREATE NONCLUSTERED INDEX x1 ON #affiliateorder (ReferralID)&#xD;&#xA;CREATE UNIQUE NONCLUSTERED INDEX x2 ON #affiliateorder (Order_id)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#Affiliate') IS NOT NULL DROP TABLE #Affiliate&#xD;&#xA;CREATE TABLE #Affiliate&#xD;&#xA;  (	&#xD;&#xA;	[ReferralID] [VARCHAR](50) NULL, &#xD;&#xA;	[ChannelId] [VARCHAR](100) NULL, &#xD;&#xA;	[PublisherId][VARCHAR](100) NULL,&#xD;&#xA;	[ShopperID] [VARCHAR](100) NULL&#xD;&#xA;   )&#xD;&#xA;   &#xD;&#xA;INSERT INTO #Affiliate (ReferralId, ChannelID, PublisherId, ShopperId)&#xD;&#xA;SELECT DISTINCT r.ReferralId, c.ChannelID, p.PublisherId, p.ShopperID&#xD;&#xA;FROM #affiliateorder o WITH (NOLOCK)&#xD;&#xA;JOIN gdAffiliate.dbo.Referral r WITH (NOLOCK) ON o.ReferralID = r.ReferralID&#xD;&#xA;JOIN gdAffiliate.dbo.Channel c WITH (NOLOCK) ON r.ChannelID = c.ChannelID&#xD;&#xA;JOIN gdAffiliate.dbo.Publisher p WITH (NOLOCK) ON c.PublisherID = p.PublisherID&#xD;&#xA;CREATE NONCLUSTERED INDEX x1a ON #affiliateorder (ReferralId);&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;Update #affiliateorder&#xD;&#xA;set FraudStatus = 'Y'&#xD;&#xA;FROM #affiliateorder a WITH (NOLOCK) &#xD;&#xA;        JOIN (select shopper_id from CustomerTracking.dbo.shopperheader (NOLOCK) s&#xD;&#xA;                where s.fraudstatus = 'y') sh on a.shopper_id = sh.shopper_id&#xD;&#xA;option (maxdop 1)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT CONVERT(DATE,o.order_date) AS OrderDate, a.PublisherID as 'PublisherID', a.ReferralID as 'ReferralID', o.GDorderID as 'OrderID'&#xD;&#xA;	, a.ShopperID as 'ShopperID', SUM(ol.adjustedprice) AS 'RefundedGCR', SUM(case when FraudStatus = 'Y' then (ol.adjustedprice)end) AS 'RefundedFraudGCR'&#xD;&#xA;	, SUM(co.CommissionAmount) AS 'RefundedCommission', SUM(case when FraudStatus = 'Y' then (co.commissionAmount)end) AS 'RefundedFraudComission'&#xD;&#xA;	--select  *&#xD;&#xA;FROM #affiliateorder o WITH (NOLOCK)&#xD;&#xA;	JOIN #Affiliate a ON o.ReferralID = a.ReferralID&#xD;&#xA;	JOIN gdAffiliate.dbo.OrderLine ol WITH (NOLOCK) ON ol.OrderID  = o.Order_ID &#xD;&#xA;	JOIN gdAffiliate.dbo.Commission co WITH (NOLOCK) ON co.OrderLineID = ol.OrderLineID AND co.CommissionStatusID IN (1,2,3,6,9,10,13)&#xD;&#xA;GROUP BY CONVERT(DATE,o.order_date), a.PublisherID, a.ReferralID, o.GDorderID, a.ShopperID&#xD;&#xA;ORDER BY CONVERT(DATE,o.order_date), a.PublisherID, a.ReferralID, o.GDorderID, a.ShopperID&#xD;&#xA;OPTION (MAXDOP 1);&#xD;&#xA;" ID="dsAffiliateRefundData" ConnectionID="connM1BIG-BIGReporting">
+      <DataLayerLink ID="dllAffiliateRefundData" />
+      <SqlParameters>
+        <SqlParameter SqlParamType="dt-7" Value="@Request.rptEndDate~" ID="sqlParmEndDate" />
+        <SqlParameter SqlParamType="dt-7" Value="@Request.rptStartDate~" ID="sqlParmStartDate" />
+      </SqlParameters>
+    </DataLayer>
+  </LocalData>
+  <ReportHeader IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="ReportHeader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Caption="IAP Publisher Refund Report" Class="gdReportHeaderNameBI" ID="lblRptName" />
+        </Column>
+      </Row>
+    </Rows>
+    <Rows Class="gdDefaultRowBground" ID="ReportTitle">
+      <Row Class="gdReportHeader" ID="rowReportTitle">
+        <Column Class="ThemeAlignLeft" ID="colDates">
+          <Spaces Size="3" />
+          <InputDate ID="rptStartDate" Caption="Start Date:" DefaultValue="@Request.rptStartDate~" CaptionClass="rdAlternateTextColorWhite">
+            <InputDateCalendar ID="calStartDate" />
+          </InputDate>
+          <Spaces Size="3" />
+          <InputDate ID="rptEndDate" Caption="End Date:" DefaultValue="@Request.rptEndDate~" CaptionClass="rdAlternateTextColorWhite">
+            <InputDateCalendar ID="calEndDate" />
+          </InputDate>
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <LinkParams rdAgRefreshData="True" />
+              <Target Type="Report" ID="tgtCurrentReport" Report="PMG.IAPPublisherRefundReport" RequestForwarding="True">
+                <WaitPage Caption="Updating Data..." />
+              </Target>
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+    </Rows>
+    <Division>
+      <AnalysisGrid ID="agAffiliateRefund" DraggableColumns="True" AjaxPaging="True">
+        <DataLayer Type="Linked" LinkedDataLayerID="dllAffiliateRefundData" ID="dllnkAffiliatRefData" />
+        <AnalysisGridColumn DataColumn="OrderDate" DataType="DateTime" Header="Order Date" ID="agcOrderDate" Format="General Date" ColumnVisible="True" />
+        <AnalysisGridColumn Header="Publisher ID" DataColumn="PublisherID" DataType="Text" ID="agcPublisherID" ColumnVisible="True" />
+        <AnalysisGridColumn Header="Referral ID" DataColumn="ReferralID" DataType="Text" ID="agcReferralID" ColumnVisible="True" />
+        <AnalysisGridColumn Header="Order ID" DataColumn="OrderID" DataType="Text" ID="agcOrderID" ColumnVisible="True" />
+        <AnalysisGridColumn Header="Shopper ID" DataColumn="ShopperID" DataType="Text" ID="agcShopperID" ColumnVisible="True" />
+        <AnalysisGridColumn Header="Refunded GCR" DataColumn="RefundedGCR" DataType="Number" ID="agcRefundedGCR" ColumnVisible="True" Format="Currency" />
+        <AnalysisGridColumn Header="Fraud Refunded GCR" DataColumn="RefundedFraudGCR" DataType="Number" ID="agcFraudRefundedGCR" ColumnVisible="True" Format="Currency" />
+        <AnalysisGridColumn Header="Refunded Commission" DataColumn="RefundedCommission" DataType="Number" ID="agcRefundedCommission" ColumnVisible="True" Format="Currency" />
+        <AnalysisGridColumn Header="Fraud Refunded Commission" DataColumn="RefundedFraudCommission" DataType="Number" ID="agcFraudRefundedCommission" ColumnVisible="True" Format="Currency" />
+      </AnalysisGrid>
+    </Division>
+  </Body>
+  <ReportFooter />
+  <ideTestParams rptEndDate="6/1/2013" rptStartDate="5/1/2013" />
+</Report>

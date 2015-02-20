@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Patching.SpaceWalk_Patching_Compliance_ServerDetails" SavedBy="JOMAX\dezell" SavedAt="2/3/2014 4:24:01 PM" EngineVersion="11.0.43" SecurityReportRightID="LogiCT">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader />
+  <Body>
+    <DataTable ID="dtSpaceWalkPatchingServerDetails" CellSpacing="7px" AltRowClass="gdThemeAltRowNoPadding td" WidthScale="px" Width="800">
+      <DataLayer Type="Linked" LinkedDataLayerID="dlPatchData" IdeDisplayStatus="Collapsed">
+        <CompareFilter DataColumn="PATCHGROUP_Name" CompareValue="@Request.PatchGroup~" CompareType="=" ID="filterbyPatchGroup" />
+        <CompareFilter CompareValue="@Request.ServerTeamName~" ID="filterbyServerTeam" DataColumn="ServerTeamName" CompareType="=" />
+        <CalculatedColumn Formula="IIF(&quot;@Data.LastInstalledPackageDate~&quot; = &quot;&quot;,&quot;@Date.Tomorrow~&quot;,&quot;@Data.LastInstalledPackageDate~&quot;)" ID="formattedLPD3" />
+        <CalculatedColumn Formula="@Data.MaxNeededAge~" ID="calcAge3" />
+        <SortFilter SortColumn="SYSTEM_FQDN" DataType="Text" SortSequence="Ascending" />
+        <SortFilter SortColumn="MaxNeededAge" SortSequence="Descending" DataType="Number" ID="sortMaxNeededAge" />
+      </DataLayer>
+      <DataTableColumn ID="dtServerName" Header="Server Name" Width="100" WidthScale="px" IdeDisplayStatus="Collapsed">
+        <Label Caption="@Data.SYSTEM_FQDN~" Class="ThemeAlignLeft" />
+        <DataColumnSort DataType="Text" DataColumn="SYSTEM_FQDN" />
+      </DataTableColumn>
+      <DataTableColumn ID="dtServerID" Class="ThemeAlignCenter" Header="Server ID" Width="75" WidthScale="px">
+        <Label Caption="@Data.SERVER_ID~" />
+        <DataColumnSort DataType="Number" DataColumn="SERVER_ID" />
+      </DataTableColumn>
+      <Remark>
+        <DataTableColumn ID="colServerTeamName" Header="Server Team Name">
+          <Label Caption="@Data.ServerTeamName~" />
+        </DataTableColumn>
+      </Remark>
+      <DataTableColumn ID="dtLastInstalledPackageDate" Header="Last Installed Package" WidthScale="px" Class="ThemeAlignLeft" Width="100">
+        <Label Caption="@Data.LastInstalledPackageDate~" Format="Short Date" Class="ThemeAlignRight" />
+        <DataColumnSort DataColumn="LastInstalledPackageDate" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="dtAge" Header="Max Needed Age" Tooltip="Number of days since last package was installed." Width="75" WidthScale="px" Class="ThemeAlignCenter">
+        <Label Caption="@Data.MaxNeededAge~" Class="ThemeAlignRight" />
+        <DataColumnSort DataColumn="MaxNeededAge" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="dtPackagesNeeded" Header="Packages Needed" Width="75" WidthScale="px" Class="ThemeAlignCenter">
+        <Label Caption="@Data.PackagesNeeded~" Class="ThemeAlignRight" />
+        <DataColumnSort DataColumn="PackagesNeeded" DataType="Number" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams ServerTeamName="" PatchGroup="" />
+</Report>

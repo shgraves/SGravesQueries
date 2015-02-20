@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Aprimo.JZJ_Dev.Gallactica3" SavedBy="JOMAX\jzwayerjones" SavedAt="12/30/2013 12:41:09 PM" EngineVersion="11.0.43">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams idEndDate1="=DateAdd(&quot;d&quot;,-9,Date())" idEndDate2="=DateAdd(&quot;d&quot;,-1,Date())" idStartDate1="=DateAdd(&quot;d&quot;,-16,Date())" idStartDate2="=DateAdd(&quot;d&quot;,-8,Date())" />
+  <ReportHeader />
+  <Body>
+    <Rows ID="rowDropDowns" Class="gdDefaultDropDownBground">
+      <Row>
+        <Column ID="colDateRangeOneSelect">
+          <Rows Caption="Choose Date Ranges">
+            <Row ID="rowStartDT1">
+              <Column>
+                <Label Caption="StartDate1:" />
+              </Column>
+              <Column>
+                <InputDate ID="idStartDate1" Format="yyyy-MM-dd" DefaultValue="@Request.idStartDate1~">
+                  <Validation Type="Date" ErrorMsg="Incorrect Date Format" />
+                  <Validation Type="Required" ErrorMsg="Incorrect Date Format" />
+                </InputDate>
+              </Column>
+            </Row>
+            <Row ID="rowEndDT1">
+              <Column>
+                <Label Caption="EndDate1:" />
+              </Column>
+              <Column>
+                <InputDate ID="idEndDate1" Format="yyyy-MM-dd" DefaultValue="@Request.idEndDate1~">
+                  <Validation Type="Date" ErrorMsg="Incorrect Date Format" />
+                  <Validation Type="Required" ErrorMsg="Incorrect Date Format" />
+                </InputDate>
+              </Column>
+            </Row>
+            <Row ID="rowStartDT2">
+              <Column>
+                <Label Caption="StartDate2:" />
+              </Column>
+              <Column>
+                <InputDate ID="idStartDate2" DefaultValue="@Request.idStartDate2~" Format="yyyy-MM-dd">
+                  <Validation Type="Date" ErrorMsg="Incorrect Date Format" />
+                  <Validation Type="Required" ErrorMsg="Incorrect Date Format" />
+                </InputDate>
+              </Column>
+            </Row>
+            <Row ID="rowEndDT2">
+              <Column>
+                <Label Caption="EndDate2:" />
+              </Column>
+              <Column>
+                <InputDate ID="idEndDate2" DefaultValue="@Request.idEndDate2~" Format="yyyy-MM-dd">
+                  <Validation Type="Date" ErrorMsg="Incorrect Date Format" />
+                  <Validation Type="Required" ErrorMsg="Incorrect Date Format" />
+                </InputDate>
+              </Column>
+            </Row>
+            <Row ID="rowSubmit">
+              <Column ID="colSubmit" ColSpan="5" RowSpan="1">
+                <Button ID="Submit" Caption="Submit">
+                  <Action Type="Report">
+                    <Target Type="Report" ID="trgDateInput1" Report="Aprimo.JZJ_Dev.Gallactica3" RequestForwarding="True">
+                      <WaitPage Caption="Loading..." />
+                    </Target>
+                  </Action>
+                </Button>
+              </Column>
+            </Row>
+          </Rows>
+        </Column>
+      </Row>
+    </Rows>
+    <LineBreak />
+    <DataTable SortArrows="True" ID="dtChannel">
+      <DataLayer Type="SQL" ID="dlChannel" ConnectionID="connM1BIG-biLogiReporting" Source="SELECT DISTINCT GRP1.Channel&#xD;&#xA;			  , SUM(GRP1.Units) AS Units&#xD;&#xA;			  , SUM(GRP2.Units2) AS Units2&#xD;&#xA;			  , SUM(GRP1.Months) AS Months&#xD;&#xA;			  , SUM(GRP2.Months2) AS Months2&#xD;&#xA;			  , SUM(GRP1.GCR) AS GCR&#xD;&#xA;			  , SUM(GRP2.GCR2) AS GCR2&#xD;&#xA;					FROM&#xD;&#xA;					(&#xD;&#xA;					SELECT&#xD;&#xA;					CNAME.Channel&#xD;&#xA;					, SUM(RLPOD.Units) AS Units&#xD;&#xA;					, SUM(RLPOD.Months) AS Months&#xD;&#xA;					, SUM(RLPOD.GCR) AS GCR&#xD;&#xA;					FROM BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;					JOIN (&#xD;&#xA;							SELECT DISTINCT IC.NAME AS Channel&#xD;&#xA;				 		  				  , RLPOD.Channel_id&#xD;&#xA;				 		  					FROM BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;									 		JOIN GoDaddy.dbo.isc_channel IC (NOLOCK)&#xD;&#xA;									 			ON IC.Channel_ID = RLPOD.Channel_ID&#xD;&#xA;													AND RLPOD.rptDate &gt;= '@Request.idStartDate1~' &#xD;&#xA;													AND RLPOD.rptDate &lt;= '@Request.idEndDate1~'&#xD;&#xA;							UNION ALL&#xD;&#xA;							SELECT 'Billing Agent' AS Channel&#xD;&#xA;								 , -1 AS Channel_ID&#xD;&#xA;						 ) CNAME ON CNAME.Channel_ID = RLPOD.Channel_ID&#xD;&#xA;									AND RLPOD.rptDate &gt;= '@Request.idStartDate1~' &#xD;&#xA;									AND RLPOD.rptDate &lt;= '@Request.idEndDate1~' &#xD;&#xA;					GROUP BY CNAME.Channel&#xD;&#xA;					) GRP1&#xD;&#xA;					JOIN&#xD;&#xA;					(&#xD;&#xA;					SELECT&#xD;&#xA;					CNAME.Channel&#xD;&#xA;					, SUM(RLPOD.Units) AS Units2&#xD;&#xA;					, SUM(RLPOD.Months) AS Months2&#xD;&#xA;					, SUM(RLPOD.GCR) AS GCR2&#xD;&#xA;					FROM BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;					JOIN (&#xD;&#xA;							SELECT DISTINCT IC.NAME AS Channel&#xD;&#xA;				 		  				  , RLPOD.Channel_id&#xD;&#xA;				 		  					FROM BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;									 		JOIN GoDaddy.dbo.isc_channel IC (NOLOCK)&#xD;&#xA;									 			ON IC.Channel_ID = RLPOD.Channel_ID&#xD;&#xA;													AND RLPOD.rptDate &gt;= '@Request.idStartDate2~' &#xD;&#xA;													AND RLPOD.rptDate &lt;= '@Request.idEndDate2~' &#xD;&#xA;							UNION ALL&#xD;&#xA;							SELECT 'Billing Agent' AS Channel&#xD;&#xA;								 , -1 AS Channel_ID&#xD;&#xA;						 ) CNAME ON CNAME.Channel_ID = RLPOD.Channel_ID&#xD;&#xA;									AND RLPOD.rptDate &gt;= '@Request.idStartDate2~' &#xD;&#xA;									AND RLPOD.rptDate &lt;= '@Request.idEndDate2~' &#xD;&#xA;					GROUP BY CNAME.Channel&#xD;&#xA;					) GRP2&#xD;&#xA;					ON  GRP1.Channel = GRP2.Channel&#xD;&#xA;			GROUP BY GRP1.Channel&#xD;&#xA;&#xD;&#xA;" IdeDisplayStatus="Collapsed">
+        <Remark>
+          <GroupFilter GroupColumn="Channel" DataType="Text" ID="gfChannel" />
+        </Remark>
+      </DataLayer>
+      <DataTableColumn ID="colChannel" Header="Channel" IdeDisplayStatus="Collapsed">
+        <Label ID="lblChannel" Caption="@Data.Channel~" />
+        <DataColumnSort DataColumn="Channel" />
+      </DataTableColumn>
+      <DataTableColumn ID="colUnits" Header="Units" IdeDisplayStatus="Collapsed">
+        <Label ID="lblUnits" Caption="@Data.Units~" />
+        <DataColumnSort DataColumn="Units" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colUnits2" Header="Units2" IdeDisplayStatus="Collapsed">
+        <Label ID="lblUnits2" Caption="@Data.Units2~" />
+        <DataColumnSort DataColumn="Units2" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colMonths" Header="Months" IdeDisplayStatus="Collapsed">
+        <Label ID="lblMonths" Caption="@Data.Months~" />
+        <DataColumnSort DataColumn="Months" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colMonths2" Header="Months2" IdeDisplayStatus="Collapsed">
+        <Label ID="lblMonths2" Caption="@Data.Months2~" />
+        <DataColumnSort DataColumn="Months2" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colGCR" Header="GCR" IdeDisplayStatus="Collapsed">
+        <Label ID="lblGCR" Caption="@Data.GCR~" />
+        <DataColumnSort DataColumn="GCR" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colGCR2" Header="GCR2" IdeDisplayStatus="Collapsed">
+        <Label ID="lblGCR2" Caption="@Data.GCR2~" />
+        <DataColumnSort DataColumn="GCR2" DataType="Number" />
+      </DataTableColumn>
+      <MoreInfoRow ID="mirProductGroupInfo" ShowModes="None" ColumnSpanFirst="2" ColumnSpanLast="8">
+        <LineBreak />
+        <SubDataTable ID="sdtProductGroupInfo">
+          <SubDataLayer ID="sdlProductGroupInfo" OrphanRowExistence="False">
+            <DataLayer Type="SQL" Source="SELECT DISTINCT GRP1.Channel&#xD;&#xA;			  , GRP1.Product_Group&#xD;&#xA;			  , SUM(GRP1.Units) AS Units&#xD;&#xA;			  , SUM(GRP2.Units2) AS Units2&#xD;&#xA;			  , SUM(GRP1.Months) AS Months&#xD;&#xA;			  , SUM(GRP2.Months2) AS Months2&#xD;&#xA;			  , SUM(GRP1.GCR) AS GCR&#xD;&#xA;			  , SUM(GRP2.GCR2) AS GCR2&#xD;&#xA;					FROM&#xD;&#xA;					(&#xD;&#xA;					SELECT&#xD;&#xA;					CNAME.Channel&#xD;&#xA;					, RFR.PnL_Group AS Product_Group&#xD;&#xA;					, SUM(RLPOD.Units) AS Units&#xD;&#xA;					, SUM(RLPOD.Months) AS Months&#xD;&#xA;					, SUM(RLPOD.GCR) AS GCR&#xD;&#xA;					FROM BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;					JOIN (&#xD;&#xA;							SELECT DISTINCT IC.NAME AS Channel&#xD;&#xA;				 		  				  , RLPOD.Channel_id&#xD;&#xA;				 		  					FROM BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;									 		JOIN GoDaddy.dbo.isc_channel IC (NOLOCK)&#xD;&#xA;									 			ON IC.Channel_ID = RLPOD.Channel_ID&#xD;&#xA;													AND RLPOD.rptDate &gt;= '@Request.idStartDate1~' &#xD;&#xA;													AND RLPOD.rptDate &lt;= '@Request.idEndDate1~' &#xD;&#xA;							UNION ALL&#xD;&#xA;							SELECT 'Billing Agent' AS Channel&#xD;&#xA;								 , -1 AS Channel_ID&#xD;&#xA;						 ) CNAME ON CNAME.Channel_ID = RLPOD.Channel_ID&#xD;&#xA;									AND RLPOD.rptDate &gt;= '@Request.idStartDate1~' &#xD;&#xA;									AND RLPOD.rptDate &lt;= '@Request.idEndDate1~'  &#xD;&#xA;					JOIN BiLogiReporting.dbo.rptLogiFinanceRollUp RFR (NOLOCK) &#xD;&#xA;						ON RLPOD.FinanceRollupID = RFR.FinanceRollupID&#xD;&#xA;					GROUP BY CNAME.Channel, RFR.PnL_Group&#xD;&#xA;					) GRP1&#xD;&#xA;					JOIN&#xD;&#xA;					(&#xD;&#xA;					SELECT&#xD;&#xA;					CNAME.Channel&#xD;&#xA;					, RFR.PnL_Group AS Product_Group&#xD;&#xA;					, SUM(RLPOD.Units) AS Units2&#xD;&#xA;					, SUM(RLPOD.Months) AS Months2&#xD;&#xA;					, SUM(RLPOD.GCR) AS GCR2&#xD;&#xA;					FROM BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;					JOIN (&#xD;&#xA;							SELECT DISTINCT IC.NAME AS Channel&#xD;&#xA;				 		  				  , RLPOD.Channel_id&#xD;&#xA;				 		  					FROM BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;									 		JOIN GoDaddy.dbo.isc_channel IC (NOLOCK)&#xD;&#xA;									 			ON IC.Channel_ID = RLPOD.Channel_ID&#xD;&#xA;													AND RLPOD.rptDate &gt;= '@Request.idStartDate2~' &#xD;&#xA;													AND RLPOD.rptDate &lt;= '@Request.idEndDate2~'&#xD;&#xA;							UNION ALL&#xD;&#xA;							SELECT 'Billing Agent' AS Channel&#xD;&#xA;								 , -1 AS Channel_ID&#xD;&#xA;						 ) CNAME ON CNAME.Channel_ID = RLPOD.Channel_ID&#xD;&#xA;									AND RLPOD.rptDate &gt;= '@Request.idStartDate2~' &#xD;&#xA;									AND RLPOD.rptDate &lt;= '@Request.idEndDate2~'&#xD;&#xA;					JOIN BiLogiReporting.dbo.rptLogiFinanceRollUp RFR (NOLOCK) &#xD;&#xA;						ON RLPOD.FinanceRollupID = RFR.FinanceRollupID&#xD;&#xA;					GROUP BY CNAME.Channel, RFR.PnL_Group&#xD;&#xA;					) GRP2&#xD;&#xA;					ON  GRP1.Channel = GRP2.Channel&#xD;&#xA;					AND GRP1.Product_Group = GRP2.Product_Group&#xD;&#xA;			GROUP BY GRP1.Channel, GRP1.Product_Group&#xD;&#xA;&#xD;&#xA;" ID="dlProductGroupInfo" ConnectionID="connM1BIG-biLogiReporting">
+              <Remark>
+                <GroupFilter GroupColumn="Channel, Product_Grp, Product" DataType="Text" ID="gfProductGrp" IdeDisplayStatus="Collapsed">
+                  <GroupAggregateColumn ID="gacUnits" AggregateFunction="Sum" AggregateColumn="Units" DataType="Number" />
+                  <GroupAggregateColumn ID="gacUnits2" AggregateFunction="Sum" AggregateColumn="Units2" DataType="Number" />
+                  <GroupAggregateColumn ID="gacMonths" AggregateFunction="Sum" AggregateColumn="Months" DataType="Number" />
+                  <GroupAggregateColumn ID="gacMonths2" AggregateFunction="Sum" AggregateColumn="Months2" DataType="Number" />
+                  <GroupAggregateColumn ID="gacGCR" AggregateFunction="Sum" AggregateColumn="GCR" DataType="Number" />
+                  <GroupAggregateColumn ID="gacGCR2" AggregateFunction="Sum" AggregateColumn="GCR2" DataType="Number" />
+                </GroupFilter>
+              </Remark>
+            </DataLayer>
+            <SubDataLayerRelationColumn ChildColumn="Channel" ID="relChannel" ParentColumn="Channel" />
+            <Remark>
+              <SubDataLayerRelationColumn ID="relProductGrp" ChildColumn="Product_Group" ParentColumn="Product_Group" />
+            </Remark>
+            <Remark>
+              <SubDataLayerRelationColumn ID="relProduct" ChildColumn="Product" ParentColumn="Product" />
+            </Remark>
+          </SubDataLayer>
+          <DataTableColumn ID="colProductGroup">
+            <Label Caption="@Data.Product_Grp~" ID="lblProductGrpProduct_Grp" />
+          </DataTableColumn>
+          <DataTableColumn ID="colUnits" IdeDisplayStatus="Collapsed">
+            <Label Caption="@Data.Units~" ID="lblProductGroupUnits" />
+          </DataTableColumn>
+          <DataTableColumn ID="colUnits2" IdeDisplayStatus="Collapsed">
+            <Label Caption="@Data.Units2~" ID="lblProductGroupUnits2" />
+          </DataTableColumn>
+          <DataTableColumn ID="colMonths" IdeDisplayStatus="Collapsed">
+            <Label Caption="@Data.Months~" ID="lblProductGroupMonths" />
+          </DataTableColumn>
+          <DataTableColumn ID="colMonths2" IdeDisplayStatus="Collapsed">
+            <Label Caption="@Data.Months2~" ID="lblProductGroupMonths2" />
+          </DataTableColumn>
+          <DataTableColumn ID="colGCR" IdeDisplayStatus="Collapsed">
+            <Label Caption="@Data.GCR~" ID="lblProductGroupGCR" />
+          </DataTableColumn>
+          <DataTableColumn ID="colGCR2" IdeDisplayStatus="Collapsed">
+            <Label Caption="@Data.GCR2~" ID="lblProductGroupGCR2" />
+          </DataTableColumn>
+          <MoreInfoRow ID="mirProductInfo" ShowModes="None" ColumnSpanFirst="2" ColumnSpanLast="8">
+            <LineBreak />
+            <SubDataTable ID="sdtProductInfo">
+              <SubDataLayer ID="sdlProductInfo" OrphanRowExistence="False">
+                <DataLayer Type="SQL" Source="SELECT DISTINCT GRP1.Channel&#xD;&#xA;			  ,	GRP1.Product_Group&#xD;&#xA;			  , GRP1.Product&#xD;&#xA;			  , SUM(GRP1.Units) AS Units&#xD;&#xA;			  , SUM(GRP2.Units2) AS Units2&#xD;&#xA;			  , SUM(GRP1.Months) AS Months&#xD;&#xA;			  , SUM(GRP2.Months2) AS Months2&#xD;&#xA;			  , SUM(GRP1.GCR) AS GCR&#xD;&#xA;			  , SUM(GRP2.GCR2) AS GCR2&#xD;&#xA;					FROM&#xD;&#xA;					(&#xD;&#xA;					SELECT&#xD;&#xA;					CNAME.Channel&#xD;&#xA;					, RFR.PnL_Group AS Product_Group&#xD;&#xA;					, RFR.PnL_SubLine AS Product&#xD;&#xA;					, SUM(RLPOD.Units) AS Units&#xD;&#xA;					, SUM(RLPOD.Months) AS Months&#xD;&#xA;					, SUM(RLPOD.GCR) AS GCR&#xD;&#xA;					FROM BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;					JOIN (&#xD;&#xA;							SELECT DISTINCT IC.NAME AS Channel&#xD;&#xA;				 		  				  , RLPOD.Channel_id&#xD;&#xA;				 		  					FROM BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;									 		JOIN GoDaddy.dbo.isc_channel IC (NOLOCK)&#xD;&#xA;									 			ON IC.Channel_ID = RLPOD.Channel_ID&#xD;&#xA;													AND RLPOD.rptDate &gt;= '@Request.idStartDate1~' &#xD;&#xA;													AND RLPOD.rptDate &lt;= '@Request.idEndDate1~' &#xD;&#xA;							UNION ALL&#xD;&#xA;							SELECT 'Billing Agent' AS Channel&#xD;&#xA;								 , -1 AS Channel_ID&#xD;&#xA;						 ) CNAME ON CNAME.Channel_ID = RLPOD.Channel_ID&#xD;&#xA;									AND RLPOD.rptDate &gt;= '@Request.idStartDate1~' &#xD;&#xA;									AND RLPOD.rptDate &lt;= '@Request.idEndDate1~'  &#xD;&#xA;					JOIN BiLogiReporting.dbo.rptLogiFinanceRollUp RFR (NOLOCK) &#xD;&#xA;						ON RLPOD.FinanceRollupID = RFR.FinanceRollupID&#xD;&#xA;					GROUP BY CNAME.Channel, RFR.PnL_Group, RFR.PnL_SubLine&#xD;&#xA;					) GRP1&#xD;&#xA;					JOIN&#xD;&#xA;					(&#xD;&#xA;					SELECT&#xD;&#xA;					CNAME.Channel&#xD;&#xA;					, RFR.PnL_Group AS Product_Group&#xD;&#xA;					, RFR.PnL_SubLine AS Product&#xD;&#xA;					, SUM(RLPOD.Units) AS Units2&#xD;&#xA;					, SUM(RLPOD.Months) AS Months2&#xD;&#xA;					, SUM(RLPOD.GCR) AS GCR2&#xD;&#xA;					FROM BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;					JOIN (&#xD;&#xA;							SELECT DISTINCT IC.NAME AS Channel&#xD;&#xA;				 		  				  , RLPOD.Channel_id&#xD;&#xA;				 		  					FROM BiLogiReporting.dbo.rptLogiProductOrderDetail RLPOD (NOLOCK)&#xD;&#xA;									 		JOIN GoDaddy.dbo.isc_channel IC (NOLOCK)&#xD;&#xA;									 			ON IC.Channel_ID = RLPOD.Channel_ID&#xD;&#xA;													AND RLPOD.rptDate &gt;= '@Request.idStartDate2~' &#xD;&#xA;													AND RLPOD.rptDate &lt;= '@Request.idEndDate2~'&#xD;&#xA;							UNION ALL&#xD;&#xA;							SELECT 'Billing Agent' AS Channel&#xD;&#xA;								 , -1 AS Channel_ID&#xD;&#xA;						 ) CNAME ON CNAME.Channel_ID = RLPOD.Channel_ID&#xD;&#xA;									AND RLPOD.rptDate &gt;= '@Request.idStartDate2~' &#xD;&#xA;									AND RLPOD.rptDate &lt;= '@Request.idEndDate2~'&#xD;&#xA;					JOIN BiLogiReporting.dbo.rptLogiFinanceRollUp RFR (NOLOCK) &#xD;&#xA;						ON RLPOD.FinanceRollupID = RFR.FinanceRollupID&#xD;&#xA;					GROUP BY CNAME.Channel, RFR.PnL_Group, RFR.PnL_SubLine&#xD;&#xA;					) GRP2&#xD;&#xA;					ON  GRP1.Channel = GRP2.Channel&#xD;&#xA;					AND GRP1.Product_Group = GRP2.Product_Group&#xD;&#xA;					AND GRP1.Product = GRP2.Product&#xD;&#xA;			GROUP BY GRP1.Channel, GRP1.Product_Group, GRP1.Product&#xD;&#xA;&#xD;&#xA;" ID="dlProductInfo" ConnectionID="connM1BIG-biLogiReporting">
+                  <Remark>
+                    <GroupFilter GroupColumn="Channel, Product_Grp, Product" DataType="Text" ID="gfProduct" IdeDisplayStatus="Collapsed">
+                      <GroupAggregateColumn ID="gacUnits" AggregateFunction="Sum" AggregateColumn="Units" DataType="Number" />
+                      <GroupAggregateColumn ID="gacUnits2" AggregateFunction="Sum" AggregateColumn="Units2" DataType="Number" />
+                      <GroupAggregateColumn ID="gacMonths" AggregateFunction="Sum" AggregateColumn="Months" DataType="Number" />
+                      <GroupAggregateColumn ID="gacMonths2" AggregateFunction="Sum" AggregateColumn="Months2" DataType="Number" />
+                      <GroupAggregateColumn ID="gacGCR" AggregateFunction="Sum" AggregateColumn="GCR" DataType="Number" />
+                      <GroupAggregateColumn ID="gacGCR2" AggregateFunction="Sum" AggregateColumn="GCR2" DataType="Number" />
+                    </GroupFilter>
+                  </Remark>
+                </DataLayer>
+                <SubDataLayerRelationColumn ChildColumn="Channel" ID="relChannel" ParentColumn="Channel" />
+                <SubDataLayerRelationColumn ID="relProductGrp" ChildColumn="Product_Group" ParentColumn="Product_Group" />
+                <Remark>
+                  <SubDataLayerRelationColumn ID="relProduct" ChildColumn="Product" ParentColumn="Product" />
+                </Remark>
+              </SubDataLayer>
+              <DataTableColumn ID="colProduct" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.Product~" ID="lblProductProduct" />
+              </DataTableColumn>
+              <DataTableColumn ID="colUnits" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.Units~" ID="lblProductUnits" />
+              </DataTableColumn>
+              <DataTableColumn ID="colUnits2" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.Units2~" ID="lblProductUnits2" />
+              </DataTableColumn>
+              <DataTableColumn ID="colMonths" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.Months~" ID="lblProductMonths" />
+              </DataTableColumn>
+              <DataTableColumn ID="colMonths2" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.Months2~" ID="lblProductMonths2" />
+              </DataTableColumn>
+              <DataTableColumn ID="colGCR" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.GCR~" ID="lblProductGCR" />
+              </DataTableColumn>
+              <DataTableColumn ID="colGCR2" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.GCR2~" ID="lblProductGCR2" />
+              </DataTableColumn>
+            </SubDataTable>
+          </MoreInfoRow>
+        </SubDataTable>
+      </MoreInfoRow>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams idStartDate1="" idEndDate1="" idStartDate2="" idEndDate2="" />
+</Report>

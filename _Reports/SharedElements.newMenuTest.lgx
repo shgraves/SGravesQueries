@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="SharedElements.newMenuTest" SavedBy="JOMAX\bgaer" SavedAt="5/20/2013 11:25:29 AM" EngineVersion="10.2.424">
+  <SharedElement ID="sharedHeader">
+    <Rows ID="logoNavHeader" WidthScale="100%" Height="42px">
+      <Row ID="headerRow">
+        <Column ID="colGDlogo">
+          <Image Caption="header_logo.png" ID="imgHeaderLogo" Width="360px" Height="30px" />
+        </Column>
+        <Column ID="colNavigation">
+          <Remark>
+            <IncludeHtml ID="inclTopNav" Html="@Session.TopNavMarkup~" />
+          </Remark>
+          <ReportCenterMenu ID="menuSystem" DefaultExpansionDepth="1" SchedulerConnectionID="connScheduler" BookmarkCollection="@Function.Username~" />
+        </Column>
+      </Row>
+    </Rows>
+    <Image Caption="BGroundGrad.png" ID="imgBgroundGrad" Width="100%" Height="7px" />
+    <StyleSheet StyleSheet="dropdown_one.css" />
+    <Remark>
+      <StyleSheet Theme="GDRPortal" StyleSheet="ERHubTheme.css" />
+    </Remark>
+  </SharedElement>
+  <ideTestParams />
+</Report>

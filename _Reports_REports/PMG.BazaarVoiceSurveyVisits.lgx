@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.BizarreVoiceSurveyVisits" SavedBy="JOMAX\shgraves" SavedAt="2/20/2014 4:56:13 PM" EngineVersion="11.0.43" SecurityReportRightID="LogiCT">
+  <StyleSheet StyleSheet="ReportsStyles.css" ID="ssMain" />
+  <DefaultRequestParams rptStart="@Date.ThisMonthStart~" rptEnd="@Date.Today~" />
+  <LocalData ID="ldMain">
+    <DataLayer Type="SQL" Source="use GoDaddyWebSiteTraffic&#xD;&#xA;&#xD;&#xA;declare @start_date datetime = '@Request.rptStart~'&#xD;&#xA;declare @end_date datetime = '@Request.rptEnd~'  &#xD;&#xA;		&#xD;&#xA;if object_id('tempdb.dbo.#PageIDs') is not null drop table #PageIDs&#xD;&#xA;CREATE TABLE #PageIDs&#xD;&#xA;  (	&#xD;&#xA;	[SurveyId] Int NULL, &#xD;&#xA;	[PageId] int,&#xD;&#xA;   )&#xD;&#xA;&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('334','1606080')&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('335','1602556')&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('306','1607162')&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('307','1607122')&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('308','1607125')&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('310','1607134')&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('333','1590873')&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('309','1606452')&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('335','1612180')&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('334','1606596')&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('312','1607182')&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('306','1607257')&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('311','1608059')&#xD;&#xA;Insert Into #PageIDs (SurveyId, PageId) Values('308','1611871')&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;if object_id('tempdb.dbo.#Surveys') is not null drop table #Surveys&#xD;&#xA;CREATE TABLE #Surveys&#xD;&#xA;  (	&#xD;&#xA;	[VisitDate] DateTime NULL, &#xD;&#xA;	[SurveyId] int,&#xD;&#xA;	[SurveyName] varchar(50),&#xD;&#xA;	[Visits] int,&#xD;&#xA;	[SurveysTaken] int&#xD;&#xA;   )&#xD;&#xA;&#xD;&#xA;insert into #Surveys(VisitDate, SurveyId, SurveyName, visits)&#xD;&#xA;select convert(Date, vpr.visitdate) as VisitDate&#xD;&#xA;	, surveyId&#xD;&#xA;	, (case when p.surveyID ='310' then '310 - SSL+Full Survey'&#xD;&#xA;			when p.surveyID ='309' then '309 - QSC-Full Survey'&#xD;&#xA;			when p.surveyID ='312' then '312 - OS-Full Survey'&#xD;&#xA;			when p.surveyID ='311' then '311 - EEM-Full Survey'&#xD;&#xA;			when p.surveyID ='306' then '306 - Domains-Full Survey'&#xD;&#xA;			when p.surveyID ='307' then '307 - Web Hosting-Full Survey'&#xD;&#xA;			when p.surveyID ='308' then '308 - WSB-Full Survey'&#xD;&#xA;			when p.surveyID ='333' then '333 - QSC-Single NPS'&#xD;&#xA;			when p.surveyID ='334' then '334 - Domains-Single NPS'&#xD;&#xA;			when p.surveyID ='335' then '335 - Web Hosting-Single NPS'&#xD;&#xA;			end) as [Survey]&#xD;&#xA;	, count(distinct vpr.visittracking_id) as Visits&#xD;&#xA;from visitPageRequest vpr&#xD;&#xA;	JOIN #PageIDs p on vpr.visitpageid = p.PageID&#xD;&#xA; where vpr.visitdate &gt;= @start_date and vpr.visitdate &lt; @end_date&#xD;&#xA;group by convert(Date, vpr.visitdate), surveyID&#xD;&#xA;	, (CASE when p.surveyID ='310' then '310 - SSL+Full Survey'&#xD;&#xA;			when p.surveyID ='309' then '309 - QSC-Full Survey'&#xD;&#xA;			when p.surveyID ='312' then '312 - OS-Full Survey'&#xD;&#xA;			when p.surveyID ='311' then '311 - EEM-Full Survey'&#xD;&#xA;			when p.surveyID ='306' then '306 - Domains-Full Survey'&#xD;&#xA;			when p.surveyID ='307' then '307 - Web Hosting-Full Survey'&#xD;&#xA;			when p.surveyID ='308' then '308 - WSB-Full Survey'&#xD;&#xA;			when p.surveyID ='333' then '333 - QSC-Single NPS'&#xD;&#xA;			when p.surveyID ='334' then '334 - Domains-Single NPS'&#xD;&#xA;			when p.surveyID ='335' then '335 - Web Hosting-Single NPS'&#xD;&#xA;			end)&#xD;&#xA;&#xD;&#xA;update #Surveys &#xD;&#xA;Set SurveysTaken = isnull(svt.SurveyTaken,0)&#xD;&#xA;FROM #Surveys sv&#xD;&#xA;	JOIN (select st.surveyID, convert(date, dateentered) as SvDate, isnull(Count(distinct csfSurveyTakenId),0) as SurveyTaken&#xD;&#xA;	From GoDaddySurvey.dbo.csf_SurveyTaken st  with (NOLOCK) &#xD;&#xA;	JOIN #PageIDs pi on st.surveyID = pi.surveyid&#xD;&#xA;	where st.dateentered &gt;= @start_date and st.dateentered &lt; @end_date&#xD;&#xA;	group by st.surveyID, convert(date, dateentered)&#xD;&#xA;			) svt  on sv.VisitDate =  svt.SvDate and  sv.surveyid = svt.surveyid &#xD;&#xA;&#xD;&#xA;select &#xD;&#xA;    SurveyName, VisitDate, Visits, SurveysTaken&#xD;&#xA;from #Surveys&#xD;&#xA;&#xD;&#xA;" ConnectionID="connM1BIG-BIGReporting" ID="dlVisitDetail">
+      <DataLayerLink ID="dllVisitDetail" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader ID="rhHeader">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body ID="bMain">
+    <Rows ID="rowReportHeader" Class="gdDefaultRowBground" Width="100" WidthScale="%">
+      <Row ID="RowHeader">
+        <Column>
+          <Label Class="gdReportHeaderNameBI" Caption="Bazaar Voice Survey Visits" />
+          <Spaces Size="100" />
+          <Image Caption="betasoftware.jpg" ID="imgBeta" Width="50" Height="50" />
+          <LineBreak LineCount="1" />
+          <Rows>
+            <Row ID="RowDates">
+              <Column>
+                <InputDate ID="rptStart" Caption="Report Start:" DefaultValue="@Request.rptStart~" CaptionClass="rdAlternateTextColorWhite" />
+                <Spaces Size="5" />
+              </Column>
+              <Column Class="ThemeAlignLeft">
+                <InputDate ID="rptEnd" Caption="Report End:" DefaultValue="@Request.rptEnd~" CaptionClass="rdAlternateTextColorWhite" />
+                <Spaces Size="5" />
+              </Column>
+              <Column Class="ThemeAlignBottomLeft">
+                <Button ID="btnSubmit" Caption="Submit">
+                  <Action Type="Report" ID="actSubmit">
+                    <Target Type="Report" ID="tgBizarreVoiceRpt" Report="PMG.BizarreVoiceSurveyVisits" RequestForwarding="True">
+                      <WaitPage Caption="Updating results" />
+                    </Target>
+                  </Action>
+                </Button>
+                <Spaces Size="5" />
+              </Column>
+              <Column>
+                <Division ID="divExport">
+                  <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+                    <Action Type="NativeExcel" ID="actExportExcel">
+                      <Target Type="NativeExcel" ExcelOutputFormat="Excel2007" ExportFilename="BizarreVoiceSurveyVisits.xlsx" ID="tgtExcel">
+                        <WaitPage Caption="Please wait while report is generated" />
+                      </Target>
+                    </Action>
+                  </Image>
+                </Division>
+              </Column>
+            </Row>
+          </Rows>
+        </Column>
+        <Column />
+      </Row>
+      <Row ID="rowSummary">
+        <Column ColSpan="3" ID="cHeader" Class="gdReportHeaderName" Width="500" WidthScale="px">
+          <Label Caption="Survey Visits" />
+        </Column>
+      </Row>
+      <Row ID="rowSurveySummaryHeader">
+        <Column Class="gdColumnCell" Width="500" WidthScale="px">
+          <DataTable ID="dtRdmSummary" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="gdReportColumnHdrSSRS-fill" WidthScale="%" Width="100">
+            <DataLayer Type="Linked" LinkedDataLayerID="dllVisitDetail">
+              <GroupFilter GroupColumn="SurveyName" DataType="Text" ID="gfSurveyName" KeepGroupedRows="True" Hierarchical="False">
+                <GroupAggregateColumn AggregateColumn="Visits" ID="gacVisits" AggregateFunction="Sum" DataType="Number" />
+                <GroupAggregateColumn ID="gacSvTaken" AggregateColumn="SurveysTaken" AggregateFunction="Sum" DataType="Number" />
+              </GroupFilter>
+              <SortFilter SortColumn="SurveyName" DataType="Text" />
+            </DataLayer>
+            <GroupHeaderRow GroupFilterID="gfSurveyName" Caption="Survey Name">
+              <Column ID="cSurveyName" Class="gdTableHeader" ColSpan="3">
+                <Label Caption="@Data.SurveyName~" Class="gdTableHeader" />
+              </Column>
+            </GroupHeaderRow>
+            <DataTableColumn ID="dtcDate" Header="Visit Date" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+              <Label ID="lVisitDate" Format="Short Date" Caption="@Data.VisitDate~" />
+              <ExcelColumnFormat DataType="Date" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcSurveyVisits" Header="Visits" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+              <Label Caption="@Data.Visits~" ID="lVisits" Format="General Number" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+              <DataColumnSummary DataColumn="Visits" Function="Sum" ID="dcsVisits" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcSurveysTaken" Header="Surveys Taken" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+              <Label Caption="@Data.SurveysTaken~" ID="lSVTaken" Format="General Number" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+              <DataColumnSummary DataColumn="SurveysTaken" Function="Sum" ID="dcsSurveysTaken" DataType="Number" />
+            </DataTableColumn>
+            <GroupSummaryRow GroupFilterID="gfSurveyName" Class="gdTableHeader" Caption="Total" ID="gsrSurvey" />
+          </DataTable>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter ID="rfFooter" />
+  <ideTestParams rptStart="" rptEnd="" />
+</Report>

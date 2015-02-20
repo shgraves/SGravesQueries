@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Desktop-Telecom.LaptopComplianceOverview" SecurityReportRightID="ENG-Desktop Engineering,BIG-Developer,RSDevelopers,logict,CIO_Org" SavedBy="JOMAX\dezell" SavedAt="11/18/2013 3:16:33 PM" EngineVersion="11.0.43" Caption="Laptop Security Compliance Overview">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px" IdeDisplayStatus="Collapsed">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Class="gdReportHeaderNameIT" Caption="Laptop Security Compliance" />
+          <Spaces Size="35" />
+          <Division ID="divExport">
+            <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+              <Action Type="NativeExcel" ID="excelExport">
+                <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" />
+              </Action>
+            </Image>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <Rows CellSpacing="10px" Layout="Auto">
+      <Row>
+        <Column Class="gdColumnCellIT" ID="colDeployed">
+          <DataTable SortArrows="True" ID="DtDeployed" Caption="Deployed, Non-Exempt Laptops" CellSpacing="10px" CaptionClass="gdTableHeaderBoldIT" ColumnHeaderClass="gdTableHeaderITcenter">
+            <DataLayer Type="SP" ID="dlDeployed" ConnectionID="connProdActiveDirectory" Command="dbo.laptopSecurityAuditReport_sp">
+              <DataLayerLink ID="dlLaptopResults" />
+              <SPParameters />
+              <ConditionFilter Condition="@Data.less30Deployed~ == 1 || @Data.more30Deployed~ == 1 || @Data.noCheckinDeployed~ == 1" />
+              <CalculatedColumn Formula="iif(@Data.less30Deployed~ = 1, &quot;Less than 30 Days&quot;,iif(@Data.more30Deployed~ = 1, &quot;Greater than 30 Days&quot;, iif(@Data.noCheckinDeployed~ = 1, &quot;Hasn't Checked In&quot;, &quot;Error&quot;)))" ID="calcDeployedBucket" />
+              <GroupFilter GroupColumn="calcDeployedBucket" DataType="Text" IdeDisplayStatus="Collapsed">
+                <GroupAggregateColumn AggregateColumn="less30Deployed" AggregateFunction="Sum" ID="gaggless30Deployed" />
+                <GroupAggregateColumn AggregateColumn="more30Deployed" AggregateFunction="Sum" ID="gaggmore30Deployed" />
+                <GroupAggregateColumn ID="gaggnoCheckinDeployed" AggregateFunction="Sum" AggregateColumn="noCheckinDeployed" />
+                <GroupAggregateColumn ID="gaggless30DeployedCompliant" AggregateColumn="less30DeployedCompliant" AggregateFunction="Sum" />
+                <GroupAggregateColumn ID="gaggmore30DeployedCompliant" AggregateColumn="more30DeployedCompliant" AggregateFunction="Sum" />
+                <GroupAggregateColumn ID="gaggnoCheckinDeployedCompliant" AggregateColumn="noCheckinDeployedCompliant" AggregateFunction="Sum" />
+              </GroupFilter>
+              <CalculatedColumn Formula="iif(&quot;@Data.calcDeployedBucket~&quot; == &quot;Less than 30 Days&quot;,@Data.gaggless30Deployed~,iif(&quot;@Data.calcDeployedBucket~&quot; == &quot;Greater than 30 Days&quot;,@Data.gaggmore30Deployed~, iif(&quot;@Data.calcDeployedBucket~&quot; == &quot;Hasn't Checked In&quot;,@Data.gaggnoCheckinDeployed~, &quot;Error&quot;)))" ID="calcDeployedCounts" />
+              <CalculatedColumn Formula="iif(&quot;@Data.calcDeployedBucket~&quot; == &quot;Less than 30 Days&quot;,@Data.gaggless30DeployedCompliant~,iif(&quot;@Data.calcDeployedBucket~&quot; == &quot;Greater than 30 Days&quot;,@Data.gaggmore30DeployedCompliant~, iif(&quot;@Data.calcDeployedBucket~&quot; == &quot;Hasn't Checked In&quot;,@Data.gaggnoCheckinDeployedCompliant~, &quot;Error&quot;)))" ID="calcDeployedCountsCompliant" />
+              <CalculatedColumn ID="calCompliantPercent" Formula="=(@Data.calcDeployedCountsCompliant~ / @Data.calcDeployedCounts~)" />
+            </DataLayer>
+            <DataTableColumn ID="colDeployedBucket" Class="gdTableHeaderITleft">
+              <Label Caption="@Data.calcDeployedBucket~" Class="gdTableHeaderITlink" />
+              <Action Type="ShowElement" ID="actShowDetailsPatch" ElementID="laptopDetailsRowDeploy" Display="Toggle" />
+            </DataTableColumn>
+            <DataTableColumn ID="colDeployedCounts" Class="gdTableHeaderITcenter" Header="Count">
+              <Label Caption="@Data.calcDeployedCounts~" />
+              <DataColumnSummary ID="colDeployedSummary" DataColumn="calcDeployedCounts" Function="Sum" />
+            </DataTableColumn>
+            <DataTableColumn ID="colDeployedCountsCompliant" Class="gdTableHeaderITcenter" Header="Compliant">
+              <Label Caption="@Data.calcDeployedCountsCompliant~" />
+              <DataColumnSummary DataColumn="calcDeployedCountsCompliant" Function="Sum" ID="colDeployedCompliantSummary" />
+            </DataTableColumn>
+            <DataTableColumn ID="colPercentDeployedCountsCompliant" Header="% Compliant" Class="gdTableHeaderITcenter">
+              <Label Caption="=(@Data.calcDeployedCountsCompliant~ / @Data.calcDeployedCounts~)" Format="Percent" />
+            </DataTableColumn>
+            <MoreInfoRow ShowModes="None" ID="laptopDetailsRowDeploy">
+              <HR />
+              <IncludeFrame SubReportMode="IncludeFrame" ID="subRepLaptopDetailsPatch" FrameBorder="False" SecurityRightID="ENG-Desktop Engineering,BIG-Developer,RSDevelopers,logict,CIO_Org">
+                <Target Type="IncludeFrameReport" Report="Desktop-Telecom.LaptopComplianceDetails" ID="tgtLaptopDetailsPatch" LinkDataLayers="True" />
+                <LinkParams complianceGroup="@Data.calcDeployedBucket~" complianceType="Deployed" />
+              </IncludeFrame>
+            </MoreInfoRow>
+            <SummaryRow ID="DeployedSummaryRow" Caption="Totals:" Class="gdFontXLboldBlack" />
+          </DataTable>
+        </Column>
+      </Row>
+      <Remark>
+        <Row IdeDisplayStatus="Collapsed">
+          <Column ID="colSoftware" Class="gdColumnCellIT">
+            <DataTable SortArrows="True" ID="dtSoftware" Caption="Software Compliance, Non - Exempt Laptops" CaptionClass="gdTableHeaderBoldIT" CellSpacing="10px" ColumnHeaderClass="gdTableHeaderITcenter" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" LinkedDataLayerID="dlLaptopResults" ID="dlSoftware" IdeDisplayStatus="Collapsed">
+                <ConditionFilter Condition="@Data.less30Deployed~ == 1 || @Data.more30Deployed~ == 1 || @Data.noCheckinDeployed~ == 1" />
+                <CalculatedColumn Formula="1" ID="calc1" />
+                <GroupFilter GroupColumn="calc1" IdeDisplayStatus="Collapsed">
+                  <GroupAggregateColumn AggregateColumn="SerialNumber" AggregateFunction="Count" ID="gaggComputerCount" />
+                  <GroupAggregateColumn ID="gaggSymantecCount" AggregateColumn="DeployedSynamtec" AggregateFunction="Sum" />
+                  <GroupAggregateColumn AggregateColumn="DeployedComputrace" AggregateFunction="Sum" ID="gaggComputraceCount" />
+                  <GroupAggregateColumn ID="gaggDriveEncryption" AggregateColumn="DeployedDriveEncryption" AggregateFunction="Sum" />
+                </GroupFilter>
+              </DataLayer>
+              <DataTableColumn ID="colServerCount" Header="Count" Class="gdTableHeaderITleft" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.gaggComputerCount~" Class="gdTableHeaderITlink" />
+                <Action Type="ShowElement" ID="actShowSoftwareDetailsPatch" ElementID="laptopDetailsRowSoftware" Display="Toggle" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSymantecCompliant" Header="Symantec Compliant" Class="gdTableHeaderITcenter" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.gaggSymantecCount~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPercentSymantec" Header="Percentage" Class="gdTableHeaderITcenter" IdeDisplayStatus="Collapsed">
+                <Label Caption="= (@Data.gaggSymantecCount~ / @Data.gaggComputerCount~)" Format="Percent" />
+              </DataTableColumn>
+              <DataTableColumn Header="Computrace Compliant" ID="colComputraceCompliant" Class="gdTableHeaderITcenter" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.gaggComputraceCount~" />
+              </DataTableColumn>
+              <DataTableColumn Header="Percentage" Class="gdTableHeaderITcenter" IdeDisplayStatus="Collapsed">
+                <Label Caption="= (@Data.gaggComputraceCount~ / @Data.gaggComputerCount~)" Format="Percent" />
+              </DataTableColumn>
+              <DataTableColumn Header="Drive Encryption Compliant" ID="colDriveCompliant" Class="gdTableHeaderITcenter" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.gaggDriveEncryption~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPercentDriveCompliant" Class="gdTableHeaderITcenter" Header="Percentage" IdeDisplayStatus="Collapsed">
+                <Label Caption="= (@Data.gaggDriveEncryption~ / @Data.gaggComputerCount~)" Format="Percent" />
+              </DataTableColumn>
+              <MoreInfoRow ShowModes="None" ID="laptopDetailsRowSoftware">
+                <HR />
+                <IncludeFrame SubReportMode="IncludeFrame" ID="subRepLaptopDetailsPatch" FrameBorder="False" SecurityRightID="ENG-Desktop Engineering,BIG-Developer,RSDevelopers,logict,CIO_Org">
+                  <Target Type="IncludeFrameReport" Report="Desktop-Telecom.LaptopSecurityDetails" ID="tgtLaptopDetailsPatch" LinkDataLayers="True" />
+                  <LinkParams complianceGroup="" complianceType="Software" />
+                </IncludeFrame>
+              </MoreInfoRow>
+            </DataTable>
+          </Column>
+        </Row>
+      </Remark>
+      <Row>
+        <Column ID="colExempt" Class="gdColumnCellIT">
+          <DataTable SortArrows="True" ID="DtExempt" Caption="Other Laptops" CellSpacing="10px" CaptionClass="gdTableHeaderBoldIT" ColumnHeaderClass="gdTableHeaderITcenter">
+            <DataLayer Type="Linked" LinkedDataLayerID="dlLaptopResults" ID="dlExempt">
+              <ConditionFilter Condition="@Data.MIA~ == 1 || @Data.Inventory~ == 1 || @Data.Exempt~ == 1" />
+              <CalculatedColumn Formula="iif(@Data.MIA~ == 1, &quot;MIA&quot;,iif(@Data.Inventory~ == 1, &quot;Inventory&quot;, iif(@Data.Exempt~ == 1, &quot;Exempt&quot;, &quot;Error&quot;)))" ID="calcExemptBucket" />
+              <GroupFilter GroupColumn="calcExemptBucket" DataType="Text" IdeDisplayStatus="Collapsed">
+                <GroupAggregateColumn AggregateColumn="Inventory" AggregateFunction="Sum" ID="gaggInventory" />
+                <GroupAggregateColumn AggregateFunction="Sum" ID="gaggInventoryCompliant" AggregateColumn="InventoryCompliant" />
+                <GroupAggregateColumn ID="gaggMIA" AggregateFunction="Sum" AggregateColumn="MIA" />
+                <GroupAggregateColumn ID="gaggMIACompliant" AggregateColumn="MIACompliant" AggregateFunction="Sum" />
+                <GroupAggregateColumn ID="gaggExempt" AggregateColumn="Exempt" AggregateFunction="Sum" />
+                <GroupAggregateColumn ID="gaggExemptCompliant" AggregateColumn="ExemptCompliant" AggregateFunction="Sum" />
+              </GroupFilter>
+              <CalculatedColumn Formula="iif(&quot;@Data.calcExemptBucket~&quot; == &quot;MIA&quot;,@Data.gaggMIA~,iif(&quot;@Data.calcExemptBucket~&quot; == &quot;Inventory&quot;,@Data.gaggInventory~, iif(&quot;@Data.calcExemptBucket~&quot; == &quot;Exempt&quot;,@Data.gaggExempt~, &quot;Error&quot;)))" ID="calcExemptCounts" />
+              <CalculatedColumn Formula="iif(&quot;@Data.calcExemptBucket~&quot; == &quot;MIA&quot;,@Data.gaggMIACompliant~,iif(&quot;@Data.calcExemptBucket~&quot; == &quot;Inventory&quot;,@Data.gaggInventoryCompliant~, iif(&quot;@Data.calcExemptBucket~&quot; == &quot;Exempt&quot;,@Data.gaggExemptCompliant~, &quot;Error&quot;)))" ID="calcExemptCountsCompliant" />
+            </DataLayer>
+            <DataTableColumn ID="colExemptBucket" Class="gdTableHeaderITleft">
+              <Label Caption="@Data.calcExemptBucket~" Class="gdTableHeaderITlink" />
+              <Action Type="ShowElement" ID="actShowDetailsPatch" ElementID="laptopDetailsRowExempt" Display="Toggle" />
+            </DataTableColumn>
+            <DataTableColumn ID="colExemptCounts" Class="gdTableHeaderITcenter" Header="Count">
+              <Label Caption="@Data.calcExemptCounts~" />
+              <DataColumnSummary ID="colExemptCountsSummary" DataColumn="calcExemptCounts" Function="Sum" />
+            </DataTableColumn>
+            <DataTableColumn ID="colExemptCountsCompliant" Class="gdTableHeaderITcenter" Header="Compliant">
+              <Label Caption="@Data.calcExemptCountsCompliant~" />
+              <DataColumnSummary DataColumn="calcExemptCountsCompliant" Function="Sum" ID="colExemptCompliantSummary" />
+            </DataTableColumn>
+            <DataTableColumn ID="colPercentExemptCountsCompliant" Header="% Compliant" Class="gdTableHeaderITcenter">
+              <Label Caption="=(@Data.calcExemptCountsCompliant~ / @Data.calcExemptCounts~)" Format="Percent" />
+            </DataTableColumn>
+            <MoreInfoRow ShowModes="None" ID="laptopDetailsRowExempt">
+              <HR />
+              <IncludeFrame SubReportMode="IncludeFrame" ID="subRepLaptopDetailsPatch" FrameBorder="False" SecurityRightID="ENG-Desktop Engineering,BIG-Developer,RSDevelopers,logict,CIO_Org">
+                <Target Type="IncludeFrameReport" Report="Desktop-Telecom.LaptopComplianceDetails" ID="tgtLaptopDetailsPatch" LinkDataLayers="True" />
+                <LinkParams complianceGroup="@Data.calcExemptBucket~" complianceType="Exempt" />
+              </IncludeFrame>
+            </MoreInfoRow>
+            <SummaryRow ID="ExemptSummaryRow" Caption="Totals:" Class="gdFontXLboldBlack" />
+          </DataTable>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter />
+  <ideTestParams />
+</Report>

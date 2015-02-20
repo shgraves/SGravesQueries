@@ -1,0 +1,576 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="SharedElements.C3SharedElements" SavedBy="JOMAX\vyancey" SavedAt="4/4/2014 12:39:16 PM" EngineVersion="11.2.040-SP4" SecurityReportRightID="LogiC3Managers">
+  <IncludeSharedElement DefinitionFile="SharedElements.C3SharedElements" SharedElementID="C3TargetParameters" />
+  <StyleSheet StyleSheet="c3.ReportsStyles.css" />
+  <LocalData ID="MetricsChild" IdeDisplayStatus="Collapsed">
+    <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3TargetGet_sp" ConnectionID="connP3BIG-BiLogiReporting" ID="dlChildMetricsMonth" IdeDisplayStatus="Collapsed">
+      <DataLayerLink ID="rptChildMetricsMonth" />
+      <SPParameters>
+        <SPParameter SPParamDirection="Input" ID="@rptStart" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStartMonth~" />
+        <SPParameter SPParamDirection="Input" ID="@rptEnd" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEndMonth~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@SupID" SPParamDirection="Input" Value="@Request.SupID~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepID" SPParamDirection="Input" Value="@Request.RepID~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepType" SPParamDirection="Input" Value="@Request.RepType~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@GroupByDay" SPParamDirection="Input" Value="0" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@isChild" SPParamDirection="Input" Value="1" />
+      </SPParameters>
+    </DataLayer>
+  </LocalData>
+  <LocalData ID="MetricsDataMonth" IdeDisplayStatus="Collapsed">
+    <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3TargetGet_sp" ConnectionID="connP3BIG-BiLogiReporting">
+      <DataLayerLink ID="rptMetricsMonth" />
+      <SPParameters IdeDisplayStatus="Collapsed">
+        <SPParameter SPParamDirection="Input" ID="@rptStart" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStartMonth~" />
+        <SPParameter SPParamDirection="Input" ID="@rptEnd" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEndMonth~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@SupID" SPParamDirection="Input" Value="@Request.SupID~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepID" SPParamDirection="Input" Value="@Request.RepID~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepType" SPParamDirection="Input" Value="@Request.RepType~" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@GroupByDay" SPParamDirection="Input" Value="0" />
+        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@isChild" SPParamDirection="Input" Value="0" />
+      </SPParameters>
+    </DataLayer>
+  </LocalData>
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.C3Header" SharedElementID="sharedHeader" ID="sharedHeaderElement" />
+    <Remark>
+      <IncludeHtml Html="&lt;style&gt;&#xD;&#xA;.gdMetricTable {&#xD;&#xA;border-collapse:collapse;&#xD;&#xA;background:white;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable th {&#xD;&#xA;background-color: #4472C4;&#xD;&#xA;color: White;&#xD;&#xA;font-size:100%;&#xD;&#xA;font-weight:bold;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td,th {&#xD;&#xA;border-left:2px solid white;&#xD;&#xA;border-right:2px solid white;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td.none {&#xD;&#xA;border-style:none;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td.left {&#xD;&#xA;border-left: 1px solid #d3d3d3 !important;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td.right {&#xD;&#xA;border-right: 1px solid #d3d3d3 !important;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable th:first-child.left {&#xD;&#xA;border-left: 1px solid #d3d3d3 !important;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable th:last-child.right {&#xD;&#xA;border-right: 1px solid #d3d3d3 !important;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable th.bottom, td.bottom {&#xD;&#xA;border-bottom: 1px solid #278dc1;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable a&#xD;&#xA;{&#xD;&#xA;color:black;&#xD;&#xA;text-decoration:underline;&#xD;&#xA;}&#xD;&#xA;.gdHiddenBorderTD td {&#xD;&#xA;border-style:hidden !important;&#xD;&#xA;}&#xD;&#xA;.gdReportGroupHeaderSpacer&#xD;&#xA;{&#xD;&#xA;background-color:#fff;&#xD;&#xA;}&#xD;&#xA;.gdTableColumnName a&#xD;&#xA;{&#xD;&#xA;color:#009 !important;&#xD;&#xA;text-decoration:underline;&#xD;&#xA;border-style:none;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdMetricTableEOM {&#xD;&#xA;border-collapse:collapse;&#xD;&#xA;background:white;&#xD;&#xA;}&#xD;&#xA;.gdMetricTableEOM th {&#xD;&#xA;background-color: #DDEBF7;&#xD;&#xA;color: Black;&#xD;&#xA;font-size:100%;&#xD;&#xA;font-weight:bold;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;input[type=&quot;button&quot;] {&#xD;&#xA;background: #4472C4 !important;&#xD;&#xA;border: 1px solid #4472C4 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;width: 120px;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;button&quot;]:hover {&#xD;&#xA;background: #545454 !important;&#xD;&#xA;border: 1px solid #545454 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;width: 120px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdDefaultDropDownBackground{&#xD;&#xA;	background-color: white;&#xD;&#xA;	border-radius: 4px;&#xD;&#xA;	-webkit-border-radius: 4px;&#xD;&#xA;	-moz-border-radius: 4px;&#xD;&#xA;	border: 1px solid #B2C7D3;&#xD;&#xA;	padding-top: 8px;&#xD;&#xA;	padding-right: 10px;&#xD;&#xA;	padding-left: 10px;&#xD;&#xA;	padding-bottom: 8px;&#xD;&#xA;	margin-top: 0px;&#xD;&#xA;	margin-right: 10px;&#xD;&#xA;	margin-left: 10px;&#xD;&#xA;	margin-bottom: 0px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdLegendText {&#xD;&#xA;color: #278DC1;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdReportHeaderNameBISmall {&#xD;&#xA;font: Arial, Helvetica, sans-serif;&#xD;&#xA;font-family: Arial, Helvetica, sans-serif;&#xD;&#xA;font-size: 14px;&#xD;&#xA;font-style: normal;&#xD;&#xA;text-align: left;&#xD;&#xA;font-weight: bold;&#xD;&#xA;color: #0c5176;&#xD;&#xA;vertical-align: text-bottom;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.fullborder {&#xD;&#xA;border: 1px solid !important;&#xD;&#xA;border-collapse:collapse;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.leftborder {&#xD;&#xA;border-left: 1px solid !important;&#xD;&#xA;border-collapse:collapse;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.topborder {&#xD;&#xA;border-top: 1px solid !important;&#xD;&#xA;border-collapse:collapse;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.noborder {&#xD;&#xA;border-collapse:collapse;&#xD;&#xA;border: none;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;.numberBig {                &#xD;&#xA;   background: #DDEBF7;&#xD;&#xA;   color: black;   &#xD;&#xA;   text-align: center;&#xD;&#xA;   font: 85px Calibri, sans-serif;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdMetricContainer&#xD;&#xA;{&#xD;&#xA;	border-spacing: 0;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdMetricContainerEOM&#xD;&#xA;{&#xD;&#xA;	border-spacing: 0;&#xD;&#xA;	padding-bottom: .264cm;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;.gdMetricContainerHeader&#xD;&#xA;{&#xD;&#xA;	background-color: #4472C4;&#xD;&#xA;	color: White;&#xD;&#xA;	box-shadow: 6px 6px 3px #888888;&#xD;&#xA;	font-size:150%;&#xD;&#xA;	height: 35px;&#xD;&#xA;	font-weight:bold;&#xD;&#xA;	border-bottom: 1px solid #d3d3d3;&#xD;&#xA;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdMetricContainerContent&#xD;&#xA;{&#xD;&#xA;	box-shadow: 6px 6px 3px #888888;&#xD;&#xA;	background: #DDEBF7;&#xD;&#xA;	border-top: 1px solid #d3d3d3;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdMetricContainerHeaderSmall&#xD;&#xA;{&#xD;&#xA;	border-bottom: none;&#xD;&#xA;	background-color: #4472C4;&#xD;&#xA;	color: White;&#xD;&#xA;	box-shadow: 4px 4px 2px #888888;&#xD;&#xA;	font-size:100%;&#xD;&#xA;	font-weight:bold;&#xD;&#xA;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdMetricContainerContentSmall&#xD;&#xA;{&#xD;&#xA;    padding: 18px;&#xD;&#xA;	box-shadow: 4px 4px 2px #888888;&#xD;&#xA;	background: white;&#xD;&#xA;	font-size:300%;&#xD;&#xA;	font-weight:bold;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;.gdSelectFixedWidth {&#xD;&#xA;	width: 180px !important;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdtempbackground&#xD;&#xA;{&#xD;&#xA;	background: #f5f5f5;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.noteHighlight&#xD;&#xA;{&#xD;&#xA;	background: #fefebf;&#xD;&#xA;	font-weight:bold;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.LeftArrow {&#xD;&#xA;	position:absolute;&#xD;&#xA;	top:155px;&#xD;&#xA;	left:38px;&#xD;&#xA;	z-index:99;&#xD;&#xA;	background-image:url('_SupportFiles/c3dash.leftarrow.png');&#xD;&#xA;	background-repeat: no-repeat;&#xD;&#xA;	padding-left: 15px;&#xD;&#xA;	height: 15px;&#xD;&#xA;	vertical-align: top !important;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.RightArrow {&#xD;&#xA;	position:absolute;&#xD;&#xA;	top:155px;&#xD;&#xA;	left:93px;&#xD;&#xA;	z-index:99;&#xD;&#xA;	background-image:url('_SupportFiles/c3dash.rightarrow.png');&#xD;&#xA;	background-repeat: no-repeat;&#xD;&#xA;	padding-left: 15px;&#xD;&#xA;	height: 15px;&#xD;&#xA;	vertical-align: top !important;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.MonthTab {&#xD;&#xA;	padding-left: 6px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.SideArrow:before {&#xD;&#xA;content:url('_SupportFiles/c3dash.sidearrow64x64.png');&#xD;&#xA;height: 64px;&#xD;&#xA;width: 64px;&#xD;&#xA;}&#xD;&#xA;.UpArrow:before {&#xD;&#xA;content:url('_SupportFiles/c3dash.uparrow64x64.png');&#xD;&#xA;height: 64px;&#xD;&#xA;width: 64px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.DownArrow:before {&#xD;&#xA;content:url('_SupportFiles/c3dash.downarrow64x64.png');&#xD;&#xA;height: 64px;&#xD;&#xA;width: 64px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.HandClass td { cursor: pointer; cursor: hand; }&#xD;&#xA;&#xD;&#xA;.ThemeText300 { font-size:300%; }&#xD;&#xA;&#xD;&#xA;.padding5 td { padding: 9px; }&#xD;&#xA;&#xD;&#xA;.fontGrey { color: #393939 !important; }&#xD;&#xA;&#xD;&#xA;&lt;/style&gt;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&lt;!--[if IE]&gt;&#xD;&#xA;&lt;style type=&quot;text/css&quot;&gt;&#xD;&#xA;input[type=&quot;submit&quot;] {&#xD;&#xA;background: #CDD9E6 !important;&#xD;&#xA;border: 1px solid #386090 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: black !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;}&#xD;&#xA;&lt;/style&gt;&#xD;&#xA;&lt;![endif]--&gt;" ID="CustomCSS" />
+    </Remark>
+    <IncludeHtml Html="&lt;style&gt;&#xD;&#xA;.gdMetricTable {&#xD;&#xA;border-collapse:collapse;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td,th {&#xD;&#xA;border-left:2px solid white;&#xD;&#xA;border-right:2px solid white;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td.none {&#xD;&#xA;border-style:none;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td.left {&#xD;&#xA;border-left: 1px solid #B2C7D3 !important;&#xD;&#xA;text-align:right;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td.right {&#xD;&#xA;border-right: 1px solid #B2C7D3 !important;&#xD;&#xA;text-align:right;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable th:first-child.left {&#xD;&#xA;border-left: 1px solid #B2C7D3 !important;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable th:last-child.right {&#xD;&#xA;border-right: 1px solid #B2C7D3 !important;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable th.bottom, td.bottom {&#xD;&#xA;border-bottom: 1px solid #278dc1;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable a&#xD;&#xA;{&#xD;&#xA;color:black;&#xD;&#xA;text-decoration:underline;&#xD;&#xA;}&#xD;&#xA;.gdHiddenBorderTD td {&#xD;&#xA;border-style:hidden !important;&#xD;&#xA;}&#xD;&#xA;.gdReportGroupHeaderSpacer&#xD;&#xA;{&#xD;&#xA;background-color:#fff;&#xD;&#xA;}&#xD;&#xA;.gdTableColumnName a&#xD;&#xA;{&#xD;&#xA;color:#009 !important;&#xD;&#xA;text-decoration:underline;&#xD;&#xA;border-style:none;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;input[type=&quot;button&quot;] {&#xD;&#xA;background: #4472C4 !important;&#xD;&#xA;border: 1px solid #4472C4 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;width: 120px;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;button&quot;]:hover {&#xD;&#xA;background: #545454 !important;&#xD;&#xA;border: 1px solid #545454 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;width: 120px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.ScoreCardImage {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.iconScoreCard20x20.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 25px;&#xD;&#xA;height: 25px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.SideArrow {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.sidearrow15x15.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 15px;&#xD;&#xA;height: 15px;&#xD;&#xA;}&#xD;&#xA;.UpArrow {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.uparrow15x15.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 15px;&#xD;&#xA;height: 15px;&#xD;&#xA;}&#xD;&#xA;.DownArrow {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.downarrow15x15.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 15px;&#xD;&#xA;height: 15px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdQuintileFive {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.onestar.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 75px;&#xD;&#xA;height: 25px;&#xD;&#xA;}&#xD;&#xA;.gdQuintileFour {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.twostar.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 75px;&#xD;&#xA;height: 25px;&#xD;&#xA;}&#xD;&#xA;.gdQuintileThree {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.threestar.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 75px;&#xD;&#xA;height: 25px;&#xD;&#xA;}&#xD;&#xA;.gdQuintileTwo {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.fourstar.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 75px;&#xD;&#xA;height: 25px;&#xD;&#xA;}&#xD;&#xA;.gdQuintileOne {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.fivestar.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 75px;&#xD;&#xA;height: 25px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdHighlightName {&#xD;&#xA;background: #d2dfee !important;&#xD;&#xA;border-style:hidden !important;&#xD;&#xA;text-align: left;&#xD;&#xA;}&#xD;&#xA;.gdHighlightStars {&#xD;&#xA;background: #d2dfee !important;&#xD;&#xA;border-style:hidden !important;&#xD;&#xA;text-align: center;&#xD;&#xA;}&#xD;&#xA;.gdHighlight {&#xD;&#xA;background: #d2dfee !important;&#xD;&#xA;border-style:hidden !important;&#xD;&#xA;text-align: right;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdDefaultDropDownBackground{&#xD;&#xA;	background-color: white;&#xD;&#xA;	border-radius: 4px;&#xD;&#xA;	-webkit-border-radius: 4px;&#xD;&#xA;	-moz-border-radius: 4px;&#xD;&#xA;	border: 1px solid #B2C7D3;&#xD;&#xA;	padding-top: 8px;&#xD;&#xA;	padding-right: 10px;&#xD;&#xA;	padding-left: 10px;&#xD;&#xA;	padding-bottom: 8px;&#xD;&#xA;	margin-top: 0px;&#xD;&#xA;	margin-right: 10px;&#xD;&#xA;	margin-left: 10px;&#xD;&#xA;	margin-bottom: 0px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdLegendText {&#xD;&#xA;color: #278DC1;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdReportHeaderNameBISmall {&#xD;&#xA;font: Arial, Helvetica, sans-serif;&#xD;&#xA;font-family: Arial, Helvetica, sans-serif;&#xD;&#xA;font-size: 14px;&#xD;&#xA;font-style: normal;&#xD;&#xA;text-align: left;&#xD;&#xA;font-weight: bold;&#xD;&#xA;color: #0c5176;&#xD;&#xA;vertical-align: text-bottom;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.fullborder {&#xD;&#xA;border: 1px solid !important;&#xD;&#xA;border-collapse:collapse;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.leftborder {&#xD;&#xA;border-left: 1px solid !important;&#xD;&#xA;border-collapse:collapse;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.topborder {&#xD;&#xA;border-top: 1px solid !important;&#xD;&#xA;border-collapse:collapse;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.numberCircle {&#xD;&#xA;    border-radius: 50%;&#xD;&#xA;&#xD;&#xA;    width: 108px;&#xD;&#xA;    height: 108px;&#xD;&#xA;    padding: 24px;&#xD;&#xA;&#xD;&#xA;    background: #fff;&#xD;&#xA;    border: 2px solid #666;&#xD;&#xA;    color: #666;&#xD;&#xA;    text-align: center;&#xD;&#xA;&#xD;&#xA;    font: 48px Arial, sans-serif;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.numberBig {                &#xD;&#xA;   background: #fff;&#xD;&#xA;   padding: 24px;&#xD;&#xA;   color: black;   &#xD;&#xA;   text-align: center;&#xD;&#xA;   font: 48px Arial, sans-serif;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;td.gdMetricContainerTitle&#xD;&#xA;{&#xD;&#xA;	background: #DFE9EF; /* Old browsers */&#xD;&#xA;	background: -moz-linear-gradient(top,  #DFE9EF 0%, #B6D3E0 100%); /* FF3.6+ */&#xD;&#xA;	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#DFE9EF), color-stop(100%,#B6D3E0)); /* Chrome,Safari4+ */&#xD;&#xA;	background: -webkit-linear-gradient(top,  #DFE9EF 0%, #B6D3E0 100%); /* Chrome10+,Safari5.1+ */&#xD;&#xA;	background: -o-linear-gradient(top,  #DFE9EF 0%, #B6D3E0 100%); /* Opera 11.10+ */&#xD;&#xA;	background: -ms-linear-gradient(top,  #DFE9EF 0%, #B6D3E0 100%); /* IE10+ */&#xD;&#xA;	background: linear-gradient(to bottom,  #DFE9EF 0%, #B6D3E0 100%); /* W3C */&#xD;&#xA;	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#DFE9EF', endColorstr='#B6D3E0',GradientType=0 ); /* IE6-9 */&#xD;&#xA;	font-size: 14px;&#xD;&#xA;	font-weight:normal;&#xD;&#xA;	height: 20px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdSelectFixedWidth {&#xD;&#xA;width: 180px !important;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdReportHeaderHighlightBground{&#xD;&#xA;	background-color: #4472C4;&#xD;&#xA;	padding-bottom:5px;&#xD;&#xA;	color:white;&#xD;&#xA;	border-bottom: 1px solid white;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.MonthTab {&#xD;&#xA;	padding-left: 6px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.LeftArrow {&#xD;&#xA;	position:absolute;&#xD;&#xA;	top:155px;&#xD;&#xA;	left:38px;&#xD;&#xA;	z-index:99;&#xD;&#xA;	background-image:url('_SupportFiles/c3dash.leftarrow.png');&#xD;&#xA;	background-repeat: no-repeat;&#xD;&#xA;	padding-left: 15px;&#xD;&#xA;	height: 15px;&#xD;&#xA;	vertical-align: top !important;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.RightArrow {&#xD;&#xA;	position:absolute;&#xD;&#xA;	top:155px;&#xD;&#xA;	left:93px;&#xD;&#xA;	z-index:99;&#xD;&#xA;	background-image:url('_SupportFiles/c3dash.rightarrow.png');&#xD;&#xA;	background-repeat: no-repeat;&#xD;&#xA;	padding-left: 15px;&#xD;&#xA;	height: 15px;&#xD;&#xA;	vertical-align: top !important;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdMetricContainerHeader&#xD;&#xA;{&#xD;&#xA;	background-color: #4472C4;&#xD;&#xA;	color: White;&#xD;&#xA;	box-shadow: 6px 6px 3px #888888;&#xD;&#xA;	font-size:150%;&#xD;&#xA;	height: 35px;&#xD;&#xA;	font-weight:bold;&#xD;&#xA;	border-bottom: 1px solid #d3d3d3;&#xD;&#xA;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdMetricContainerContent&#xD;&#xA;{&#xD;&#xA;	box-shadow: 6px 6px 3px #888888;&#xD;&#xA;	background: #DDEBF7;&#xD;&#xA;	border-top: 1px solid #d3d3d3;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdMetricContainerHeaderInverse&#xD;&#xA;{&#xD;&#xA;	background-color: #4472C4;&#xD;&#xA;	color: White;&#xD;&#xA;	box-shadow: 6px 6px 3px #888888;&#xD;&#xA;	font-size:150%;&#xD;&#xA;	height: 35px;&#xD;&#xA;	font-weight:bold;&#xD;&#xA;	border-bottom: 1px solid #d3d3d3;&#xD;&#xA;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdMetricContainerContentInverse&#xD;&#xA;{&#xD;&#xA;	box-shadow: 6px 6px 3px #888888;&#xD;&#xA;	background: #DDEBF7;&#xD;&#xA;	border-top: 1px solid #d3d3d3;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdMetricContainer&#xD;&#xA;{&#xD;&#xA;	border-spacing: 0;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;.gdtempbackground&#xD;&#xA;{&#xD;&#xA;	background: #f5f5f5;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&lt;/style&gt;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&lt;!--[if IE]&gt;&#xD;&#xA;&lt;style type=&quot;text/css&quot;&gt;&#xD;&#xA;input[type=&quot;submit&quot;] {&#xD;&#xA;background: #CDD9E6 !important;&#xD;&#xA;border: 1px solid #386090 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: black !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;}&#xD;&#xA;&lt;/style&gt;&#xD;&#xA;&lt;![endif]--&gt;" ID="CustomCSS" />
+  </ReportHeader>
+  <Body>
+    <Rows Class="gdDefaultRowBground" Width="100" WidthScale="%" CellSpacing="10">
+      <Row ID="rowTitle">
+        <Column Width="820" WidthScale="px">
+          <Label Caption="C3 Targets" Class="gdReportHeaderNameBI" />
+          <LineBreak LineCount="2" />
+          <Label Caption="Department: " />
+          <InputSelectList ID="DepartmentID" OptionValueColumn="DepartmentID" OptionCaptionColumn="Department" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.DepartmentID~" Class="gdSelectFixedWidth" IdeDisplayStatus="Collapsed">
+            <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3TargetDropDownDepartmentGet_sp" ConnectionID="connP3BIG-BiLogiReporting">
+              <SPParameters>
+                <SPParameter ID="@deptStatus" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" Value="@Request.deptStatus~" />
+              </SPParameters>
+              <SortFilter SortColumn="Department" />
+            </DataLayer>
+            <EventHandler DhtmlEvent="onchange">
+              <Action Type="RefreshElement" ElementID="SupID" ID="actRefreshPerson">
+                <WaitPage Caption="Processing, please wait..." />
+              </Action>
+            </EventHandler>
+          </InputSelectList>
+          <Spaces Size="5" />
+          <InputSelectList ID="SupID" OptionValueColumn="MgrUserID" OptionCaptionColumn="MgrName" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.SupID~" Class="gdSelectFixedWidth" Caption="Supervisor: " IdeDisplayStatus="Collapsed">
+            <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3TargetDropDownSupervisorGet_sp" ConnectionID="connP3BIG-BiLogiReporting">
+              <SPParameters>
+                <SPParameter SPParamDirection="Input" ID="@StartDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStartMonth~" />
+                <SPParameter SPParamDirection="Input" ID="@EndDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEndMonth~" />
+                <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+              </SPParameters>
+              <SortFilter SortColumn="MgrName" ID="sfName" />
+            </DataLayer>
+          </InputSelectList>
+          <Spaces Size="5" />
+          <Button ID="Submit" Caption="Submit">
+            <Action Type="Report" ID="actReport">
+              <Target Type="Report" ID="tgtPerformanceTargetVisual" Report="C3Dash.PerformanceTargetVisualAPD" RequestForwarding="True" />
+            </Action>
+          </Button>
+        </Column>
+        <Column Class="ThemeAlignRight,ThemeAlignBottom" Width="150" WidthScale="px">
+          <Division ID="divRepName">
+            <Label Caption="@Local.DisplayName~" Class="gdReportHeaderNameBI" />
+          </Division>
+        </Column>
+        <Column />
+      </Row>
+      <Row ID="rowBody">
+        <Column ColSpan="3">
+          <Division Condition="&quot;@Request.MonthName~&quot; &lt;&gt; &quot;Jan- 2014&quot;" ID="divLeftArrow" IdeDisplayStatus="Collapsed">
+            <Label Class="LeftArrow">
+              <Action Type="Link" ID="actReport">
+                <Target Type="Link" Link="@Function.AppVirtualPath~?rdReport=C3Dash.PerformanceTargetVisual" ID="lnkTarget" />
+                <LinkParams rptStartMonth="@Request.PriorMonthStart~" rptEndMonth="@Request.PriorMonthEnd~" />
+              </Action>
+            </Label>
+          </Division>
+          <Division Condition="(Month(&quot;@Request.rptStartMonth~&quot;) + Year(&quot;@Request.rptStartMonth~&quot;)) &lt;&gt;  (Month(&quot;@Date.ThisMonthStart~&quot;) + Year(&quot;@Date.ThisMonthStart~&quot;))" ID="divRightArrow" IdeDisplayStatus="Collapsed">
+            <Label Class="RightArrow">
+              <Action Type="Link" ID="actReport">
+                <Target Type="Link" Link="@Function.AppVirtualPath~?rdReport=C3Dash.PerformanceTargetVisual" ID="lnkTarget" />
+                <LinkParams rptStartMonth="@Request.NextMonthStart~" rptEndMonth="@Request.NextMonthEnd~" />
+              </Action>
+            </Label>
+          </Division>
+          <Tabs ID="tabDates" TabLocation="left" TabbingStyle="Static" DefaultTab="Month" ActiveTabBackgroundColor="#f5f5f5" BorderColor="black" InactiveTabBackgroundColor="white">
+            <TabPanel ID="Month" Caption="@Request.MonthName~" Class="MonthTab">
+              <Division ID="divTablesMonth">
+                <Rows Class="gdtempbackground" CellSpacing="5">
+                  <Row ID="RowOne">
+                    <Column ColSpan="3" IdeDisplayStatus="Collapsed">
+                      <Label Caption="Headline:" Class="gdReportHeaderNameBI" />
+                    </Column>
+                  </Row>
+                  <Row ID="RowTwo">
+                    <Column Class="gdMetricContainer,ThemeAlignTop" ID="colAPD" IdeDisplayStatus="Collapsed">
+                      <Rows>
+                        <Row>
+                          <Column>
+                            <Rows Class="gdMetricContainer">
+                              <Row>
+                                <Column Class="ThemeAlignCenter,gdMetricContainerHeader">
+                                  <Label Caption="APD" />
+                                </Column>
+                              </Row>
+                              <Row>
+                                <Column Class="ThemeAlignTop,ThemeAlignCenter,gdMetricContainerContent">
+                                  <Gauge Type="Needle" ChartHeight="222" ID="gaugeAPDMonth" Value="@Data.calcValue~" ChartWidth="263" StartAngle="0" UpperBound="@Data.calcHigher~" TickCount="2" NeedleGaugeEnclosure="None" D3Effects="True" BackgroundColor="#DDEBF7" NeedleThickness="1" GaugeType="HalfTop" LowerBound="@Data.calcLower~" TickLabelFontSize="8" TickLabelRadius="110" MinorTickFrequency="5" TickLabelFormat="@Data.MetricFormat~" CenterOffsetY="-8">
+                                    <DataLayer Type="Linked" LinkedDataLayerID="rptMetricsMonth" ID="rptMetricsMonth.Linked4">
+                                      <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;APD&quot;" IncludeCondition="True" ID="cfAPD" />
+                                      <CalculatedColumn ID="calcLower" Formula="@Data.MetricTarget~ * .50" />
+                                      <CalculatedColumn ID="calcHigher" Formula="@Data.MetricTarget~ * 1.50" />
+                                      <CalculatedColumn ID="calcValue" Formula="@Data.MetricValue~" />
+                                      <CalculatedColumn ID="calcTarget" Formula="@Data.MetricTarget~" />
+                                    </DataLayer>
+                                    <GaugeRing RingEndValue="@Data.calcTarget~" RingStartValue="@Data.calcLower~" RingThickness="20" Color="red" />
+                                    <GaugeRing RingEndValue="@Data.calcHigher~" RingStartValue="@Data.calcTarget~" Color="#5EC45E" RingThickness="20" />
+                                    <GaugeLabel Caption="Target" FontSize="8" Top="-12" FontBold="True" />
+                                    <GaugeLabel Caption="Actual" FontSize="8" Top="132" FontBold="True" />
+                                    <GaugeLabel Caption="@Data.calcValue~" FontSize="24" Top="145" Format="#,##0.0" />
+                                  </Gauge>
+                                  <LineBreak />
+                                </Column>
+                              </Row>
+                            </Rows>
+                          </Column>
+                        </Row>
+                      </Rows>
+                    </Column>
+                    <Column Class="gdMetricContainer,ThemeAlignTop" ID="colAdherence" IdeDisplayStatus="Collapsed">
+                      <Rows>
+                        <Row>
+                          <Column>
+                            <Rows Class="gdMetricContainer">
+                              <Row>
+                                <Column Class="ThemeAlignCenter,gdMetricContainerHeader">
+                                  <Label Caption="Schedule Adherence" />
+                                </Column>
+                              </Row>
+                              <Row>
+                                <Column Class="ThemeAlignTop,ThemeAlignCenter,gdMetricContainerContent">
+                                  <Gauge Type="Needle" ChartHeight="222" ID="gaugeAdherenceMonth" Value="@Data.calcValue~" ChartWidth="263" StartAngle="0" UpperBound="@Data.calcHigher~" TickCount="2" NeedleGaugeEnclosure="None" D3Effects="True" BackgroundColor="#DDEBF7" NeedleThickness="1" GaugeType="HalfTop" LowerBound="@Data.calcLower~" TickLabelFontSize="8" TickLabelRadius="110" MinorTickFrequency="5" TickLabelFormat="@Data.MetricFormat~" CenterOffsetY="-8" IdeDisplayStatus="Collapsed">
+                                    <DataLayer Type="Linked" LinkedDataLayerID="rptMetricsMonth" ID="rptMetricsMonth.Linked2">
+                                      <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;LOT / Scheduled&quot;" IncludeCondition="True" ID="cfAdherence" />
+                                      <CalculatedColumn ID="calcLower" Formula="@Data.MetricTarget~ * .90" />
+                                      <CalculatedColumn ID="calcHigher" Formula="@Data.MetricTarget~ * 1.10" />
+                                      <CalculatedColumn ID="calcValue" Formula="@Data.MetricValue~" />
+                                      <CalculatedColumn ID="calcTarget" Formula="@Data.MetricTarget~" />
+                                    </DataLayer>
+                                    <GaugeRing RingEndValue="@Data.calcHigher~" RingStartValue="@Data.calcTarget~" Color="#5EC45E" RingThickness="20" />
+                                    <GaugeRing RingEndValue="@Data.calcTarget~" RingStartValue="@Data.calcLower~" RingThickness="20" Color="red" />
+                                    <GaugeLabel Caption="Actual" FontSize="8" Top="132" FontBold="True" />
+                                    <GaugeLabel Caption="Target" FontSize="8" Top="-12" FontBold="True" />
+                                    <GaugeLabel Caption="@Data.calcValue~" FontSize="24" Top="145" Format="#,##0%" />
+                                  </Gauge>
+                                  <LineBreak />
+                                </Column>
+                              </Row>
+                            </Rows>
+                          </Column>
+                        </Row>
+                      </Rows>
+                    </Column>
+                    <Column Class="gdMetricContainer,ThemeAlignTop" ID="colAvailability" IdeDisplayStatus="Collapsed">
+                      <Rows>
+                        <Row>
+                          <Column>
+                            <Rows Class="gdMetricContainer">
+                              <Row>
+                                <Column Class="ThemeAlignCenter,gdMetricContainerHeader">
+                                  <Label Caption="Customer Availability" />
+                                </Column>
+                              </Row>
+                              <Row>
+                                <Column Class="ThemeAlignTop,ThemeAlignCenter,gdMetricContainerContent">
+                                  <Gauge Type="Needle" ChartHeight="222" ID="gaugeAvailabilityMonth" Value="@Data.calcValue~" ChartWidth="263" StartAngle="0" UpperBound="@Data.calcHigher~" TickCount="2" NeedleGaugeEnclosure="None" D3Effects="True" BackgroundColor="#DDEBF7" NeedleThickness="1" GaugeType="HalfTop" LowerBound="@Data.calcLower~" TickLabelFontSize="8" TickLabelRadius="110" MinorTickFrequency="5" TickLabelFormat="@Data.MetricFormat~" CenterOffsetY="-8">
+                                    <DataLayer Type="Linked" LinkedDataLayerID="rptMetricsMonth" ID="rptMetricsMonth.Linked2" IdeDisplayStatus="Collapsed">
+                                      <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;Cust Availability&quot;" IncludeCondition="True" ID="cfAvailability" />
+                                      <CalculatedColumn ID="calcLower" Formula="@Data.MetricTarget~ * .90" />
+                                      <CalculatedColumn ID="calcHigher" Formula="@Data.MetricTarget~ * 1.10" />
+                                      <CalculatedColumn ID="calcValue" Formula="@Data.MetricValue~" />
+                                      <CalculatedColumn ID="calcTarget" Formula="@Data.MetricTarget~" />
+                                    </DataLayer>
+                                    <GaugeRing RingEndValue="@Data.calcHigher~" RingStartValue="@Data.calcTarget~" Color="#5EC45E" RingThickness="20" />
+                                    <GaugeRing RingEndValue="@Data.calcTarget~" RingStartValue="@Data.calcLower~" RingThickness="20" Color="red" />
+                                    <GaugeLabel Caption="Actual" FontSize="8" Top="132" FontBold="True" />
+                                    <GaugeLabel Caption="Target" FontSize="8" Top="-12" FontBold="True" />
+                                    <GaugeLabel Caption="@Data.calcValue~" FontSize="24" Top="145" Format="#,##0%" />
+                                  </Gauge>
+                                  <LineBreak />
+                                </Column>
+                              </Row>
+                            </Rows>
+                          </Column>
+                        </Row>
+                      </Rows>
+                    </Column>
+                  </Row>
+                  <Row ID="RowThree">
+                    <Column ColSpan="3" Class="gdColumnCell">
+                      <Division ID="divPnlMetricsMonth" IdeDisplayStatus="Collapsed">
+                        <CrosstabTable ID="ctMetricsMonth" HideWhenZeroRows="True" ColumnHeaderClass="gdReportHeaderSecondaryBground,ThemeAlignCenter" Class="gdMetricTable" Width="900" WidthScale="px" IdeDisplayStatus="Collapsed">
+                          <DataLayer Type="Linked" ID="dlChildMetricsMonth.Linked1" LinkedDataLayerID="rptChildMetricsMonth">
+                            <ConditionFilter Condition="(&quot;@Data.MetricName~&quot; = &quot;Ready Hours&quot; Or &quot;@Data.MetricName~&quot; = &quot;Headcount&quot; Or &quot;@Data.MetricName~&quot; = &quot;LOT / Scheduled&quot; Or &quot;@Data.MetricName~&quot; = &quot;Cust Availability&quot;) And @Data.isDisplay~ = 1 And &quot;@Data.Name~&quot; &lt;&gt; &quot;All&quot;" IncludeCondition="True" ID="cfReadyHours" />
+                            <CrosstabFilter CrosstabLabelColumn="DisplayName" CrosstabValueColumn="MetricVariance" CrosstabValueFunction="Any" CrosstabColumn="MetricName" IdeDisplayStatus="Collapsed">
+                              <ExtraCrosstabValueColumn CrosstabValueColumn="MetricValue" ID="MetricValue" CrosstabValueFunction="Any" />
+                              <ExtraCrosstabValueColumn CrosstabValueColumn="MetricFormat" ID="MetricFormat" CrosstabValueFunction="Any" />
+                              <ExtraCrosstabValueColumn CrosstabValueColumn="ReverseNegative" ID="ReverseNegative" CrosstabValueFunction="Any" />
+                              <ExtraCrosstabValueColumn CrosstabValueColumn="BorderType" ID="BorderType" CrosstabValueFunction="Any" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="ID" ID="ID" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="RepID" ID="RepID" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="SupID" ID="SupID" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="DeptID" ID="DeptID" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="RepType" ID="RepType" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="isDisplay" ID="isDisplay" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="isLink" ID="isLink" />
+                            </CrosstabFilter>
+                          </DataLayer>
+                          <HeaderRow ID="ctHeader" HeaderPosition="Top" IdeDisplayStatus="Collapsed">
+                            <Column ID="colSpacer" Class="gdReportGroupHeaderSpacer" />
+                            <Column ColSpan="2" Class="gdReportHeaderHighlightBground,ThemeAlignCenter">
+                              <Label Caption="Ready Hours" />
+                            </Column>
+                            <Column ColSpan="2" Class="gdReportHeaderPrimaryBground,ThemeAlignCenter">
+                              <Label Caption="Headcount*" />
+                            </Column>
+                            <Column ColSpan="2" Class="gdReportHeaderPrimaryBground,ThemeAlignCenter">
+                              <Label Caption="LOT / Scheduled" />
+                            </Column>
+                            <Column ColSpan="2" Class="gdReportHeaderPrimaryBground,ThemeAlignCenter">
+                              <Label Caption="Cust Availability**" />
+                            </Column>
+                          </HeaderRow>
+                          <CrosstabTableLabelColumn ID="colName" Class="gdTableColumnName,none" Width="200px" Header="Name" IdeDisplayStatus="Collapsed">
+                            <Division ID="divLinkName" Condition="@Data.isLink~ = 1 &amp;&amp; @Request.RepID~ = -1">
+                              <Label Caption="@Data.DisplayName~">
+                                <Action Type="Report" ID="actReport">
+                                  <Target Type="Report" RequestForwarding="False" ID="tgtReport" Report="C3Dash.PerformanceTargetVisual">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Target>
+                                  <LinkParams SupID="@Data.SupID~" DepartmentID="@Data.DeptID~" RepID="@Data.RepID~" DisplayName="@Data.DisplayName~" rptStartMonth="@Request.rptStartMonth~" rptEndMonth="@Request.rptEndMonth~" />
+                                </Action>
+                              </Label>
+                            </Division>
+                            <Division ID="divName" Condition="@Data.isLink~ = 0 || @Request.RepID~ != -1">
+                              <Label Caption="@Data.DisplayName~" />
+                            </Division>
+                            <DataColumnSort DataColumn="Name" />
+                          </CrosstabTableLabelColumn>
+                          <CrosstabTableValueColumns ID="colMetricValue" Header="Total" Width="80" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+                            <Label Caption="@Data.rdCrosstabValue-MetricValue~" Format="@Data.rdCrosstabValue-MetricFormat~" Class="ThemeAlignRight">
+                              <ConditionalClass Class="ThemeTextNegative" Condition="@Data.rdCrosstabValue-MetricValue~ &lt; 0" />
+                            </Label>
+                            <CrosstabValueColumnSort FirstSortSequence="Descending" />
+                            <Spaces Size="2" />
+                          </CrosstabTableValueColumns>
+                          <CrosstabTableValueColumns ID="colMetricVariance" Header="Variance" Width="80" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+                            <Label Caption="@Data.rdCrosstabValue~" Format="@Data.rdCrosstabValue-MetricFormat~" Class="ThemeAlignRight">
+                              <ConditionalClass Class="ThemeTextNegative" Condition="(@Data.rdCrosstabValue~ * @Data.rdCrosstabValue-ReverseNegative~) &lt; 0" />
+                            </Label>
+                            <CrosstabValueColumnSort FirstSortSequence="Descending" />
+                            <Spaces Size="2" />
+                          </CrosstabTableValueColumns>
+                        </CrosstabTable>
+                        <LineBreak />
+                        <CrosstabTable ID="ctMetricsMonthNonPhone" HideWhenZeroRows="True" ColumnHeaderClass="gdReportHeaderSecondaryBground,ThemeAlignCenter" Class="gdMetricTable" Width="395" WidthScale="px" IdeDisplayStatus="Collapsed">
+                          <DataLayer Type="Linked" ID="dlChildMetricsMonth.Linked2" LinkedDataLayerID="rptChildMetricsMonth" IdeDisplayStatus="Collapsed">
+                            <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;Headcount&quot; And @Data.isDisplay~ = 0 And &quot;@Data.Name~&quot; &lt;&gt; &quot;All&quot;" IncludeCondition="True" ID="cfReadyHours" />
+                            <CrosstabFilter CrosstabLabelColumn="DisplayName" CrosstabValueColumn="MetricVariance" CrosstabValueFunction="Any" CrosstabColumn="MetricName" IdeDisplayStatus="Collapsed">
+                              <ExtraCrosstabValueColumn CrosstabValueColumn="MetricValue" ID="MetricValue" CrosstabValueFunction="Any" />
+                              <ExtraCrosstabValueColumn CrosstabValueColumn="MetricFormat" ID="MetricFormat" CrosstabValueFunction="Any" />
+                              <ExtraCrosstabValueColumn CrosstabValueColumn="ReverseNegative" ID="ReverseNegative" CrosstabValueFunction="Any" />
+                              <ExtraCrosstabValueColumn CrosstabValueColumn="BorderType" ID="BorderType" CrosstabValueFunction="Any" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="ID" ID="ID" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="RepID" ID="RepID" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="SupID" ID="SupID" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="DeptID" ID="DeptID" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="RepType" ID="RepType" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="isDisplay" ID="isDisplay" />
+                              <ExtraCrosstabLabelColumn CrosstabLabelColumn="isLink" ID="isLink" />
+                            </CrosstabFilter>
+                            <SortFilter SortColumn="rdCrosstabValue" />
+                          </DataLayer>
+                          <HeaderRow ID="ctHeader" HeaderPosition="Top" IdeDisplayStatus="Collapsed">
+                            <Column Class="gdReportHeaderPrimaryBground,ThemeAlignCenter">
+                              <Label Caption="Non-Cisco Departments" />
+                            </Column>
+                            <Column ColSpan="2" Class="gdReportHeaderPrimaryBground,ThemeAlignCenter">
+                              <Label Caption="Headcount*" />
+                            </Column>
+                          </HeaderRow>
+                          <CrosstabTableLabelColumn ID="colName" Class="gdTableColumnName,none" Header="Name" Width="200px" IdeDisplayStatus="Collapsed">
+                            <Division ID="divLinkName" Condition="@Data.isLink~ = 1 &amp;&amp; @Request.RepID~ = -1">
+                              <Label Caption="@Data.DisplayName~" IdeDisplayStatus="Collapsed">
+                                <Action Type="Report" ID="actReport">
+                                  <Target Type="Report" RequestForwarding="False" ID="tgtReport" Report="C3Dash.PerformanceTargetVisual">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Target>
+                                  <LinkParams SupID="@Data.SupID~" DepartmentID="@Data.DeptID~" RepID="@Data.RepID~" DisplayName="@Data.DisplayName~" />
+                                </Action>
+                              </Label>
+                            </Division>
+                            <Division ID="divName" Condition="@Data.isLink~ = 0 || @Request.RepID~ != -1">
+                              <Label Caption="@Data.DisplayName~" />
+                            </Division>
+                            <DataColumnSort DataColumn="Name" />
+                          </CrosstabTableLabelColumn>
+                          <CrosstabTableValueColumns ID="colMetricValue" Header="Total" Width="80" Class="ThemeAlignRight" WidthScale="px" IdeDisplayStatus="Collapsed">
+                            <Label Caption="@Data.rdCrosstabValue-MetricValue~" Format="@Data.rdCrosstabValue-MetricFormat~" Class="ThemeAlignRight">
+                              <ConditionalClass Class="ThemeTextNegative" Condition="@Data.rdCrosstabValue-MetricValue~ &lt; 0" />
+                            </Label>
+                            <CrosstabValueColumnSort FirstSortSequence="Descending" />
+                            <Spaces Size="2" />
+                          </CrosstabTableValueColumns>
+                          <CrosstabTableValueColumns ID="colMetricVariance" Header="Variance" Width="80" Class="ThemeAlignRight" WidthScale="px" IdeDisplayStatus="Collapsed">
+                            <Label Caption="@Data.rdCrosstabValue~" Format="@Data.rdCrosstabValue-MetricFormat~" Class="ThemeAlignRight">
+                              <ConditionalClass Class="ThemeTextNegative" Condition="(@Data.rdCrosstabValue~ * @Data.rdCrosstabValue-ReverseNegative~) &lt; 0" />
+                            </Label>
+                            <CrosstabValueColumnSort FirstSortSequence="Descending" />
+                            <Spaces Size="2" />
+                          </CrosstabTableValueColumns>
+                        </CrosstabTable>
+                      </Division>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Division>
+            </TabPanel>
+            <Remark>
+              <TabPanel Caption="Today" ID="Today" IdeDisplayStatus="Collapsed">
+                <Division ID="divTablesToday">
+                  <Rows>
+                    <Row>
+                      <Column Width="200" Class="ThemeAlignTop">
+                        <Spaces Size="15" />
+                        <Label Caption="GCR" Class="ThemeTextLarge,ThemeAlignCenter" />
+                        <LineBreak LineCount="2" />
+                        <Spaces Size="15" />
+                        <Gauge Type="Bar" BarGaugeStyle="VerticalThermometer" ChartHeight="400" ChartWidth="200" ID="gaugeRevenueToday" LowerBound="0" UpperBound="@Data.MetricTarget~" Value="@Data.MetricValue~" D3Effects="True" BackgroundColor="transparent" BarColor="#00A654" TickCount="8" TickLabelFormat="@Data.MetricFormat~" BarBackgroundColor="white" TickLabelFontSize="8" TickLabelColor="#666666" TickColor="#666666" BarBorderColor="#666666">
+                          <DataLayer Type="Linked" LinkedDataLayerID="rptMetricsToday" ID="rptMetricsToday.Linked1" IdeDisplayStatus="Collapsed">
+                            <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;Sales&quot;" IncludeCondition="True" ID="cfSales" />
+                          </DataLayer>
+                          <Action Type="Report" ID="actTargetRevenue" IdeDisplayStatus="Collapsed">
+                            <Target Type="Report" ID="tgtTargetRevenue" RequestForwarding="True" Report="C3Dash.PerformanceTargetRevenue" />
+                          </Action>
+                        </Gauge>
+                      </Column>
+                      <Column Class="ThemeAlignTop" ColSpan="3">
+                        <Rows>
+                          <Row>
+                            <Column ColSpan="3" Class="ThemeAlignCenter">
+                              <Label Class="ThemeTextLarge" Caption="Performance Drivers" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column Class="ThemeAlignTop,gdMetricContainer">
+                              <Rows>
+                                <Row>
+                                  <Column Class="ThemeAlignCenter,gdMetricContainerTitle">
+                                    <Label Caption="AOS" Class="ThemeTextLargest,ThemeTextBold" />
+                                  </Column>
+                                </Row>
+                                <Row>
+                                  <Column Class="ThemeAlignCenter">
+                                    <Gauge Type="Needle" ChartHeight="200" ID="gaugeAOSToday" Value="@Data.calcValue~" ChartWidth="250" StartAngle="0" UpperBound="@Data.calcHigher~" TickCount="2" NeedleGaugeEnclosure="None" D3Effects="False" BackgroundColor="white" NeedleThickness="1" GaugeType="HalfTop" LowerBound="@Data.calcLower~" TickLabelFontSize="10" TickLabelRadius="95" MinorTickFrequency="5" TickLabelFontBold="True" IdeDisplayStatus="Collapsed">
+                                      <DataLayer Type="Linked" LinkedDataLayerID="rptMetricsToday" ID="rptMetricsToday.Linked2" IdeDisplayStatus="Collapsed">
+                                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;AOS&quot;" IncludeCondition="True" ID="cfAOS" />
+                                        <CalculatedColumn ID="calcLower" Formula="@Data.MetricTarget~ *.80" />
+                                        <CalculatedColumn ID="calcHigher" Formula="@Data.MetricTarget~ *1.20" />
+                                        <CalculatedColumn ID="calcValue" Formula="@Data.MetricValue~" />
+                                        <CalculatedColumn ID="calcTarget" Formula="@Data.MetricTarget~" />
+                                      </DataLayer>
+                                      <GaugeRing RingEndValue="@Data.calcTarget~" RingStartValue="@Data.calcLower~" RingThickness="10" Color="red" />
+                                      <GaugeRing RingEndValue="@Data.calcHigher~" RingStartValue="@Data.calcTarget~" Color="#5EC45E" RingThickness="10" />
+                                      <GaugeLabel Caption="Target" FontSize="8" Top="5" />
+                                      <GaugeLabel Caption="Actual" FontSize="8" Top="55" />
+                                      <GaugeLabel Caption="@Data.calcValue~" FontSize="24" Top="70" Format="#,##0" />
+                                    </Gauge>
+                                  </Column>
+                                </Row>
+                              </Rows>
+                            </Column>
+                            <Column Class="ThemeAlignTop,gdMetricContainer">
+                              <Rows>
+                                <Row>
+                                  <Column Class="ThemeAlignCenter,gdMetricContainerTitle">
+                                    <Label Caption="Conv. Rate" Class="ThemeTextLargest,ThemeTextBold" />
+                                  </Column>
+                                </Row>
+                                <Row>
+                                  <Column Class="ThemeAlignCenter">
+                                    <Gauge Type="Needle" ChartHeight="200" ID="gaugeConvRateToday" Value="@Data.calcValue~" ChartWidth="250" StartAngle="0" UpperBound="@Data.calcHigher~" TickCount="2" NeedleGaugeEnclosure="None" D3Effects="False" BackgroundColor="white" NeedleThickness="1" GaugeType="HalfTop" LowerBound="@Data.calcLower~" TickLabelFontSize="10" TickLabelRadius="95" MinorTickFrequency="5" TickLabelFontBold="True" IdeDisplayStatus="Collapsed">
+                                      <DataLayer Type="Linked" LinkedDataLayerID="rptMetricsToday" ID="rptMetricsToday.Linked3">
+                                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;Conv Rate&quot;" IncludeCondition="True" ID="cfConvRate" />
+                                        <CalculatedColumn ID="calcLower" Formula="(@Data.MetricTarget~ *.80)*100" />
+                                        <CalculatedColumn ID="calcHigher" Formula="(@Data.MetricTarget~ *1.20)*100" />
+                                        <CalculatedColumn ID="calcValue" Formula="(@Data.MetricValue~)*100" />
+                                        <CalculatedColumn ID="calcTarget" Formula="(@Data.MetricTarget~)*100" />
+                                      </DataLayer>
+                                      <GaugeRing RingEndValue="@Data.calcTarget~" RingStartValue="@Data.calcLower~" RingThickness="10" Color="red" />
+                                      <GaugeRing RingEndValue="@Data.calcHigher~" RingStartValue="@Data.calcTarget~" Color="#5EC45E" RingThickness="10" />
+                                      <GaugeLabel Caption="Target" FontSize="8" Top="5" />
+                                      <GaugeLabel Caption="Actual" FontSize="8" Top="55" />
+                                      <GaugeLabel Caption="@Data.calcValue~" FontSize="24" Top="70" Format="#,##0" />
+                                    </Gauge>
+                                  </Column>
+                                </Row>
+                              </Rows>
+                            </Column>
+                            <Column Class="ThemeAlignTop,gdMetricContainer">
+                              <Rows>
+                                <Row>
+                                  <Column Class="ThemeAlignCenter,gdMetricContainerTitle">
+                                    <Label Caption="CPD" Class="ThemeTextLargest,ThemeTextBold" />
+                                  </Column>
+                                </Row>
+                                <Row>
+                                  <Column Class="ThemeAlignCenter">
+                                    <Gauge Type="Needle" ChartHeight="200" ID="gaugeCPDToday" Value="@Data.calcValue~" ChartWidth="250" StartAngle="0" UpperBound="@Data.calcHigher~" TickCount="2" NeedleGaugeEnclosure="None" D3Effects="False" BackgroundColor="white" NeedleThickness="1" GaugeType="HalfTop" LowerBound="@Data.calcLower~" TickLabelFontSize="10" TickLabelRadius="95" MinorTickFrequency="5" TickLabelFontBold="True" IdeDisplayStatus="Collapsed">
+                                      <DataLayer Type="Linked" LinkedDataLayerID="rptMetricsToday" ID="rptMetricsToday.Linked4">
+                                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;CPD&quot;" IncludeCondition="True" ID="cfCPD" />
+                                        <CalculatedColumn ID="calcLower" Formula="@Data.MetricTarget~ * 0" />
+                                        <CalculatedColumn ID="calcHigher" Formula="@Data.MetricTarget~ *2" />
+                                        <CalculatedColumn ID="calcValue" Formula="@Data.MetricValue~" />
+                                        <CalculatedColumn ID="calcTarget" Formula="@Data.MetricTarget~" />
+                                      </DataLayer>
+                                      <GaugeRing RingEndValue="@Data.calcTarget~" RingStartValue="@Data.calcLower~" RingThickness="10" Color="red" />
+                                      <GaugeRing RingEndValue="@Data.calcHigher~" RingStartValue="@Data.calcTarget~" Color="#5EC45E" RingThickness="10" />
+                                      <GaugeLabel Caption="Target" FontSize="8" Top="5" />
+                                      <GaugeLabel Caption="Actual" FontSize="8" Top="55" />
+                                      <GaugeLabel Caption="@Data.calcValue~" FontSize="24" Top="70" Format="#,##0" />
+                                    </Gauge>
+                                  </Column>
+                                </Row>
+                              </Rows>
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column Class="ThemeAlignTop,gdMetricContainer">
+                              <Rows>
+                                <Row>
+                                  <Column Class="ThemeAlignCenter,gdMetricContainerTitle">
+                                    <Label Caption="Ready Hours" Class="ThemeTextLargest,ThemeTextBold" />
+                                  </Column>
+                                </Row>
+                                <Row>
+                                  <Column Class="ThemeAlignCenter">
+                                    <Gauge Type="Needle" ChartHeight="200" ID="gaugeReadyHoursToday" Value="@Data.calcValue~" ChartWidth="250" StartAngle="0" UpperBound="@Data.calcHigher~" TickCount="2" NeedleGaugeEnclosure="None" D3Effects="False" BackgroundColor="white" NeedleThickness="1" GaugeType="HalfTop" LowerBound="@Data.calcLower~" TickLabelFontSize="10" TickLabelRadius="95" MinorTickFrequency="5" TickLabelFontBold="True" IdeDisplayStatus="Collapsed">
+                                      <DataLayer Type="Linked" LinkedDataLayerID="rptMetricsToday" ID="rptMetricsToday.Linked5">
+                                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;Ready Hours&quot;" IncludeCondition="True" ID="cfReadyHours" />
+                                        <CalculatedColumn ID="calcLower" Formula="@Data.MetricTarget~ * 0" />
+                                        <CalculatedColumn ID="calcHigher" Formula="@Data.MetricTarget~ *2" />
+                                        <CalculatedColumn ID="calcValue" Formula="@Data.MetricValue~" />
+                                        <CalculatedColumn ID="calcTarget" Formula="@Data.MetricTarget~" />
+                                      </DataLayer>
+                                      <GaugeRing RingEndValue="@Data.calcTarget~" RingStartValue="@Data.calcLower~" RingThickness="10" Color="red" />
+                                      <GaugeRing RingEndValue="@Data.calcHigher~" RingStartValue="@Data.calcTarget~" Color="#5EC45E" RingThickness="10" />
+                                      <GaugeLabel Caption="Target" FontSize="8" Top="5" />
+                                      <GaugeLabel Caption="Actual" FontSize="8" Top="55" />
+                                      <GaugeLabel Caption="@Data.calcValue~" FontSize="24" Top="70" Format="#,##0" />
+                                    </Gauge>
+                                  </Column>
+                                </Row>
+                              </Rows>
+                            </Column>
+                            <Column Class="ThemeAlignTop,gdMetricContainer">
+                              <Rows>
+                                <Row>
+                                  <Column Class="ThemeAlignCenter,gdMetricContainerTitle">
+                                    <Label Caption="CSS" Class="ThemeTextLargest,ThemeTextBold" />
+                                  </Column>
+                                </Row>
+                                <Row>
+                                  <Column Class="ThemeAlignCenter">
+                                    <LineBreak LineCount="4" />
+                                    <DataTable ID="dtCSSToday" Class="ThemeAlignCenter" Width="250" WidthScale="px" IdeDisplayStatus="Collapsed">
+                                      <DataLayer Type="Linked" LinkedDataLayerID="rptMetricsMonth" ID="rptMetricsToday.Linked6">
+                                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;CSS&quot;" IncludeCondition="True" ID="cfCSS" />
+                                      </DataLayer>
+                                      <DataTableColumn ID="colCSS">
+                                        <Label Caption="@Data.MetricValue~" Format="@Data.MetricFormat~" Class="numberBig" />
+                                      </DataTableColumn>
+                                    </DataTable>
+                                  </Column>
+                                </Row>
+                              </Rows>
+                            </Column>
+                            <Column Class="ThemeAlignTop,gdMetricContainer">
+                              <Rows>
+                                <Row>
+                                  <Column Class="ThemeAlignCenter,gdMetricContainerTitle">
+                                    <Label Caption="Poor CSS" Class="ThemeTextLargest,ThemeTextBold" />
+                                  </Column>
+                                </Row>
+                                <Row>
+                                  <Column Class="ThemeAlignCenter">
+                                    <LineBreak LineCount="4" />
+                                    <DataTable ID="dtPoorCSSToday" Class="ThemeAlignCenter">
+                                      <DataLayer Type="Linked" LinkedDataLayerID="rptMetricsMonth" ID="rptMetricsToday.Linked7" IdeDisplayStatus="Collapsed">
+                                        <ConditionFilter Condition="&quot;@Data.MetricName~&quot; = &quot;Poor CSS&quot;" IncludeCondition="True" ID="cfPoorCSS" />
+                                      </DataLayer>
+                                      <DataTableColumn ID="colPoorCSS" Width="250" WidthScale="px">
+                                        <Label Caption="@Data.MetricValue~" Format="@Data.MetricFormat~" Class="numberBig" />
+                                      </DataTableColumn>
+                                    </DataTable>
+                                  </Column>
+                                </Row>
+                              </Rows>
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                    </Row>
+                  </Rows>
+                </Division>
+              </TabPanel>
+            </Remark>
+          </Tabs>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter>
+    <Division Class="ThemeAlignCenter">
+      <Rows ID="rowsFooter" IdeDisplayStatus="Collapsed">
+        <Row ID="rowOne">
+          <Column ID="columnFooterText" Class="ThemeAlignLeft">
+            <Spaces Size="28" />
+            <Label Caption="*India Calls currently excluded from Phone Contacts" Class="gdTextNormalWhite" />
+          </Column>
+        </Row>
+        <Row ID="rowTwo">
+          <Column ID="columnFooterText" Class="ThemeAlignLeft">
+            <Spaces Size="28" />
+            <Label Caption="**Productivity is Phone Contacts per Ready Hour" Class="gdTextNormalWhite" />
+          </Column>
+        </Row>
+        <Row ID="rowThree">
+          <Column ID="columnFooterText" Class="ThemeAlignLeft">
+            <Spaces Size="28" />
+            <Label Caption="Note: MTD numbers are through EOD yesterday." Class="gdTextNormalWhite" />
+          </Column>
+        </Row>
+        <Row ID="rowFour">
+          <Column ID="columnFooterText" Class="ThemeAlignLeft">
+            <Spaces Size="28" />
+            <Label Caption="Copyright © 2014 Go Daddy Operating Company, LLC. All rights reserved." Class="gdTextNormalWhite" ID="lblFooterText" />
+          </Column>
+        </Row>
+      </Rows>
+    </Division>
+    <IncludeSharedElement DefinitionFile="SharedElements.C3SharedElements" SharedElementID="C3DisableSupervisor" />
+  </ReportFooter>
+  <ideTestParams DepartmentID="" SupID="" RepID="" deptStatus="" rptStartMonth="" rptEndMonth="" RepType="" LocationID="" MonthName="" NextMonthEnd="" NextMonthStart="" PriorMonthStart="" PriorMonthEnd="" />
+</Report>

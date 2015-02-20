@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.C3.WorkForce.AdHoc.ActivityAttendance" SavedBy="JOMAX\jkaplan" SavedAt="4/10/2014 10:44:04 AM" EngineVersion="11.2.040-SP2" DefaultShowModes="rdBrowser">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams rptStart="@Date.ThisMonthStart~" rptEnd="@Date.Today~" />
+  <ReportHeader ShowModes="rdBrowser">
+    <IncludeSharedElement DefinitionFile="SharedElements.C3Header" ID="sharedHeaderElement" SharedElementID="sharedHeader" />
+  </ReportHeader>
+  <Body>
+    <Rows>
+      <Row>
+        <Column ColSpan="2" ShowModes="rdBrowser">
+          <IncludeHtml Html="&lt;h2&gt;Activity Attendance&lt;/h2&gt;" />
+          <InputGrid>
+            <InputDate ID="rptStart" Caption="Start Date (&gt;=): " CalendarLinkType="None" DefaultValue="@Request.rptStart~">
+              <Validation Type="Date" />
+              <Validation Type="Required" />
+            </InputDate>
+            <InputDate ID="rptEnd" Caption="End Date (&lt;): " CalendarLinkType="None" DefaultValue="@Request.rptEnd~">
+              <Validation Type="Date" />
+              <Validation Type="Required" />
+            </InputDate>
+          </InputGrid>
+          <LineBreak />
+          <Button ID="Submit" Caption="Submit">
+            <Action Type="Report" ID="actReport">
+              <Target Type="Report" Report="Dashboards.C3.WorkForce.AdHoc.ActivityAttendance" ID="tgtReport" />
+            </Action>
+          </Button>
+          <Spaces Size="3" />
+          <Button ID="Export" Caption="Export">
+            <Action Type="Export" ID="expExcel">
+              <Target Type="Export" ReportFormat="Excel" ReportShowModes="rdExportExcel" ID="tgtExcel" KeepShowElements="False" />
+            </Action>
+          </Button>
+          <LineBreak LineCount="2" />
+        </Column>
+      </Row>
+      <Row>
+        <Column Class="ThemeAlignTop">
+          <DataTable ID="dtSchedule">
+            <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiWFMAttendenceScheduleGet_sp" ConnectionID="connP3BIG-CallCenterReporting" ID="dlSchedule">
+              <SPParameters>
+                <SPParameter ID="rptStart" SPParamType="dt-7" SPParamSize="0" SPParamDirection="Input" Value="@Request.rptStart~" />
+                <SPParameter ID="rptEnd" SPParamType="dt-7" SPParamSize="0" SPParamDirection="Input" Value="@Request.rptEnd~" />
+              </SPParameters>
+            </DataLayer>
+            <DataTableColumn ID="colrptdate" Header="Date" ShowModes="rdExportExcel">
+              <Label Caption="@Data.rptdate~" Format="MM-dd-yyyy" />
+            </DataTableColumn>
+            <DataTableColumn ID="colDepartment" Header="Department" ShowModes="rdExportExcel">
+              <Label Caption="@Data.Department~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colScheduledHours" Header="Scheduled Hours" ShowModes="rdExportExcel">
+              <Label Caption="@Data.ScheduledHours~" />
+            </DataTableColumn>
+          </DataTable>
+        </Column>
+        <Column Class="ThemeAlignTop">
+          <DataTable ID="dtActivity">
+            <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiWFMAttendenceActivityGet_sp" ConnectionID="connP3BIG-CallCenterReporting" ID="dlActivity">
+              <SPParameters>
+                <SPParameter ID="rptStart" SPParamType="dt-7" SPParamSize="0" SPParamDirection="Input" Value="@Request.rptStart~" />
+                <SPParameter ID="rptEnd" SPParamType="dt-7" SPParamSize="0" SPParamDirection="Input" Value="@Request.rptEnd~" />
+              </SPParameters>
+            </DataLayer>
+            <DataTableColumn ID="colrptdate" Header="Date" ShowModes="rdExportExcel">
+              <Label Caption="@Data.rptdate~" Format="MM-dd-yyyy" />
+            </DataTableColumn>
+            <DataTableColumn ID="colDepartment" Header="Department" ShowModes="rdExportExcel">
+              <Label Caption="@Data.Department~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colActivity" Header="Activity" ShowModes="rdExportExcel">
+              <Label Caption="@Data.Activity~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colActivityHours" Header="Activity Hours" ShowModes="rdExportExcel">
+              <Label Caption="@Data.ActivityHours~" />
+            </DataTableColumn>
+          </DataTable>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter />
+  <ideTestParams rptStart="" rptEnd="" />
+</Report>

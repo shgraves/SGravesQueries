@@ -1,0 +1,191 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.SplitTestReportR" SavedBy="JOMAX\ssawyer" SavedAt="10/14/2013 2:35:19 PM" EngineVersion="11.0.43">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams rptIsNew="" inputSplitID="-1" inputSplitType="2" inputStartDate="" inputEndDate="" rptIsISC="-1" chkMoreDetails="0" CacheExpTimeSpan="00:10" CacheHardExpire="23:59:59" CacheExpireNow="False" />
+  <LocalData>
+    <DataLayer Type="Cached" ID="cachedSummaryRest" CacheKey="splitSummaryRest,@Request.inputSplitType~,@Request.inputSplitID~,@Request.inputStartDate~,@Request.inputEndDate~,@Request.inputIsISC~,@Request.chkMoreDetails~" ExpirationTimeSpan="@Request.CacheExpTimeSpan~" ExpirationNow="@Request.CacheExpireNow~" ExpirationTime="@Request.CacheHardExpire~">
+      <DataLayer Type="REST" ConnectionID="connBIDataApi" UrlPath="/r.xml?id=Outputter.r&amp;parms=@Request.inputSplitID~|@Request.inputSplitType~|@Request.inputStartDate~|@Request.inputEndDate~|NULL|@Request.inputIsISC~|@Request.chkMoreDetails~" ID="dlRestAll" RemoveNamespace="True" XPath="document/row" />
+      <DataLayerLink ID="dllRData" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rowReportHeader" Class="gdReportHeader" IdeDisplayStatus="Collapsed">
+      <Row ID="rowReportTitle" Class="gdReportHeader" IdeDisplayStatus="Collapsed">
+        <Column Class="gdReportHeaderNameBI">
+          <Label Caption="Split Test Report" Class="gdReportHeaderNameBI" />
+        </Column>
+      </Row>
+      <Row ID="rowParameters" IdeDisplayStatus="Collapsed">
+        <Column Class="gdDropDown" IdeDisplayStatus="Collapsed">
+          <InputSelectList ID="inputSplitType" OptionCaptionColumn="SplitTypeText" OptionValueColumn="SplitTypeID" Caption="Split Type: " DefaultValue="@Request.inputSplitType~">
+            <DataLayer Type="Static" ID="dlSplitType">
+              <StaticDataRow SplitTypeText="Optimizely" SplitTypeID="1" />
+              <StaticDataRow SplitTypeText="GoDaddy" SplitTypeID="2" />
+              <SortFilter SortColumn="SplitTypeText" DataType="Text" SortSequence="Ascending" />
+            </DataLayer>
+            <EventHandler DhtmlEvent="onchange" ID="evtSelectSplitType">
+              <Action Type="RefreshElement" ElementID="inputSplitID" ID="reSplitID" RequestForwarding="True" />
+            </EventHandler>
+          </InputSelectList>
+          <Spaces Size="5" />
+        </Column>
+        <Column Class="gdDropDown" IdeDisplayStatus="Collapsed">
+          <InputSelectList ID="inputSplitID" OptionCaptionColumn="SplitDesc" OptionValueColumn="SplitID" Caption="Split ID: " DefaultValue="@Request.inputSplitID~" IncludeBlank="True" IncludeBlankCaption="SplitID?" IncludeBlankValue="-1">
+            <DataLayer Type="SP" Command="rptSplitList_sp" ConnectionID="connM1BIG-biLogiReporting" ID="procSplitList">
+              <SPParameters>
+                <SPParameter SPParamDirection="Input" ID="spSplitType" SPParamSize="3" SPParamType="dt-3" Value="@Request.inputSplitType~" />
+              </SPParameters>
+            </DataLayer>
+            <EventHandler DhtmlEvent="onchange" ID="evtSelectSplitID">
+              <Action Type="Process" ID="taskSplitDates" Process="splitTestTasksR" TaskID="taskGetSplitDates">
+                <WaitPage Caption="Please wait...  Loading..." />
+              </Action>
+            </EventHandler>
+          </InputSelectList>
+          <Spaces Size="5" />
+        </Column>
+        <Column Class="gdReportHeader">
+          <InputText ID="inputStartDate" Format="MM/dd/yy hh:mm tt" Caption="Start Date: " DefaultValue="@Request.inputStartDate~" InputMaxLength="17" InputSize="16px" />
+          <Spaces Size="2" />
+        </Column>
+        <Column Class="gdReportHeader">
+          <InputText ID="inputEndDate" DefaultValue="@Request.inputEndDate~" Format="MM/dd/yy hh:mm tt" Caption="End Date: " InputMaxLength="17" InputSize="16px" />
+          <Spaces Size="5" />
+        </Column>
+        <Column Class="gdReportHeader" IdeDisplayStatus="Collapsed">
+          <InputSelectList ID="inputIsISC" OptionCaptionColumn="isISCText" OptionValueColumn="isISCID" Caption="ISC/NonISC?: " DefaultValue="@Request.inputIsISC~" IdeDisplayStatus="Collapsed">
+            <DataLayer Type="Static" ID="dlisISC">
+              <StaticDataRow isISCID="-1" isISCText="ALL" />
+              <StaticDataRow isISCID="1" isISCText="ISC Traffic" />
+              <StaticDataRow isISCID="0" isISCText="NonISC Traffic" />
+              <SortFilter SortColumn="isISCText" DataType="Text" SortSequence="Ascending" />
+            </DataLayer>
+          </InputSelectList>
+          <Spaces Size="5" />
+        </Column>
+        <Column Class="gdReportHeader">
+          <InputCheckbox CheckedValue="1" ID="chkMoreDetails" DefaultValue="@Request.chkMoreDetails~" Caption="Show Details" />
+        </Column>
+      </Row>
+      <Row IdeDisplayStatus="Collapsed">
+        <Column Class="gdReportHeader">
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtCurrentReport" Report="PMG.SplitTestReportR" RequestForwarding="True" />
+              <Remark>
+                <LinkParams inputEndDate="@Ap" inputStartDate="@Input.inputStartDate~" />
+              </Remark>
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+    </Rows>
+    <LineBreak />
+    <Rows Width="100%" CellSpacing="10px">
+      <Row>
+        <Note Note="Total Visitors" />
+        <Column ColSpan="3" ID="colTotal" Width="410" WidthScale="px" Class="gdColumn">
+          <Rows Width="410" WidthScale="px" CaptionClass="gdTableHeaderVertAlignBottom">
+            <Row Class="gdReportHeaderNameBI-fill" IdeDisplayStatus="Collapsed">
+              <Column>
+                <Label Caption="Total" />
+              </Column>
+            </Row>
+            <Row>
+              <Column Class="gdRowBorder">
+                <CrosstabTable ID="ctableSplit_total" ColumnHeaderClass="gdTableHeaderVertAlignBottom" AltRowClass="gdThemeAltRowNoPadding td">
+                  <DataLayer Type="Linked" LinkedDataLayerID="dllRData" ID="totalLink">
+                    <ConditionFilter Condition="&quot;@Data.group~&quot; == &quot;total&quot;" />
+                    <CrosstabFilter CrosstabColumn="SplitSideNameAndDesc" CrosstabLabelColumn="MetricName" CrosstabValueColumn="MetricValue" CrosstabValueFunction="Any" />
+                  </DataLayer>
+                  <CrosstabTableLabelColumn ID="ctcMetricName" Header="Metric" Width="140" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.MetricName~">
+                      <ConditionalClass Class="gdTableHeaderBold" Condition="Instr(1,&quot;@Data.MetricName~&quot;,&quot;Per&quot;)=1 OR &quot;@Data.MetricName~&quot;=&quot;Incremental&quot;" />
+                      <ConditionalClass Condition="Instr(1,&quot;@Data.MetricName~&quot;,&quot;Cart Create Rate&quot;)&gt;=1 OR Instr(1,&quot;@Data.MetricName~&quot;,&quot;Checkout Rate&quot;)&gt;=1 OR Instr(1,&quot;@Data.MetricName~&quot;,&quot;Bounce Rate&quot;)&gt;=1" Class="gdPaddingLeft" />
+                    </Label>
+                  </CrosstabTableLabelColumn>
+                  <CrosstabTableValueColumns ID="ctcMetricValue" Header="@Data.rdCrosstabColumn~" Class="ThemeAlignCenter" Width="110" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.rdCrosstabValue~" Tooltip="@Data.rdCrosstabValCount~">
+                      <ConditionalClass Class="ThemeTextNegative" Condition="Left(&quot;@Data.rdCrosstabValue~&quot;,1) = &quot;-&quot;" />
+                    </Label>
+                  </CrosstabTableValueColumns>
+                </CrosstabTable>
+              </Column>
+            </Row>
+          </Rows>
+        </Column>
+        <Note Note="New Visitors" />
+        <Column ColSpan="3" ID="colNew" Width="410" WidthScale="px" Class="gdColumn">
+          <Rows Width="410" WidthScale="px" CaptionClass="gdTableHeaderVertAlignBottom">
+            <Row Class="gdReportHeaderNameBI-fill" IdeDisplayStatus="Collapsed">
+              <Column>
+                <Label Caption="New" />
+              </Column>
+            </Row>
+            <Row>
+              <Column Class="gdRowBorder">
+                <CrosstabTable ID="ctableSplit_new" ColumnHeaderClass="gdTableHeaderVertAlignBottom" AltRowClass="gdThemeAltRowNoPadding td">
+                  <DataLayer Type="Linked" LinkedDataLayerID="dllRData" IdeDisplayStatus="Collapsed" ID="newLink">
+                    <ConditionFilter Condition="&quot;@Data.group~&quot; == &quot;new&quot;" />
+                    <CrosstabFilter CrosstabColumn="SplitSideNameAndDesc" CrosstabLabelColumn="MetricName" CrosstabValueColumn="MetricValue" CrosstabValueFunction="Any" />
+                  </DataLayer>
+                  <CrosstabTableLabelColumn ID="ctcMetricName" Header="Metric" Width="140" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.MetricName~">
+                      <ConditionalClass Class="gdTableHeaderBold" Condition="Instr(1,&quot;@Data.MetricName~&quot;,&quot;Per&quot;)=1 OR &quot;@Data.MetricName~&quot;=&quot;Incremental&quot;" />
+                      <ConditionalClass Condition="Instr(1,&quot;@Data.MetricName~&quot;,&quot;Cart Create Rate&quot;)&gt;=1 OR Instr(1,&quot;@Data.MetricName~&quot;,&quot;Checkout Rate&quot;)&gt;=1 OR Instr(1,&quot;@Data.MetricName~&quot;,&quot;Bounce Rate&quot;)&gt;=1" Class="gdPaddingLeft" />
+                    </Label>
+                  </CrosstabTableLabelColumn>
+                  <CrosstabTableValueColumns ID="ctcMetricValue" Header="@Data.rdCrosstabColumn~" Class="ThemeAlignCenter" Width="110" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.rdCrosstabValue~" Tooltip="@Data.rdCrosstabValCount~">
+                      <ConditionalClass Class="ThemeTextNegative" Condition="Left(&quot;@Data.rdCrosstabValue~&quot;,1) = &quot;-&quot;" />
+                    </Label>
+                  </CrosstabTableValueColumns>
+                </CrosstabTable>
+              </Column>
+            </Row>
+          </Rows>
+        </Column>
+        <Note Note="Repeat Visitors" />
+        <Column ColSpan="3" ID="colRepeat" Width="410" WidthScale="px" Class="gdColumn">
+          <Rows Width="410" WidthScale="px" CaptionClass="gdTableHeaderVertAlignBottom">
+            <Row Class="gdReportHeaderNameBI-fill" IdeDisplayStatus="Collapsed">
+              <Column>
+                <Label Caption="Repeat" />
+              </Column>
+            </Row>
+            <Row>
+              <Column Class="gdRowBorder">
+                <CrosstabTable ID="ctableSplit_repeat" ColumnHeaderClass="gdTableHeaderVertAlignBottom" AltRowClass="gdThemeAltRowNoPadding td">
+                  <DataLayer Type="Linked" LinkedDataLayerID="dllRData" IdeDisplayStatus="Collapsed" ID="repeatLink">
+                    <ConditionFilter Condition="&quot;@Data.group~&quot; == &quot;repeat&quot;" />
+                    <CrosstabFilter CrosstabColumn="SplitSideNameAndDesc" CrosstabLabelColumn="MetricName" CrosstabValueColumn="MetricValue" CrosstabValueFunction="Any" />
+                  </DataLayer>
+                  <CrosstabTableLabelColumn ID="ctcMetricName" Header="Metric" Width="140" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.MetricName~">
+                      <ConditionalClass Class="gdTableHeaderBold" Condition="Instr(1,&quot;@Data.MetricName~&quot;,&quot;Per&quot;)=1 OR &quot;@Data.MetricName~&quot;=&quot;Incremental&quot;" />
+                      <ConditionalClass Condition="Instr(1,&quot;@Data.MetricName~&quot;,&quot;Cart Create Rate&quot;)&gt;=1 OR Instr(1,&quot;@Data.MetricName~&quot;,&quot;Checkout Rate&quot;)&gt;=1 OR Instr(1,&quot;@Data.MetricName~&quot;,&quot;Bounce Rate&quot;)&gt;=1" Class="gdPaddingLeft" />
+                    </Label>
+                  </CrosstabTableLabelColumn>
+                  <CrosstabTableValueColumns ID="ctcMetricValue" Header="@Data.rdCrosstabColumn~" Class="ThemeAlignCenter" Width="110" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.rdCrosstabValue~" Tooltip="@Data.rdCrosstabValCount~">
+                      <ConditionalClass Class="ThemeTextNegative" Condition="Left(&quot;@Data.rdCrosstabValue~&quot;,1) = &quot;-&quot;" />
+                    </Label>
+                  </CrosstabTableValueColumns>
+                </CrosstabTable>
+              </Column>
+            </Row>
+          </Rows>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <Division Class="ThemeAlignCenter">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams inputSplitType="" inputSplitID="" inputStartDate="" inputEndDate="" inputIsISC="" chkMoreDetails="" CacheExpTimeSpan="" CacheHardExpire="" CacheExpireNow="" />
+</Report>

@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.WSBCancelTrends" SavedBy="JOMAX\bcsmith" SavedAt="8/19/2013 12:31:50 PM" EngineVersion="11.0.43" SecurityReportRightID="LogiCT">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams rptNDay="28" rptRollingDay="7" />
+  <LocalData ID="ldWSBChartData">
+    <DataLayer Type="Cached" CacheKey="dlNDayCached,@Request.rptNDay~,@Request.rptRollingDay~" ID="cachedlNDay" ExpirationTimeSpan="01:00">
+      <DataLayer Type="SP" ID="dlNDay" ConnectionID="connM1BIG-biLogiReporting" Command="BiLogiReporting.dbo.rptWSBVersionGet_sp">
+        <SPParameters>
+          <SPParameter SPParamDirection="Input" ID="@RollingDays" SPParamType="dt-3" SPParamSize="0" Value="@Request.rptRollingDay~" />
+          <SPParameter SPParamDirection="Input" ID="@NDays" SPParamType="dt-3" SPParamSize="0" Value="@Request.rptNDay~" />
+        </SPParameters>
+        <DataLayerLink ID="rptNDay" />
+      </DataLayer>
+    </DataLayer>
+    <Remark>
+      <DataLayer Type="SQL" ConnectionID="connM1BIG-biLogiReporting" ID="dlNDay" Source="declare @RollingDays int = @Request.rptRollingDay~;&#xD;&#xA;declare @NDays int = @Request.rptNDay~;&#xD;&#xA;&#xD;&#xA;with PublishCancel as (&#xD;&#xA;select createdate,&#xD;&#xA;sum(plans) as totalPlans,&#xD;&#xA;sum(case when isv7 = 1 then plans end) as plansV7,&#xD;&#xA;sum(case when isv7 = 1 and cancelDays &lt; @NDays then plans end) as cancelsV7_NDay,&#xD;&#xA;sum(case when isv7 = 1 and publishDays &lt; @NDays then plans end) as publishesV7_NDay,&#xD;&#xA;sum(case when isv7 = 0 then plans end) as plansV6,&#xD;&#xA;sum(case when isv7 = 0 and cancelDays &lt; @NDays then plans end) as cancelsV6_NDay,&#xD;&#xA;sum(case when isv7 = 0 and publishDays &lt; @NDays then plans end) as publishesV6_NDay,&#xD;&#xA;sum(case when isv7 is null then plans end) as plansUnknown,&#xD;&#xA;sum(case when isv7 is null or activateDays &gt;= @NDays then plans end) as notActivated_NDay&#xD;&#xA;from pmgholdings.dbo.bcsmith_wsbplanmart_20130901 wsb&#xD;&#xA;group by createdate&#xD;&#xA;)&#xD;&#xA;select pc.createdate, &#xD;&#xA;sum(pc7.plansV7) as plansV7,&#xD;&#xA;sum(pc7.plansV6) as plansV6,&#xD;&#xA;sum(pc7.plansUnknown) as plansUnknown,&#xD;&#xA;sum(cast(pc7.notActivated_NDay as decimal(18,4))) / sum(pc7.totalPlans)  as UnknownRate,&#xD;&#xA;sum(cast(pc7.cancelsV7_NDay as decimal(18 , 4))) / sum(pc7.plansV7) as V7_CancelRate,&#xD;&#xA;sum(cast(pc7.cancelsV6_NDay as decimal(18 , 4))) / sum(pc7.plansV6) as V6_CancelRate,&#xD;&#xA;sum(cast(pc7.publishesV7_NDay as decimal(18 , 4))) / sum(pc7.plansV7) as V7_PublishRate,&#xD;&#xA;sum(cast(pc7.publishesV6_NDay as decimal(18 , 4))) / sum(pc7.plansV6) as V6_PublishRate&#xD;&#xA;from PublishCancel pc&#xD;&#xA;join PublishCancel pc7 on pc7.createdate &gt;= dateadd(day, -@RollingDays + 1, pc.createdate) and pc7.createdate &lt;= pc.createdate&#xD;&#xA;where pc.createdate &gt;= (select dateadd(day, @RollingDays - 1, min(createdate)) from PublishCancel) &#xD;&#xA;and pc.createdate &lt; (select dateadd(day, -@NDays, max(createdate)) from PublishCancel)&#xD;&#xA;group by pc.createdate&#xD;&#xA;ORDER BY 1&#xD;&#xA;option (maxdop 1);">
+        <DataLayerLink ID="rptNDay" />
+      </DataLayer>
+    </Remark>
+  </LocalData>
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <Rows Class="gdDefaultRowBground">
+      <Row ID="rowTitle">
+        <Column ID="colHeader">
+          <Label Class="gdReportHeaderNameBI" Caption="WSB V7 vs V6" />
+          <LineBreak LineCount="2" />
+          <Spaces Size="3" />
+          <InputSelectList ID="rptNDay" OptionCaptionColumn="rptNDay" OptionValueColumn="rptNDay" IncludeBlankCaption="N Day Rates:" IncludeBlank="True" DefaultValue="@Request.rptNDay~" IdeDisplayStatus="Collapsed" Caption="N Day Rates:  ">
+            <DataLayer Type="Static" ID="dlrptNDay">
+              <StaticDataRow rptNDay="1" />
+              <StaticDataRow rptNDay="7" />
+              <StaticDataRow rptNDay="14" />
+              <StaticDataRow rptNDay="28" />
+              <StaticDataRow rptNDay="35" />
+              <StaticDataRow rptNDay="42" />
+              <StaticDataRow rptNDay="49" />
+              <StaticDataRow rptNDay="56" />
+              <SortFilter SortColumn="rptNDay" DataType="Number" SortSequence="Ascending" />
+            </DataLayer>
+          </InputSelectList>
+          <Spaces Size="3" />
+          <InputSelectList ID="rptRollingDay" OptionCaptionColumn="RollingOrDaily" OptionValueColumn="rptRollingDay" DefaultValue="@Request.rptRollingDay~" Caption="Daily/Rolling?  ">
+            <DataLayer Type="Static" ID="dlrptRollingDay">
+              <StaticDataRow rptRollingDay="1" RollingOrDaily="Daily" />
+              <StaticDataRow rptRollingDay="7" RollingOrDaily="Rolling 7" />
+              <SortFilter SortColumn="RollingOrDaily" DataType="Text" SortSequence="Ascending" />
+            </DataLayer>
+          </InputSelectList>
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtCurrentReport" Report="PMG.WSBCancelTrends" RequestForwarding="True" />
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+      <Row ID="rowOne">
+        <Column ID="colNumPlans" Class="ThemeAlignTop">
+          <Division ID="divNumPlans">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colTitle" Class="ThemeAlignCenter" Width="400">
+                  <Label Caption="Plans Created" Class="gdTableHeader, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row ID="rowChart">
+                <Column ID="colChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divChart">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="plansV7" ChartHeight="260" ChartWidth="380" ChartLabelColumn="createdate" XAxisTitle="Create Date" ChartLabelColumnDataType="Date" LegendLabel="V7" Color="#C50000" GridHorizontalColor="#f2f2f2" GridVerticalColor="#f2f2f2" BorderColor="Transparent" ID="chtNumPlans" BackgroundColor="White" LineStyle="SolidLine" LineWidth="2" BorderTop="10" BorderRight="10">
+                      <DataLayer Type="Linked" ID="dl14Day_Linked1" LinkedDataLayerID="rptNDay" />
+                      <ExtraXYDataColumn ChartDataColumn="plansV6" LegendLabel="V6" Color="#002BC5">
+                        <Quicktip>
+                          <QuicktipRow Value="@Chart.createdate~" Caption="Date: " Format="Short Date" Alignment="Left" />
+                          <QuicktipRow Value="@Chart.plansV6~" Caption="V6: " Format="###,###,##0" />
+                        </Quicktip>
+                        <Quicktip />
+                      </ExtraXYDataColumn>
+                      <ExtraXYDataColumn ChartDataColumn="plansUnknown" Color="#888888" LegendLabel="Unknown">
+                        <Quicktip>
+                          <QuicktipRow Value="@Chart.createdate~" Caption="Date: " Format="Short Date" Alignment="Left" />
+                          <QuicktipRow Value="@Chart.plansUnknown~" Caption="Unknown: " Format="###,###,##0" />
+                        </Quicktip>
+                      </ExtraXYDataColumn>
+                      <DataScale Format="###,###,##0" />
+                      <LabelScale Format="MM/dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontColor="Black" FontSize="8" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="50" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <FontXAxisTitle FontSize="8" />
+                      <ZoomChart Location="None" />
+                      <Quicktip>
+                        <QuicktipRow Value="@Chart.createdate~" Caption="Date: " Format="Short Date" Alignment="Left" />
+                        <QuicktipRow Value="@Chart.plansV7~" Caption="V7: " Format="###,###,##0" />
+                      </Quicktip>
+                    </Chart>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+        <Column ID="colCancelRate" Class="ThemeAlignTop" IdeDisplayStatus="Collapsed">
+          <Division ID="divCancelRate">
+            <Rows>
+              <Row ID="Titles" IdeDisplayStatus="Collapsed">
+                <Column ID="colTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="Cancel Rate" Class="gdTableHeader, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row ID="rowChart">
+                <Column ID="colChart" Width="400" Class="gdColumnCell">
+                  <Division ID="divChart">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="V7_CancelRate" ChartHeight="260" ChartWidth="380" ChartLabelColumn="createdate" XAxisTitle="Create Date" ChartLabelColumnDataType="Date" LegendLabel="V7" Color="#C50000" GridHorizontalColor="#f2f2f2" GridVerticalColor="#f2f2f2" BorderColor="Transparent" ID="chtCancelRate" BackgroundColor="White" LineStyle="SolidLine" LineWidth="2" BorderRight="10" BorderTop="10">
+                      <DataLayer Type="Linked" ID="dl14Day_Linked1" LinkedDataLayerID="rptNDay" />
+                      <ExtraXYDataColumn ChartDataColumn="V6_CancelRate" LegendLabel="V6" Color="#002BC5" />
+                      <DataScale Format="#0%" />
+                      <LabelScale Format="MM/dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontColor="Black" FontSize="8" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="130" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <FontXAxisTitle FontSize="8" />
+                      <ZoomChart Location="None" />
+                    </Chart>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+      </Row>
+      <Row ID="rowTwo" IdeDisplayStatus="Collapsed">
+        <Column ID="colPublishRate" Class="ThemeAlignTop">
+          <Division ID="divPublishRate">
+            <Rows>
+              <Row ID="Titles" IdeDisplayStatus="Collapsed">
+                <Column ID="colTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="Publish Rate" Class="gdTableHeader, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row ID="rowChart">
+                <Column ID="colChart" Width="400" Class="gdColumnCell">
+                  <Division ID="divChart">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="V7_PublishRate" ChartHeight="260" ChartWidth="380" ChartLabelColumn="createdate" XAxisTitle="Create Date" ChartLabelColumnDataType="Date" LegendLabel="V7" Color="#C50000" GridHorizontalColor="#f2f2f2" GridVerticalColor="#f2f2f2" BorderColor="Transparent" ID="chtPublishRate" BackgroundColor="White" LineStyle="SolidLine" LineWidth="2" BorderRight="10" BorderTop="10">
+                      <DataLayer Type="Linked" ID="dl14Day_Linked1" LinkedDataLayerID="rptNDay" />
+                      <ExtraXYDataColumn ChartDataColumn="V6_PublishRate" LegendLabel="V6" Color="#002BC5" />
+                      <DataScale Format="#0%" />
+                      <LabelScale Format="MM/dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontColor="Black" FontSize="8" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="130" LegendOrientation="Horizontal" IdeDisplayStatus="Collapsed">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <FontXAxisTitle FontSize="8" />
+                      <ZoomChart Location="None" />
+                    </Chart>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+        <Column ID="colNotActivated" Class="ThemeAlignTop" IdeDisplayStatus="Collapsed">
+          <Division ID="divNoActivated">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="% Not Activated" Class="gdTableHeader, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row ID="rowChart">
+                <Column ID="colChart" Width="400" Class="gdColumnCell">
+                  <Division ID="divChart">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="UnknownRate" ChartHeight="260" ChartWidth="380" ChartLabelColumn="createdate" XAxisTitle="Create Date" ChartLabelColumnDataType="Date" LegendLabel="V7" Color="#888888" GridHorizontalColor="#f2f2f2" GridVerticalColor="#f2f2f2" BorderColor="Transparent" ID="chtNotActivated" BackgroundColor="White" LineStyle="SolidLine" LineWidth="2" BorderTop="10" BorderRight="10">
+                      <DataLayer Type="Linked" ID="dl14Day_Linked1" LinkedDataLayerID="rptNDay" />
+                      <DataScale Format="#0%" />
+                      <LabelScale Format="MM/dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontColor="Black" FontSize="8" />
+                      <FontXAxisTitle FontSize="8" />
+                      <ZoomChart Location="None" />
+                    </Chart>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <Remark>
+      <Division IdeDisplayStatus="Collapsed">
+        <Remark>
+          <HR />
+        </Remark>
+        <Remark>
+          <LineBreak />
+        </Remark>
+      </Division>
+    </Remark>
+  </Body>
+  <ReportFooter>
+    <Division Class="ThemeAlignCenter">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams rptNDay="" rptRollingDay="" />
+</Report>

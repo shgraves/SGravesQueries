@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.IndiaC3Reporting.AdHocOrders" SavedBy="JOMAX\vyancey" SavedAt="12/16/2013 11:10:07 AM" EngineVersion="11.0.43">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams rptEndDate="@Date.Today~" rdAgRefreshData="True" CampaignName="All" />
+  <DefaultRequestParams rptStartDate="=DateAdd(&quot;d&quot;,-30,&quot;@Request.rptEndDate~&quot;)" />
+  <LocalData>
+    <DataLayer Type="Cached" ID="dlIndiaOutboundMetrics.Cached" ExpirationNow="False" CacheKey="@Request.rdReport~,@Request.rptStartDate~,@Request.rptEndDate~,@Request.CampaignName~" ExpirationTimeSpan="04:00">
+      <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;USE goDaddyCalls&#xD;&#xA;&#xD;&#xA;DECLARE @StartDate datetime = '@Request.rptStartDate~',&#xD;&#xA;		@EndDate datetime = '@Request.rptEndDate~'&#xD;&#xA;&#xD;&#xA;DECLARE @IndianOffSetMinutes Int &#xD;&#xA;SELECT @IndianOffSetMinutes =( 12 * 60 + 30)&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#tasks') IS NOT NULL DROP TABLE #tasks;&#xD;&#xA;CREATE TABLE #tasks (crm_callHeaderAuditID int, crm_callHeaderID int, crm_ActivityTypeID int, CreateDate datetime, IndiaDate datetime&#xD;&#xA;					 ,Manager_userID int, TaskActionID int, Shopper_id varchar(10)) &#xD;&#xA;INSERT INTO #tasks				 &#xD;&#xA;SELECT crm_callHeaderAuditID&#xD;&#xA;		  ,crm_callHeaderID&#xD;&#xA;		  ,crm_ActivityTypeID&#xD;&#xA;		  ,cha.CreateDate&#xD;&#xA;		  ,DATEADD(minute,@IndianOffSetMinutes, cha.createDate)  AS IndiaDate		  &#xD;&#xA;		  ,Manager_UserID&#xD;&#xA;		  ,TaskActionID&#xD;&#xA;		  ,Shopper_id&#xD;&#xA;FROM	dbo.rptGenpactCallHeaderAudit  cha&#xD;&#xA;WHERE	cha.createDate &gt; = DATEADD(minute, -@IndianOffSetMinutes, @StartDate) &#xD;&#xA;AND		cha.createDate &lt;  DATEADD(minute, -@IndianOffSetMinutes, @EndDate) &#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#taskActions') IS NOT NULL DROP TABLE #taskActions;  &#xD;&#xA;CREATE TABLE #taskActions (TaskActionID int,TaskActionDescription varchar(50), isContact int, isVoicemail int, isWorked int)&#xD;&#xA;INSERT INTO #taskActions VALUES &#xD;&#xA;(1,	'ContactedCustomer', 1, 0, 1) ,&#xD;&#xA;(2,	'PhoneMessage', 0, 1, 1) , &#xD;&#xA;(6,	'CustomerUnavailable', 0, 0, 1) ,&#xD;&#xA;(7,	'PhoneBusy', 0, 0, 1) ,&#xD;&#xA;(8,	'CancelTask', 0, 0, 0) ,&#xD;&#xA;(11,'DeclinedToProcess', 0, 0, 1) ,&#xD;&#xA;(14,'InvalidContactInformation', 0, 0, 1) ,&#xD;&#xA;(41,'Automated Voicemail', 0, 1, 1) ,&#xD;&#xA;(43,'Reschedule', 0, 0, 0) &#xD;&#xA;&#xD;&#xA;--Get the orders related to contacts, ranking so that I can limit to the closest contact in timing&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#orderRankings') IS NOT NULL DROP TABLE #orderRankings;&#xD;&#xA;CREATE TABLE #orderRankings (crm_callHeaderAuditID int, Order_id varchar(20), row_id int, pf_id int, point_of_purchase_ID int&#xD;&#xA;				,  order_Date datetime, createDate datetime, TimingOffsetRank int&#xD;&#xA;				,  Sales money) &#xD;&#xA;INSERT INTO #orderRankings&#xD;&#xA;SELECT  crm_callHeaderAuditID, Order_id, row_id, pf_id, point_of_purchase_ID,  order_Date&#xD;&#xA;		, t.createDate&#xD;&#xA;		,DENSE_RANK() OVER (PARTITION BY Order_id, Row_id ORDER BY ABS(DATEDIFF(second,order_Date,t.createDate)) ASC) AS TimingOffsetRank&#xD;&#xA;		, adjusted_price * .01&#xD;&#xA;FROM    #tasks t &#xD;&#xA;JOIN	BigReporting.dbo.rptorderdetail rod ON t.Shopper_id = rod.Shopper_id&#xD;&#xA;				AND rod.order_date &gt; = DATEADD(hour,-2,t.createDate)&#xD;&#xA;				AND rod.order_date &lt; DATEADD(hour,24,t.CreateDate)&#xD;&#xA;JOIN	#taskActions ta ON t.TaskActionID = ta.TaskActionID	&#xD;&#xA;				AND ta.isContact = 1			&#xD;&#xA;WHERE	rod.point_of_purchase_id IN (1,3)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT  DATEADD(D,(DATEDIFF(d,-1,t.IndiaDate)),-1) as IndiaDate&#xD;&#xA;		,cmp.Name as CampaignName&#xD;&#xA;		,mu.Name&#xD;&#xA;		,t.shopper_id&#xD;&#xA;		,ork.order_id&#xD;&#xA;		,ork.Sales&#xD;&#xA;		,CASE WHEN dp.PnL_New_Renewal = 'New Purchase' THEN Sales ELSE 0 END AS newSales&#xD;&#xA;		,dp.PnL_Group&#xD;&#xA;		,dp.PnL_Category&#xD;&#xA;		,dp.PnL_Line&#xD;&#xA;		,dp.PnL_SubLine&#xD;&#xA;FROM    #tasks t&#xD;&#xA;JOIN		dbo.rptDimC3Campaign cmp ON t.crm_ActivityTypeID = cmp.C3CampaignID&#xD;&#xA;JOIN		#taskActions ta ON t.TaskActionID = ta.TaskActionID&#xD;&#xA;JOIN		#orderRankings ork ON t.crm_callHeaderAuditID = ork.crm_callHeaderAuditID&#xD;&#xA;				AND ork.TimingOffsetRank = 1&#xD;&#xA;JOIN		dmstaging.dbo.dim_product dp ON ork.pf_id = dp.pf_id	&#xD;&#xA;JOIN		gdreportStaging.dbo.manager_users mu ON t.Manager_userID = mu.ID&#xD;&#xA;				AND AccountTypeID &lt;&gt; 1&#xD;&#xA;WHERE (cmp.Name = '@Request.CampaignName~' OR '@Request.CampaignName~' = 'All')" ID="dlIndiaOutboundMetrics" ConnectionID="connM1BIG-biLogiReporting" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <Rows Class="gdDefaultRowBground" ID="ReportTitle">
+      <Row Class="gdReportHeader" ID="rowReportTitle">
+        <Column ID="colHeader" ColSpan="3">
+          <IncludeSharedElement DefinitionFile="SharedElements.C3IndiaNavigation" SharedElementID="C3IndiaNavigation" />
+          <LineBreak LineCount="2" />
+          <Label Caption="India Outbound Sales - Ad Hoc Sales" Class="gdReportHeaderNameBI" />
+          <LineBreak LineCount="2" />
+          <Spaces Size="3" />
+          <InputDate ID="rptStartDate" Caption="Start Date:" DefaultValue="@Request.rptStartDate~" CaptionClass="rdAlternateTextColorWhite" IdeDisplayStatus="Collapsed">
+            <InputDateCalendar ID="calStartDate" />
+          </InputDate>
+          <Spaces Size="3" />
+          <InputDate ID="rptEndDate" Caption="End Date:" DefaultValue="@Request.rptEndDate~" CaptionClass="rdAlternateTextColorWhite" IdeDisplayStatus="Collapsed">
+            <InputDateCalendar ID="calEndDate" />
+          </InputDate>
+          <Spaces Size="3" />
+          <InputSelectList ID="CampaignName" OptionValueColumn="Name" OptionCaptionColumn="Name" DefaultValue="@Request.CampaignName~" IncludeBlank="True" IncludeBlankCaption="All" IncludeBlankValue="All" Caption="Campaign:" IdeDisplayStatus="Collapsed">
+            <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;USE goDaddyCalls&#xD;&#xA;&#xD;&#xA;DECLARE @StartDate datetime = '@Request.rptStartDate~',&#xD;&#xA;		@EndDate datetime = '@Request.rptEndDate~'&#xD;&#xA;		&#xD;&#xA;DECLARE @IndianOffSetMinutes Int SELECT @IndianOffSetMinutes =( 12 * 60 + 30)&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#tasks') IS NOT NULL DROP TABLE #tasks;&#xD;&#xA;CREATE TABLE #tasks (crm_callHeaderAuditID int, crm_callHeaderID int, crm_ActivityTypeID int, CreateDate datetime, IndiaDate datetime&#xD;&#xA;					 ,Manager_userID int, TaskActionID int, Shopper_id varchar(10)) &#xD;&#xA;INSERT INTO #tasks				 &#xD;&#xA;SELECT crm_callHeaderAuditID&#xD;&#xA;		  ,crm_callHeaderID&#xD;&#xA;		  ,crm_ActivityTypeID&#xD;&#xA;		  ,cha.CreateDate&#xD;&#xA;		  ,DATEADD(minute,@IndianOffSetMinutes, cha.createDate)  AS IndiaDate		  &#xD;&#xA;		  ,Manager_UserID&#xD;&#xA;		  ,TaskActionID&#xD;&#xA;		  ,Shopper_id&#xD;&#xA;FROM	dbo.rptGenpactCallHeaderAudit  cha&#xD;&#xA;WHERE	cha.createDate &gt; = DATEADD(minute, -@IndianOffSetMinutes, @StartDate) &#xD;&#xA;AND		cha.createDate &lt;  DATEADD(minute, -@IndianOffSetMinutes, @EndDate) &#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT  DISTINCT cmp.Name &#xD;&#xA;FROM    #tasks t&#xD;&#xA;JOIN	dbo.rptDimC3Campaign cmp ON t.crm_ActivityTypeID = cmp.C3CampaignID&#xD;&#xA;ORDER BY cmp.Name " ID="dlCampaignName" ConnectionID="connM1BIG-biLogiReporting" />
+          </InputSelectList>
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit" IdeDisplayStatus="Collapsed">
+            <Action Type="Report" ID="actSubmitReport">
+              <LinkParams rdAgRefreshData="True" />
+              <Target Type="Report" ID="tgtCurrentReport" Report="PMG.IndiaC3Reporting.AdHocOrders" RequestForwarding="True">
+                <WaitPage Caption="Updating Data..." />
+              </Target>
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+      <Row ID="rowOne">
+        <Column ID="colIndiaOutboundOrders">
+          <Division ID="divIndiaOutboundOrders">
+            <AnalysisGrid ID="agIndiaOutboundOrders" DraggableColumns="True" AjaxPaging="True">
+              <DataLayer Type="Cached" ID="dlIndiaOutboundMetrics.Cached" ExpirationNow="False" CacheKey="@Request.rdReport~,@Request.rptStartDate~,@Request.rptEndDate~,@Request.CampaignName~" ExpirationTimeSpan="04:00">
+                <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;USE goDaddyCalls&#xD;&#xA;&#xD;&#xA;DECLARE @StartDate datetime = '@Request.rptStartDate~',&#xD;&#xA;		@EndDate datetime = '@Request.rptEndDate~'&#xD;&#xA;&#xD;&#xA;DECLARE @IndianOffSetMinutes Int &#xD;&#xA;SELECT @IndianOffSetMinutes =( 12 * 60 + 30)&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#tasks') IS NOT NULL DROP TABLE #tasks;&#xD;&#xA;CREATE TABLE #tasks (crm_callHeaderAuditID int, crm_callHeaderID int, crm_ActivityTypeID int, CreateDate datetime, IndiaDate datetime&#xD;&#xA;					 ,Manager_userID int, TaskActionID int, Shopper_id varchar(10)) &#xD;&#xA;INSERT INTO #tasks				 &#xD;&#xA;SELECT crm_callHeaderAuditID&#xD;&#xA;		  ,crm_callHeaderID&#xD;&#xA;		  ,crm_ActivityTypeID&#xD;&#xA;		  ,cha.CreateDate&#xD;&#xA;		  ,DATEADD(minute,@IndianOffSetMinutes, cha.createDate)  AS IndiaDate		  &#xD;&#xA;		  ,Manager_UserID&#xD;&#xA;		  ,TaskActionID&#xD;&#xA;		  ,Shopper_id&#xD;&#xA;FROM	dbo.rptGenpactCallHeaderAudit  cha&#xD;&#xA;WHERE	cha.createDate &gt; = DATEADD(minute, -@IndianOffSetMinutes, @StartDate) &#xD;&#xA;AND		cha.createDate &lt;  DATEADD(minute, -@IndianOffSetMinutes, @EndDate) &#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#taskActions') IS NOT NULL DROP TABLE #taskActions;  &#xD;&#xA;CREATE TABLE #taskActions (TaskActionID int,TaskActionDescription varchar(50), isContact int, isVoicemail int, isWorked int)&#xD;&#xA;INSERT INTO #taskActions VALUES &#xD;&#xA;(1,	'ContactedCustomer', 1, 0, 1) ,&#xD;&#xA;(2,	'PhoneMessage', 0, 1, 1) , &#xD;&#xA;(6,	'CustomerUnavailable', 0, 0, 1) ,&#xD;&#xA;(7,	'PhoneBusy', 0, 0, 1) ,&#xD;&#xA;(8,	'CancelTask', 0, 0, 0) ,&#xD;&#xA;(11,'DeclinedToProcess', 0, 0, 1) ,&#xD;&#xA;(14,'InvalidContactInformation', 0, 0, 1) ,&#xD;&#xA;(41,'Automated Voicemail', 0, 1, 1) ,&#xD;&#xA;(43,'Reschedule', 0, 0, 0) &#xD;&#xA;&#xD;&#xA;--Get the orders related to contacts, ranking so that I can limit to the closest contact in timing&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#orderRankings') IS NOT NULL DROP TABLE #orderRankings;&#xD;&#xA;CREATE TABLE #orderRankings (crm_callHeaderAuditID int, Order_id varchar(20), row_id int, pf_id int, point_of_purchase_ID int&#xD;&#xA;				,  order_Date datetime, createDate datetime, TimingOffsetRank int&#xD;&#xA;				,  Sales money) &#xD;&#xA;INSERT INTO #orderRankings&#xD;&#xA;SELECT  crm_callHeaderAuditID, Order_id, row_id, pf_id, point_of_purchase_ID,  order_Date&#xD;&#xA;		, t.createDate&#xD;&#xA;		,DENSE_RANK() OVER (PARTITION BY Order_id, Row_id ORDER BY ABS(DATEDIFF(second,order_Date,t.createDate)) ASC) AS TimingOffsetRank&#xD;&#xA;		, adjusted_price * .01&#xD;&#xA;FROM    #tasks t &#xD;&#xA;JOIN	BigReporting.dbo.rptorderdetail rod ON t.Shopper_id = rod.Shopper_id&#xD;&#xA;				AND rod.order_date &gt; = DATEADD(hour,-2,t.createDate)&#xD;&#xA;				AND rod.order_date &lt; DATEADD(hour,24,t.CreateDate)&#xD;&#xA;JOIN	#taskActions ta ON t.TaskActionID = ta.TaskActionID	&#xD;&#xA;				AND ta.isContact = 1			&#xD;&#xA;WHERE	rod.point_of_purchase_id IN (1,3)&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT  DATEADD(D,(DATEDIFF(d,-1,t.IndiaDate)),-1) as IndiaDate&#xD;&#xA;		,cmp.Name as CampaignName&#xD;&#xA;		,mu.Name&#xD;&#xA;		,t.shopper_id&#xD;&#xA;		,ork.order_id&#xD;&#xA;		,ork.Sales&#xD;&#xA;		,CASE WHEN dp.PnL_New_Renewal = 'New Purchase' THEN Sales ELSE 0 END AS newSales&#xD;&#xA;		,dp.PnL_Group&#xD;&#xA;		,dp.PnL_Category&#xD;&#xA;		,dp.PnL_Line&#xD;&#xA;		,dp.PnL_SubLine&#xD;&#xA;FROM    #tasks t&#xD;&#xA;JOIN		dbo.rptDimC3Campaign cmp ON t.crm_ActivityTypeID = cmp.C3CampaignID&#xD;&#xA;JOIN		#taskActions ta ON t.TaskActionID = ta.TaskActionID&#xD;&#xA;JOIN		#orderRankings ork ON t.crm_callHeaderAuditID = ork.crm_callHeaderAuditID&#xD;&#xA;				AND ork.TimingOffsetRank = 1&#xD;&#xA;JOIN		dmstaging.dbo.dim_product dp ON ork.pf_id = dp.pf_id	&#xD;&#xA;JOIN		gdreportStaging.dbo.manager_users mu ON t.Manager_userID = mu.ID&#xD;&#xA;				AND AccountTypeID &lt;&gt; 1&#xD;&#xA;WHERE (cmp.Name = '@Request.CampaignName~' OR '@Request.CampaignName~' = 'All')" ID="dlIndiaOutboundMetrics" ConnectionID="connM1BIG-biLogiReporting" />
+              </DataLayer>
+              <AnalysisGridColumn DataColumn="IndiaDate" DataType="Date" Header="Date" ID="agcDate" Format="Short Date" ColumnVisible="True" />
+              <AnalysisGridColumn Header="Campaign" DataColumn="CampaignName" DataType="Text" ID="agcCampaignName" ColumnVisible="True" />
+              <AnalysisGridColumn Header="Rep Name" DataColumn="Name" DataType="Text" ID="agcRepName" ColumnVisible="True" />
+              <AnalysisGridColumn Header="Shopper ID" DataColumn="shopper_id" DataType="Text" ID="agcShopperID" ColumnVisible="True" />
+              <AnalysisGridColumn Header="Order ID" DataColumn="order_id" DataType="Text" ID="agcOrderID" ColumnVisible="True" />
+              <AnalysisGridColumn Header="Sales" DataColumn="Sales" DataType="Number" ID="agcSales" ColumnVisible="True" Format="Currency" />
+              <AnalysisGridColumn Header="New Sales" DataColumn="newSales" DataType="Number" ID="agcNewSales" ColumnVisible="True" Format="Currency" />
+              <AnalysisGridColumn Header="PnL Group" DataColumn="PnL_Group" DataType="Text" ID="agcPnLGroup" ColumnVisible="True" />
+              <AnalysisGridColumn Header="PnL Category" DataColumn="PnL_Category" DataType="Text" ID="agcPnLCategory" ColumnVisible="True" />
+              <AnalysisGridColumn Header="PnL Line" DataColumn="PnL_Line" DataType="Text" ID="agcPnLLine" ColumnVisible="True" />
+              <AnalysisGridColumn Header="PnL SubLine" DataColumn="PnL_SubLine" DataType="Text" ID="agcPnLSubLine" ColumnVisible="True" />
+            </AnalysisGrid>
+          </Division>
+          <Label Caption="Save Bookmark" ID="lblSaveBookmark">
+            <Action Type="AddBookmark" BookmarkCollection="IndiaOutboundOrders" ID="IndiaOutboundOrders" BookmarkDescriptionMessage="Enter Bookmark Name: " BookmarkName="@Request.rdReport~" BookmarkSessionIDs="agIndiaOutboundOrders">
+              <Action Type="RefreshElement" ElementID="dtDefaultBookmarks" ID="actRefreshBookmarks" />
+            </Action>
+          </Label>
+          <Spaces Size="1" />
+          <Label Caption="|" />
+          <Spaces Size="1" />
+          <Label Caption="Manage Bookmarks" ID="lblManageBookmarks">
+            <Action Type="ShowElement" ElementID="divBookmarks" ID="actShowBookmarks" Display="Toggle" />
+          </Label>
+          <LineBreak LineCount="2" />
+          <Division ID="divBookmarks" ShowModes="None" Class="gdDefaultDivision">
+            <DataTable ID="dtDefaultBookmarks" CellSpacing="7px" AjaxPaging="True" AltRowClass="gdThemeAltRowNoPadding td">
+              <DataLayer Type="Bookmarks" BookmarkCollection="IndiaOutboundOrders" ID="dLDefaultBookmarks" />
+              <DataTableColumn ID="colReport" Header="Report">
+                <Label ID="lblReport" Caption="@Data.Report~" />
+                <DataColumnSort DataColumn="Report" />
+              </DataTableColumn>
+              <DataTableColumn ID="colDescription" Header="Bookmark">
+                <Label ID="lblDescription" Caption="@Data.Description~">
+                  <Action Type="RunBookmark" BookmarkCollection="IndiaOutboundOrders" BookmarkID="@Data.BookmarkID~" ID="actRunBookmark" />
+                </Label>
+                <DataColumnSort DataColumn="Description" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSaveTime" Header="Saved">
+                <Label ID="lblSaveTime" Caption="@Data.SaveTime~" Format="Short Date" />
+                <DataColumnSort DataColumn="SaveTime" DataType="Date" />
+              </DataTableColumn>
+              <DataTableColumn ID="colActions" Header="Actions">
+                <Label Caption="Rename">
+                  <Action Type="EditBookmark" ID="actEditBookmark" BookmarkID="@Data.BookmarkID~" BookmarkCollection="IndiaOutboundOrders" BookmarkDescriptionMessage="Enter Bookmark Name: " BookmarkDescription="@Data.Description~">
+                    <Action Type="RefreshElement" ElementID="dtDefaultBookmarks" ID="actRefreshBookmarks" />
+                  </Action>
+                </Label>
+                <Spaces Size="1" />
+                <Label Caption="|" />
+                <Spaces Size="1" />
+                <Label Caption="Delete">
+                  <Action Type="RemoveBookmark" BookmarkCollection="IndiaOutboundOrders" BookmarkID="@Data.BookmarkID~" ID="actRemoveBookmark">
+                    <Action Type="RefreshElement" ElementID="dtDefaultBookmarks" ID="actRefreshBookmarks" />
+                  </Action>
+                </Label>
+                <DataColumnSort DataColumn="SaveTime" DataType="Date" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter />
+  <ideTestParams rptEndDate="" rptStartDate="" CampaignName="" />
+</Report>

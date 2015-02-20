@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Reports.Cubes.IrisCubeViewer" SavedBy="JOMAX\dezell" SavedAt="7/26/2013 9:50:56 AM" EngineVersion="11.0.43" Caption="Iris Cube Viewer" SecurityReportRightID="LogiC3Sups">
+  <StyleSheet StyleSheet="ERHubTheme.css" ID="cssGD" />
+  <ReportHeader IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeader" SharedElementID="sharedHeader" ID="seHeader" />
+  </ReportHeader>
+  <Body>
+    <Division ID="divIrisCube">
+      <OlapGrid ID="olapIrisGrid" BatchSelection="True" Caption="IRIS Cube" DrilldownAll="True" LevelIndent="15" OlapCellColors="True" PickMemberProperties="True" SavedOlapGridFolder="@Function.AppPhysicalPath~\SavedOlapGrids" ShowDimensionAttributes="True">
+        <DataLayer Type="OlapMdx" ConnectionID="connOlapIris" ID="dlIrisCube" HandleQuotesInTokens="True">
+          <MdxQuery ID="mdxQueryIris" NonEmpty="True" Cube="C3IRIS" />
+        </DataLayer>
+        <OlapDimensionPanel GroupByHierarchy="True" />
+      </OlapGrid>
+    </Division>
+    <Division ID="divSaveMenu" ShowModes="rdBrowser">
+      <LineBreak />
+      <Label Caption="Reset Cube View" ID="lblReset" Class="gdTextNormalWhiteLarger" IdeDisplayStatus="Collapsed">
+        <Action Type="Report" ID="actRestart">
+          <Target Type="Report" ID="tgtRestart" />
+          <LinkParams rdOgReset="True" />
+        </Action>
+      </Label>
+      <Spaces />
+      <Label Caption=" | " ID="lblDividerBar" Class="gdTextNormalWhiteLarger" />
+      <Spaces />
+      <Label Caption="Save Cube View" ID="lblSave" Class="gdTextNormalWhiteLarger" IdeDisplayStatus="Collapsed">
+        <Action Type="Process" Process="procSaveOlapGridState" ConfirmMessage="Are you sure you want to save the OLAP Grid layout?" TaskID="tskSaveIrisGrid" ID="actSave" />
+      </Label>
+      <Spaces />
+      <Label Caption=" | " ID="lblDividerBar" Class="gdTextNormalWhiteLarger" />
+      <Spaces />
+      <Label Caption="Restore Cube View" ID="lblRestore" Class="gdTextNormalWhiteLarger" IdeDisplayStatus="Collapsed">
+        <Action Type="Report" ID="actRestore">
+          <Target Type="Report" ID="trgRestore" />
+          <LinkParams rdOgLoadSaved="@Cookie.IrisGridFileName~" />
+        </Action>
+      </Label>
+      <LineBreak />
+      <LineBreak />
+    </Division>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="seFooter" />
+  </ReportFooter>
+  <ideTestParams />
+</Report>

@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.NPS.ChannelNPS" SavedBy="JOMAX\bgaer" SavedAt="12/13/2012 3:57:07 PM" EngineVersion="10.2.424">
+  <DefaultRequestParams dateStart="@Date.ThisWeekStart~" dateEnd="@Date.ThisWeekEnd~" />
+  <StyleSheet />
+  <ReportHeader />
+  <Body>
+    <Chart Type="XY" ID="chtChannelNPS" ChartWidth="350" ChartHeight="300" ChartDataColumn="NPS" ChartLabelColumn="Channel" XYChartType="Bar" ChartOrientation="Vertical" Color="Orange" ChartTitle="NPS By Channel (Week: @Request.dateStart~ To @Request.dateEnd~)">
+      <DataLayer Type="SP" ID="dlChannelNPS" ConnectionID="BiLogiReporting-TEST" Command="dbo.logiXML_getChannelNPSByDate_sp">
+        <SPParameters>
+          <SPParameter ID="startDate" Value="@Request.dateStart~" SPParamDirection="Input" SPParamSize="10" SPParamType="dt-202" />
+          <SPParameter ID="endDate" Value="@Request.dateEnd~" SPParamDirection="Input" SPParamSize="10" SPParamType="dt-202" />
+        </SPParameters>
+        <GroupFilter GroupColumn="Channel" />
+        <SortFilter SortColumn="sumNPS" DataType="Number" SortSequence="Descending" />
+      </DataLayer>
+      <Quicktip>
+        <QuicktipRow Value="@Chart.NPS~" />
+      </Quicktip>
+      <DataScale Format="mp" ScaleLowerBound="-100" ScaleUpperBound="100" TickDensity="20" />
+      <FontChartTitle FontSize="10" />
+    </Chart>
+  </Body>
+  <ReportFooter />
+  <ideTestParams dateStart="" dateEnd="" />
+</Report>

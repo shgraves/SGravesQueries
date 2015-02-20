@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="SharedElements.SharedFooter" SavedBy="JOMAX\slyoung" SavedAt="2/26/2014 5:06:49 PM" EngineVersion="11.0.43">
+  <SharedElement ID="sharedFooter">
+    <Rows ID="rowsFooter">
+      <Row ID="rowFooter">
+        <Column Class="ThemeAlignCenter" ID="columnFooterText">
+          <Label Caption="Copyright © 2014 GoDaddy Operating Company, LLC. All rights reserved." Class="gdTextNormalWhite" ID="lblFooterText" />
+        </Column>
+      </Row>
+    </Rows>
+  </SharedElement>
+</Report>

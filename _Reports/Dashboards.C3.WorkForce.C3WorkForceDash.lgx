@@ -1,0 +1,682 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.C3.WorkForce.C3WorkForceDash" SavedBy="JOMAX\vyancey" SavedAt="10/17/2013 4:04:10 PM" EngineVersion="11.0.43" SecurityReportRightID="C3-WorkForceAnalysis,LogiC3Managers">
+  <StyleSheet Theme="GDRPortal" StyleSheet="ERHubTheme.css" />
+  <DefaultRequestParams dateStart="=Date()" inpDateBaseline1Changed="False" />
+  <LocalData IdeDisplayStatus="Collapsed">
+    <DataLayer Type="SP" Command="dbo.rptWorkForceDashboardBaselineDatesGet_sp" ConnectionID="connM1BIG-biLogiReporting" ID="dlspGetbaselineDates" IdeDisplayStatus="Collapsed">
+      <SPParameters>
+        <SPParameter SPParamDirection="Input" ID="@ReportDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateStart~" />
+        <SPParameter SPParamDirection="Input" ID="@Baseline1" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline1~" />
+        <SPParameter SPParamDirection="Input" ID="@Baseline2" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline2~" />
+        <SPParameter SPParamDirection="Input" ID="@Baseline3" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline3~" />
+        <SPParameter SPParamDirection="Input" ID="@Past" SPParamSize="7" SPParamType="dt-7" Value="@Request.datePast~" />
+      </SPParameters>
+    </DataLayer>
+  </LocalData>
+  <DefaultRequestParams dateBaseline1="=CXMLDate(&quot;@Local.Baseline1~&quot;)" dateBaseline2="=CXMLDate(&quot;@Local.Baseline2~&quot;)" dateBaseline3="=CXMLDate(&quot;@Local.Baseline3~&quot;)" datePast="=CXMLDate(&quot;@Local.Past~&quot;)" dateCurrent="=CXMLDate(&quot;@Local.ReportDate~&quot;)" />
+  <LocalData ID="ldWorkForceCache">
+    <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptWorkForceDashboardCallTypeCallData_sp" ID="dlWorkForceData" ConnectionID="connM1BIG-biLogiReporting">
+      <SPParameters>
+        <SPParameter SPParamDirection="Input" ID="@ReportDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateStart~" />
+        <SPParameter SPParamDirection="Input" ID="@Baseline1" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline1~" />
+        <SPParameter SPParamDirection="Input" ID="@Baseline2" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline2~" />
+        <SPParameter SPParamDirection="Input" ID="@Baseline3" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline3~" />
+        <SPParameter SPParamDirection="Input" ID="@Past" SPParamSize="7" SPParamType="dt-7" Value="@Request.datePast~" />
+      </SPParameters>
+      <DataLayerLink ID="dlWorkForceDataLink" />
+    </DataLayer>
+  </LocalData>
+  <LocalData ID="ldVerintEmployeeCache" IdeDisplayStatus="Collapsed">
+    <DataLayer Type="SP" Command="rptWorkForceDashboardVerintSchedulesGet_sp" ConnectionID="connP3BIG-CallCenterReporting">
+      <SPParameters>
+        <SPParameter SPParamDirection="Input" ID="@ReportDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateStart~" />
+        <SPParameter SPParamDirection="Input" ID="@Baseline1" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline1~" />
+        <SPParameter SPParamDirection="Input" ID="@Baseline2" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline2~" />
+        <SPParameter SPParamDirection="Input" ID="@Baseline3" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline3~" />
+        <SPParameter SPParamDirection="Input" ID="@Past" SPParamSize="7" SPParamType="dt-7" Value="@Request.datePast~" />
+      </SPParameters>
+      <DataLayerLink ID="dlVerintEmployeesDataLink" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.C3Header" ID="sharedHeaderElement" SharedElementID="sharedHeader" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rowHeader">
+      <Row>
+        <Column Width="205" Class="gdTextNormalWhite">
+          <IncludeHtml Html="&lt;h2&gt;Work Force Dashboard&lt;/h2&gt;" />
+        </Column>
+        <Column Class="ThemeAlignLeft">
+          <Spaces Size="6" />
+          <InputDate ID="DateStart" Caption="Start Date:" DefaultValue="@Request.dateStart~" CaptionClass="rdAlternateTextColorWhite" IdeDisplayStatus="Collapsed">
+            <EventHandler DhtmlEvent="onchange" ID="evntRefreshDates">
+              <Action Type="RefreshElement" ElementID="divBaselineDates" ID="actRefreshDates" ConfirmMessage="Baseline Dates Updating...." FeedbackShowElementID="divBaselineDates, divUpdateMessage, divActiveDates" />
+            </EventHandler>
+          </InputDate>
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit" IdeDisplayStatus="Collapsed">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtWorkForceDashboard" Report="Dashboards.C3.WorkForce.C3WorkForceDash" RequestForwarding="True" />
+            </Action>
+          </Button>
+          <Spaces Size="2" />
+          <Button ID="btnAdjustBaseline" Caption="Adjust Baseline" IdeDisplayStatus="Collapsed">
+            <Action Type="ShowElement" ElementID="divBaselineDates,divActiveDates" ID="actShowBaseline" />
+          </Button>
+        </Column>
+      </Row>
+      <Row>
+        <Column ColSpan="2">
+          <Division ID="divDates" ShowModes="All">
+            <Division ID="divBaselineDates" ShowModes="None" IdeDisplayStatus="Collapsed">
+              <HR />
+              <Division ID="divUpdateMessage" ShowModes="None">
+                <Label Caption="Data updating, please wait to click &quot;Submit&quot;." Class="gdTextNegative" />
+                <LineBreak />
+                <LineBreak />
+              </Division>
+              <InputDate ID="DateBaseline1" Caption="Baseline 1:" DefaultValue="=DateAdd(&quot;d&quot;,-7,&quot;@Request.dateStart~&quot;)" ChangeFlagElementID="inpDateBaseline1Changed" CaptionClass="rdAlternateTextColorWhite">
+                <Validation Type="Date" />
+              </InputDate>
+              <Spaces Size="9" />
+              <InputDate ID="DateBaseline2" DefaultValue="=DateAdd(&quot;d&quot;,-14,&quot;@Request.dateStart~&quot;)" CaptionClass="rdAlternateTextColorWhite" Caption="Baseline 2:">
+                <Validation Type="Date" />
+              </InputDate>
+              <Spaces Size="9" />
+              <InputDate ID="DateBaseline3" DefaultValue="=DateAdd(&quot;d&quot;,-21,&quot;@Request.dateStart~&quot;)" CaptionClass="rdAlternateTextColorWhite" Caption="Baseline 3:">
+                <Validation Type="Date" />
+              </InputDate>
+              <Spaces Size="9" />
+              <InputDate ID="DatePast" Caption="Last Year Date:" DefaultValue="=DateAdd(&quot;ww&quot;,-52,&quot;@Request.dateStart~&quot;)" CaptionClass="rdAlternateTextColorWhite">
+                <Validation Type="Date" />
+              </InputDate>
+              <LineBreak />
+              <LineBreak />
+            </Division>
+            <Division ID="divActiveDates" ShowModes="None" IdeDisplayStatus="Collapsed">
+              <Label Caption="Active Report Dates: @Request.dateStart~, @Request.dateBaseline1~, @Request.dateBaseline2~, @Request.dateBaseline3~, @Request.datePast~" Class="gdTextNormalWhite" />
+              <LineBreak />
+              <HR />
+            </Division>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <Dashboard2 SaveFile="@Function.AppPhysicalPath~\Dashboard\WorkForceDashboard_@Function.UserName~.xml" DashboardColumns="4" ID="dashWorkforce" SaveFileStarter="@Function.AppPhysicalPath~\Dashboard\WorkForceDashboard.xml" DashboardTabs="True">
+      <Panel ID="pnlCallsOffered" Caption="Calls Offered" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divCallOfferedChart" Class="ThemeAlignCenter">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtCallsOffered" ChartDataColumn="CurrentCallsOffered" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" LegendLabel="Current" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="35" BorderRight="10" GridHorizontalColor="#DDDDDD">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked1" LinkedDataLayerID="dlWorkForceDataLink" />
+              <ExtraXYDataColumn ChartDataColumn="BaselineCallsOffered" ID="dcBaseline" LegendLabel="Baseline" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="PastCallsOffered" ID="dcPast" LegendLabel="Last Year" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <Remark>
+              <Button ID="btnShowData" Caption="Show Data" IdeDisplayStatus="Collapsed">
+                <Action Type="ShowElement" ID="actShowData" ElementID="divCallsOfferedTable" />
+              </Button>
+            </Remark>
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated" IdeDisplayStatus="Collapsed">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divCallsOfferedTable" />
+            </Label>
+          </Division>
+          <Division ID="divCallsOfferedTable" ShowModes="None">
+            <DataTable ID="dtCallsOffered" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked4" LinkedDataLayerID="dlWorkForceDataLink" />
+              <DataTableColumn ID="colRptTime" Header="Time" Class="ThemeAlignCenter" ShowModes="All">
+                <Label Caption="@Data.rptTime~" ID="rptTime" Format="HH:mm" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                <Label Caption="=iif(@Data.CurrentCallsOffered~ = 1.7E+308, &quot;&quot;,@Data.CurrentCallsOffered~)" ID="Current" Format="#,##0">
+                  <Action Type="ShowElement" ElementID="pnlCallTypeDetail" ID="actShowCallTypeDetail" />
+                </Label>
+                <PopupPanel ID="pnlCallTypeDetail" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="Call Type Detail" IdeDisplayStatus="Collapsed">
+                  <IncludeFrame ID="srCallTypeDetail" Class="ThemeAlignCenter" SubReportMode="IncludeFrame">
+                    <Target Type="IncludeFrameReport" ID="tgtCallTypeDetail" Report="Dashboards.C3.WorkForce.C3WorkForceCallsOfferedDetail" LinkDataLayers="True" />
+                    <LinkParams rptTime="@Data.rptTime~" dateStart="@Data.ReportDate~" dateBaseline1="@Data.Baseline1~" dateBaseline2="@Data.Baseline2~" dateBaseline3="@Data.Baseline3~" datePast="@Data.Past~" />
+                  </IncludeFrame>
+                </PopupPanel>
+                <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentCallsOffered~/@Data.BaselineCallsOffered~)-1) &lt; -.20) AND (@Data.CurrentCallsOffered~) &gt; 50 AND @Data.CurrentCallsOffered~ &lt;&gt; 1.7E+308" />
+                <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentCallsOffered~/@Data.BaselineCallsOffered~)-1) &gt; .20)  AND (@Data.CurrentCallsOffered~) &gt; 50 AND @Data.CurrentCallsOffered~ &lt;&gt; 1.7E+308" />
+              </DataTableColumn>
+              <DataTableColumn ID="colBaseline" Header="Baseline" Class="ThemeAlignRight">
+                <Label Caption="@Data.BaselineCallsOffered~" ID="Baseline" Format="#,##0" />
+                <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentCallsOffered~/@Data.BaselineCallsOffered~)-1) &lt; -.20) AND (@Data.CurrentCallsOffered~) &gt; 50 AND @Data.CurrentCallsOffered~ &lt;&gt; 1.7E+308" />
+                <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentCallsOffered~/@Data.BaselineCallsOffered~)-1) &gt; .20)  AND (@Data.CurrentCallsOffered~) &gt; 50 AND @Data.CurrentCallsOffered~ &lt;&gt; 1.7E+308" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPast" Header="Last Year" Class="ThemeAlignRight">
+                <Label Caption="@Data.PastCallsOffered~" ID="Past" Format="#,##0" />
+                <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentCallsOffered~/@Data.BaselineCallsOffered~)-1) &lt; -.20) AND (@Data.CurrentCallsOffered~) &gt; 50 AND @Data.CurrentCallsOffered~ &lt;&gt; 1.7E+308" />
+                <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentCallsOffered~/@Data.BaselineCallsOffered~)-1) &gt; .20)  AND (@Data.CurrentCallsOffered~) &gt; 50 AND @Data.CurrentCallsOffered~ &lt;&gt; 1.7E+308" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlAbandons" Caption="Total Abandons" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divAbandonsChart">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtAbandons" ChartDataColumn="CurrentAbandons" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" LegendLabel="Current" Color="#077fc2" BackgroundColor="white" BorderBottom="60" ChartSymbolEdgeColor="Black" BorderLeft="35" BorderRight="10" BorderTop="25" GridHorizontalColor="#DDDDDD" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked9" LinkedDataLayerID="dlWorkForceDataLink" />
+              <ExtraXYDataColumn ChartDataColumn="BaselineAbandons" ID="dcBaseline" LegendLabel="Baseline" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="PastAbandons" ID="dcPast" LegendLabel="Last Year" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0" IdeDisplayStatus="Collapsed">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divAbandonsTable" />
+            </Label>
+          </Division>
+          <Division ID="divAbandonsTable" ShowModes="None" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtAbandons" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked12" LinkedDataLayerID="dlWorkForceDataLink" />
+              <DataTableColumn ID="colRptTime" Header="Time" Class="ThemeAlignCenter" ShowModes="All">
+                <Label Caption="@Data.rptTime~" ID="rptTime" Format="HH:mm" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                <Label Caption="=iif(@Data.CurrentAbandons~ = 1.7E+308, &quot;&quot;,@Data.CurrentAbandons~)" ID="Current" Format="#,##0">
+                  <Action Type="ShowElement" ElementID="pnlABADetail" ID="actShowDepartmentDetail" />
+                </Label>
+                <PopupPanel ID="pnlABADetail" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="Call Type Detail">
+                  <IncludeFrame ID="srABADetail" Class="ThemeAlignBottomLeft" SubReportMode="IncludeFrame">
+                    <Target Type="IncludeFrameReport" ID="tgtABADetail" Report="Dashboards.C3.WorkForce.C3WorkForceAbandonsDetail" LinkDataLayers="True" />
+                    <LinkParams rptTime="@Data.rptTime~" dateStart="@Data.ReportDate~" dateBaseline1="@Data.Baseline1~" dateBaseline2="@Data.Baseline2~" dateBaseline3="@Data.Baseline3~" datePast="@Data.Past~" />
+                  </IncludeFrame>
+                </PopupPanel>
+                <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentAbandons~/@Data.BaselineAbandons~)-1) &gt; .20)  AND (@Data.CurrentAbandons~) &gt; 50 AND @Data.CurrentAbandons~ &lt;&gt; 1.7E+308" />
+              </DataTableColumn>
+              <DataTableColumn ID="colBaseline" Header="Baseline" Class="ThemeAlignRight">
+                <Label Caption="@Data.BaselineAbandons~" ID="Baseline" Format="#,##0" />
+                <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentAbandons~/@Data.BaselineAbandons~)-1) &gt; .20)  AND (@Data.CurrentAbandons~) &gt; 50 AND @Data.CurrentAbandons~ &lt;&gt; 1.7E+308" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPast" Header="Last Year" Class="ThemeAlignRight">
+                <Label Caption="@Data.PastAbandons~" ID="Past" Format="#,##0" />
+                <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentAbandons~/@Data.BaselineAbandons~)-1) &gt; .20)  AND (@Data.CurrentAbandons~) &gt; 50 AND @Data.CurrentAbandons~ &lt;&gt; 1.7E+308" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlABA" Caption="Abandon Rate" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divABAChart">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtABA" ChartDataColumn="CurrentABA" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" LegendLabel="Current" Color="#077fc2" BackgroundColor="white" BorderBottom="60" ChartSymbolEdgeColor="Black" BorderLeft="35" BorderRight="10" BorderTop="25" GridHorizontalColor="#DDDDDD" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked13" LinkedDataLayerID="dlWorkForceDataLink" />
+              <ExtraXYDataColumn ChartDataColumn="BaselineABA" ID="dcBaseline" LegendLabel="Baseline" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="PastABA" ID="dcPast" LegendLabel="Last Year" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0" IdeDisplayStatus="Collapsed">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="0%" />
+            </Chart>
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divABATable" />
+            </Label>
+          </Division>
+          <Division ID="divABATable" ShowModes="None" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtABA" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked14" LinkedDataLayerID="dlWorkForceDataLink" />
+              <DataTableColumn ID="colRptTime" Header="Time" Class="ThemeAlignCenter" ShowModes="All">
+                <Label Caption="@Data.rptTime~" ID="rptTime" Format="HH:mm" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                <Label Caption="=iif(@Data.CurrentABA~ = 1.7E+308, &quot;&quot;,@Data.CurrentABA~)" ID="Current" Format="Percent">
+                  <Action Type="ShowElement" ElementID="pnlABADetail" ID="actShowDepartmentDetail" />
+                </Label>
+                <PopupPanel ID="pnlABADetail" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="Call Type Detail">
+                  <IncludeFrame ID="srABADetail" Class="ThemeAlignBottomLeft" SubReportMode="IncludeFrame">
+                    <Target Type="IncludeFrameReport" ID="tgtABADetail" Report="Dashboards.C3.WorkForce.C3WorkForceABADetail" LinkDataLayers="True" />
+                    <LinkParams rptTime="@Data.rptTime~" dateStart="@Data.ReportDate~" dateBaseline1="@Data.Baseline1~" dateBaseline2="@Data.Baseline2~" dateBaseline3="@Data.Baseline3~" datePast="@Data.Past~" />
+                  </IncludeFrame>
+                </PopupPanel>
+                <ConditionalClass Class="gdHighlightYellow" Condition="@Data.CurrentABA~ &gt; .20 AND @Data.CurrentABA~ &lt;&gt; 1.7E+308" />
+              </DataTableColumn>
+              <DataTableColumn ID="colBaseline" Header="Baseline" Class="ThemeAlignRight">
+                <Label Caption="@Data.BaselineABA~" ID="Baseline" Format="Percent" />
+                <ConditionalClass Class="gdHighlightYellow" Condition="@Data.CurrentABA~ &gt; .20 AND @Data.CurrentABA~ &lt;&gt; 1.7E+308" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPast" Header="Last Year" Class="ThemeAlignRight">
+                <Label Caption="@Data.PastABA~" ID="Past" Format="Percent" />
+                <ConditionalClass Class="gdHighlightYellow" Condition="@Data.CurrentABA~ &gt; .20 AND @Data.CurrentABA~ &lt;&gt; 1.7E+308" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlHoldTime" Caption="Average Hold Time in Minutes" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divHoldTimeChart">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtHoldTime" ChartDataColumn="CurrentHoldTime" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" LegendLabel="Current" Color="#077fc2" BackgroundColor="white" BorderBottom="60" ChartSymbolEdgeColor="Black" BorderLeft="35" BorderRight="10" BorderTop="25" GridHorizontalColor="#DDDDDD" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked15" LinkedDataLayerID="dlWorkForceDataLink" />
+              <ExtraXYDataColumn ChartDataColumn="BaselineHoldTime" ID="dcBaseline" LegendLabel="Baseline" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="PastHoldTime" ID="dcPast" LegendLabel="Last Year" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0" IdeDisplayStatus="Collapsed">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+            </Chart>
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divHoldTimeTable" />
+            </Label>
+          </Division>
+          <Division ID="divHoldTimeTable" ShowModes="None" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtHoldTime" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked16" LinkedDataLayerID="dlWorkForceDataLink" />
+              <DataTableColumn ID="colRptTime" Header="Time" Class="ThemeAlignCenter" ShowModes="All">
+                <Label Caption="@Data.rptTime~" ID="rptTime" Format="HH:mm" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                <Label Caption="=iif(@Data.CurrentHoldTime~ = 1.7E+308, &quot;&quot;,@Data.CurrentHoldTime~)" ID="Current" Format="Standard">
+                  <Action Type="ShowElement" ElementID="pnlHoldTimeDetail" ID="actShowDepartmentDetail" />
+                </Label>
+                <PopupPanel ID="pnlHoldTimeDetail" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="Call Type Detail">
+                  <IncludeFrame ID="srHoldTimeDetail" Class="ThemeAlignBottomLeft" SubReportMode="IncludeFrame">
+                    <Target Type="IncludeFrameReport" ID="tgtHoldTimeDetail" Report="Dashboards.C3.WorkForce.C3WorkForceHoldTimeDetail" LinkDataLayers="True" />
+                    <LinkParams rptTime="@Data.rptTime~" dateStart="@Data.ReportDate~" dateBaseline1="@Data.Baseline1~" dateBaseline2="@Data.Baseline2~" dateBaseline3="@Data.Baseline3~" datePast="@Data.Past~" />
+                  </IncludeFrame>
+                </PopupPanel>
+              </DataTableColumn>
+              <DataTableColumn ID="colBaseline" Header="Baseline" Class="ThemeAlignRight">
+                <Label Caption="@Data.BaselineHoldTime~" ID="Baseline" Format="Standard" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlAHT" Caption="AHT in Minutes" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divAHTChart">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtAHT" ChartDataColumn="CurrentAHT" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" LegendLabel="Current" Color="#077fc2" BackgroundColor="white" BorderBottom="60" ChartSymbolEdgeColor="Black" BorderLeft="35" BorderRight="10" BorderTop="25" GridHorizontalColor="#DDDDDD" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked7" LinkedDataLayerID="dlWorkForceDataLink" />
+              <ExtraXYDataColumn ChartDataColumn="BaselineAHT" ID="dcBaseline" LegendLabel="Baseline" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="PastAHT" ID="dcPast" LegendLabel="Last Year" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0" IdeDisplayStatus="Collapsed">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+            </Chart>
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divAHTTable" />
+            </Label>
+          </Division>
+          <Division ID="divAHTTable" ShowModes="None" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtAHT" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked10" LinkedDataLayerID="dlWorkForceDataLink" />
+              <DataTableColumn ID="colRptTime" Header="Time" Class="ThemeAlignCenter" ShowModes="All">
+                <Label Caption="@Data.rptTime~" ID="rptTime" Format="HH:mm" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                <Label Caption="=iif(@Data.CurrentAHT~ = 1.7E+308, &quot;&quot;,@Data.CurrentAHT~)" ID="Current" Format="Standard">
+                  <Action Type="ShowElement" ElementID="pnlAHTDetail" ID="actShowDepartmentDetail" />
+                </Label>
+                <PopupPanel ID="pnlAHTDetail" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="Call Type Detail">
+                  <IncludeFrame ID="srAHTDetail" Class="ThemeAlignBottomLeft" SubReportMode="IncludeFrame">
+                    <Target Type="IncludeFrameReport" ID="tgtAHTDetail" Report="Dashboards.C3.WorkForce.C3WorkForceAHTDetail" LinkDataLayers="True" />
+                    <LinkParams rptTime="@Data.rptTime~" dateStart="@Data.ReportDate~" dateBaseline1="@Data.Baseline1~" dateBaseline2="@Data.Baseline2~" dateBaseline3="@Data.Baseline3~" datePast="@Data.Past~" />
+                  </IncludeFrame>
+                </PopupPanel>
+              </DataTableColumn>
+              <DataTableColumn ID="colBaseline" Header="Baseline" Class="ThemeAlignRight">
+                <Label Caption="@Data.BaselineAHT~" ID="Baseline" Format="Standard" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPast" Header="Last Year" Class="ThemeAlignRight">
+                <Label Caption="@Data.PastAHT~" ID="Past" Format="Standard" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlASA" Caption="ASA in Minutes" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divASAChart">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtASA" ChartDataColumn="CurrentASA" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" LegendLabel="Current" Color="#077fc2" BackgroundColor="white" BorderBottom="60" ChartSymbolEdgeColor="Black" BorderLeft="35" BorderRight="10" BorderTop="25" GridHorizontalColor="#DDDDDD" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked8" LinkedDataLayerID="dlWorkForceDataLink" />
+              <ExtraXYDataColumn ChartDataColumn="BaselineASA" ID="dcBaseline" LegendLabel="Baseline" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="PastASA" ID="dcPast" LegendLabel="Last Year" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0" IdeDisplayStatus="Collapsed">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+            </Chart>
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divASATable" />
+            </Label>
+          </Division>
+          <Division ID="divASATable" ShowModes="None" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtASA" Width="450" WidthScale="px" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked11" LinkedDataLayerID="dlWorkForceDataLink" />
+              <DataTableColumn ID="colRptTime" Header="Time" Class="ThemeAlignCenter" ShowModes="All">
+                <Label Caption="@Data.rptTime~" ID="rptTime" Format="HH:mm" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                <Label Caption="=iif(@Data.CurrentASA~ = 1.7E+308, &quot;&quot;,@Data.CurrentASA~)" ID="Current" Format="Standard">
+                  <Action Type="ShowElement" ElementID="pnlASADetail" ID="actShowDepartmentDetail" />
+                </Label>
+                <PopupPanel ID="pnlASADetail" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="Call Type Detail">
+                  <IncludeFrame ID="srASADetail" Class="ThemeAlignBottomLeft" SubReportMode="IncludeFrame">
+                    <Target Type="IncludeFrameReport" ID="tgtASADetail" Report="Dashboards.C3.WorkForce.C3WorkForceASADetail" LinkDataLayers="True" />
+                    <LinkParams rptTime="@Data.rptTime~" dateStart="@Data.ReportDate~" dateBaseline1="@Data.Baseline1~" dateBaseline2="@Data.Baseline2~" dateBaseline3="@Data.Baseline3~" datePast="@Data.Past~" />
+                  </IncludeFrame>
+                </PopupPanel>
+                <ConditionalClass Class="gdHighlightYellow" Condition="@Data.CurrentASA~ &gt;= 7 AND @Data.CurrentASA~ &lt;&gt; 1.7E+308" />
+              </DataTableColumn>
+              <DataTableColumn ID="colBaseline" Header="Baseline" Class="ThemeAlignRight">
+                <Label Caption="@Data.BaselineASA~" ID="Baseline" Format="Standard" />
+                <ConditionalClass Class="gdHighlightYellow" Condition="@Data.CurrentASA~ &gt;= 7 AND @Data.CurrentASA~ &lt;&gt; 1.7E+308" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPast" Header="Last Year" Class="ThemeAlignRight">
+                <Label Caption="@Data.PastASA~" ID="Past" Format="Standard" />
+                <ConditionalClass Class="gdHighlightYellow" Condition="@Data.CurrentASA~ &gt;= 7 AND @Data.CurrentASA~ &lt;&gt; 1.7E+308" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlFTE" Caption="Cisco Reps Logged In" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divFTEChart">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtFTE" ChartDataColumn="CurrentFTE" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" LegendLabel="Current" Color="#077fc2" BackgroundColor="white" BorderBottom="60" ChartSymbolEdgeColor="Black" BorderLeft="35" BorderRight="10" BorderTop="25" GridHorizontalColor="#DDDDDD" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked2" LinkedDataLayerID="dlWorkForceDataLink" />
+              <ExtraXYDataColumn ChartDataColumn="BaselineFTE" ID="dcBaseline" LegendLabel="Baseline" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="PastFTE" ID="dcPast" LegendLabel="Last Year" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0" IdeDisplayStatus="Collapsed">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divFTETable" />
+            </Label>
+          </Division>
+          <Division ID="divFTETable" ShowModes="None" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtFTE" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked5" LinkedDataLayerID="dlWorkForceDataLink" />
+              <DataTableColumn ID="colRptTime" Header="Time" Class="ThemeAlignCenter" ShowModes="All">
+                <Label Caption="@Data.rptTime~" ID="rptTime" Format="HH:mm" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                <Label Caption="=iif(@Data.CurrentFTE~ = 1.7E+308, &quot;&quot;,@Data.CurrentFTE~)" ID="Current" Format="#,##0">
+                  <Action Type="ShowElement" ElementID="pnlFTEDetail" ID="actShowDepartmentDetail" />
+                </Label>
+                <PopupPanel ID="pnlFTEDetail" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="C3 Department Detail">
+                  <IncludeFrame ID="srFTEDetail" Class="ThemeAlignBottomLeft" SubReportMode="IncludeFrame">
+                    <Target Type="IncludeFrameReport" ID="tgtFTEDetail" Report="Dashboards.C3.WorkForce.C3WorkForceFTEDetail" LinkDataLayers="True" />
+                    <LinkParams rptTime="@Data.rptTime~" dateStart="@Data.ReportDate~" dateBaseline1="@Data.Baseline1~" dateBaseline2="@Data.Baseline2~" dateBaseline3="@Data.Baseline3~" datePast="@Data.Past~" />
+                  </IncludeFrame>
+                </PopupPanel>
+              </DataTableColumn>
+              <DataTableColumn ID="colBaseline" Header="Baseline" Class="ThemeAlignRight">
+                <Label Caption="@Data.BaselineFTE~" ID="Baseline" Format="#,##0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPast" Header="Last Year" Class="ThemeAlignRight">
+                <Label Caption="@Data.PastFTE~" ID="Past" Format="#,##0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlUtil" Caption="Customer Availability" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divUtilChart">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtUtil" ChartDataColumn="CurrentUtil" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" LegendLabel="Current" Color="#077fc2" BackgroundColor="white" BorderBottom="60" ChartSymbolEdgeColor="Black" BorderLeft="35" BorderRight="10" BorderTop="25" GridHorizontalColor="#DDDDDD" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked3" LinkedDataLayerID="dlWorkForceDataLink" />
+              <ExtraXYDataColumn ChartDataColumn="BaselineUtil" ID="dcBaseline" LegendLabel="Baseline" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="PastUtil" ID="dcPast" LegendLabel="Last Year" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <DataScale Format="0%" ScaleLowerBound=".4" ScaleUpperBound="1" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0" IdeDisplayStatus="Collapsed">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+            </Chart>
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divUtilTable" />
+            </Label>
+          </Division>
+          <Division ID="divUtilTable" ShowModes="None" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtUtil" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dlWorkForceDataLinked6" LinkedDataLayerID="dlWorkForceDataLink" />
+              <DataTableColumn ID="colRptTime" Header="Time" Class="ThemeAlignCenter" ShowModes="All" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.rptTime~" ID="rptTime" Format="HH:mm" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+                <Label Caption="=iif(@Data.CurrentUtil~ = 1.7E+308, &quot;&quot;,@Data.CurrentUtil~)" ID="Current" Format="Percent">
+                  <Action Type="ShowElement" ElementID="pnlUtilDetail" ID="actShowDepartmentDetail" />
+                </Label>
+                <PopupPanel ID="pnlUtilDetail" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="C3 Department Detail" IdeDisplayStatus="Collapsed">
+                  <IncludeFrame ID="srUtilDetail" Class="ThemeAlignBottomLeft" SubReportMode="IncludeFrame">
+                    <Target Type="IncludeFrameReport" ID="tgtUtilDetail" Report="Dashboards.C3.WorkForce.C3WorkForceUtilDetail" LinkDataLayers="True" />
+                    <LinkParams rptTime="@Data.rptTime~" dateStart="@Data.ReportDate~" dateBaseline1="@Data.Baseline1~" dateBaseline2="@Data.Baseline2~" dateBaseline3="@Data.Baseline3~" datePast="@Data.Past~" />
+                  </IncludeFrame>
+                </PopupPanel>
+              </DataTableColumn>
+              <DataTableColumn ID="colBaseline" Header="Baseline" Class="ThemeAlignRight">
+                <Label Caption="@Data.BaselineUtil~" ID="Baseline" Format="Percent" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPast" Header="Last Year" Class="ThemeAlignRight">
+                <Label Caption="@Data.PastUtil~" ID="Past" Format="Percent" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlVerintRepsWorking" Caption="Verint Reps Working" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divVerintEmployeesChart">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtVerintEmployees" ChartDataColumn="CurrentRepsWorking" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" LegendLabel="Current" Color="#077fc2" BackgroundColor="white" BorderBottom="60" ChartSymbolEdgeColor="Black" BorderLeft="35" BorderRight="10" BorderTop="25" GridHorizontalColor="#DDDDDD" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" ID="dlVerintEmployeesDataLinked1" LinkedDataLayerID="dlVerintEmployeesDataLink" />
+              <ExtraXYDataColumn ChartDataColumn="BaselineRepsWorking" ID="dcBaseline" LegendLabel="Baseline" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="PastRepsWorking" ID="dcPast" LegendLabel="Last Year" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0" IdeDisplayStatus="Collapsed">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divVerintEmployeesTable" />
+            </Label>
+          </Division>
+          <Division ID="divVerintEmployeesTable" ShowModes="None">
+            <DataTable ID="dtVerintEmployees" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dlVerintEmployeesDataLinked2" LinkedDataLayerID="dlVerintEmployeesDataLink" />
+              <DataTableColumn ID="colRptTime" Header="Time" Class="ThemeAlignCenter" ShowModes="All">
+                <Label Caption="@Data.rptTime~" ID="rptTime" Format="HH:mm" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                <Label Caption="@Data.CurrentRepsWorking~" ID="Current" Format="#,##0">
+                  <Action Type="ShowElement" ElementID="pnlVerintEmployeesDetail" ID="actShowDepartmentDetail" />
+                </Label>
+                <PopupPanel ID="pnlVerintEmployeesDetail" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="C3 Department Detail">
+                  <IncludeFrame ID="srVerintEmployeesDetail" Class="ThemeAlignBottomLeft" SubReportMode="IncludeFrame">
+                    <Target Type="IncludeFrameReport" ID="tgtVerintEmployeesDetail" Report="Dashboards.C3.WorkForce.C3WorkForceVerintEmployeesDetail" LinkDataLayers="True" />
+                    <LinkParams rptTime="@Data.rptTime~" dateStart="@Data.ReportDate~" dateBaseline1="@Data.Baseline1~" dateBaseline2="@Data.Baseline2~" dateBaseline3="@Data.Baseline3~" datePast="@Data.Past~" />
+                  </IncludeFrame>
+                </PopupPanel>
+              </DataTableColumn>
+              <DataTableColumn ID="colBaseline" Header="Baseline" Class="ThemeAlignRight">
+                <Label Caption="@Data.BaselineRepsWorking~" ID="Baseline" Format="#,##0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPast" Header="Last Year" Class="ThemeAlignRight">
+                <Label Caption="@Data.PastRepsWorking~" ID="Past" Format="#,##0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlVerintInOut" Caption="Verint Reps In/Out" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divVerintInOutChart">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtVerintInOut" ChartDataColumn="CurrentRepsIn" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" LegendLabel="Reps In" BackgroundColor="white" BorderBottom="60" ChartSymbolEdgeColor="Black" BorderLeft="35" BorderRight="10" BorderTop="25" GridHorizontalColor="#DDDDDD" Color="#077FC2" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" ID="dlVerintEmployeesDataLinked3" LinkedDataLayerID="dlVerintEmployeesDataLink" />
+              <ExtraXYDataColumn ChartDataColumn="CurrentRepsOut" ID="dcRepsOut" LegendLabel="Reps Out" Color="#D27A23" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0" IdeDisplayStatus="Collapsed">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divVerintInOutTable" />
+            </Label>
+          </Division>
+          <Division ID="divVerintInOutTable" ShowModes="None" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtVerintInOut" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dlVerintEmployeesDataLinked4" LinkedDataLayerID="dlVerintEmployeesDataLink" />
+              <DataTableColumn ID="colRptTime" Header="Time" Class="ThemeAlignCenter" ShowModes="All">
+                <Label Caption="@Data.rptTime~" ID="rptTime" Format="HH:mm" />
+              </DataTableColumn>
+              <DataTableColumn ID="colRepsWorking" Header="Reps Working" Class="ThemeAlignRight">
+                <Label Caption="@Data.CurrentRepsWorking~" ID="CurrentReps" Format="#,##0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colRepsIn" Header="Reps In" Class="ThemeAlignRight">
+                <Label Caption="@Data.CurrentRepsIn~" ID="RepsIn" Format="#,##0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colRepsOut" Header="Reps Out" Class="ThemeAlignRight">
+                <Label Caption="@Data.CurrentRepsOut~" ID="RepsOut" Format="#,##0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlVerintRepsNotWorking" Caption="Verint Reps Not Working" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divVerintRepsNotWorking">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtVerintRepsNotWorking" ChartDataColumn="CurrentRepsNotWorking" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" LegendLabel="Current" Color="#077fc2" BackgroundColor="white" BorderBottom="60" ChartSymbolEdgeColor="Black" BorderLeft="35" BorderRight="10" BorderTop="25" GridHorizontalColor="#DDDDDD" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" ID="dlVerintEmployeesDataLinked5" LinkedDataLayerID="dlVerintEmployeesDataLink" />
+              <ExtraXYDataColumn ChartDataColumn="BaselineRepsNotWorking" ID="dcBaseline" LegendLabel="Baseline" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="PastRepsNotWorking" ID="dcPast" LegendLabel="Last Year" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0" IdeDisplayStatus="Collapsed">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divVerintRepsNotWorkingTable" />
+            </Label>
+          </Division>
+          <Division ID="divVerintRepsNotWorkingTable" ShowModes="None" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtVerintRepsNotWorking" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dlVerintEmployeesDataLinked6" LinkedDataLayerID="dlVerintEmployeesDataLink" />
+              <DataTableColumn ID="colRptTime" Header="Time" Class="ThemeAlignCenter" ShowModes="All">
+                <Label Caption="@Data.rptTime~" ID="rptTime" Format="HH:mm" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                <Label Caption="@Data.CurrentRepsNotWorking~" ID="Current" Format="#,##0">
+                  <Action Type="ShowElement" ElementID="pnlVerintRepsNotWorkingDetail" ID="actShowDepartmentDetail" />
+                </Label>
+                <PopupPanel ID="pnlVerintRepsNotWorkingDetail" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="C3 Department Detail">
+                  <IncludeFrame ID="srVerintRepsNotWorkingDetail" Class="ThemeAlignBottomLeft" SubReportMode="IncludeFrame">
+                    <Target Type="IncludeFrameReport" ID="tgtVerintRepsNotWorkingDetail" Report="Dashboards.C3.WorkForce.C3WorkForceVerintRepsNotWorkingDetail" LinkDataLayers="True" />
+                    <LinkParams rptTime="@Data.rptTime~" dateStart="@Data.ReportDate~" dateBaseline1="@Data.Baseline1~" dateBaseline2="@Data.Baseline2~" dateBaseline3="@Data.Baseline3~" datePast="@Data.Past~" />
+                  </IncludeFrame>
+                </PopupPanel>
+              </DataTableColumn>
+              <DataTableColumn ID="colBaseline" Header="Baseline" Class="ThemeAlignRight">
+                <Label Caption="@Data.BaselineRepsNotWorking~" ID="Baseline" Format="#,##0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPast" Header="Last Year" Class="ThemeAlignRight">
+                <Label Caption="@Data.PastRepsNotWorking~" ID="Past" Format="#,##0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlVerintShrinkage" Caption="Verint Rep Shrinkage" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divVerintShrinkageChart">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtVerintShrinkage" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" LegendLabel="Current" Color="#077fc2" BackgroundColor="white" BorderBottom="60" ChartSymbolEdgeColor="Black" BorderLeft="35" BorderRight="10" BorderTop="25" ChartDataColumn="CurrentShrinkage" GridHorizontalColor="#DDDDDD" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" ID="dlVerintEmployeesDataLinked7" LinkedDataLayerID="dlVerintEmployeesDataLink" />
+              <ExtraXYDataColumn ChartDataColumn="BaselineShrinkage" ID="dcBaseline" LegendLabel="Baseline" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="PastShrinkage" ID="dcPast" LegendLabel="Last Year" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0" IdeDisplayStatus="Collapsed">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="0%" />
+            </Chart>
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divVerintShrinkageTable" />
+            </Label>
+          </Division>
+          <Division ID="divVerintShrinkageTable" ShowModes="None" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtVerintShrinkage" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dlVerintEmployeesDataLinked8" LinkedDataLayerID="dlVerintEmployeesDataLink" />
+              <DataTableColumn ID="colRptTime" Header="Time" Class="ThemeAlignCenter" ShowModes="All">
+                <Label Caption="@Data.rptTime~" ID="rptTime" Format="HH:mm" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                <Label Caption="@Data.CurrentShrinkage~" ID="Current" Format="Percent">
+                  <Action Type="ShowElement" ElementID="pnlVerintShrinkageDetail" ID="actShowDepartmentDetail" />
+                </Label>
+                <PopupPanel ID="pnlVerintShrinkageDetail" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="C3 Department Detail">
+                  <IncludeFrame ID="srVerintShrinkageDetail" Class="ThemeAlignBottomLeft" SubReportMode="IncludeFrame">
+                    <Target Type="IncludeFrameReport" ID="tgtVerintEmployeesDetail" Report="Dashboards.C3.WorkForce.C3WorkForceVerintShrinkageDetail" LinkDataLayers="True" />
+                    <LinkParams rptTime="@Data.rptTime~" dateStart="@Data.ReportDate~" dateBaseline1="@Data.Baseline1~" dateBaseline2="@Data.Baseline2~" dateBaseline3="@Data.Baseline3~" datePast="@Data.Past~" />
+                  </IncludeFrame>
+                </PopupPanel>
+              </DataTableColumn>
+              <DataTableColumn ID="colBaseline" Header="Baseline" Class="ThemeAlignRight">
+                <Label Caption="@Data.BaselineShrinkage~" ID="Baseline" Format="Percent" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPast" Header="Last Year" Class="ThemeAlignRight">
+                <Label Caption="@Data.PastShrinkage~" ID="Past" Format="Percent" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlAlerts" Caption="IVR Alerts">
+        <PanelContent>
+          <DataTable ID="dtAlerts" Caption="Active Alerts" Class="ThemeAlignCenter" CaptionClass="ThemeTextLarger" HideWhenZeroRows="True">
+            <DataLayer Type="SQL" ID="dlAlerts" ConnectionID="connP3AW-usgd1_hds" Source="USE usgd1_hds&#xD;&#xA;&#xD;&#xA;SET NOCOUNT ON&#xD;&#xA;&#xD;&#xA;SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED&#xD;&#xA;&#xD;&#xA;DECLARE @VARIABLES TABLE (UserVariableID INT)&#xD;&#xA;&#xD;&#xA;INSERT INTO @VARIABLES&#xD;&#xA;		(	UserVariableID&#xD;&#xA;		)&#xD;&#xA;		SELECT UserVariableID&#xD;&#xA;		FROM t_Persistent_Variable &#xD;&#xA;		WHERE ValueInt = 0 &#xD;&#xA;&#xD;&#xA;SELECT DISTINCT A.Alert&#xD;&#xA;FROM	(&#xD;&#xA;			SELECT 'High Call Volume' AS Alert&#xD;&#xA;			FROM @VARIABLES &#xD;&#xA;			WHERE UserVariableID in (5077, 5006) &#xD;&#xA;			UNION ALL&#xD;&#xA;			SELECT 'Email Outage' AS Alert&#xD;&#xA;			FROM @VARIABLES &#xD;&#xA;			WHERE UserVariableID in (5007, 5008)&#xD;&#xA;			UNION ALL&#xD;&#xA;			SELECT 'Hosting Outage' AS Alert&#xD;&#xA;			FROM @VARIABLES&#xD;&#xA;			WHERE UserVariableID in (5009, 5010)&#xD;&#xA;			UNION ALL&#xD;&#xA;			SELECT 'Custom Outage' AS Alert&#xD;&#xA;			FROM @VARIABLES&#xD;&#xA;			WHERE UserVariableID in (5086, 5087)&#xD;&#xA;			UNION ALL&#xD;&#xA;			SELECT 'Inbound Courtesy Callback' AS Alert&#xD;&#xA;			FROM @VARIABLES&#xD;&#xA;			WHERE UserVariableID in (5040, 5041)&#xD;&#xA;			UNION ALL&#xD;&#xA;			SELECT 'Billing Courtesy Callback' AS Alert&#xD;&#xA;			FROM @VARIABLES&#xD;&#xA;			WHERE UserVariableID in (5024, 5025)&#xD;&#xA;			UNION ALL&#xD;&#xA;			SELECT 'Hosting Courtesy Callback' AS Alert&#xD;&#xA;			FROM @VARIABLES&#xD;&#xA;			WHERE UserVariableID in (5091, 5092)&#xD;&#xA;			UNION ALL&#xD;&#xA;			SELECT 'Spanish IVR' AS Alert&#xD;&#xA;			FROM @VARIABLES&#xD;&#xA;			WHERE UserVariableID in (5084, 5085)&#xD;&#xA;		)A" />
+            <DataTableColumn ID="colAlert" Class="ThemeTextLarger">
+              <Label Class="ThemeTextNegative" Caption="@Data.Alert~" />
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+    </Dashboard2>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <Division Class="ThemeAlignCenter">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="sharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams dateStart="" dateBaseline1="" dateBaseline2="" dateBaseline3="" datePast="" />
+</Report>

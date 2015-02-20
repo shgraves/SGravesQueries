@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.C3.WorkForce.C3WorkForceCallsOfferedDetail" SavedBy="JOMAX\vyancey" SavedAt="2/14/2013 11:19:35 AM" EngineVersion="11.0.43">
+  <StyleSheet Theme="GDRPortal" StyleSheet="ERHubTheme.css" />
+  <ReportHeader />
+  <Body>
+    <DataTable ID="dtCallTypeDetail">
+      <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptWorkForceDashboardCallTypeDetail_sp" ConnectionID="connM1BIG-biLogiReporting">
+        <SPParameters>
+          <SPParameter SPParamDirection="Input" ID="@ReportDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateStart~" />
+          <SPParameter SPParamDirection="Input" ID="@Baseline1" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline1~" />
+          <SPParameter SPParamDirection="Input" ID="@Baseline2" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline2~" />
+          <SPParameter SPParamDirection="Input" ID="@Baseline3" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline3~" />
+          <SPParameter SPParamDirection="Input" ID="@Past" SPParamSize="7" SPParamType="dt-7" Value="@Request.datePast~" />
+          <SPParameter ID="@rptTime" SPParamDirection="Input" SPParamSize="8" SPParamType="dt-200" Value="@Request.rptTime~" />
+        </SPParameters>
+      </DataLayer>
+      <Remark>
+        <DataLayer Type="SQL" ConnectionID="connM1BIG-biLogiReporting" Source="&#xD;&#xA;	Declare @ReportDate date = '2012/12/11'&#xD;&#xA;			,@Baseline1 date = DateAdd(day,-7,'2012/12/11')&#xD;&#xA;			,@Baseline2 date = DateAdd(day,-14,'2012/12/11')&#xD;&#xA;			,@Baseline3 date = DateAdd(day,-21,'2012/12/11')&#xD;&#xA;			,@SixMonths date = DateAdd(day,-180,'2012/12/11')&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#DateRanges ') IS NOT NULL DROP TABLE #DateRanges;&#xD;&#xA;CREATE TABLE  #DateRanges (DateID int IDENTITY(1,1), StartDate datetime, EndDate datetime, WeekType varchar(10))&#xD;&#xA;&#xD;&#xA;INSERT INTO #DateRanges&#xD;&#xA;SELECT @ReportDate, DateADD(day,1,@ReportDate), 'Current'&#xD;&#xA;UNION&#xD;&#xA;SELECT @Baseline1, DateADD(day,1,@Baseline1), 'Baseline'&#xD;&#xA;UNION&#xD;&#xA;SELECT @Baseline2, DateADD(day,1,@Baseline2), 'Baseline'&#xD;&#xA;UNION&#xD;&#xA;SELECT @Baseline3, DateADD(day,1,@Baseline3), 'Baseline'&#xD;&#xA;UNION&#xD;&#xA;SELECT @SixMonths, DateADD(day,1,@SixMonths), 'Past'&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#OUTPUT ') IS NOT NULL DROP TABLE #OUTPUT;&#xD;&#xA;SELECT ccsg.SubDepartment&#xD;&#xA;		,weektype&#xD;&#xA;		, Cast(sghh.DateTime as Date) as Date&#xD;&#xA;		, CONVERT(VARCHAR(8),sghh.DateTime,108) as  rptTime&#xD;&#xA;		,SUM(CASE WHEN Department &lt;&gt; 'CDT' THEN sghh.CallsOfferedHalf ELSE 0 END) as CallsOffered&#xD;&#xA;into #OUTPUT&#xD;&#xA;FROM	godaddycalls.[dbo].[t_Call_Type_Half_Hour] sghh with (nolock)&#xD;&#xA;JOIN	godaddycalls.[dbo].[rptDimC3CallType] ccsg with (nolock) &#xD;&#xA;	ON ccsg.CallTypeID = sghh.CallTypeID&#xD;&#xA;JOIN	#DateRanges d &#xD;&#xA;	ON sghh.datetime &gt;= d.startdate&#xD;&#xA;	AND sghh.datetime &lt;  d.enddate&#xD;&#xA;GROUP BY ccsg.SubDepartment&#xD;&#xA;		,weektype&#xD;&#xA;		, Cast(sghh.DateTime as Date)&#xD;&#xA;		, CONVERT(VARCHAR(8),sghh.DateTime,108)&#xD;&#xA;&#xD;&#xA;SELECT subdepartment&#xD;&#xA;		,ISNULL(AVG(CASE WHEN weektype = 'Current' THEN CallsOffered ELSE NULL END),0) as CurrentCallsOffered&#xD;&#xA;		,ISNULL(AVG(CASE WHEN weektype = 'Baseline' THEN CallsOffered ELSE NULL END),0) as BaselineCallsOffered&#xD;&#xA;		,ISNULL(AVG(CASE WHEN weektype = 'Past' THEN CallsOffered ELSE NULL END),0) as PastCallsOffered&#xD;&#xA;from #OUTPUT&#xD;&#xA;	where rptTime = '@Request.rptTime~'&#xD;&#xA;		--and weektype = '@Request.inpWeekType~'&#xD;&#xA;group by subdepartment&#xD;&#xA;order by 2 desc&#xD;&#xA;" ID="dlCallTypeDetail" />
+      </Remark>
+      <DataTableColumn ID="colDepartment" Header="Call Type">
+        <Label Caption="@Data.Department~" ID="lblDepartment" />
+      </DataTableColumn>
+      <DataTableColumn ID="colCurrentCallsOffered" Header="Current" Class="ThemeAlignRight">
+        <Label Caption="@Data.CurrentCallsOffered~" ID="lblCurrentCallsOffered" />
+        <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentCallsOffered~/@Data.BaselineCallsOffered~)-1) &lt; -.20) AND (@Data.CurrentCallsOffered~) &gt; 50" />
+        <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentCallsOffered~/@Data.BaselineCallsOffered~)-1) &gt; .20)  AND (@Data.CurrentCallsOffered~) &gt; 50" />
+      </DataTableColumn>
+      <DataTableColumn ID="colBaselineCallsOffered" Header="Baseline" Class="ThemeAlignRight">
+        <Label Caption="@Data.BaselineCallsOffered~" ID="lblBaselineCallsOffered" />
+        <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentCallsOffered~/@Data.BaselineCallsOffered~)-1) &lt; -.20) AND (@Data.CurrentCallsOffered~) &gt; 50" />
+        <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentCallsOffered~/@Data.BaselineCallsOffered~)-1) &gt; .20)  AND (@Data.CurrentCallsOffered~) &gt; 50" />
+      </DataTableColumn>
+      <DataTableColumn ID="colPastCallsOffered" Header="Last Year" Class="ThemeAlignRight">
+        <Label Caption="@Data.PastCallsOffered~" ID="lblPastCallsOffered" />
+        <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentCallsOffered~/@Data.BaselineCallsOffered~)-1) &lt; -.20) AND (@Data.CurrentCallsOffered~) &gt; 50" />
+        <ConditionalClass Class="gdHighlightYellow" Condition="(((@Data.CurrentCallsOffered~/@Data.BaselineCallsOffered~)-1) &gt; .20)  AND (@Data.CurrentCallsOffered~) &gt; 50" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams inpWeekType="" rptTime="" dateStart="" dateBaseline1="" dateBaseline2="" dateBaseline3="" datePast="" />
+</Report>

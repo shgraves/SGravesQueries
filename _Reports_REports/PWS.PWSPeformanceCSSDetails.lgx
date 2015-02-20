@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PWS.PWSPeformanceCSSDetails" SavedBy="JOMAX\dezell" SavedAt="9/25/2014 11:33:13 PM" EngineVersion="11.0.43-SP27">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader />
+  <Body>
+    <Division ID="divSatisfaction" ShowModes="Satisfaction">
+      <CrosstabTable ID="ctSurveyDetailsSatisfaction" CellSpacing="7px" Width="650" WidthScale="px">
+        <DataLayer Type="Linked" LinkedDataLayerID="dllSurveyData" IdeDisplayStatus="Collapsed">
+          <ConditionFilter Condition="@Data.questionID~ == 2432 or @Data.questionID~ == 2439 or @Data.questionID~ == 1866 or @Data.questionID~ == 2140" />
+          <CrosstabFilter CrosstabLabelColumn="answerTextCommon" CrosstabValueColumn="QtyAnswerID" CrosstabValueFunction="Any" CrosstabColumn="CLASS" />
+        </DataLayer>
+        <CrosstabTableLabelColumn Class="ThemeHeader">
+          <Label Caption="@Data.answerTextCommon~" />
+        </CrosstabTableLabelColumn>
+        <CrosstabTableValueColumns ID="ctSatVals" Header="@Data.rdCrosstabColumn~" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+          <Label Caption="@Data.rdCrosstabValue~" Class="ThemeAlignCenter" />
+        </CrosstabTableValueColumns>
+      </CrosstabTable>
+    </Division>
+    <Division ID="divExperience" ShowModes="Experience">
+      <CrosstabTable ID="ctSurveyDetailsExperience" CellSpacing="7px" Width="650" WidthScale="px">
+        <DataLayer Type="Linked" LinkedDataLayerID="dllSurveyData">
+          <ConditionFilter Condition="@Data.questionID~ == 2433 or @Data.questionID~ == 2440" />
+          <CrosstabFilter CrosstabLabelColumn="answerTextCommon" CrosstabValueColumn="QtyAnswerID" CrosstabValueFunction="Any" CrosstabColumn="CLASS" />
+        </DataLayer>
+        <CrosstabTableLabelColumn Class="ThemeHeader" ID="ctLabelExperience" IdeDisplayStatus="Collapsed">
+          <Label Caption="@Data.answerTextCommon~" />
+        </CrosstabTableLabelColumn>
+        <CrosstabTableValueColumns ID="ctSatValsExp" Header="@Data.rdCrosstabColumn~" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+          <Label Caption="@Data.rdCrosstabValue~" Class="ThemeAlignCenter" />
+        </CrosstabTableValueColumns>
+        <CrosstabTableLabelColumn ID="ctLogosExperience" Header="Logos" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+          <Label Caption="n/a" Class="ThemeAlignCenter" />
+        </CrosstabTableLabelColumn>
+        <CrosstabTableLabelColumn ID="ctUpdatesExperience" Header="Updates" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+          <Label Caption="n/a" Class="ThemeAlignCenter" />
+        </CrosstabTableLabelColumn>
+      </CrosstabTable>
+    </Division>
+  </Body>
+  <ReportFooter />
+  <ideTestParams />
+</Report>

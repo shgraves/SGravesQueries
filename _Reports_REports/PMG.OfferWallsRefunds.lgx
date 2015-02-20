@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.OfferWallsRefunds" SavedBy="JOMAX\mxnguyen" SavedAt="11/22/2013 10:59:20 AM" EngineVersion="11.0.43" SecurityReportRightID="LogiCT, DL-os2-godaddy, GDSP_C3_OS2_Members, ENGAGE-OS2-REPS">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams rptStart="@Date.LastMonthStart~" rptEnd="@Date.LastMonthEnd~" islVendor="All Vendors" />
+  <LocalData>
+    <DataLayer Type="SQL" ConnectionID="connM1BIG-biLogiReporting" Source="declare @report_start datetime = '@Request.rptStart~'&#xD;&#xA;declare @report_end datetime = dateadd(d, 1, '@Request.rptEnd~')&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;	orderID&#xD;&#xA;	, shopperID&#xD;&#xA;	, country&#xD;&#xA;	, orderDate&#xD;&#xA;	, v.name as vendor&#xD;&#xA;	, source_code&#xD;&#xA;	, isFirstOrder&#xD;&#xA;	, gcr&#xD;&#xA;	, refunds&#xD;&#xA;	, refundDate&#xD;&#xA;	, fraudRefund&#xD;&#xA;	, otherAbuse&#xD;&#xA;	, cid as id&#xD;&#xA;	, left(notes, 100) as notes -- truncate to prevent PII from displaying&#xD;&#xA;FROM [BiLogiReporting].[dbo].[rptOfferWallsOrders] o (nolock)&#xD;&#xA;JOIN godaddy.dbo.isc_sourcecode sc (nolock) on o.sourcecode = sc.source_code and sc.privateLabelID = 1&#xD;&#xA;JOIN godaddy.dbo.isc_vendor v (nolock) on sc.vendor_id = v.vendor_id&#xD;&#xA;where orderDate &gt;= @report_start and orderDate &lt; @report_end&#xD;&#xA;and (v.name = '@Request.islVendor~' or '@Request.islVendor~' = 'All Vendors')&#xD;&#xA;order by orderDate&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;" ID="dlOrders">
+      <DataLayerLink ID="dllOrders" />
+    </DataLayer>
+    <DataLayer Type="SQL" ConnectionID="connM1BIG-biLogiReporting" Source="SELECT DISTINCT&#xD;&#xA;	v.name as vendor&#xD;&#xA;  FROM [BiLogiReporting].[dbo].[rptOfferWallsOrders] o (nolock)&#xD;&#xA;  join godaddy.dbo.isc_sourcecode sc (nolock) on o.sourcecode = sc.source_code and sc.privateLabelID = 1&#xD;&#xA;  join godaddy.dbo.isc_vendor v (nolock) on sc.vendor_id = v.vendor_id&#xD;&#xA;" ID="dlVendors">
+      <DataLayerLink ID="dllVendors" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader ShowModes="rdBrowser">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <Division ID="divHeader" ShowModes="rdBrowser">
+      <Rows ID="rowReportHeader" Class="gdReportHeader">
+        <Row ID="rowReportTitle" Class="gdReportHeader">
+          <Column>
+            <Label Caption="OfferWalls Refund Report" Class="gdReportHeaderNameBI" />
+            <Image Caption="betasoftware.jpg" ID="imgBeta" Width="50" Height="50" />
+            <LineBreak />
+          </Column>
+        </Row>
+        <Row>
+          <Column>
+            <Spaces Size="6" />
+            <InputDate ID="rptStart" Caption="Report Start:" DefaultValue="@Request.rptStart~" />
+            <Spaces Size="3" />
+            <InputDate ID="rptEnd" Caption="End:" DefaultValue="@Request.rptEnd~" />
+            <Spaces Size="3" />
+            <InputSelectList ID="islVendor" OptionValueColumn="vendor" OptionCaptionColumn="vendor" IncludeBlank="True" IncludeBlankCaption="All Vendors" IncludeBlankValue="All Vendors" DefaultValue="@Request.islVendor~">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllVendors" />
+            </InputSelectList>
+            <Spaces Size="3" />
+            <Button ID="btnSubmit" Caption="Submit">
+              <Action Type="Report" ID="actSubmit">
+                <Target Type="Report" ID="tgOfferWalls" Report="PMG.OfferWallsRefunds" RequestForwarding="True" />
+              </Action>
+            </Button>
+            <Button ID="btnExport" Caption="Export to Excel" IdeDisplayStatus="Collapsed">
+              <Action Type="NativeExcel" ID="actExportExcel" IdeDisplayStatus="Collapsed">
+                <Target Type="NativeExcel" ExcelOutputFormat="Excel2007" ExportFilename="OfferWallsReport.xlsx" ID="tgtExcel" />
+              </Action>
+            </Button>
+          </Column>
+        </Row>
+      </Rows>
+      <LineBreak />
+    </Division>
+    <Division ID="divData">
+      <DataTable ID="dtValues" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="ThemeHeaderSmall" AjaxPaging="True" Class="ThemeTextSmall" TableBorder="1" CellSpacing="0">
+        <InteractivePaging CaptionType="Image" PageRowCount="500" HideWhenOnePage="True" ShowPageNumber="Numbered" />
+        <DataLayer Type="Linked" LinkedDataLayerID="dllOrders" />
+        <Remark>
+          <AutoColumns />
+        </Remark>
+        <DataTableColumn ID="colshopperID" Header="Shopper ID">
+          <Label ID="lblshopperID" Caption="@Data.shopperID~" />
+          <DataColumnSort DataColumn="shopperID" />
+          <ExcelColumnFormat ExcelColumnWidth="10" DataType="Number" />
+        </DataTableColumn>
+        <DataTableColumn ID="colorderID" Header="Order ID">
+          <Label ID="lblorderID" Caption="@Data.orderID~" />
+          <DataColumnSort DataColumn="orderID" />
+          <ExcelColumnFormat ExcelColumnWidth="10" DataType="Number" />
+          <DataColumnSummary DataColumn="orderID" Function="Count" ID="dcOrders" />
+        </DataTableColumn>
+        <DataTableColumn ID="colcountry" Header="Country">
+          <Label ID="lblcountry" Caption="@Data.country~" />
+          <DataColumnSort DataColumn="country" />
+          <ExcelColumnFormat ExcelColumnWidth="20" />
+        </DataTableColumn>
+        <DataTableColumn ID="colorderDate" Header="Order Date">
+          <Label ID="lblorderDate" Caption="@Data.orderDate~" Format="MM/dd/yyyy hh:mm:ss" />
+          <DataColumnSort DataColumn="orderDate" DataType="Date" />
+          <ExcelColumnFormat ExcelColumnWidth="20" DataType="Date" />
+        </DataTableColumn>
+        <DataTableColumn ID="colvendor" Header="Vendor">
+          <Label ID="lblvendor" Caption="@Data.vendor~" />
+          <DataColumnSort DataColumn="vendor" />
+          <ExcelColumnFormat ExcelColumnWidth="25" />
+        </DataTableColumn>
+        <DataTableColumn ID="colsource_code" Header="Source Code">
+          <Label ID="lblsource_code" Caption="@Data.source_code~" />
+          <DataColumnSort DataColumn="source_code" />
+          <ExcelColumnFormat ExcelColumnWidth="15" />
+        </DataTableColumn>
+        <DataTableColumn ID="colisFirstOrder" Header="First Order">
+          <Label ID="lblisFirstOrder" Caption="@Data.isFirstOrder~" Format="True/False" />
+          <DataColumnSort DataColumn="isFirstOrder" />
+          <ExcelColumnFormat ExcelColumnWidth="10" />
+        </DataTableColumn>
+        <DataTableColumn ID="colgcr" Header="GCR">
+          <Label ID="lblgcr" Caption="@Data.gcr~" Format="Currency" />
+          <DataColumnSort DataColumn="gcr" DataType="Number" />
+          <ExcelColumnFormat ExcelColumnWidth="10" DataType="Number" />
+          <DataColumnSummary DataColumn="gcr" Function="Sum" ID="dcGcr" />
+        </DataTableColumn>
+        <DataTableColumn ID="colrefunds" Header="Refunds">
+          <Label ID="lblrefunds" Caption="@Data.refunds~" Format="Currency" />
+          <DataColumnSort DataColumn="refunds" DataType="Number" />
+          <ExcelColumnFormat ExcelColumnWidth="10" DataType="Number" />
+          <DataColumnSummary DataColumn="refunds" Function="Sum" ID="dcRefunds" />
+        </DataTableColumn>
+        <DataTableColumn ID="colrefundDate" Header="Refund Date">
+          <Label ID="lblrefundDate" Caption="@Data.refundDate~" Format="MM/dd/yyyy hh:mm:ss" />
+          <DataColumnSort DataColumn="refundDate" DataType="Date" />
+          <ExcelColumnFormat ExcelColumnWidth="20" />
+        </DataTableColumn>
+        <DataTableColumn ID="colfraudRefund" Header="Fraud Refund">
+          <Label ID="lblfraudRefund" Caption="@Data.fraudRefund~" />
+          <DataColumnSort DataColumn="fraudRefund" />
+          <ExcelColumnFormat ExcelColumnWidth="12" />
+        </DataTableColumn>
+        <DataTableColumn ID="colotherAbuse" Header="Other Abuse">
+          <Label ID="lblotherAbuse" Caption="@Data.otherAbuse~" />
+          <DataColumnSort DataColumn="otherAbuse" />
+          <ExcelColumnFormat ExcelColumnWidth="10" />
+        </DataTableColumn>
+        <DataTableColumn ID="colid" Header="ID">
+          <Label ID="lblid" Caption="@Data.id~" />
+          <DataColumnSort DataColumn="id" />
+          <ExcelColumnFormat ExcelColumnWidth="40" />
+        </DataTableColumn>
+        <DataTableColumn ID="colnotes" Header="Fraud Notes">
+          <Label ID="lblnotes" Caption="@Data.notes~" />
+          <DataColumnSort DataColumn="notes" />
+          <ExcelColumnFormat ExcelColumnWidth="100" />
+        </DataTableColumn>
+        <SummaryRow ID="srTotals" Caption="Total" Class="ThemeBold" />
+      </DataTable>
+    </Division>
+  </Body>
+  <ReportFooter ShowModes="rdBrowser">
+    <Division Class="ThemeAlignCenter">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams rptStart="" rptEnd="" islVendor="" />
+</Report>

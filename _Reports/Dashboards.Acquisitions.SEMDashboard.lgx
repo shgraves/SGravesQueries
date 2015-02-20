@@ -1,0 +1,1495 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.Acquisitions.SEMDashboard" SavedBy="JOMAX\shgraves" SavedAt="9/18/2013 4:17:31 PM" EngineVersion="11.0.43" SecurityReportRightID="LogiCT">
+  <StyleSheet Theme="GDRPortal" StyleSheet="ERHubTheme.css" />
+  <DefaultRequestParams rptEnd="@Date.Yesterday~" />
+  <DefaultRequestParams rptYear="=Year(&quot;@Request.rptEnd~&quot;)" rptYearPY2="=Year(&quot;@Request.rptEnd~&quot;)-2" rptYearPY1="=Year(&quot;@Request.rptEnd~&quot;)-1" rptStart="=DateAdd(&quot;d&quot;,&quot;-30&quot;,&quot;@Request.rptEnd~&quot;)" />
+  <DefaultRequestParams islRegion="All" rdActiveTabIndex_rdDashboardTabs="0" islProductName="All" islBrandCd="3" />
+  <LocalData ID="ldSEMData">
+    <DataLayer Type="SQL" Source="&#xD;&#xA;&#xD;&#xA;Select 'All' as RegionName, 'All' as RegionCd&#xD;&#xA;&#xD;&#xA;UNION ALL&#xD;&#xA;&#xD;&#xA;SELECT Distinct Case when Region = 'AU' then 'Australia'&#xD;&#xA;	when Region = 'BR' then 'Brazil'&#xD;&#xA;	when Region = 'CA' then 'Canada'&#xD;&#xA;	when Region = 'IN' then 'India'&#xD;&#xA;	when Region = 'UK' then 'United Kingdom'&#xD;&#xA;	when Region = 'US' then 'United States'&#xD;&#xA;	when Region = 'CN' then 'China'&#xD;&#xA;	when Region = 'DE' then 'Germany'&#xD;&#xA;	when Region = 'Spanish' then 'Spanish Market'&#xD;&#xA;	else 'Rest of World' End as RegionName&#xD;&#xA;	, coalesce(Region,'RoW')  as RegionCd&#xD;&#xA;FROM [BiLogiReporting].[dbo].[rptSEMDashDailyByProduct] nc (nolock)&#xD;&#xA;option(maxdop 1);" ConnectionID="connM1BIG-BIGReporting" ID="dlSEMRegion">
+      <DataLayerLink ID="dllSEMRegion" />
+    </DataLayer>
+    <DataLayer Type="SQL" Source="&#xD;&#xA;Select 'All' as ProductName&#xD;&#xA;&#xD;&#xA;UNION ALL&#xD;&#xA;&#xD;&#xA;SELECT Distinct Product as ProductName&#xD;&#xA;FROM [BiLogiReporting].[dbo].[rptSEMDashDailyByProduct] nc (nolock)&#xD;&#xA;option(maxdop 1);" ConnectionID="connM1BIG-BIGReporting" ID="dlSEMProduct">
+      <DataLayerLink ID="dllSEMProduct" />
+    </DataLayer>
+    <DataLayer Type="SQL" Source="&#xD;&#xA;Select 'All' as 'Brand', 3 as 'BrandCd'&#xD;&#xA;&#xD;&#xA;UNION ALL&#xD;&#xA;&#xD;&#xA;SELECT Distinct Case when gdBrand = 1 then 'GoDaddy'&#xD;&#xA;	else 'Non-Godaddy' end as 'Brand'&#xD;&#xA;	, gdBrand&#xD;&#xA;FROM [BiLogiReporting].[dbo].[rptSEMDashDailyByProduct] nc (nolock)&#xD;&#xA;option(maxdop 1);" ConnectionID="connM1BIG-BIGReporting" ID="dlSEMBrand">
+      <DataLayerLink ID="dllSEMBrand" />
+    </DataLayer>
+    <DataLayer Type="SQL" Source="declare @ReportDate datetime = dateadd(d, 1, '@Request.rptEnd~')&#xD;&#xA;declare @ReportStart datetime = '@Request.rptStart~'&#xD;&#xA;declare @RegionCd varchar = '@Request.islRegion~'&#xD;&#xA;declare @ProductName varchar = '@Request.islProductName~'&#xD;&#xA;declare @Brand varchar = '@Request.islBrandCd~'&#xD;&#xA;&#xD;&#xA;select&#xD;&#xA;	a.rptDate&#xD;&#xA;	, a.Region&#xD;&#xA;	, newCusts&#xD;&#xA;	, orders&#xD;&#xA;	, spend&#xD;&#xA;	, py1Date&#xD;&#xA;	, newCustsPY1&#xD;&#xA;	, ordersPY1&#xD;&#xA;	, spendPY1&#xD;&#xA;	, py2Date&#xD;&#xA;	, newCustsPY2&#xD;&#xA;	, ordersPY2&#xD;&#xA;	, spendPY2&#xD;&#xA;from&#xD;&#xA;(&#xD;&#xA;select&#xD;&#xA;	rptDate&#xD;&#xA;	, isnull(Region, 'Other') as Region&#xD;&#xA;	, sum(newCusts) as newCusts&#xD;&#xA;	, sum(orders) as orders&#xD;&#xA;	, sum(spend*0.01) as spend&#xD;&#xA;FROM [BiLogiReporting].[dbo].[rptSEMDashDailyByProduct] nc (nolock)&#xD;&#xA;where rptDate &gt;= @ReportStart and rptDate &lt; @ReportDate&#xD;&#xA;	and subChannelID in (1,83)&#xD;&#xA;	AND (coalesce(region,'Row') = '@Request.islRegion~' OR '@Request.islRegion~' = 'All' )&#xD;&#xA;	AND (product in ('@Request.islProductName~') OR '@Request.islProductName~' = 'All' )&#xD;&#xA;	AND (convert(varchar,gdBrand) = '@Request.islBrandCd~' OR '@Request.islBrandCd~' = 3 )&#xD;&#xA;group by rptDate, Region&#xD;&#xA;) a&#xD;&#xA;left join&#xD;&#xA;(&#xD;&#xA;select&#xD;&#xA;	dateadd(d,364,rptDate) as rptDate&#xD;&#xA;	, isnull(Region, 'Other') as Region&#xD;&#xA;	, rptDate as py1Date&#xD;&#xA;	, sum(newCusts) as newCustsPY1&#xD;&#xA;	, sum(orders) as ordersPY1&#xD;&#xA;	, sum(spend*0.01) as spendPY1&#xD;&#xA;FROM [BiLogiReporting].[dbo].[rptSEMDashDailyByProduct] nc (nolock)&#xD;&#xA;where rptDate &gt;= dateadd(d, -364, @ReportStart) and rptDate &lt; dateadd(d,-364,@ReportDate)&#xD;&#xA;	and subChannelID in (1,83)&#xD;&#xA;	AND (coalesce(region,'Row') = '@Request.islRegion~' OR '@Request.islRegion~' = 'All' )&#xD;&#xA;	AND (product in ('@Request.islProductName~') OR '@Request.islProductName~' = 'All' )&#xD;&#xA;	AND (convert(varchar,gdBrand) = '@Request.islBrandCd~' OR '@Request.islBrandCd~' = 3 )&#xD;&#xA;group by dateadd(d,364,rptDate)&#xD;&#xA;	, rptDate, Region&#xD;&#xA;) b on a.rptdate = b.rptdate and a.Region = b.Region&#xD;&#xA;left join&#xD;&#xA;(&#xD;&#xA;select&#xD;&#xA;	dateadd(d,2*364,rptDate) as rptDate&#xD;&#xA;	, isnull(Region, 'Other') as Region&#xD;&#xA;	, rptDate as py2Date&#xD;&#xA;	, sum(newCusts) as newCustsPY2&#xD;&#xA;	, sum(orders) as ordersPY2&#xD;&#xA;	, sum(spend*0.01) as spendPY2&#xD;&#xA;FROM [BiLogiReporting].[dbo].[rptSEMDashDailyByProduct] nc (nolock)&#xD;&#xA;where rptDate &gt;= dateadd(d, -2*364, @ReportStart) and rptDate &lt; dateadd(d,-2*364,@ReportDate)&#xD;&#xA;	and subChannelID in (1,83)&#xD;&#xA;	AND (coalesce(region,'Row') = '@Request.islRegion~' OR '@Request.islRegion~' = 'All' )&#xD;&#xA;	AND (product in ('@Request.islProductName~') OR '@Request.islProductName~' = 'All' )&#xD;&#xA;	AND (convert(varchar,gdBrand) = '@Request.islBrandCd~' OR '@Request.islBrandCd~' = 3 )&#xD;&#xA;group by dateadd(d,364,rptDate)&#xD;&#xA;	, rptDate, Region&#xD;&#xA;) c on a.rptdate = c.rptdate and a.Region = c.Region&#xD;&#xA;order by rptDate, Region&#xD;&#xA;option(maxdop 1);&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;" ConnectionID="connM1BIG-BIGReporting" ID="dlSEMDataTrend">
+      <DataLayerLink ID="dllSEMDataTrend" />
+    </DataLayer>
+    <DataLayer Type="SQL" Source="declare @ReportDate datetime = dateadd(d, 1, '@Request.rptEnd~')&#xD;&#xA;declare @ReportStart datetime = '@Request.rptStart~'&#xD;&#xA;declare @RegionCd varchar = '@Request.islRegion~'&#xD;&#xA;declare @ProductName varchar = '@Request.islProductName~'&#xD;&#xA;declare @BrandCd varchar = '@Request.islBrandCd~'&#xD;&#xA;&#xD;&#xA;select&#xD;&#xA;	a.rptDateRes&#xD;&#xA;	, a.RegionRes&#xD;&#xA;	, newCustsRes&#xD;&#xA;	, ordersRes&#xD;&#xA;	, spendRes&#xD;&#xA;	, py1DateRes&#xD;&#xA;	, newCustsPY1Res&#xD;&#xA;	, ordersPY1Res&#xD;&#xA;	, spendPY1Res&#xD;&#xA;	, py2DateRes&#xD;&#xA;	, newCustsPY2Res&#xD;&#xA;	, ordersPY2Res&#xD;&#xA;	, spendPY2Res&#xD;&#xA;from&#xD;&#xA;(&#xD;&#xA;select&#xD;&#xA;	rptDate as rptDateRes&#xD;&#xA;	, isnull(Region, 'Other') as RegionRes&#xD;&#xA;	, sum(newCusts) as newCustsRes&#xD;&#xA;	, sum(orders) as ordersRes&#xD;&#xA;	, sum(spend*0.01) as spendRes&#xD;&#xA;FROM [BiLogiReporting].[dbo].[rptSEMDashDailyByProduct] nc (nolock)&#xD;&#xA;where rptDate &gt;= @ReportStart and rptDate &lt; @ReportDate&#xD;&#xA;	and subChannelID in (122)&#xD;&#xA;	AND (coalesce(region,'RoW') = '@Request.islRegion~' OR '@Request.islRegion~' = 'All' OR '@Request.islRegion~' = '')&#xD;&#xA;	AND (product in ('@Request.islProductName~') OR '@Request.islProductName~' = 'All' )&#xD;&#xA;	AND (convert(varchar,gdBrand) = '@Request.islBrandCd~' OR '@Request.islBrandCd~' = 3 )&#xD;&#xA;group by rptDate, Region&#xD;&#xA;) a&#xD;&#xA;left join&#xD;&#xA;(&#xD;&#xA;select&#xD;&#xA;	dateadd(d,364,rptDate) as rptDateRes&#xD;&#xA;	, isnull(Region, 'Other') as RegionRes&#xD;&#xA;	, rptDate as py1DateRes&#xD;&#xA;	, sum(newCusts) as newCustsPY1Res&#xD;&#xA;	, sum(orders) as ordersPY1Res&#xD;&#xA;	, sum(spend*0.01) as spendPY1Res&#xD;&#xA;FROM [BiLogiReporting].[dbo].[rptSEMDashDailyByProduct] nc (nolock)&#xD;&#xA;where rptDate &gt;= dateadd(d, -364, @ReportStart) and rptDate &lt; dateadd(d,-364,@ReportDate)&#xD;&#xA;	and subChannelID in (122)&#xD;&#xA;	AND (coalesce(region,'RoW') = '@Request.islRegion~' OR '@Request.islRegion~' = 'All' OR '@Request.islRegion~' = '')&#xD;&#xA;	AND (product in ('@Request.islProductName~') OR '@Request.islProductName~' = 'All' )&#xD;&#xA;	AND (convert(varchar,gdBrand) = '@Request.islBrandCd~' OR '@Request.islBrandCd~' = 3 )&#xD;&#xA;group by dateadd(d,364,rptDate)&#xD;&#xA;	, rptDate, Region&#xD;&#xA;) b on a.rptdateRes = b.rptdateRes and a.RegionRes = b.RegionRes&#xD;&#xA;left join&#xD;&#xA;(&#xD;&#xA;select&#xD;&#xA;	dateadd(d,2*364,rptDate) as rptDateRes&#xD;&#xA;	, isnull(Region, 'Other') as RegionRes&#xD;&#xA;	, rptDate as py2DateRes&#xD;&#xA;	, sum(newCusts) as newCustsPY2Res&#xD;&#xA;	, sum(orders) as ordersPY2Res&#xD;&#xA;	, sum(spend*0.01) as spendPY2Res&#xD;&#xA;FROM [BiLogiReporting].[dbo].[rptSEMDashDailyByProduct] nc (nolock)&#xD;&#xA;where rptDate &gt;= dateadd(d, -2*364, @ReportStart) and rptDate &lt; dateadd(d,-2*364,@ReportDate)&#xD;&#xA;	and subChannelID in (122)&#xD;&#xA;	AND (coalesce(region,'RoW') = '@Request.islRegion~' OR '@Request.islRegion~' = 'All' OR '@Request.islRegion~' = '')&#xD;&#xA;	AND (product in ('@Request.islProductName~') OR '@Request.islProductName~' = 'All' )&#xD;&#xA;	AND (convert(varchar,gdBrand) = '@Request.islBrandCd~' OR '@Request.islBrandCd~' = 3 )&#xD;&#xA;group by dateadd(d,364,rptDate)&#xD;&#xA;	, rptDate, Region&#xD;&#xA;) c on a.rptdateRes = c.rptdateRes and a.RegionRes = c.RegionRes&#xD;&#xA;order by rptDateRes, RegionRes&#xD;&#xA;option(maxdop 1);&#xD;&#xA;;&#xD;&#xA;" ConnectionID="connM1BIG-BIGReporting" ID="dlSEMDataTrendReseller">
+      <DataLayerLink ID="dllSEMDataTrendReseller" />
+    </DataLayer>
+    <DataLayer Type="SQL" Source="declare @ReportDate datetime =  dateadd(d, 1, '@Request.rptEnd~')&#xD;&#xA;declare @ReportStart datetime =  '@Request.rptStart~'&#xD;&#xA;&#xD;&#xA;   IF OBJECT_ID('tempdb.dbo.#NewCustomers') IS NOT NULL DROP TABLE #NewCustomers&#xD;&#xA;        CREATE TABLE #NewCustomers(         &#xD;&#xA;            rptDate				Date&#xD;&#xA;            , Region            VARCHAR(10)     &#xD;&#xA;			, newCusts			INT&#xD;&#xA;			, py1Date			DATE&#xD;&#xA;			, newCustsPY1		INT&#xD;&#xA;			, py2Date			DATE&#xD;&#xA;			,newCustsPY2		INT&#xD;&#xA;	)&#xD;&#xA;&#xD;&#xA;Insert Into #NewCustomers&#xD;&#xA;	(rptDate, Region)&#xD;&#xA;	&#xD;&#xA;select&#xD;&#xA;	a.rptDate&#xD;&#xA;	, a.Region&#xD;&#xA;from&#xD;&#xA;(&#xD;&#xA;select distinct&#xD;&#xA;	nc.rptDate&#xD;&#xA;	, upper(isnull(ncr.Region, 'Other')) as Region&#xD;&#xA;from [DMStaging].[dbo].[rptSEOByRegionByChannel] nc (nolock)&#xD;&#xA;cross join [DMStaging].[dbo].[rptSEOByRegionByChannel] ncr (nolock)&#xD;&#xA;where nc.rptDate &gt;= @ReportStart and nc.rptDate &lt; @ReportDate&#xD;&#xA;) a&#xD;&#xA;&#xD;&#xA;-- Select * from #NewCustomers&#xD;&#xA;&#xD;&#xA;Update #NewCustomers&#xD;&#xA;Set newCusts = b.newCusts&#xD;&#xA;from #NewCustomers a&#xD;&#xA;	LEFT JOIN (select&#xD;&#xA;		rptDate&#xD;&#xA;		, upper(isnull(nc.Region, 'Other')) as Region&#xD;&#xA;		, isnull(sum(nc.customer_counts),0)  as newCusts&#xD;&#xA;	from [DMStaging].[dbo].[rptSEOByRegionByChannel] nc (nolock)&#xD;&#xA;	where rptDate &gt;= @ReportStart and rptDate &lt; @ReportDate&#xD;&#xA;	group by rptDate, Region&#xD;&#xA;	) b on a.rptdate = b.rptdate and a.Region = b.Region&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;Update #NewCustomers&#xD;&#xA;Set py1Date = b.py1Date, newCustsPY1 = b.newCustsPY1&#xD;&#xA;from #NewCustomers a&#xD;&#xA;	LEFT JOIN (select&#xD;&#xA;		dateadd(d,364,nc.rptDate) as rptDate&#xD;&#xA;		, upper(isnull(nc.Region, 'Other')) as Region&#xD;&#xA;		, nc.rptDate as py1Date&#xD;&#xA;		, isnull(sum(nc.customer_counts),0)  as newCustsPY1&#xD;&#xA;	from [DMStaging].[dbo].[rptSEOByRegionByChannel] nc (nolock)&#xD;&#xA;	where nc.rptDate &gt;= dateadd(d, -364, @ReportStart) and nc.rptDate &lt; dateadd(d,-364,@ReportDate)&#xD;&#xA;	group by dateadd(d,364,nc.rptDate)&#xD;&#xA;		, rptDate, Region&#xD;&#xA;	) b on a.rptdate = b.rptdate and a.Region = b.Region&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;Update #NewCustomers&#xD;&#xA;Set py2Date = c.py2Date, newCustsPY2 = c.newCustsPY2&#xD;&#xA;from #NewCustomers a&#xD;&#xA;	LEFT JOIN (select&#xD;&#xA;		dateadd(d,2*364,nc.rptDate) as rptDate&#xD;&#xA;		, upper(isnull(Region, 'Other')) as Region&#xD;&#xA;		, nc.rptDate as py2Date&#xD;&#xA;		, sum(customer_counts) as newCustsPY2&#xD;&#xA;	from [DMStaging].[dbo].[rptSEOByRegionByChannel] nc (nolock)&#xD;&#xA;	where nc.rptDate &gt;= dateadd(d, -2*364, @ReportStart) and nc.rptDate &lt; dateadd(d,-2*364,@ReportDate)&#xD;&#xA;	group by dateadd(d,364,nc.rptDate)&#xD;&#xA;		, nc.rptDate, Region&#xD;&#xA;) c on a.rptdate = c.rptdate and a.Region = c.Region&#xD;&#xA;option(maxdop 1);&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;select &#xD;&#xA;	rptDate&#xD;&#xA;	, Region&#xD;&#xA;	, isnull(newCusts,0) as newCusts&#xD;&#xA;	, coalesce(py1Date,dateadd(d, -364,rptDate)) as py1Date&#xD;&#xA;	, isnull(newCustsPY1,0) as newCustsPY1&#xD;&#xA;	, coalesce(py2Date,dateadd(d,-2*364,rptDate)) as py2Date&#xD;&#xA;	, isnull(newCustsPY2,0) as newCustsPY2&#xD;&#xA;from #NewCustomers&#xD;&#xA;order by rptDate, Region&#xD;&#xA;option(maxdop 1);&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;" ConnectionID="connM1BIG-BIGReporting" ID="dlSEODataTrend">
+      <DataLayerLink ID="dllSEODataTrend" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeader" ID="sharedHeaderElement" SharedElementID="sharedHeader" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rowHeader">
+      <Row>
+        <Column Width="205" Class="gdTextNormalWhite">
+          <IncludeHtml Html="&lt;h2&gt;SEM Dashboard (Beta)&lt;/h2&gt;" />
+        </Column>
+        <Column>
+          <Spaces Size="6" />
+          <InputDate ID="rptStart" Caption="Report Start:" DefaultValue="@Request.rptStart~" CaptionClass="rdAlternateTextColorWhite" />
+          <Spaces Size="3" />
+          <InputDate ID="rptEnd" Caption="End:" DefaultValue="@Request.rptEnd~" CaptionClass="rdAlternateTextColorWhite" />
+          <Spaces Size="40" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtSEMDashboard" Report="Dashboards.Acquisitions.SEMDashboard" RequestForwarding="True" />
+            </Action>
+          </Button>
+          <LineBreak />
+          <Division Condition="@Request.rdActiveTabIndex_rdDashboardTabs~= 0">
+            <Spaces Size="6" />
+            <InputSelectList OptionCaptionColumn="RegionName" OptionValueColumn="RegionCd" ID="islRegion" MultiSelect="False" Caption="Region:" DefaultValue="@Request.islRegion~" CaptionClass="rdAlternateTextColorWhite">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllSEMRegion" ID="edllSEMRegion" />
+            </InputSelectList>
+            <Spaces Size="3" />
+            <InputSelectList OptionCaptionColumn="ProductName" OptionValueColumn="ProductName" ID="islProductName" MultiSelect="False" CaptionClass="rdAlternateTextColorWhite" Caption="Product:" DefaultValue="@Request.islProductName~">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllSEMProduct" ID="edllSEMProduct" />
+            </InputSelectList>
+            <Spaces Size="3" />
+            <InputSelectList OptionCaptionColumn="Brand" OptionValueColumn="BrandCd" ID="islBrandCd" MultiSelect="False" CaptionClass="rdAlternateTextColorWhite" Caption="Brand:" DefaultValue="@Request.islBrandCd~">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllSEMBrand" ID="edllSEMBrand" />
+            </InputSelectList>
+            <Spaces Size="3" />
+          </Division>
+        </Column>
+      </Row>
+      <Row IdeDisplayStatus="Collapsed">
+        <Remark>
+          <Column ColSpan="2">
+            <Division ID="divDates" ShowModes="All">
+              <Division ID="divBaselineDates" ShowModes="None">
+                <HR />
+                <Division ID="divUpdateMessage" ShowModes="None">
+                  <Label Caption="Data updating, please wait to click &quot;Submit&quot;." Class="gdTextNegative" />
+                  <LineBreak />
+                  <LineBreak />
+                </Division>
+                <InputDate ID="DateBaseline1" Caption="Baseline 1:" DefaultValue="=DateAdd(&quot;d&quot;,-7,&quot;@Request.dateStart~&quot;)" ChangeFlagElementID="inpDateBaseline1Changed" CaptionClass="rdAlternateTextColorWhite">
+                  <Validation Type="Date" />
+                </InputDate>
+                <Spaces Size="9" />
+                <InputDate ID="DateBaseline2" DefaultValue="=DateAdd(&quot;d&quot;,-14,&quot;@Request.dateStart~&quot;)" CaptionClass="rdAlternateTextColorWhite" Caption="Baseline 2:">
+                  <Validation Type="Date" />
+                </InputDate>
+                <Spaces Size="9" />
+                <InputDate ID="DateBaseline3" DefaultValue="=DateAdd(&quot;d&quot;,-21,&quot;@Request.dateStart~&quot;)" CaptionClass="rdAlternateTextColorWhite" Caption="Baseline 3:">
+                  <Validation Type="Date" />
+                </InputDate>
+                <Spaces Size="9" />
+                <InputDate ID="DatePast" Caption="Last Year Date:" DefaultValue="=DateAdd(&quot;ww&quot;,-52,&quot;@Request.dateStart~&quot;)" CaptionClass="rdAlternateTextColorWhite">
+                  <Validation Type="Date" />
+                </InputDate>
+                <LineBreak />
+                <LineBreak />
+              </Division>
+              <Division ID="divActiveDates" ShowModes="None">
+                <Label Caption="Active Report Dates: @Request.dateStart~, @Request.dateBaseline1~, @Request.dateBaseline2~, @Request.dateBaseline3~, @Request.datePast~" Class="gdTextNormalWhite" />
+                <LineBreak />
+                <HR />
+              </Division>
+            </Division>
+          </Column>
+        </Remark>
+      </Row>
+    </Rows>
+    <Dashboard2 SaveFile="@Function.AppPhysicalPath~\Dashboard\SEMDashboard_@Function.UserName~.xml" DashboardColumns="4" ID="dashSEM" DashboardTabs="True" SaveFileStarter="@Function.AppPhysicalPath~\Dashboard\SEMDashdefault.xml">
+      <Panel ID="pnlNewCustomersTotal" Caption="New Customers - Total" IdeDisplayStatus="Collapsed">
+        <PanelContent IdeDisplayStatus="Collapsed">
+          <Division ID="divNewCustsTotalChart" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtNewCustomersTotal" ChartDataColumn="gacNewCusts" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMNewCustTrendLink1" LinkedDataLayerID="dllSEMDataTrend">
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY1" ID="ecNewCustsPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY2" ID="ecNewCustsPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated" IdeDisplayStatus="Collapsed">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divNewCustsTotalData" />
+            </Label>
+          </Division>
+          <Division ID="divNewCustsTotalData" ShowModes="None">
+            <DataTable ID="dtNewCustomersTotal" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSEMNewCustTrendLink2" LinkedDataLayerID="dllSEMDataTrend">
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCusts" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCusts~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlNewCustomersDomestic" Caption="New Customers - Domestic" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divNewCustsDomesticChart" Class="ThemeAlignCenter" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtNewCustomersDomestic" ChartDataColumn="gacNewCusts" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMNewCustTrendLink3" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; = &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDomestic">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY1" ID="ecNewCustsPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY2" ID="ecNewCustsPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divNewCustsDomesticData" />
+            </Label>
+          </Division>
+          <Division ID="divNewCustsDomesticData" ShowModes="None" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)">
+            <DataTable ID="dtNewCustomersDomestic" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSEMNewCustTrendLink4" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; = &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDomestic">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCusts" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCusts~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlNewCustomersIntl" Caption="New Customers - International" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divNewCustsIntlChart" Class="ThemeAlignCenter" Condition="(&quot;@Request.islRegion~&quot;&lt;&gt;&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtNewCustomersIntl" ChartDataColumn="gacNewCusts" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMNewCustTrendLink5" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; &lt;&gt; &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY1" ID="ecNewCustsPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY2" ID="ecNewCustsPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divNewCustsIntlData" />
+            </Label>
+          </Division>
+          <Division ID="divNewCustsIntlData" ShowModes="None" Condition="(&quot;@Request.islRegion~&quot;&lt;&gt;&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtNewCustomersIntl" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSEMNewCustTrendLink6" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; &lt;&gt; &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCusts" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCusts~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlNewCustomersTotalReseller" Caption="New Customers - Reseller" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divNewCustsTotalChartReseller" Class="ThemeAlignCenter" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtNewCustomersTotalReseller" ChartDataColumn="gacNewCustsRes" ChartLabelColumn="rptDateRes" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMNewCustTrendLinkR1" LinkedDataLayerID="dllSEMDataTrendReseller">
+                <GroupFilter GroupColumn="rptDateRes" ID="gfDateRes">
+                  <GroupAggregateColumn AggregateColumn="newCustsRes" AggregateFunction="Sum" ID="gacNewCustsRes" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1Res" AggregateFunction="Sum" ID="gacNewCustsPY1Res" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2Res" AggregateFunction="Sum" ID="gacNewCustsPY2Res" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY1Res" ID="ecNewCustsPY1Res" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY2Res" ID="ecNewCustsPY2Res" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divNewCustsTotalDataReseller" />
+            </Label>
+          </Division>
+          <Division ID="divNewCustsTotalDataReseller" ShowModes="None" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtNewCustomersTotalReseller" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSEMNewCustTrendLinkR2" LinkedDataLayerID="dllSEMDataTrendReseller">
+                <GroupFilter GroupColumn="rptDateRes" ID="gfDateRes">
+                  <GroupAggregateColumn AggregateColumn="newCustsRes" AggregateFunction="Sum" ID="gacNewCustsRes" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1Res" AggregateFunction="Sum" ID="gacNewCustsPY1Res" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2Res" AggregateFunction="Sum" ID="gacNewCustsPY2Res" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDayRes" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDateRes~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsRes" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsRes~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY1Res" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY1Res~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY2Res" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY2Res~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlOrdersTotal" Caption="Orders - Total" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divOrdersTotalChart" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtOrdersTotal" ChartDataColumn="gacOrders" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMOrdersTrendLink1" LinkedDataLayerID="dllSEMDataTrend">
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="orders" AggregateFunction="Sum" ID="gacOrders" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY1" AggregateFunction="Sum" ID="gacOrdersPY1" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY2" AggregateFunction="Sum" ID="gacOrdersPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacOrdersPY1" ID="ecOrdersPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacOrdersPY2" ID="ecOrdersPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divOrdersTotalData" />
+            </Label>
+          </Division>
+          <Division ID="divOrdersTotalData" ShowModes="None" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtOrdersTotal" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllOrdersTrendLink2" LinkedDataLayerID="dllSEMDataTrend">
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="orders" AggregateFunction="Sum" ID="gacOrders" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY1" AggregateFunction="Sum" ID="gacOrdersPY1" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY2" AggregateFunction="Sum" ID="gacOrdersPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colOrders" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacOrders~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colOrdersPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacOrdersPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colOrdersPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacOrdersPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlOrdersDomestic" Caption="Orders - Domestic" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divOrdersDomesticChart" Class="ThemeAlignCenter" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;)  OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtOrdersDomestic" ChartDataColumn="gacOrders" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMOrdersTrendLink1" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; = &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="orders" AggregateFunction="Sum" ID="gacOrders" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY1" AggregateFunction="Sum" ID="gacOrdersPY1" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY2" AggregateFunction="Sum" ID="gacOrdersPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacOrdersPY1" ID="ecOrdersPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacOrdersPY2" ID="ecOrdersPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divOrdersDomesticData" />
+            </Label>
+          </Division>
+          <Division ID="divOrdersDomesticData" ShowModes="None" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR  (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtOrdersDomestic" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllOrdersTrendLink2" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; = &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="orders" AggregateFunction="Sum" ID="gacOrders" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY1" AggregateFunction="Sum" ID="gacOrdersPY1" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY2" AggregateFunction="Sum" ID="gacOrdersPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colOrders" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacOrders~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colOrdersPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacOrdersPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colOrdersPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacOrdersPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlOrdersIntl" Caption="Orders - Intl" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divOrdersIntlChart" Class="ThemeAlignCenter" Condition="(&quot;@Request.islRegion~&quot;&lt;&gt;&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtOrdersIntl" ChartDataColumn="gacOrders" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMOrdersTrendLink1" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; &lt;&gt; &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="orders" AggregateFunction="Sum" ID="gacOrders" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY1" AggregateFunction="Sum" ID="gacOrdersPY1" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY2" AggregateFunction="Sum" ID="gacOrdersPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacOrdersPY1" ID="ecOrdersPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacOrdersPY2" ID="ecOrdersPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divOrdersIntlData" />
+            </Label>
+          </Division>
+          <Division ID="divOrdersIntlData" ShowModes="None" Condition="(&quot;@Request.islRegion~&quot;&lt;&gt;&quot;US&quot;)  OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtOrdersIntl" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllOrdersTrendLink2" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; &lt;&gt; &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="orders" AggregateFunction="Sum" ID="gacOrders" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY1" AggregateFunction="Sum" ID="gacOrdersPY1" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY2" AggregateFunction="Sum" ID="gacOrdersPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colOrders" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacOrders~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colOrdersPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacOrdersPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colOrdersPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacOrdersPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlOrdersTotalReseller" Caption="Orders - Reseller" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divOrdersTotalChartReseller" Class="ThemeAlignCenter" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtOrdersTotalReseller" ChartDataColumn="gacOrdersRes" ChartLabelColumn="rptDateRes" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMOrdersTrendLinkR1" LinkedDataLayerID="dllSEMDataTrendReseller">
+                <GroupFilter GroupColumn="rptDateRes" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="ordersRes" AggregateFunction="Sum" ID="gacOrdersRes" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY1Res" AggregateFunction="Sum" ID="gacOrdersPY1Res" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY2Res" AggregateFunction="Sum" ID="gacOrdersPY2Res" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacOrdersPY1Res" ID="ecOrdersPY1Res" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacOrdersPY2Res" ID="ecOrdersPY2Res" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divOrdersTotalDataRes" />
+            </Label>
+          </Division>
+          <Division ID="divOrdersTotalDataRes" ShowModes="None" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtOrdersTotalRes" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllOrdersTrendLinkR2" LinkedDataLayerID="dllSEMDataTrendReseller">
+                <GroupFilter GroupColumn="rptDateRes" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="ordersRes" AggregateFunction="Sum" ID="gacOrdersRes" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY1Res" AggregateFunction="Sum" ID="gacOrdersPY1Res" />
+                  <GroupAggregateColumn AggregateColumn="ordersPY2Res" AggregateFunction="Sum" ID="gacOrdersPY2Res" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDateRes~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colOrdersRes" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacOrdersRes~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colOrdersPY1Res" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacOrdersPY1Res~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colOrdersPY2Res" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacOrdersPY2Res~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlSpendTotal" Caption="Spend - Total" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSpendTotalChart" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtSpendTotal" ChartDataColumn="gacSpend" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMSpendTrendLink1" LinkedDataLayerID="dllSEMDataTrend" IdeDisplayStatus="Collapsed">
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="spend" AggregateFunction="Sum" ID="gacSpend" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1" AggregateFunction="Sum" ID="gacSpendPY1" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2" AggregateFunction="Sum" ID="gacSpendPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacSpendPY1" ID="ecSpendPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacSpendPY2" ID="ecSpendPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="$#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated" IdeDisplayStatus="Collapsed">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divSpendTotalData" />
+            </Label>
+          </Division>
+          <Division ID="divSpendTotalData" ShowModes="None">
+            <DataTable ID="dtSpendTotal" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSpendTrendLink2" LinkedDataLayerID="dllSEMDataTrend">
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="spend" AggregateFunction="Sum" ID="gacSpend" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1" AggregateFunction="Sum" ID="gacSpendPY1" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2" AggregateFunction="Sum" ID="gacSpendPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSpend" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacSpend~" Format="$#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSpendPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacSpendPY1~" Format="$#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSpendPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacSpendPY2~" Format="$#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlSpendDomestic" Caption="Spend - Domestic" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSpendDomesticChart" Class="ThemeAlignCenter" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtSpendDomestic" ChartDataColumn="gacSpend" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMSpendTrendLink1" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; = &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="spend" AggregateFunction="Sum" ID="gacSpend" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1" AggregateFunction="Sum" ID="gacSpendPY1" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2" AggregateFunction="Sum" ID="gacSpendPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacSpendPY1" ID="ecSpendPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacSpendPY2" ID="ecSpendPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="$#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divSpendDomesticData" />
+            </Label>
+          </Division>
+          <Division ID="divSpendDomesticData" ShowModes="None" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtSpendDomestic" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSpendTrendLink2" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; = &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="spend" AggregateFunction="Sum" ID="gacSpend" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1" AggregateFunction="Sum" ID="gacSpendPY1" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2" AggregateFunction="Sum" ID="gacSpendPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSpend" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacSpend~" Format="$#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSpendPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacSpendPY1~" Format="$#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSpendPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacSpendPY2~" Format="$#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlSpendIntl" Caption="Spend - Intl" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSpendIntlChart" Class="ThemeAlignCenter" Condition="(&quot;@Request.islRegion~&quot;&lt;&gt;&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtSpendIntl" ChartDataColumn="gacSpend" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMSpendTrendLink1" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; &lt;&gt; &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="spend" AggregateFunction="Sum" ID="gacSpend" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1" AggregateFunction="Sum" ID="gacSpendPY1" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2" AggregateFunction="Sum" ID="gacSpendPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacSpendPY1" ID="ecSpendPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacSpendPY2" ID="ecSpendPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="$#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divSpendIntlData" />
+            </Label>
+          </Division>
+          <Division ID="divSpendIntlData" ShowModes="None" Condition="(&quot;@Request.islRegion~&quot;&lt;&gt;&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtSpendIntl" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSpendTrendLink2" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; &lt;&gt; &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="spend" AggregateFunction="Sum" ID="gacSpend" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1" AggregateFunction="Sum" ID="gacSpendPY1" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2" AggregateFunction="Sum" ID="gacSpendPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSpend" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacSpend~" Format="$#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSpendPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacSpendPY1~" Format="$#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSpendPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacSpendPY2~" Format="$#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlSpendReseller" Caption="Spend - Reseller" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSpendTotalChartRes" Class="ThemeAlignCenter" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtSpendTotalRes" ChartDataColumn="gacSpendRes" ChartLabelColumn="rptDateRes" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMSpendTrendLinkR1" LinkedDataLayerID="dllSEMDataTrendReseller">
+                <GroupFilter GroupColumn="rptDateRes" ID="gfDateRes">
+                  <GroupAggregateColumn AggregateColumn="spendRes" AggregateFunction="Sum" ID="gacSpendRes" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1Res" AggregateFunction="Sum" ID="gacSpendPY1Res" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2Res" AggregateFunction="Sum" ID="gacSpendPY2Res" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacSpendPY1Res" ID="ecSpendPY1Res" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacSpendPY2Res" ID="ecSpendPY2Res" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="$#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divSpendTotalDataRes" />
+            </Label>
+          </Division>
+          <Division ID="divSpendTotalDataRes" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed" ShowModes="None">
+            <DataTable ID="dtSpendTotalRes" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSpendTrendLinkR2" LinkedDataLayerID="dllSEMDataTrendReseller">
+                <GroupFilter GroupColumn="rptDateRes" ID="gfDateRes">
+                  <GroupAggregateColumn AggregateColumn="spendRes" AggregateFunction="Sum" ID="gacSpendRes" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1Res" AggregateFunction="Sum" ID="gacSpendPY1Res" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2Res" AggregateFunction="Sum" ID="gacSpendPY2Res" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDateRes" SortSequence="Descending" DataType="Date" ID="sfDateRes" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDateRes~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSpendRes" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacSpendRes~" Format="$#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSpendPY1Res" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacSpendPY1Res~" Format="$#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSpendPY2Res" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacSpendPY2Res~" Format="$#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlCPATotal" Caption="CPA - Total" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divCPATotalChart" Class="ThemeAlignCenter">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtCPATotal" ChartDataColumn="ccCPA" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMCPATrendLink1" LinkedDataLayerID="dllSEMDataTrend">
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="spend" AggregateFunction="Sum" ID="gacSpend" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1" AggregateFunction="Sum" ID="gacSpendPY1" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2" AggregateFunction="Sum" ID="gacSpendPY2" />
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <CalculatedColumn ID="ccCPA" Formula="iif(@Data.gacNewCusts~= 0,0,@Data.gacSpend~/@Data.gacNewCusts~)" />
+                <CalculatedColumn ID="ccCPAPY1" Formula="iif(@Data.gacNewCustsPY1~= 0,0,@Data.gacSpendPY1~/@Data.gacNewCustsPY1~)" />
+                <CalculatedColumn ID="ccCPAPY2" Formula="iif(@Data.gacNewCustsPY2~= 0,0,@Data.gacSpendPY2~/@Data.gacNewCustsPY2~)" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="ccCPAPY1" ID="ecCPAPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="ccCPAPY2" ID="ecCPAPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="$#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divCPATotalData" />
+            </Label>
+          </Division>
+          <Division ID="divCPATotalData" ShowModes="None" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtCPATotal" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllCPATrendLink2" LinkedDataLayerID="dllSEMDataTrend">
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="spend" AggregateFunction="Sum" ID="gacSpend" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1" AggregateFunction="Sum" ID="gacSpendPY1" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2" AggregateFunction="Sum" ID="gacSpendPY2" />
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+                <CalculatedColumn ID="ccCPA" Formula="iif(@Data.gacNewCusts~= 0,0,@Data.gacSpend~/@Data.gacNewCusts~)" />
+                <CalculatedColumn ID="ccCPAPY1" Formula="iif(@Data.gacNewCustsPY1~= 0,0,@Data.gacSpendPY1~/@Data.gacNewCustsPY1~)" />
+                <CalculatedColumn ID="ccCPAPY2" Formula="iif(@Data.gacNewCustsPY2~= 0,0,@Data.gacSpendPY2~/@Data.gacNewCustsPY2~)" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCPA" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.ccCPA~" Format="$#,0.00" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCPAPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.ccCPAPY1~" Format="$#,0.00" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCPAPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.ccCPAPY2~" Format="$#,0.00" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlCPADomestic" Caption="CPA - Domestic" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divCPADomesticChart" Class="ThemeAlignCenter" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtCPADomestic" ChartDataColumn="ccCPA" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMCPATrendLink1" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; = &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="spend" AggregateFunction="Sum" ID="gacSpend" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1" AggregateFunction="Sum" ID="gacSpendPY1" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2" AggregateFunction="Sum" ID="gacSpendPY2" />
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <CalculatedColumn ID="ccCPA" Formula="iif(@Data.gacNewCusts~= 0,0,@Data.gacSpend~/@Data.gacNewCusts~)" />
+                <CalculatedColumn ID="ccCPAPY1" Formula="iif(@Data.gacNewCustsPY1~= 0,0,@Data.gacSpendPY1~/@Data.gacNewCustsPY1~)" />
+                <CalculatedColumn ID="ccCPAPY2" Formula="iif(@Data.gacNewCustsPY2~= 0,0,@Data.gacSpendPY2~/@Data.gacNewCustsPY2~)" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="ccCPAPY1" ID="ecCPAPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="ccCPAPY2" ID="ecCPAPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="$#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divCPADomesticData" />
+            </Label>
+          </Division>
+          <Division ID="divCPADomesticData" ShowModes="None" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtCPADomestic" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllCPATrendLink2" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; = &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="spend" AggregateFunction="Sum" ID="gacSpend" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1" AggregateFunction="Sum" ID="gacSpendPY1" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2" AggregateFunction="Sum" ID="gacSpendPY2" />
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+                <CalculatedColumn ID="ccCPA" Formula="iif(@Data.gacNewCusts~= 0,0,@Data.gacSpend~/@Data.gacNewCusts~)" />
+                <CalculatedColumn ID="ccCPAPY1" Formula="iif(@Data.gacNewCustsPY1~= 0,0,@Data.gacSpendPY1~/@Data.gacNewCustsPY1~)" />
+                <CalculatedColumn ID="ccCPAPY2" Formula="iif(@Data.gacNewCustsPY2~= 0,0,@Data.gacSpendPY2~/@Data.gacNewCustsPY2~)" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCPA" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.ccCPA~" Format="$#,0.00" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCPAPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.ccCPAPY1~" Format="$#,0.00" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCPAPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.ccCPAPY2~" Format="$#,0.00" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlCPAIntl" Caption="CPA - Intl" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divCPAIntlChart" Class="ThemeAlignCenter" Condition="(&quot;@Request.islRegion~&quot;&lt;&gt;&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtCPAIntl" ChartDataColumn="ccCPA" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMCPATrendLink1" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; &lt;&gt; &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="spend" AggregateFunction="Sum" ID="gacSpend" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1" AggregateFunction="Sum" ID="gacSpendPY1" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2" AggregateFunction="Sum" ID="gacSpendPY2" />
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <CalculatedColumn ID="ccCPA" Formula="iif(@Data.gacNewCusts~= 0,0,@Data.gacSpend~/@Data.gacNewCusts~)" />
+                <CalculatedColumn ID="ccCPAPY1" Formula="iif(@Data.gacNewCustsPY1~= 0,0,@Data.gacSpendPY1~/@Data.gacNewCustsPY1~)" />
+                <CalculatedColumn ID="ccCPAPY2" Formula="iif(@Data.gacNewCustsPY2~= 0,0,@Data.gacSpendPY2~/@Data.gacNewCustsPY2~)" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="ccCPAPY1" ID="ecCPAPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="ccCPAPY2" ID="ecCPAPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="$#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divCPAIntlData" />
+            </Label>
+          </Division>
+          <Division ID="divCPAIntlData" ShowModes="None" Condition="(&quot;@Request.islRegion~&quot;&lt;&gt;&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtCPAIntl" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllCPATrendLink2" LinkedDataLayerID="dllSEMDataTrend">
+                <ConditionFilter Condition="&quot;@Data.Region~&quot; &lt;&gt; &quot;US&quot;" ID="cfRegion" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="spend" AggregateFunction="Sum" ID="gacSpend" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1" AggregateFunction="Sum" ID="gacSpendPY1" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2" AggregateFunction="Sum" ID="gacSpendPY2" />
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+                <CalculatedColumn ID="ccCPA" Formula="iif(@Data.gacNewCusts~= 0,0,@Data.gacSpend~/@Data.gacNewCusts~)" />
+                <CalculatedColumn ID="ccCPAPY1" Formula="iif(@Data.gacNewCustsPY1~= 0,0,@Data.gacSpendPY1~/@Data.gacNewCustsPY1~)" />
+                <CalculatedColumn ID="ccCPAPY2" Formula="iif(@Data.gacNewCustsPY2~= 0,0,@Data.gacSpendPY2~/@Data.gacNewCustsPY2~)" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCPA" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.ccCPA~" Format="$#,0.00" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCPAPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.ccCPAPY1~" Format="$#,0.00" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCPAPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.ccCPAPY2~" Format="$#,0.00" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlCPATotalReseller" Caption="CPA - Reseller" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divCPATotalChartRes" Class="ThemeAlignCenter" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtCPATotalRes" ChartDataColumn="ccCPARes" ChartLabelColumn="rptDateRes" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEMCPATrendLinkR1" LinkedDataLayerID="dllSEMDataTrendReseller">
+                <GroupFilter GroupColumn="rptDateRes" ID="gfDateRes">
+                  <GroupAggregateColumn AggregateColumn="spendRes" AggregateFunction="Sum" ID="gacSpendRes" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1Res" AggregateFunction="Sum" ID="gacSpendPY1Res" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2Res" AggregateFunction="Sum" ID="gacSpendPY2Res" />
+                  <GroupAggregateColumn AggregateColumn="newCustsRes" AggregateFunction="Sum" ID="gacNewCustsRes" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1Res" AggregateFunction="Sum" ID="gacNewCustsPY1Res" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2Res" AggregateFunction="Sum" ID="gacNewCustsPY2Res" />
+                </GroupFilter>
+                <CalculatedColumn ID="ccCPARes" Formula="iif(@Data.gacNewCustsRes~= 0,0,@Data.gacSpendRes~/@Data.gacNewCustsRes~)" />
+                <CalculatedColumn ID="ccCPAPY1Res" Formula="iif(@Data.gacNewCustsPY1Res~= 0,0,@Data.gacSpendPY1Res~/@Data.gacNewCustsPY1Res~)" />
+                <CalculatedColumn ID="ccCPAPY2Res" Formula="iif(@Data.gacNewCustsPY2Res~= 0,0,@Data.gacSpendPY2Res~/@Data.gacNewCustsPY2Res~)" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="ccCPAPY1Res" ID="ecCPAPY1Res" LegendLabel="@Request.rptYearPY1Res~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="ccCPAPY2Res" ID="ecCPAPY2Res" LegendLabel="@Request.rptYearPY2Res~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="$#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowDataRes" ElementID="divCPATotalDataRes" />
+            </Label>
+          </Division>
+          <Division ID="divCPATotalDataRes" ShowModes="None" Condition="(&quot;@Request.islRegion~&quot;=&quot;US&quot;) OR (&quot;@Request.islRegion~&quot;=&quot;All&quot;)" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtCPATotalRes" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllCPATrendLinkR2" LinkedDataLayerID="dllSEMDataTrendReseller">
+                <GroupFilter GroupColumn="rptDateRes" ID="gfDateRes">
+                  <GroupAggregateColumn AggregateColumn="spendRes" AggregateFunction="Sum" ID="gacSpendRes" />
+                  <GroupAggregateColumn AggregateColumn="spendPY1Res" AggregateFunction="Sum" ID="gacSpendPY1Res" />
+                  <GroupAggregateColumn AggregateColumn="spendPY2Res" AggregateFunction="Sum" ID="gacSpendPY2Res" />
+                  <GroupAggregateColumn AggregateColumn="newCustsRes" AggregateFunction="Sum" ID="gacNewCustsRes" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1Res" AggregateFunction="Sum" ID="gacNewCustsPY1Res" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2Res" AggregateFunction="Sum" ID="gacNewCustsPY2Res" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDateRes" SortSequence="Descending" DataType="Date" ID="sfDateRes" />
+                <CalculatedColumn ID="ccCPARes" Formula="@Data.gacSpendRes~/@Data.gacNewCustsRes~" />
+                <CalculatedColumn ID="ccCPAPY1Res" Formula="@Data.gacSpendPY1Res~/@Data.gacNewCustsPY1Res~" />
+                <CalculatedColumn ID="ccCPAPY2Res" Formula="@Data.gacSpendPY2Res~/@Data.gacNewCustsPY2Res~" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDateRes~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCPARes" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.ccCPARes~" Format="$#,0.00" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCPAPY1Res" Header="@Request.rptYearPY1Res~" Class="ThemeAlignRight">
+                <Label Caption="@Data.ccCPAPY1Res~" Format="$#,0.00" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCPAPY2Res" Header="@Request.rptYearPY2Res~" Class="ThemeAlignRight">
+                <Label Caption="@Data.ccCPAPY2Res~" Format="$#,0.00" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlSEONewCustomersBR" Caption="SEO New Customers - Brazil" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSEONewCustsBRChart" Class="ThemeAlignCenter">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtSEONewCustomersBR" ChartDataColumn="gacNewCusts" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEONewCustBRTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="BR" ID="cfRegionBR" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY1" ID="ecNewCustsPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY2" ID="ecNewCustsPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divSEONewCustsBRData" />
+            </Label>
+          </Division>
+          <Division ID="divSEONewCustsBRData" ShowModes="None">
+            <DataTable ID="dtSEONewCustomersBR" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSEONewCustBRTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="BR" ID="cfRegionBR" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate" IncludeCondition="True">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCusts" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCusts~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlSEONewCustomersUS" Caption="SEO New Customers - US" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSEONewCustsUSChart" Class="ThemeAlignCenter">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtSEONewCustomersUS" ChartDataColumn="gacNewCusts" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEONewCustUSTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="US" ID="cfRegionUS" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY1" ID="ecNewCustsPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY2" ID="ecNewCustsPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divSEONewCustsUSData" />
+            </Label>
+          </Division>
+          <Division ID="divSEONewCustsUSData" ShowModes="None">
+            <DataTable ID="dtSEONewCustomersUS" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSEONewCustUSTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="US" ID="cfRegionUS" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate" IncludeCondition="True">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCusts" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCusts~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlSEONewCustomersAU" Caption="SEO New Customers - Australia" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSEONewCustsAUChart" Class="ThemeAlignCenter">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtSEONewCustomersAU" ChartDataColumn="gacNewCusts" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEONewCustAUTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="AU" ID="cfRegionAU" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY1" ID="ecNewCustsPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY2" ID="ecNewCustsPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divSEONewCustsAUData" />
+            </Label>
+          </Division>
+          <Division ID="divSEONewCustsAUData" ShowModes="None">
+            <DataTable ID="dtSEONewCustomersAU" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSEONewCustAUTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="AU" ID="cfRegionAU" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate" IncludeCondition="True">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCusts" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCusts~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlSEONewCustomersRoW" Caption="SEO New Customers - Rest of World" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSEONewCustsRoWChart" Class="ThemeAlignCenter">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtSEONewCustomersRoW" ChartDataColumn="gacNewCusts" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEONewCustRoWTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="ROW" ID="cfRegionRoW" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY1" ID="ecNewCustsPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY2" ID="ecNewCustsPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divSEONewCustsRoWData" />
+            </Label>
+          </Division>
+          <Division ID="divSEONewCustsRoWData" ShowModes="None">
+            <DataTable ID="dtSEONewCustomersRoW" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSEONewCustRoWTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="ROW" ID="cfRegionRoW" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate" IncludeCondition="True">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCusts" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCusts~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlSEONewCustomersIN" Caption="SEO New Customers - India" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSEONewCustsINChart" Class="ThemeAlignCenter">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtSEONewCustomersIN" ChartDataColumn="gacNewCusts" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEONewCustINTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="IN" ID="cfRegionIN" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY1" ID="ecNewCustsPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY2" ID="ecNewCustsPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divSEONewCustsINData" />
+            </Label>
+          </Division>
+          <Division ID="divSEONewCustsINData" ShowModes="None" IdeDisplayStatus="Collapsed">
+            <DataTable ID="dtSEONewCustomersIN" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSEONewCustINTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="IN" ID="cfRegionIN" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate" IncludeCondition="True">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCusts" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCusts~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlSEONewCustomersSpanish" Caption="SEO New Customers - Spanish" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSEONewCustsSPNChart" Class="ThemeAlignCenter">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtSEONewCustomersSPN" ChartDataColumn="gacNewCusts" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEONewCustSPNTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="SPANISH" ID="cfRegionSPN" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY1" ID="ecNewCustsPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY2" ID="ecNewCustsPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divSEONewCustsSPNData" />
+            </Label>
+          </Division>
+          <Division ID="divSEONewCustsSPNData" ShowModes="None">
+            <DataTable ID="dtSEONewCustomersSPN" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSEONewCustSPNTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="SPANISH" ID="cfRegionSPN" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate" IncludeCondition="True">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCusts" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCusts~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlSEONewCustomersCA" Caption="SEO New Customers - Canada" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSEONewCustsCAChart" Class="ThemeAlignCenter">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtSEONewCustomersCA" ChartDataColumn="gacNewCusts" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEONewCustCATrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="CA" ID="cfRegionCA" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY1" ID="ecNewCustsPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY2" ID="ecNewCustsPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divSEONewCustsCAData" />
+            </Label>
+          </Division>
+          <Division ID="divSEONewCustsCAData" ShowModes="None">
+            <DataTable ID="dtSEONewCustomersCA" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSEONewCustCATrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="CA" ID="cfRegionCA" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate" IncludeCondition="True">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCusts" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCusts~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlSEONewCustomersUK" Caption="SEO New Customers - United Kingdom" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSEONewCustsUKChart" Class="ThemeAlignCenter">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtSEONewCustomersUK" ChartDataColumn="gacNewCusts" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEONewCustUKTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="UK" ID="cfRegionUK" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY1" ID="ecNewCustsPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY2" ID="ecNewCustsPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divSEONewCustsUKData" />
+            </Label>
+          </Division>
+          <Division ID="divSEONewCustsUKData" ShowModes="None">
+            <DataTable ID="dtSEONewCustomersUK" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSEONewCustUKTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="UK" ID="cfRegionUK" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate" IncludeCondition="True">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCusts" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCusts~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlSEONewCustomersCN" Caption="SEO New Customers - China" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSEONewCustsCNChart" Class="ThemeAlignCenter">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="300" ChartWidth="450" ID="chtSEONewCustomersCN" ChartDataColumn="gacNewCusts" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" LineStyle="SolidLine" Color="#077fc2" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderBottom="60" BorderTop="25" BorderLeft="45" BorderRight="10" GridHorizontalColor="#DDDDDD" LegendLabel="@Request.rptYear~">
+              <DataLayer Type="Linked" ID="dllSEONewCustCNTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="CN" ID="cfRegionCN" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY1" ID="ecNewCustsPY1" LegendLabel="@Request.rptYearPY1~" Color="Black" />
+              <ExtraXYDataColumn ChartDataColumn="gacNewCustsPY2" ID="ecNewCustsPY2" LegendLabel="@Request.rptYearPY2~" Color="#d27a23" />
+              <LabelScale ScalingMode="LinearTime" Format="MM/dd" />
+              <Legend LegendTop="275" LegendOrientation="Horizontal" LegendLeft="100" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ID="actShowData" ElementID="divSEONewCustsCNData" />
+            </Label>
+          </Division>
+          <Division ID="divSEONewCustsCNData" ShowModes="None">
+            <DataTable ID="dtSEONewCustomersCN" Width="450" WidthScale="px">
+              <DataLayer Type="Linked" ID="dllSEONewCustCNTrendLink" LinkedDataLayerID="dllSEODataTrend">
+                <CompareFilter DataColumn="Region" CompareType="=" CompareValue="CN" ID="cfRegionCN" />
+                <GroupFilter GroupColumn="rptDate" ID="gfDate" IncludeCondition="True">
+                  <GroupAggregateColumn AggregateColumn="newCusts" AggregateFunction="Sum" ID="gacNewCusts" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY1" AggregateFunction="Sum" ID="gacNewCustsPY1" />
+                  <GroupAggregateColumn AggregateColumn="newCustsPY2" AggregateFunction="Sum" ID="gacNewCustsPY2" />
+                </GroupFilter>
+                <SortFilter SortColumn="rptDate" SortSequence="Descending" DataType="Date" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colRptDay" Header="Date" Class="ThemeAlignCenter">
+                <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCusts" Header="@Request.rptYear~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCusts~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY1" Header="@Request.rptYearPY1~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY1~" Format="#,0" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewCustsPY2" Header="@Request.rptYearPY2~" Class="ThemeAlignRight">
+                <Label Caption="@Data.gacNewCustsPY2~" Format="#,0" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+    </Dashboard2>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <Division Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="sharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams dateStart="" dateBaseline1="" dateBaseline2="" dateBaseline3="" datePast="" rptYear="" rptYearPY2="" rptYearPY1="" rptEnd="" rptStart="" rptYearPY1Res="" rptYearPY2Res="" islRegion="" rdActiveTabIndex_rdDashboardTabs="" islProductName="" islBrandCd="" />
+</Report>

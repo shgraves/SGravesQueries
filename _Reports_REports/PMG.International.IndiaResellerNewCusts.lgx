@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.International.IndiaResellerNewCusts" SavedBy="JOMAX\shgraves" SavedAt="12/5/2013 9:56:33 AM" EngineVersion="11.0.43" SecurityReportRightID="LogiCT">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams rptStart="@Date.ThisMonthStart~" rptEnd="@Date.Today~" minRev="0" minNewCusts="1" />
+  <LocalData>
+    <DataLayer Type="SQL" ID="dlPLIDNewCusts" ConnectionID="connM1BIG-biLogiReporting" Source="&#xD;&#xA;declare @reportStart datetime = '@Request.rptStart~'&#xD;&#xA;declare @reportEnd datetime = '@Request.rptEnd~'&#xD;&#xA;declare @minRev int = '@Request.minRev~'&#xD;&#xA;declare @minNewCusts int = '@Request.minNewCusts~'&#xD;&#xA;&#xD;&#xA;declare @new_custs table&#xD;&#xA;	(&#xD;&#xA;	private_label_id int&#xD;&#xA;	, shopper_id varchar(10)&#xD;&#xA;	, order_date datetime&#xD;&#xA;	, transaction_currency varchar(10)&#xD;&#xA;	, rev_currency money&#xD;&#xA;	, rev_usd money&#xD;&#xA;	, rev_inr money&#xD;&#xA;	, INRbuy_rate money&#xD;&#xA;	, buy_rate money&#xD;&#xA;	, INRcommission money&#xD;&#xA;	, commission money&#xD;&#xA;	, unique clustered (private_label_id, shopper_id)&#xD;&#xA;	)&#xD;&#xA;&#xD;&#xA;insert into @new_custs&#xD;&#xA;select&#xD;&#xA;	private_label_id&#xD;&#xA;	, shopper_id&#xD;&#xA;	, order_date&#xD;&#xA;	, transaction_currency&#xD;&#xA;	, sum(isnull(transaction_adjusted_price,0)*0.01) as rev_currency&#xD;&#xA;	, sum(isnull(adjusted_price,0)*0.01) as rev_usd&#xD;&#xA;	, sum(case when transaction_currency = 'inr' then isnull(transaction_adjusted_price,0)*0.01&#xD;&#xA;			   else isnull(adjusted_price,0)*0.01/cr.conversion_rate end) as rev_inr&#xD;&#xA;	, sum(isnull(rcm.buy_rate+transaction_fee+Icann_fee,0)*0.01/cr.conversion_rate) as INRbuy_rate  &#xD;&#xA;	, sum(isnull(rcm.buy_rate+transaction_fee+Icann_fee,0)*0.01) as buy_rateCalcd  &#xD;&#xA;	, sum(rcm.commission*.01/cr.conversion_rate) as INRcommission&#xD;&#xA;	, sum(rcm.commission)*.01 as commission&#xD;&#xA;from bigreporting.dbo.rptOrderDetail od (nolock)&#xD;&#xA;JOIN [godaddyAccounting].[dbo].[resellercommission_mart] rcm on od.order_id = rcm.order_id and od.row_id = rcm.row_id&#xD;&#xA;JOIN [DMStaging].[dbo].[rptCurrencyConversionRate] cr (nolock) on datediff(d,0,od.order_date) = datediff(d, 0, cr.report_date) and cr.source_currency_type = 'INR' and cr.target_currency_type = 'USD'&#xD;&#xA;where private_label_id &lt;&gt; 1&#xD;&#xA;	and is_first_order = 1&#xD;&#xA;	and od.order_date &gt;= @reportStart and od.order_date &lt; @reportEnd&#xD;&#xA;group by private_label_id, shopper_id, order_date, transaction_currency&#xD;&#xA;having sum(case when transaction_currency = 'inr' then transaction_adjusted_price*0.01 else adjusted_price*0.01/cr.conversion_rate end) &gt;= @minRev&#xD;&#xA;option(maxdop 1);&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;select &#xD;&#xA;	bill.entity_id as plid&#xD;&#xA;	, bill.shopper_id as pl_shopper_id&#xD;&#xA;	, City as pl_city&#xD;&#xA;	, nc.shopper_id&#xD;&#xA;	, nc.order_date&#xD;&#xA;	, nc.transaction_currency&#xD;&#xA;	, nc.rev_currency&#xD;&#xA;	, nc.rev_usd&#xD;&#xA;	, nc.rev_inr&#xD;&#xA;	, INRbuy_rate&#xD;&#xA;	, nc.buy_rate&#xD;&#xA;	, INRcommission&#xD;&#xA;	, nc.commission&#xD;&#xA;	, cnt.new_custs&#xD;&#xA;FROM @new_custs nc&#xD;&#xA;JOIN godaddy.dbo.gdshop_privatelabel_billing bill WITH (NOLOCK) ON nc.private_label_id = bill.entity_id&#xD;&#xA;JOIN BIGReporting.dbo.rptNewCustomerDetail ncd (nolock) on bill.shopper_id = ncd.shopper_id&#xD;&#xA;JOIN CustomerTracking.dbo.shopperHeader sha (nolock) on bill.shopper_id = sha.shopper_id&#xD;&#xA;JOIN&#xD;&#xA;	(&#xD;&#xA;	select&#xD;&#xA;		private_label_id&#xD;&#xA;		, count(1) as new_custs&#xD;&#xA;	from @new_custs nc&#xD;&#xA;	group by private_label_id&#xD;&#xA;	) as cnt on nc.private_label_id = cnt.private_label_id and cnt.new_custs &gt;= @minNewCusts&#xD;&#xA;where ncd.bill_to_country = 'in'&#xD;&#xA;order by plid&#xD;&#xA;option(maxdop 1);&#xD;&#xA;&#xD;&#xA;" IdeDisplayStatus="Collapsed">
+      <DataLayerLink ID="dllPLIDNewCusts" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader ShowModes="rdBrowser">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <Division ID="divHeader" ShowModes="rdBrowser">
+      <Rows ID="rowReportHeader" Class="gdReportHeader">
+        <Row ID="rowReportTitle" Class="gdReportHeader">
+          <Column Width="350" WidthScale="px" IdeDisplayStatus="Collapsed">
+            <Label Caption="India Reseller New Customer Report" Class="gdReportHeaderNameBI" />
+          </Column>
+          <Column IdeDisplayStatus="Collapsed">
+            <Image Caption="betasoftware.jpg" ID="imgBeta" Width="50" Height="50" />
+          </Column>
+        </Row>
+        <Row>
+          <Column Class="ThemeAlignRight">
+            <InputDate ID="rptStart" Caption="Report Start (&gt;=):" DefaultValue="@Request.rptStart~" />
+          </Column>
+          <Column Class="ThemeAlignRight">
+            <InputDate ID="rptEnd" Caption="End (&lt;):" DefaultValue="@Request.rptEnd~" />
+          </Column>
+          <Column RowSpan="2">
+            <Button ID="btnSubmit" Caption="Submit">
+              <Action Type="Report" ID="actSubmit">
+                <Target Type="Report" ID="tgOfferWalls" Report="PMG.International.IndiaResellerNewCusts">
+                  <WaitPage Caption="Updating results" />
+                </Target>
+              </Action>
+            </Button>
+            <LineBreak />
+            <Button ID="btnExport" Caption="Export to Excel">
+              <Action Type="NativeExcel" ID="actExportExcel">
+                <Target Type="NativeExcel" ExcelOutputFormat="Excel2007" ExportFilename="IndiaResellerNewCustomers.xlsx" ID="tgtExcel">
+                  <WaitPage Caption="Please wait while report is generated" />
+                </Target>
+              </Action>
+            </Button>
+          </Column>
+        </Row>
+        <Row>
+          <Column Class="ThemeAlignRight">
+            <InputText ID="minRev" Caption="Min Rev (INR):" DefaultValue="@Request.minRev~" />
+          </Column>
+          <Column Class="ThemeAlignRight">
+            <InputText ID="minNewCusts" Caption="Min New Customers:" DefaultValue="@Request.minNewCusts~" />
+          </Column>
+        </Row>
+      </Rows>
+      <LineBreak />
+    </Division>
+    <Division ID="divData" ShowModes="rdBrowser">
+      <DataTable ID="dtPLIDs" Width="1000" WidthScale="px" TableBorder="1" CellSpacing="0" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="ThemeHeader">
+        <DataLayer Type="Linked" LinkedDataLayerID="dllPLIDNewCusts" ID="dlLinkPLID">
+          <GroupFilter GroupColumn="plid" />
+        </DataLayer>
+        <DataTableColumn ID="colplid" Header="PLID" Width="8" WidthScale="%">
+          <Label ID="lblplid" Caption="@Data.plid~" />
+          <DataColumnSort DataColumn="plid" DataType="Number" />
+        </DataTableColumn>
+        <DataTableColumn ID="colpl_shopper_id" Header="PL Shopper ID" Width="10" WidthScale="%">
+          <Label ID="lblpl_shopper_id" Caption="@Data.pl_shopper_id~" />
+          <DataColumnSort DataColumn="pl_shopper_id" />
+        </DataTableColumn>
+        <DataTableColumn ID="colpl_city" Header="PL City" Width="15" WidthScale="%">
+          <Label ID="lblpl_city" Caption="@Data.pl_city~" />
+          <DataColumnSort DataColumn="pl_city" />
+        </DataTableColumn>
+        <DataTableColumn ID="colnew_custs" Header="New Customers" Width="125" WidthScale="%" Class="ThemeAlignLeft">
+          <Label ID="lblnew_custs" Caption="@Data.new_custs~" />
+          <DataColumnSort DataColumn="pl_city" />
+        </DataTableColumn>
+        <MoreInfoRow ColumnSpanFirst="4" ID="MoreInfoNewCusts">
+          <SubDataTable ID="dtNewCusts" Width="100" WidthScale="%" CellSpacing="0" TableBorder="1" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="ThemeHeader">
+            <SubDataLayer ID="sdlNewCusts" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllPLIDNewCusts" />
+              <SubDataLayerRelationColumn ChildColumn="plid" ID="relPLID" ParentColumn="plid" />
+            </SubDataLayer>
+            <DataTableColumn ID="colshopper_id" Header="Shopper ID" IdeDisplayStatus="Collapsed" Width="10">
+              <Label Caption="@Data.shopper_id~" />
+              <DataColumnSummary DataColumn="shopper_id" Function="Count" ID="dcShoppers" />
+            </DataTableColumn>
+            <DataTableColumn ID="colorder_date" Header="Acq Date" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.order_date~" Format="yyyy/MM/dd" />
+            </DataTableColumn>
+            <DataTableColumn ID="coltransaction_currency" Header="Currency" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.transaction_currency~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colrev_currency" Header="Rev (transaction)" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.rev_currency~" Format="###,###,##0.00" />
+              <DataColumnSummary DataColumn="rev_currency" Function="Sum" ID="dcRevCurrency" />
+            </DataTableColumn>
+            <DataTableColumn ID="colrev_usd" Header="Rev (in USD)" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.rev_usd~" Format="###,###,##0.00" />
+              <DataColumnSummary DataColumn="rev_usd" Function="Sum" ID="dcRevUSD" />
+            </DataTableColumn>
+            <DataTableColumn ID="colrev_inr" Header="Rev (in INR)" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.rev_inr~" Format="###,###,##0.00" />
+              <DataColumnSummary DataColumn="rev_inr" Function="Sum" ID="dcRevINR" />
+            </DataTableColumn>
+            <DataTableColumn ID="colbuy_rate_usd" Header="Buy Rate (in USD)" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.buy_rate~" Format="###,###,##0.00" />
+              <DataColumnSummary DataColumn="buy_rate" Function="Sum" ID="dcBuyRateUSD" />
+            </DataTableColumn>
+            <DataTableColumn ID="colbuy_rate_inr" Header="Buy Rate (in INR)" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.INRbuy_rate~" Format="###,###,##0.00" />
+              <DataColumnSummary DataColumn="INRbuy_rate" Function="Sum" ID="dcBuyRateINR" />
+            </DataTableColumn>
+            <DataTableColumn ID="colcommission_usd" Header="Commission (in USD)" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.commission~" Format="###,###,##0.00" />
+              <DataColumnSummary DataColumn="commission" Function="Sum" ID="dcCommissionUSD" />
+            </DataTableColumn>
+            <DataTableColumn ID="colcommission_inr" Header="Commission (in INR)" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.INRcommission~" Format="###,###,##0.00" />
+              <DataColumnSummary DataColumn="INRcommission" Function="Sum" ID="dcCommissionINR" />
+            </DataTableColumn>
+            <SummaryRow Caption="Total:" ID="srTotal" Class="ThemeBold" />
+          </SubDataTable>
+        </MoreInfoRow>
+      </DataTable>
+    </Division>
+    <Division ID="divExcel" ShowModes="rdExportExcel">
+      <DataTable ID="dtPLIDsExport" Width="900" WidthScale="px" TableBorder="1" CellSpacing="0" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="ThemeHeader">
+        <DataLayer Type="Linked" LinkedDataLayerID="dllPLIDNewCusts" ID="dlLinkPLID" />
+        <DataTableColumn ID="colplid" Header="PLID" Width="10" WidthScale="%" IdeDisplayStatus="Collapsed">
+          <Label ID="lblplid" Caption="@Data.plid~" />
+          <HideDuplicates DataColumn="plid" />
+          <ExcelColumnFormat ExcelColumnWidth="15" DataType="Number" />
+        </DataTableColumn>
+        <DataTableColumn ID="colpl_shopper_id" Header="PL Shopper ID" Width="10" WidthScale="%" IdeDisplayStatus="Collapsed">
+          <Label ID="lblpl_shopper_id" Caption="@Data.pl_shopper_id~" />
+          <HideDuplicates DataColumn="pl_shopper_id" />
+          <ExcelColumnFormat ExcelColumnWidth="15" DataType="Number" />
+        </DataTableColumn>
+        <DataTableColumn ID="colpl_city" Header="PL City" Width="15" WidthScale="%" IdeDisplayStatus="Collapsed">
+          <Label ID="lblpl_city" Caption="@Data.pl_city~" />
+          <HideDuplicates DataColumn="pl_city" />
+          <ExcelColumnFormat ExcelColumnWidth="20" DataType="Text" />
+        </DataTableColumn>
+        <DataTableColumn ID="colshopper_id" Header="shopper_id" IdeDisplayStatus="Collapsed">
+          <Label ID="lblshopper_id" Caption="@Data.shopper_id~" />
+          <ExcelColumnFormat ExcelColumnWidth="15" DataType="Number" />
+        </DataTableColumn>
+        <DataTableColumn ID="colorder_date" Header="order_date" IdeDisplayStatus="Collapsed">
+          <Label ID="lblorder_date" Caption="@Data.order_date~" Format="Short Date" />
+          <ExcelColumnFormat ExcelColumnWidth="15" DataType="Date" />
+        </DataTableColumn>
+        <DataTableColumn ID="coltransaction_currency" Header="transaction_currency" IdeDisplayStatus="Collapsed">
+          <Label ID="lbltransaction_currency" Caption="@Data.transaction_currency~" />
+          <ExcelColumnFormat ExcelColumnWidth="15" DataType="Text" />
+        </DataTableColumn>
+        <DataTableColumn ID="colrev_currency" Header="rev_currency" IdeDisplayStatus="Collapsed">
+          <Label ID="lblrev_currency" Caption="@Data.rev_currency~" />
+          <ExcelColumnFormat ExcelColumnWidth="15" DataType="Number" />
+        </DataTableColumn>
+        <DataTableColumn ID="colrev_usd" Header="rev_usd" IdeDisplayStatus="Collapsed">
+          <Label ID="lblrev_usd" Caption="@Data.rev_usd~" />
+          <ExcelColumnFormat ExcelColumnWidth="15" DataType="Number" />
+        </DataTableColumn>
+        <DataTableColumn ID="colrev_inr" Header="rev_inr" IdeDisplayStatus="Collapsed">
+          <Label ID="lblrev_inr" Caption="@Data.rev_inr~" />
+          <ExcelColumnFormat ExcelColumnWidth="15" DataType="Number" />
+        </DataTableColumn>
+        <DataTableColumn ID="colbuy_rate_usd" Header="colbuy_rate_usd" IdeDisplayStatus="Collapsed">
+          <Label ID="lblbuyrate_usd" Caption="@Data.buy_rate~" />
+          <ExcelColumnFormat ExcelColumnWidth="15" DataType="Number" />
+        </DataTableColumn>
+        <DataTableColumn ID="colbuy_rate_inr" Header="colbuy_rate_inr" IdeDisplayStatus="Collapsed">
+          <Label ID="lblbuyrate_inr" Caption="@Data.INRbuy_rate~" />
+          <ExcelColumnFormat ExcelColumnWidth="15" DataType="Number" />
+        </DataTableColumn>
+        <DataTableColumn ID="colcommission_usd" Header="colcommission_usd" IdeDisplayStatus="Collapsed">
+          <Label ID="lblcommission" Caption="@Data.commission~" />
+          <ExcelColumnFormat ExcelColumnWidth="15" DataType="Number" />
+        </DataTableColumn>
+        <DataTableColumn ID="colcommission_inr" Header="colcommission_inr" IdeDisplayStatus="Collapsed">
+          <Label ID="lblINRcommission" Caption="@Data.INRcommission~" />
+          <ExcelColumnFormat ExcelColumnWidth="15" DataType="Number" />
+        </DataTableColumn>
+      </DataTable>
+    </Division>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed" ShowModes="rdBrowser">
+    <Division Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams rptStart="" rptEnd="" minRev="" minNewCusts="" />
+</Report>

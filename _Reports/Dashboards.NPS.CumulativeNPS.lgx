@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.NPS.CumulativeNPS" SavedBy="JOMAX\bgaer" SavedAt="12/13/2012 3:56:41 PM" EngineVersion="10.2.424">
+  <StyleSheet />
+  <ReportHeader />
+  <Body>
+    <Image ID="imgNPS" Caption="NPS.jpg" />
+    <LineBreak />
+    <Label ID="lblCurrentWeekNPS" Caption="Current Week NPS: @Local.WeeklyNPS~" />
+    <Spaces />
+    <Spaces />
+    <Spaces />
+    <Spaces />
+    <Spaces />
+    <Label ID="lblCumulativeNPS" Caption="Cumulative NPS: @Local.CumulativeNPS~" />
+  </Body>
+  <ReportFooter />
+  <LocalData ID="varWeeklyNPS">
+    <DataLayer Type="SP" ID="dlWeeklyNPS" Command="dbo.logiXML_getCurrentWeekNPS_sp" ConnectionID="BiLogiReporting-TEST" />
+  </LocalData>
+  <LocalData ID="varCumulativeNPS">
+    <DataLayer Type="SP" ID="dlCumulativeNPS" Command="dbo.logiXML_getCumulativeNPS_sp" ConnectionID="BiLogiReporting-TEST" />
+  </LocalData>
+</Report>

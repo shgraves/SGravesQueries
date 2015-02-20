@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Orchid.Test.AdvanceEmployeeSearch" SavedBy="JOMAX\twakefield" SavedAt="6/16/2014 3:04:18 PM" EngineVersion="11.0.43" SecurityReportRightID="GDSP_C3_C3workforce_Owners, Dev-C3 Support, BIG-Developer, InternalToolsQA, overlord_test_users, LogiXMLOrchidReports">
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <DefaultRequestParams ISLDisplay="0" />
+  <Body>
+    <Rows Width="100" WidthScale="%" CellSpacing="15px" Class="gdDefaultRowBground">
+      <Row Class=".gdDefaultDropDownBground">
+        <Column>
+          <Division ID="divParameters">
+            <Rows>
+              <Row Class="gdReportHeader">
+                <Column>
+                  <Spaces Size="2" />
+                  <Label Caption="Advance Employee Search (Test)" Class="gdReportHeaderNameIT" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colDropDowns" Width="900" WidthScale="px">
+                  <Rows ID="rowDropDowns" Class="gdDefaultDropDownBground">
+                    <Row ID="rowDropCols" IdeDisplayStatus="Collapsed">
+                      <Column ID="colLeft">
+                        <Rows Width="175" WidthScale="px" ID="rowsHeader">
+                          <Row ID="rowStatus">
+                            <Column ID="colDisplay" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption="Display " />
+                            </Column>
+                            <Column ID="colRptStatus">
+                              <InputSelectList ID="ISLDisplay" OptionValueColumn="DSLStatusID" OptionCaptionColumn="DSLStatusText" DefaultValue="@Request.ISLDisplay~">
+                                <DataLayer Type="Static" ID="SDLDisplay">
+                                  <StaticDataRow DSLStatusID="1" DSLStatusText="All Active Employees" />
+                                  <StaticDataRow DSLStatusID="2" DSLStatusText="All Terminated Employees" />
+                                  <StaticDataRow DSLStatusID="3" DSLStatusText="All Employees" />
+                                </DataLayer>
+                              </InputSelectList>
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Column ID="colCenter">
+                        <Rows>
+                          <Row ID="rowThat">
+                            <Column ID="colThat" IdeDisplayStatus="Collapsed">
+                              <Label Caption="that " />
+                            </Column>
+                            <Column ID="colRptThat">
+                              <InputSelectList ID="ISLThat" OptionValueColumn="DSLThatID" OptionCaptionColumn="DSLThatText" DefaultValue="@Request.ISLThat~">
+                                <DataLayer Type="Static" ID="SDLThat">
+                                  <StaticDataRow DSLThatID="1" DSLThatText="started" />
+                                  <StaticDataRow DSLThatID="2" DSLThatText="were terminated" />
+                                </DataLayer>
+                              </InputSelectList>
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Column ID="colRight">
+                        <Rows>
+                          <Row ID="rowCompare">
+                            <Column ID="colRptCompare" IdeDisplayStatus="Collapsed">
+                              <InputSelectList ID="ISLDateCompare" OptionValueColumn="DSLDateCompareID" OptionCaptionColumn="DSLDateCompareText" IdeDisplayStatus="Collapsed" DefaultValue="@Request.ISLDateCompare~">
+                                <DataLayer Type="Static" ID="SDLDateCompare">
+                                  <StaticDataRow DSLDateCompareID="1" DSLDateCompareText="on or before" />
+                                  <StaticDataRow DSLDateCompareID="2" DSLDateCompareText="before" />
+                                  <StaticDataRow DSLDateCompareID="3" DSLDateCompareText="on" />
+                                  <StaticDataRow DSLDateCompareID="4" DSLDateCompareText="on or after" />
+                                  <StaticDataRow DSLDateCompareID="5" DSLDateCompareText="after" />
+                                </DataLayer>
+                              </InputSelectList>
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Column ID="colFarRight">
+                        <Rows>
+                          <Row ID="rowDate">
+                            <Column ID="colRptDate">
+                              <InputDate ID="inpDate" CalendarLinkType="Image" DefaultValue="@Request.inpDate~" />
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                    </Row>
+                    <Row ID="rowSubmit">
+                      <Column ID="colSubmit" ColSpan="5" RowSpan="1">
+                        <Button ID="Submit" Caption="Submit" Tooltip="Click to Run Report">
+                          <EventHandler DhtmlEvent="onclick">
+                            <Action Type="Javascript" Javascript="validateForm()" ID="actValidate" />
+                          </EventHandler>
+                          <Action Type="Report" ID="actReport">
+                            <Target Type="Report" ID="tgtAdvanceEmployeeSearch" Report="Orchid.Test.AdvanceEmployeeSearch" />
+                          </Action>
+                        </Button>
+                        <Spaces Size="3" />
+                        <Button ID="btnExportExcel" Caption="Export" Tooltip="Click to Export to Excel">
+                          <Action Type="NativeExcel" ID="expExcel">
+                            <Target Type="NativeExcel" ID="tgtExcel" ExportFilename="AdvanceEmployeeSearch.xlsx" ShowGridlines="True" ExportDataTableID="DTAdvanceEmployee" ExcelOutputFormat="Excel2007" />
+                          </Action>
+                        </Button>
+                      </Column>
+                    </Row>
+                  </Rows>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <Division Condition="@Request.ISLDisplay~ &gt; 0" ID="divTable">
+      <DataTable ID="DTAdvanceEmployee" AltRowClass="gdThemeAltRowNoPadding td" SortArrows="True" CellSpacing="7 px">
+        <DataLayer Type="SP" ID="SPAdvanceEmployeeSearch" ConnectionID="connTestEmployeeMaster" Command="eRpt.AdvanceEmployeeSearch_sp">
+          <SPParameters IdeDisplayStatus="Collapsed">
+            <SPParameter ID="Status" Value="@Request.ISLDisplay~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+            <SPParameter ID="That" Value="@Request.ISLThat~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+            <SPParameter ID="Compare" Value="@Request.ISLDateCompare~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+            <SPParameter ID="Date" Value="@Request.inpDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+          </SPParameters>
+        </DataLayer>
+        <DataTableColumn ID="colEmpNo" Header="Employee Number" IdeDisplayStatus="Collapsed">
+          <Label ID="lblEmpNo" Caption="@Data.EmpNo~" />
+          <DataColumnSort DataColumn="EmpNo" DataType="Number" />
+        </DataTableColumn>
+        <DataTableColumn ID="colAgent" Header="Agent" IdeDisplayStatus="Collapsed">
+          <Label ID="lblAgent" Caption="@Data.Agent~" />
+          <DataColumnSort DataColumn="Agent" />
+        </DataTableColumn>
+        <DataTableColumn ID="colSupervisor" Header="Supervisor" IdeDisplayStatus="Collapsed">
+          <Label ID="lblSupervisor" Caption="@Data.Supervisor~" />
+          <DataColumnSort DataColumn="Supervisor" />
+        </DataTableColumn>
+        <DataTableColumn ID="colLastHireDate" Header="Last Hire Date" IdeDisplayStatus="Collapsed">
+          <Label ID="lblLastHireDate" Caption="@Data.LastHireDate~" Format="MM/dd/yyyy" />
+          <DataColumnSort DataColumn="LastHireDate" DataType="Date" />
+        </DataTableColumn>
+        <DataTableColumn ID="colTerminationDate" Header="Termination Date" IdeDisplayStatus="Collapsed">
+          <Label ID="lblTerminationDate" Caption="@Data.TerminationDate~" Format="MM/dd/yyyy" />
+          <DataColumnSort DataColumn="TerminationDate" DataType="Date" />
+        </DataTableColumn>
+        <DataTableColumn ID="colDepartmentName" Header="Department" IdeDisplayStatus="Collapsed">
+          <Label ID="lblDepartmentName" Caption="@Data.DepartmentName~" />
+          <DataColumnSort DataColumn="DepartmentName" />
+        </DataTableColumn>
+        <DataTableColumn ID="colTrainer" Header="Trainer" IdeDisplayStatus="Collapsed">
+          <Label ID="lblTrainer" Caption="@Data.Trainer~" />
+          <DataColumnSort DataColumn="Trainer" />
+        </DataTableColumn>
+        <DataTableColumn ID="colShiftScheduleName" Header="Shift Schedule" IdeDisplayStatus="Collapsed">
+          <Label ID="lblShiftScheduleName" Caption="@Data.ShiftScheduleName~" />
+          <DataColumnSort DataColumn="ShiftScheduleName" />
+        </DataTableColumn>
+      </DataTable>
+    </Division>
+  </Body>
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ideTestParams inpDate="" ISLDateCompare="" ISLThat="" ISLDisplay="" />
+</Report>

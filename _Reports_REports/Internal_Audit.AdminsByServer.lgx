@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Internal_Audit.AdminsByServer" SavedBy="JOMAX\dezell" SavedAt="7/10/2013 4:37:54 PM" EngineVersion="11.0.43" Caption="Admins by Server" SecurityReportRightID="RS_ITAudit, BIG-Developer, OPS-User Account Admin">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader IdeDisplayStatus="Collapsed">
+    <IncludeHtml Html="&lt;title&gt;ADMINS BY SERVER YO&lt;/title&gt;" />
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdrReportHeader" Height="50px">
+      <Row Class="gdrReportHeader">
+        <Column>
+          <IncludeHtml Html="&lt;h2&gt;Administrators by Server&lt;/h2&gt;" />
+        </Column>
+        <Column Class="ThemeAlignLeft">
+          <Spaces Size="6" />
+          <InputText Caption="Server Name:" ID="txtServerName" DefaultValue="@Request.txtServerName~" />
+          <Spaces Size="3" />
+          <InputText Caption="Account Name:" ID="txtAccountName" DefaultValue="@Request.txtAccountName~" />
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <EventHandler DhtmlEvent="onclick" ID="ehParamValidation">
+              <Action Type="Javascript" ID="actJSValidate" Javascript="var serverNameString = document.getElementById('txtServerName').value;&#xD;&#xA;var accountNameString = document.getElementById('txtAccountName').value; &#xD;&#xA;&#xD;&#xA;if (accountNameString.length == 0)&#xD;&#xA;	{&#xD;&#xA;		if(serverNameString.length &lt; 5)&#xD;&#xA;		{&#xD;&#xA;			var replacetext = '';&#xD;&#xA;			document.forms[0].txtServerName.value = replacetext; &#xD;&#xA;			alert('You must enter at least 5 characters when searching on Server Name.');&#xD;&#xA;			return false;&#xD;&#xA;		}&#xD;&#xA;	}&#xD;&#xA;else if(serverNameString.length ==0)&#xD;&#xA;	{&#xD;&#xA;		if(accountNameString.length &lt; 3)&#xD;&#xA;		{&#xD;&#xA;			var replacetext = '';&#xD;&#xA;			document.forms[0].txtAccountName.value = replacetext;&#xD;&#xA;			alert('You must enter at least 3 characters when searching on Account Name.');&#xD;&#xA;			return false;&#xD;&#xA;		}&#xD;&#xA;	}&#xD;&#xA;else if (accountNameString.length != 0 &amp;&amp; serverNameString.length != 0)&#xD;&#xA;	{&#xD;&#xA;		if(accountNameString.length &lt; 3 || serverNameString.length &lt; 5)&#xD;&#xA;		{&#xD;&#xA;			var replacetext = '';&#xD;&#xA;			document.forms[0].txtAccountName.value = replacetext;&#xD;&#xA;			document.forms[0].txtServerName.value = replacetext;&#xD;&#xA;			alert('You must enter at least 5 characters when searching on Server Name and at least 3 characters on Account Name.');&#xD;&#xA;			return false;&#xD;&#xA;		}&#xD;&#xA;	}&#xD;&#xA;else&#xD;&#xA;	{&#xD;&#xA;	return true;&#xD;&#xA;	}" />
+            </EventHandler>
+            <Action Type="Report" ID="actSubmitReport" Validate="True">
+              <Target Type="Report" Report="Internal_Audit.AdminsByServer" ID="tgtAdminsByServer" RequestForwarding="True" />
+              <Remark>
+                <LinkParams serverName="@Request.txtServerName~" accountName="@Request.txtAccountName~" />
+              </Remark>
+            </Action>
+          </Button>
+          <Spaces Size="2" />
+          <Division>
+            <Button Caption="Export to Excel" ID="btnExcelExport">
+              <Action Type="NativeExcel" ID="excelExport">
+                <Target Type="NativeExcel" ExportDataTableID="dtServerAdmins" RequestForwarding="True" />
+              </Action>
+            </Button>
+          </Division>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Division />
+          <LineBreak />
+        </Column>
+      </Row>
+      <Remark>
+        <Row Class="gdrReportHeader" IdeDisplayStatus="Collapsed">
+          <Column>
+            <Division ID="divExcel">
+              <Label Caption="Report Controls:" />
+              <Spaces Size="6" />
+              <Button Caption="Export to Excel" ID="btnExcelExport">
+                <Action Type="NativeExcel" ID="excelExport">
+                  <Target Type="NativeExcel" ExportDataTableID="dtServerAdmins" RequestForwarding="True" />
+                </Action>
+              </Button>
+            </Division>
+          </Column>
+          <Column />
+        </Row>
+      </Remark>
+    </Rows>
+    <DataTable ID="dtServerAdmins" AltRowClass="gdrThemeAlternatingRow td" CellSpacing="7px" HideWhenZeroRows="True" SortArrows="True">
+      <DataLayer Type="WebService" ID="WebServiceDataLayer" ConnectionID="connActiveDirWS">
+        <WebServiceMethod ID="GetAdminsByServer" MethodName="GetAdminsByServer">
+          <MethodInputParameter ID="serverName" DataType="Text" Value="@Request.txtServerName~" />
+          <MethodInputParameter ID="accountName" DataType="Text" Value="@Request.txtAccountName~" />
+        </WebServiceMethod>
+      </DataLayer>
+      <DataTableColumn ID="colServerName" Header="Server">
+        <Label Caption="@Data.ServerName~" ID="lblServer" />
+        <DataColumnSort DataColumn="ServerName" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Text" />
+      </DataTableColumn>
+      <DataTableColumn ID="colAccount" Header="Account">
+        <Label ID="lblAccount" Caption="@Data.Account~" />
+        <DataColumnSort DataColumn="Account" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Text" />
+      </DataTableColumn>
+      <DataTableColumn ID="colAccountDomain" Header="Account Domain">
+        <Label ID="lblAccountDomain" Caption="@Data.AccountDomain~" />
+        <DataColumnSort DataColumn="AccountDomain" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Text" />
+      </DataTableColumn>
+      <DataTableColumn ID="colAccountType" Header="Account Type">
+        <Label ID="lblAccountType" Caption="@Data.AccountType~" />
+        <DataColumnSort DataColumn="AccountType" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Text" />
+      </DataTableColumn>
+      <DataTableColumn ID="colParentADGroup" Header="Parent Group">
+        <Label ID="lblParentADGroup" Caption="@Data.ParentADGroup~" />
+        <DataColumnSort DataColumn="ParentADGroup" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Text" />
+      </DataTableColumn>
+      <InteractivePaging PageRowCount="20" ShowPageNumber="True" Location="Top" CaptionType="Image" HideWhenOnePage="True" />
+    </DataTable>
+  </Body>
+  <ideTestParams txtServerName="" txtAccountName="" />
+</Report>

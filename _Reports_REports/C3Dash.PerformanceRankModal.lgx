@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="C3Dash.PerformanceRankModal" SavedBy="JOMAX\vyancey" SavedAt="2/14/2014 10:37:40 AM" EngineVersion="11.0.43">
+  <IncludeHtmlFile IncludedHtmlFile="C3Landing/meta.html" />
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <ReportHeader />
+  <Body>
+    <DataTable ID="dtChildMetrics" WidthScale="px" Width="240">
+      <DataLayer Type="SP" ConnectionID="connP3BIG-BiLogiReporting" Command="BiLogiReporting.dbo.rptLogiC3RankMetricModalGet_sp">
+        <SPParameters>
+          <SPParameter SPParamDirection="Input" ID="@rptStart" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+          <SPParameter SPParamDirection="Input" ID="@rptEnd" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+          <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+          <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepID" SPParamDirection="Input" Value="@Request.RepID~" />
+          <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepType" SPParamDirection="Input" Value="@Request.RepType~" />
+          <SPParameter SPParamDirection="Input" ID="@ParentMetric" SPParamSize="0" SPParamType="dt-200" Value="@Request.ParentMetric~" />
+        </SPParameters>
+      </DataLayer>
+      <DataTableColumn ID="colMetricName" Class="ThemeAlignCenter,ThemeBold">
+        <Label Caption="@Data.MetricName~" />
+      </DataTableColumn>
+      <DataTableColumn ID="colMetricValue">
+        <Label Caption="@Data.MetricValue~" Format="@Data.MetricFormat~" />
+      </DataTableColumn>
+      <DataTableColumn ID="colMetricRank">
+        <Label Caption="@Data.DisplayRank~" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams rptStart="" rptEnd="" DepartmentID="" RepID="" RepType="" ParentMetric="" />
+</Report>

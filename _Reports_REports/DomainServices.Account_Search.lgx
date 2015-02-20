@@ -1,0 +1,291 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="DomainServices.Account_Search" SavedBy="JOMAX\ecolman" SavedAt="1/6/2015 9:17:59 AM" EngineVersion="11.0.43-SP27">
+  <Remark>
+    <DefaultRequestParams inpPhone="&amp;" />
+  </Remark>
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column Width="300" WidthScale="px">
+          <Label Caption="Account Search" Class="gdReportHeaderNameIT" />
+        </Column>
+        <Column Class="ThemeAlignLeft">
+          <InputText Caption="First Name: " ID="inpFirstName" DefaultValue="@Request.inpFirstName~" />
+          <Spaces Size="10" />
+          <InputText ID="inpPhone" Caption="Phone 1: " DefaultValue="@Request.inpPhone~" />
+          <Spaces Size="10" />
+          <Spaces Size="25" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport" Validate="True">
+              <Target Type="Report" Report="DomainServices.Account_Search" ID="tgtAccountSearch" RequestForwarding="True" />
+            </Action>
+          </Button>
+          <Spaces Size="10" />
+          <Remark>
+            <Division IdeDisplayStatus="Collapsed">
+              <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+                <Action Type="NativeExcel" ID="excelExport">
+                  <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" ExportDataTableID="dtTouchesByGroup" />
+                </Action>
+              </Image>
+            </Division>
+          </Remark>
+        </Column>
+      </Row>
+      <Row>
+        <Column Width="300" WidthScale="px" />
+        <Column>
+          <InputText Caption="Last Name: " ID="inpLastName" DefaultValue="@Request.inpLastName~" />
+          <Spaces Size="12" />
+          <InputText ID="inpDomain" Caption="Domain: " DefaultValue="@Request.inpDomain~" />
+          <Remark>
+            <InputText ID="inpEmail" Caption="Email: " />
+          </Remark>
+        </Column>
+      </Row>
+      <Row IdeDisplayStatus="Collapsed">
+        <Column />
+        <Column>
+          <Spaces Size="4" />
+          <InputText ID="inpphone2" Caption="Phone 2:" DefaultValue="@Request.inpphone2~" />
+          <Spaces Size="4" />
+          <InputText ID="inpmobilePhone" Caption="mobile phone:" DefaultValue="@Request.inpmobilePhone~" />
+        </Column>
+      </Row>
+    </Rows>
+    <LineBreak LineCount="3" />
+    <DataTable SortArrows="True" ID="dtSpamAccounts" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="7 px" HideWhenZeroRows="True">
+      <DataLayer Type="SQL" ID="DLshopperAccountsSearch" ConnectionID="connODBC-TD-GD2-Prod" Source="&#xD;&#xA;SELECT&#xD;&#xA;shopper_id&#xD;&#xA;,date_created&#xD;&#xA;,first_name&#xD;&#xA;,middle_name&#xD;&#xA;,last_name&#xD;&#xA;,company&#xD;&#xA;,city&#xD;&#xA;,state&#xD;&#xA;,zip&#xD;&#xA;,country&#xD;&#xA;,phone1&#xD;&#xA;,phone2&#xD;&#xA;,fax&#xD;&#xA;,shipping_method&#xD;&#xA;,payment&#xD;&#xA;,mktg_email&#xD;&#xA;,mktg_mail&#xD;&#xA;,mktg_partner&#xD;&#xA;,last_changed_by&#xD;&#xA;,time_created&#xD;&#xA;,last_changed_date&#xD;&#xA;,status&#xD;&#xA;,fraud&#xD;&#xA;,mktg_nonpromotional_notices&#xD;&#xA;,PrivateLabelID&#xD;&#xA;,lu_emailTypeID&#xD;&#xA;,dbp_emailFilterPreferenceID&#xD;&#xA;,dbp_shopperStatusID&#xD;&#xA;,loginName&#xD;&#xA;,gds_userTypeID&#xD;&#xA;,isUnified&#xD;&#xA;,parent_shopper_id&#xD;&#xA;,gds_shopper_payment_type_id&#xD;&#xA;,parent_bundle_id&#xD;&#xA;,shopper_group_id&#xD;&#xA;,doNotCallFlag&#xD;&#xA;,emailDomain&#xD;&#xA;,emailHash&#xD;&#xA;,mobilePhone&#xD;&#xA;,doNotEmailFlag&#xD;&#xA;,isCompany&#xD;&#xA;,gender&#xD;&#xA;,birthMonth&#xD;&#xA;,birthYear&#xD;&#xA;,shopperMobileAccountTypeID&#xD;&#xA;,shopperMobileCarrierID&#xD;&#xA;,phone1Extension&#xD;&#xA;,birthDay&#xD;&#xA;,shopperPINExpiration&#xD;&#xA;,mobilePushNotification&#xD;&#xA;,paymentGroupID&#xD;&#xA;,gds_currencyType&#xD;&#xA;,catalog_marketID&#xD;&#xA;,catalog_countrySiteID&#xD;&#xA;,EtlInsLdId&#xD;&#xA;,EtlUpdLdId&#xD;&#xA;FROM FortKnox.fortKnox_shopper&#xD;&#xA;WHERE &#xD;&#xA;&#xD;&#xA;((Nullif('%@Request.inpPhone~%','%%') is NULL and phone1 is null) or phone1 LIKE COALESCE(Nullif('%@Request.inpPhone~%','%%'),  phone1))&#xD;&#xA;AND &#xD;&#xA;((Nullif('%@Request.inpDomain~%','%%') is NULL and emailDomain is null) or emailDomain LIKE COALESCE(Nullif('%@Request.inpDomain~%','%%'),  emailDomain))&#xD;&#xA;AND  &#xD;&#xA;((Nullif('%@Request.inpFirstName~%','%%') is NULL and first_name is null) or first_name LIKE COALESCE(Nullif('%@Request.inpFirstName~%','%%'), first_name))&#xD;&#xA;AND&#xD;&#xA;((Nullif('%@Request.inpLastName~%','%%') is NULL and last_name is null) or last_name LIKE COALESCE(Nullif('%@Request.inpLastName~%','%%'), last_name))&#xD;&#xA;AND &#xD;&#xA;((Nullif('%@Request.inpPhone2~%','%%') is NULL and phone2 is null) or phone2 LIKE COALESCE(Nullif('%@Request.inpphone2~%','%%'), phone2))&#xD;&#xA;AND &#xD;&#xA;((Nullif('%@Request.inpmobilePhone~%','%%') is NULL and mobilePhone is null) or mobilePhone LIKE COALESCE(Nullif('%@Request.inpmobilePhone~%','%%'), mobilePhone))&#xD;&#xA;AND (	&#xD;&#xA;				  Nullif('%@Request.inpFirstName~%','%%') is not NULL&#xD;&#xA;			OR Nullif('%@Request.inpLastName~%','%%') is not NULL&#xD;&#xA;			OR Nullif('%@Request.inpPhone~%','%%') is not NULL&#xD;&#xA;			OR Nullif('%@Request.inpDomain~%','%%') is not NULL&#xD;&#xA;			OR Nullif('%@Request.inpPhone2~%','%%') is not NULL&#xD;&#xA;			OR Nullif('%@Request.inpmobilePhone~%','%%') is not NULL&#xD;&#xA;			&#xD;&#xA;	);&#xD;&#xA;&#xD;&#xA;" />
+      <DataTableColumn ID="colshopper_id" Header="Shopper" IdeDisplayStatus="Collapsed">
+        <Label ID="lblshopper_id" Caption="@Data.shopper_id~" />
+        <DataColumnSort DataColumn="shopper_id" />
+      </DataTableColumn>
+      <DataTableColumn ID="coldate_created" Header="Create Date" IdeDisplayStatus="Collapsed">
+        <Label ID="lbldate_created" Caption="@Data.date_created~" Format="Short Date" />
+        <DataColumnSort DataColumn="date_created" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colfirst_name" Header="First Name" IdeDisplayStatus="Collapsed">
+        <Label ID="lblfirst_name" Caption="@Data.first_name~" />
+        <DataColumnSort DataColumn="first_name" />
+      </DataTableColumn>
+      <DataTableColumn ID="colmiddle_name" Header="Middle Name" IdeDisplayStatus="Collapsed">
+        <Label ID="lblmiddle_name" Caption="@Data.middle_name~" />
+        <DataColumnSort DataColumn="middle_name" />
+      </DataTableColumn>
+      <DataTableColumn ID="collast_name" Header="Last Name" IdeDisplayStatus="Collapsed">
+        <Label ID="lbllast_name" Caption="@Data.last_name~" />
+        <DataColumnSort DataColumn="last_name" />
+      </DataTableColumn>
+      <DataTableColumn ID="colcompany" Header="Company" IdeDisplayStatus="Collapsed">
+        <Label ID="lblcompany" Caption="@Data.company~" />
+        <DataColumnSort DataColumn="company" />
+      </DataTableColumn>
+      <DataTableColumn ID="colcity" Header="City" IdeDisplayStatus="Collapsed">
+        <Label ID="lblcity" Caption="@Data.city~" />
+        <DataColumnSort DataColumn="city" />
+      </DataTableColumn>
+      <DataTableColumn ID="colstate" Header="State" IdeDisplayStatus="Collapsed">
+        <Label ID="lblstate" Caption="@Data.state~" />
+        <DataColumnSort DataColumn="state" />
+      </DataTableColumn>
+      <DataTableColumn ID="colzip" Header="Zip" IdeDisplayStatus="Collapsed">
+        <Label ID="lblzip" Caption="@Data.zip~" />
+        <DataColumnSort DataColumn="zip" />
+      </DataTableColumn>
+      <DataTableColumn ID="colcountry" Header="Country" IdeDisplayStatus="Collapsed">
+        <Label ID="lblcountry" Caption="@Data.country~" />
+        <DataColumnSort DataColumn="country" />
+      </DataTableColumn>
+      <DataTableColumn ID="colphone1" Header="Phone 1" IdeDisplayStatus="Collapsed">
+        <Label ID="lblphone1" Caption="@Data.phone1~" />
+        <DataColumnSort DataColumn="phone1" />
+      </DataTableColumn>
+      <DataTableColumn ID="colphone2" Header="Phone 2" IdeDisplayStatus="Collapsed">
+        <Label ID="lblphone2" Caption="@Data.phone2~" />
+        <DataColumnSort DataColumn="phone2" />
+      </DataTableColumn>
+      <DataTableColumn ID="colfax" Header="Fax" IdeDisplayStatus="Collapsed">
+        <Label ID="lblfax" Caption="@Data.fax~" />
+        <DataColumnSort DataColumn="fax" />
+      </DataTableColumn>
+      <DataTableColumn ID="colshipping_method" Header="Shipping Method" IdeDisplayStatus="Collapsed">
+        <Label ID="lblshipping_method" Caption="@Data.shipping_method~" />
+        <DataColumnSort DataColumn="shipping_method" />
+      </DataTableColumn>
+      <DataTableColumn ID="colpayment" Header="Payment" IdeDisplayStatus="Collapsed">
+        <Label ID="lblpayment" Caption="@Data.payment~" />
+        <DataColumnSort DataColumn="payment" />
+      </DataTableColumn>
+      <DataTableColumn ID="colmktg_email" Header="Mktg Email" IdeDisplayStatus="Collapsed">
+        <Label ID="lblmktg_email" Caption="@Data.mktg_email~" />
+        <DataColumnSort DataColumn="mktg_email" />
+      </DataTableColumn>
+      <DataTableColumn ID="colmktg_mail" Header="Mktg Mail" IdeDisplayStatus="Collapsed">
+        <Label ID="lblmktg_mail" Caption="@Data.mktg_mail~" />
+        <DataColumnSort DataColumn="mktg_mail" />
+      </DataTableColumn>
+      <DataTableColumn ID="colmktg_partner" Header="Mktg Partner" IdeDisplayStatus="Collapsed">
+        <Label ID="lblmktg_partner" Caption="@Data.mktg_partner~" />
+        <DataColumnSort DataColumn="mktg_partner" />
+      </DataTableColumn>
+      <DataTableColumn ID="collast_changed_by" Header="Last Changed By" IdeDisplayStatus="Collapsed">
+        <Label ID="lbllast_changed_by" Caption="@Data.last_changed_by~" />
+        <DataColumnSort DataColumn="last_changed_by" />
+      </DataTableColumn>
+      <DataTableColumn ID="coltime_created" Header="Time Created" IdeDisplayStatus="Collapsed">
+        <Label ID="lbltime_created" Caption="@Data.time_created~" Format="Short Date" />
+        <DataColumnSort DataColumn="time_created" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="collast_changed_date" Header="Last Changed Date" IdeDisplayStatus="Collapsed">
+        <Label ID="lbllast_changed_date" Caption="@Data.last_changed_date~" Format="Short Date" />
+        <DataColumnSort DataColumn="last_changed_date" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colstatus" Header="Status" IdeDisplayStatus="Collapsed">
+        <Label ID="lblstatus" Caption="@Data.status~" />
+        <DataColumnSort DataColumn="status" />
+      </DataTableColumn>
+      <DataTableColumn ID="colfraud" Header="Fraud" IdeDisplayStatus="Collapsed">
+        <Label ID="lblfraud" Caption="@Data.fraud~" />
+        <DataColumnSort DataColumn="fraud" />
+      </DataTableColumn>
+      <DataTableColumn ID="colmktg_nonpromotional_notices" Header="Mktg Nonpromotional Notices" IdeDisplayStatus="Collapsed">
+        <Label ID="lblmktg_nonpromotional_notices" Caption="@Data.mktg_nonpromotional_notices~" />
+        <DataColumnSort DataColumn="mktg_nonpromotional_notices" />
+      </DataTableColumn>
+      <DataTableColumn ID="colPrivateLabelID" Header="Private Label ID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblPrivateLabelID" Caption="@Data.PrivateLabelID~" />
+        <DataColumnSort DataColumn="PrivateLabelID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="collu_emailTypeID" Header="Lu Email Type ID" IdeDisplayStatus="Collapsed">
+        <Label ID="lbllu_emailTypeID" Caption="@Data.lu_emailTypeID~" />
+        <DataColumnSort DataColumn="lu_emailTypeID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="coldbp_emailFilterPreferenceID" Header="Dbp Email Filter Preference ID" IdeDisplayStatus="Collapsed">
+        <Label ID="lbldbp_emailFilterPreferenceID" Caption="@Data.dbp_emailFilterPreferenceID~" />
+        <DataColumnSort DataColumn="dbp_emailFilterPreferenceID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="coldbp_shopperStatusID" Header="Dbp Shopper Status ID" IdeDisplayStatus="Collapsed">
+        <Label ID="lbldbp_shopperStatusID" Caption="@Data.dbp_shopperStatusID~" />
+        <DataColumnSort DataColumn="dbp_shopperStatusID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colloginName" Header="Login Name" IdeDisplayStatus="Collapsed">
+        <Label ID="lblloginName" Caption="@Data.loginName~" />
+        <DataColumnSort DataColumn="loginName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colgds_userTypeID" Header="Gds User Type ID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblgds_userTypeID" Caption="@Data.gds_userTypeID~" />
+        <DataColumnSort DataColumn="gds_userTypeID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colisUnified" Header="Is Unified" IdeDisplayStatus="Collapsed">
+        <Label ID="lblisUnified" Caption="@Data.isUnified~" />
+        <DataColumnSort DataColumn="isUnified" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colparent_shopper_id" Header="Parent Shopper Id" IdeDisplayStatus="Collapsed">
+        <Label ID="lblparent_shopper_id" Caption="@Data.parent_shopper_id~" />
+        <DataColumnSort DataColumn="parent_shopper_id" />
+      </DataTableColumn>
+      <DataTableColumn ID="colgds_shopper_payment_type_id" Header="Gds Shopper Payment Type Id" IdeDisplayStatus="Collapsed">
+        <Label ID="lblgds_shopper_payment_type_id" Caption="@Data.gds_shopper_payment_type_id~" />
+        <DataColumnSort DataColumn="gds_shopper_payment_type_id" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="ColparentBundleId" Header="Parent Bundle Id" IdeDisplayStatus="Collapsed">
+        <Label ID="lblparent_bundle_id" Caption="@Data.parent_bundle_id~" />
+        <DataColumnSort DataColumn="parent_bundle_id" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="ColshopperGroupId" Header="Shopper Group Id" IdeDisplayStatus="Collapsed">
+        <Label ID="lblshopper_group_id" Caption="@Data.shopper_group_id~" />
+        <DataColumnSort DataColumn="shopper_group_id" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="coldoNotCallFlag" Header="Do Not Call Flag" IdeDisplayStatus="Collapsed">
+        <Label ID="lbldoNotCallFlag" Caption="@Data.doNotCallFlag~" />
+        <DataColumnSort DataColumn="doNotCallFlag" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colemailDomain" Header="Email Domain" IdeDisplayStatus="Collapsed">
+        <Label ID="lblemailDomain" Caption="@Data.emailDomain~" />
+        <DataColumnSort DataColumn="emailDomain" />
+      </DataTableColumn>
+      <DataTableColumn ID="colemailHash" Header="Email Hash" IdeDisplayStatus="Collapsed">
+        <Label ID="lblemailHash" Caption="@Data.emailHash~" />
+        <DataColumnSort DataColumn="emailHash" />
+      </DataTableColumn>
+      <DataTableColumn ID="colmobilePhone" Header="Mobile Phone" IdeDisplayStatus="Collapsed">
+        <Label ID="lblmobilePhone" Caption="@Data.mobilePhone~" />
+        <DataColumnSort DataColumn="mobilePhone" />
+      </DataTableColumn>
+      <DataTableColumn ID="coldoNotEmailFlag" Header="Do Not Email Flag" IdeDisplayStatus="Collapsed">
+        <Label ID="lbldoNotEmailFlag" Caption="@Data.doNotEmailFlag~" />
+        <DataColumnSort DataColumn="doNotEmailFlag" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colisCompany" Header="Is Company" IdeDisplayStatus="Collapsed">
+        <Label ID="lblisCompany" Caption="@Data.isCompany~" />
+        <DataColumnSort DataColumn="isCompany" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colgender" Header="gender" IdeDisplayStatus="Collapsed">
+        <Label ID="lblgender" Caption="@Data.gender~" />
+        <DataColumnSort DataColumn="gender" />
+      </DataTableColumn>
+      <DataTableColumn ID="colbirthMonth" Header="Birth Month" IdeDisplayStatus="Collapsed">
+        <Label ID="lblbirthMonth" Caption="@Data.birthMonth~" />
+        <DataColumnSort DataColumn="birthMonth" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colbirthYear" Header="Birth Year" IdeDisplayStatus="Collapsed">
+        <Label ID="lblbirthYear" Caption="@Data.birthYear~" />
+        <DataColumnSort DataColumn="birthYear" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colshopperMobileAccountTypeID" Header="Shopper Mobile Account Type ID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblshopperMobileAccountTypeID" Caption="@Data.shopperMobileAccountTypeID~" />
+        <DataColumnSort DataColumn="shopperMobileAccountTypeID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colshopperMobileCarrierID" Header="Shopper Mobile Carrier ID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblshopperMobileCarrierID" Caption="@Data.shopperMobileCarrierID~" />
+        <DataColumnSort DataColumn="shopperMobileCarrierID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colphone1Extension" Header="Phone1 Extension" IdeDisplayStatus="Collapsed">
+        <Label ID="lblphone1Extension" Caption="@Data.phone1Extension~" />
+        <DataColumnSort DataColumn="phone1Extension" />
+      </DataTableColumn>
+      <DataTableColumn ID="colbirthDay" Header="Birth Day" IdeDisplayStatus="Collapsed">
+        <Label ID="lblbirthDay" Caption="@Data.birthDay~" />
+        <DataColumnSort DataColumn="birthDay" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colshopperPINExpiration" Header="Shopper PIN Expiration" IdeDisplayStatus="Collapsed">
+        <Label ID="lblshopperPINExpiration" Caption="@Data.shopperPINExpiration~" Format="Short Date" />
+        <DataColumnSort DataColumn="shopperPINExpiration" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colmobilePushNotification" Header="Mobile Push Notification" IdeDisplayStatus="Collapsed">
+        <Label ID="lblmobilePushNotification" Caption="@Data.mobilePushNotification~" />
+        <DataColumnSort DataColumn="mobilePushNotification" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colpaymentGroupID" Header="Payment Group ID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblpaymentGroupID" Caption="@Data.paymentGroupID~" />
+        <DataColumnSort DataColumn="paymentGroupID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colgds_currencyType" Header="Gds Currency Type" IdeDisplayStatus="Collapsed">
+        <Label ID="lblgds_currencyType" Caption="@Data.gds_currencyType~" />
+        <DataColumnSort DataColumn="gds_currencyType" />
+      </DataTableColumn>
+      <DataTableColumn ID="colcatalog_marketID" Header="Catalog Market ID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblcatalog_marketID" Caption="@Data.catalog_marketID~" />
+        <DataColumnSort DataColumn="catalog_marketID" />
+      </DataTableColumn>
+      <DataTableColumn ID="colcatalog_countrySiteID" Header="Catalog Country Site ID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblcatalog_countrySiteID" Caption="@Data.catalog_countrySiteID~" />
+        <DataColumnSort DataColumn="catalog_countrySiteID" />
+      </DataTableColumn>
+      <DataTableColumn ID="colEtlInsLdId" Header="Etl Ins Ld Id" IdeDisplayStatus="Collapsed">
+        <Label ID="lblEtlInsLdId" Caption="@Data.EtlInsLdId~" />
+        <DataColumnSort DataColumn="EtlInsLdId" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colEtlUpdLdId" Header="Etl Upd Ld Id" IdeDisplayStatus="Collapsed">
+        <Label ID="lblEtlUpdLdId" Caption="@Data.EtlUpdLdId~" />
+        <DataColumnSort DataColumn="EtlUpdLdId" DataType="Number" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams inpPhone="" inpDomain="" inpLastName="" inpFirstName="" inpphone2="" inpmobilePhone="" inpPhone2="" />
+</Report>

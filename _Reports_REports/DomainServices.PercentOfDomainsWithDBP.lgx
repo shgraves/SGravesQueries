@@ -1,0 +1,304 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="DomainServices.PercentOfDomainsWithDBP" SavedBy="JOMAX\twakefield" SavedAt="8/1/2014 4:34:10 PM" EngineVersion="11.0.43">
+  <DefaultRequestParams ISLDBP2="1" ICLClaimType2="5, 7, 8, 9, 10, 39, 40, 59, 60, 133, 166, 278, 334" />
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows Width="100" WidthScale="%" CellSpacing="15px" Class="gdDefaultRowBground">
+      <Row Class=".gdDefaultDropDownBground">
+        <Column>
+          <Division ID="divParameters">
+            <Rows CellSpacing="15px" Class="gdDefaultRowBground" Width="100" WidthScale="%">
+              <Row Class="gdReportHeader" IdeDisplayStatus="Collapsed">
+                <Column ID="ColReportName">
+                  <Spaces Size="2" />
+                  <Label Caption="Percent of Domains with DBP By Claim Type" Class="gdReportHeaderNameIT" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colDropDowns" Width="900" WidthScale="px">
+                  <Rows ID="rowDropDowns" Class="gdDefaultDropDownBground">
+                    <Row ID="rowDropCols">
+                      <Column Width="350" WidthScale="px" ID="colLeft">
+                        <Rows Width="350" WidthScale="px" ID="rowsHeader">
+                          <Row ID="rowStartDate">
+                            <Column ID="colStartDate" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption="Start (&gt;=):" />
+                              <Spaces Size="3" />
+                            </Column>
+                            <Column ID="colRptStart" Width="250" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <InputDate ID="rptStart" DefaultValue="@Request.rptStart~" Class="gdSelectFixedWidth" CalendarLinkType="Image" CaptionClass="ThemeAlignTopRight">
+                                <Validation Type="Date" />
+                                <Validation Type="Required" />
+                                <EventHandler DhtmlEvent="onchange">
+                                  <Action Type="RefreshElement" ElementID="ICLClaimTypes" ID="actRefreshPerson" IdeDisplayStatus="Collapsed">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Action>
+                                </EventHandler>
+                              </InputDate>
+                              <Remark>
+                                <Spaces Size="3" />
+                              </Remark>
+                            </Column>
+                          </Row>
+                          <Row ID="rowClaimType">
+                            <Column ID="colClaimType" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption="Claim Type: " />
+                            </Column>
+                            <Column ID="colClaimTypeID" Width="250" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <InputSelectList ID="ICLClaimTypes" OptionCaptionColumn="claimType" OptionValueColumn="claimTypeID" DefaultValue="@Request.ICLClaimTypes~">
+                                <DataLayer Type="SP" Command="eRpt.ClaimsWithDBPAndWithoutDBPGetTypes_sp" ConnectionID="connROSQLLegalProtection">
+                                  <Remark>
+                                    <SortFilter SortColumn="DepartmentName" />
+                                  </Remark>
+                                  <SPParameters>
+                                    <SPParameter ID="StartDate" Value="@Request.rptStart~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                                    <SPParameter ID="EndDate" Value="@Request.rptEnd~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                                    <Remark>
+                                      <SPParameter ID="DBP" Value="@Request.ISLDBP~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+                                    </Remark>
+                                  </SPParameters>
+                                </DataLayer>
+                              </InputSelectList>
+                              <Remark>
+                                <InputCheckboxList ID="ICLClaimTypes" OptionCaptionColumn="claimType" OptionValueColumn="claimTypeID" CheckboxListDropdown="True" DefaultValue="@Request.ICLClaimTypes~" MultiSelect="False" SaveInLocalStorage="True" IdeDisplayStatus="Collapsed">
+                                  <DataLayer Type="SP" Command="eRpt.ClaimsWithDBPAndWithoutDBPGetTypes_sp" ConnectionID="connROSQLLegalProtection">
+                                    <Remark>
+                                      <SortFilter SortColumn="DepartmentName" />
+                                    </Remark>
+                                    <SPParameters>
+                                      <SPParameter ID="StartDate" Value="@Request.rptStart~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                                      <SPParameter ID="EndDate" Value="@Request.rptEnd~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                                      <Remark>
+                                        <SPParameter ID="DBP" Value="@Request.ISLDBP~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+                                      </Remark>
+                                    </SPParameters>
+                                  </DataLayer>
+                                </InputCheckboxList>
+                              </Remark>
+                              <Remark>
+                                <EventHandler DhtmlEvent="onchange">
+                                  <Action Type="RefreshElement" ElementID="MgrID,SupervisorID,LocationID" ID="actRefreshPerson">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Action>
+                                </EventHandler>
+                              </Remark>
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Column Width="350" WidthScale="px" ID="colCenter">
+                        <Rows Width="300" WidthScale="px">
+                          <Row ID="rowEndDate">
+                            <Column ID="colEndDate" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption="End (&lt;):" />
+                            </Column>
+                            <Column ID="colRptEnd" Width="250" WidthScale="px">
+                              <InputDate ID="rptEnd" DefaultValue="@Request.rptEnd~" CalendarLinkType="Image" Class="gdSelectFixedWidth" CaptionClass="ThemeAlignTopRight">
+                                <Validation Type="Date" />
+                                <Validation Type="Required" />
+                                <EventHandler DhtmlEvent="onchange" IdeDisplayStatus="Collapsed">
+                                  <Action Type="RefreshElement" ElementID="ICLClaimTypes" ID="actRefreshPerson" RequestForwarding="True" IdeDisplayStatus="Collapsed">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Action>
+                                </EventHandler>
+                              </InputDate>
+                              <Remark>
+                                <Spaces Size="3" />
+                              </Remark>
+                            </Column>
+                          </Row>
+                          <Row ID="rowDBP">
+                            <Column ID="colDBP" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption="DBP" />
+                            </Column>
+                            <Column ID="colRptDBP" IdeDisplayStatus="Collapsed">
+                              <InputSelectList ID="ISLDBP" OptionValueColumn="DSLStatusID" OptionCaptionColumn="DSLStatusText" DefaultValue="@Request.ISLDBP~">
+                                <DataLayer Type="Static" ID="SDLDBP">
+                                  <StaticDataRow DSLStatusID="1" DSLStatusText="Both DBP and Non-DBP" />
+                                  <StaticDataRow DSLStatusID="2" DSLStatusText="Domains with DBP Only" />
+                                  <StaticDataRow DSLStatusID="3" DSLStatusText="Domains Non-DBP Only" />
+                                </DataLayer>
+                                <Remark>
+                                  <EventHandler DhtmlEvent="onchange">
+                                    <Action Type="RefreshElement" ElementID="ICLClaimTypes" ID="actRefreshPerson" RequestForwarding="True" IdeDisplayStatus="Collapsed">
+                                      <WaitPage Caption="Processing, please wait..." />
+                                    </Action>
+                                  </EventHandler>
+                                </Remark>
+                              </InputSelectList>
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                    </Row>
+                    <Row ID="rowSubmit">
+                      <Column ID="colSubmit" ColSpan="5" RowSpan="1">
+                        <Button ID="Submit" Caption="Submit" Tooltip="Click to Run Report">
+                          <EventHandler DhtmlEvent="onclick">
+                            <Action Type="Javascript" Javascript="validateForm()" ID="actValidate" />
+                          </EventHandler>
+                          <Action Type="Report" ID="actReport">
+                            <Target Type="Report" ID="tgtPercentOfDomainsWithDBP" Report="DomainServices.PercentOfDomainsWithDBP">
+                              <WaitPage />
+                            </Target>
+                          </Action>
+                        </Button>
+                        <Spaces Size="3" />
+                        <Button ID="btnExportExcel" Caption="Export" Tooltip="Click to Export to Excel">
+                          <Action Type="NativeExcel" ID="expExcel">
+                            <Target Type="NativeExcel" ID="tgtExcel" ExportFilename="PercentOfDomainsWithDBP.xlsx" ExcelOutputFormat="Excel2007" ExportDataTableID="DTClaim" ShowGridlines="True" />
+                          </Action>
+                        </Button>
+                      </Column>
+                    </Row>
+                  </Rows>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+          <Division Condition="@Data.ACTotalClaims~ &gt;0">
+            <Rows>
+              <Row>
+                <Column Width="250" WidthScale="px">
+                  <Label Caption="Total Claims: @Data.ACTotalClaims~" ID="lblTotalClaims" />
+                  <LineBreak />
+                  <Label Caption="Total Domains: @Data.ACTotalDomains~" ID="lblTotalDomains" />
+                </Column>
+                <Column Width="250" WidthScale="px">
+                  <Label ID="lblTotalDBP" Caption="Total DBP: @Data.ACTotalDBP~" />
+                  <LineBreak />
+                  <Label ID="lblTotalRemovedDBP" Caption="Total Remove DBP: @Data.ACTotalRemoveDBP~" />
+                </Column>
+                <Column Width="250" WidthScale="px">
+                  <Label ID="lblTotalDBPAdded" Caption="Total DBP Added After Claim: @Data.ACTotalDBPAfterClaim~" />
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+          <Division ShowModes="None">
+            <DataTable ID="DThidden" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="SP" ID="ClaimsWithDBPAndWithoutDBP_sp" ConnectionID="connROSQLLegalProtection" Command="eRpt.ClaimsWithDBPAndWithoutDBP_sp" IdeDisplayStatus="Collapsed">
+                <SPParameters>
+                  <SPParameter ID="StartDate" Value="@Request.rptStart~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                  <SPParameter ID="EndDate" Value="@Request.rptEnd~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                  <SPParameter ID="ClaimTypeID" Value="@Request.ICLClaimTypes~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+                  <SPParameter ID="DBP" Value="@Request.ISLDBP~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" />
+                </SPParameters>
+                <AggregateColumn ID="ACTotalClaims" AggregateColumn="ClaimID" AggregateFunction="DistinctCount" DataType="Number" />
+                <AggregateColumn AggregateColumn="DomainName" AggregateFunction="DistinctCount" ID="ACTotalDomains" DataType="Text" />
+                <AggregateColumn AggregateColumn="HadDBPAtTimeOfClaim" AggregateFunction="Sum" ID="ACTotalDBP" DataType="Number" />
+                <AggregateColumn ID="ACTotalRemoveDBP" AggregateColumn="RemovedDBPAfterClaim" AggregateFunction="Sum" />
+                <AggregateColumn ID="ACTotalDBPAfterClaim" AggregateColumn="AddedDBPAfterClaim" AggregateFunction="Sum" />
+                <DataLayerLink ID="dllClaims" />
+              </DataLayer>
+            </DataTable>
+          </Division>
+          <Division>
+            <LineBreak LineCount="2" />
+            <Rows>
+              <Row>
+                <Column Width="2000" WidthScale="px">
+                  <DataTable SortArrows="True" ID="DTClaim" HideWhenZeroRows="True" CellSpacing="5 px" AltRowClass="gdThemeAltRowBgrndContrast td" Width="2000" WidthScale="px" ColumnHeaderClass="gdTableHeader">
+                    <DataLayer Type="Linked" LinkedDataLayerID="dllClaims" ID="dlClaims" />
+                    <DataTableColumn ID="colClaimID" Header="ClaimID" Width="75" WidthScale="px">
+                      <Label ID="lblClaimID" Caption="@Data.ClaimID~" />
+                      <DataColumnSort DataColumn="ClaimID" DataType="Number" />
+                      <ExcelColumnFormat ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colClaimCreateDate" Header="Claim Date" Width="75" WidthScale="px" IdeDisplayStatus="Collapsed">
+                      <Label ID="lblClaimCreateDate" Caption="@Data.ClaimCreateDate~" Format="MM/dd/yyyy" />
+                      <DataColumnSort DataColumn="ClaimCreateDate" DataType="Date" />
+                      <ExcelColumnFormat ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colDomainName" Header="Domain Name" IdeDisplayStatus="Collapsed" Width="400" WidthScale="px">
+                      <Label ID="lblDomainName" Caption="@Data.DomainName~" />
+                      <DataColumnSort DataColumn="DomainName" />
+                      <ExcelColumnFormat ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colclaimType" Header="Claim Type" Width="200" WidthScale="px" IdeDisplayStatus="Collapsed">
+                      <Label ID="lblclaimType" Caption="@Data.claimType~" />
+                      <DataColumnSort DataColumn="claimType" />
+                      <ExcelColumnFormat ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colclaimTypeStatus" Header="Claim Type Status" Width="290" WidthScale="px" IdeDisplayStatus="Collapsed">
+                      <Label ID="lblclaimTypeStatus" Caption="@Data.claimTypeStatus~" />
+                      <DataColumnSort DataColumn="claimTypeStatus" />
+                      <ExcelColumnFormat ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colDomainOriginalOrderID" Header="Domain Original OrderID" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                      <Label ID="lblDomainOriginalOrderID" Caption="@Data.DomainOriginalOrderID~" Class="ThemeAlignCenter" />
+                      <DataColumnSort DataColumn="DomainOriginalOrderID" />
+                      <ExcelColumnFormat ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colDomainOriginalOrderDate" Header="Domain Original OrderDate" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                      <Label ID="lblDomainOriginalOrderDate" Caption="@Data.DomainOriginalOrderDate~" Format="MM/dd/yyyy" Class="ThemeAlignCenter" />
+                      <DataColumnSort DataColumn="DomainOriginalOrderDate" DataType="Date" />
+                      <ExcelColumnFormat ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colDBPOriginalOrderId" Header="DBP OrderId" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                      <Label ID="lblDBPOriginalOrderId" Caption="@Data.DBPOriginalOrderId~" Class="ThemeAlignCenter" />
+                      <DataColumnSort DataColumn="DBPOriginalOrderId" />
+                      <ExcelColumnFormat ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colDBPOriginalOrderDate" Header="DBP Original Order Date" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                      <Label ID="lblDBPOriginalOrderDate" Caption="@Data.DBPOriginalOrderDate~" Format="MM/dd/yyyy" Class="ThemeAlignCenter" />
+                      <DataColumnSort DataColumn="DBPOriginalOrderDate" DataType="Date" />
+                      <ExcelColumnFormat ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colShopper_id" Header="Shopper_id" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                      <Label ID="lblShopper_id" Caption="@Data.Shopper_id~" Class="ThemeAlignCenter" />
+                      <DataColumnSort DataColumn="Shopper_id" />
+                      <ExcelColumnFormat ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colDBPShopper_id" Header="DBPShopper_id" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                      <Label ID="lblDBPShopper_id" Caption="@Data.DBPShopper_id~" Class="ThemeAlignCenter" />
+                      <DataColumnSort DataColumn="DBPShopper_id" />
+                      <ExcelColumnFormat ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colDBPCancelDate" Header="DBP Cancel Date" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                      <Label ID="lblDBPCancelDate" Caption="@Data.DBPCancelDate~" Format="MM/dd/yyyy" Class="ThemeAlignCenter" />
+                      <DataColumnSort DataColumn="DBPCancelDate" DataType="Date" />
+                      <ExcelColumnFormat ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <Remark>
+                      <DataTableColumn ID="colHadDBPAtTimeOfClaim" Header="Had DBP At Time Of Claim" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed" Width="90" WidthScale="px">
+                        <Label ID="lblHadDBPAtTimeOfClaim" Caption="@Data.HadDBPAtTimeOfClaim~" Class="ThemeAlignCenter" />
+                        <DataColumnSort DataColumn="HadDBPAtTimeOfClaim" DataType="Number" />
+                      </DataTableColumn>
+                    </Remark>
+                    <Remark>
+                      <DataTableColumn ID="colRemovedDBPAfterClaim" Header="DBP Removed After Claim" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed" Width="90" WidthScale="px">
+                        <Label ID="lblRemovedDBPAfterClaim" Caption="@Data.RemovedDBPAfterClaim~" Class="ThemeAlignCenter" />
+                        <DataColumnSort DataColumn="RemovedDBPAfterClaim" DataType="Number" />
+                      </DataTableColumn>
+                    </Remark>
+                    <Remark>
+                      <DataTableColumn ID="colAddedDBPAfterClaim" Header="DBP Added After Claim" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed" Width="75" WidthScale="px">
+                        <Label ID="lblAddedDBPAfterClaim" Caption="@Data.AddedDBPAfterClaim~" Class="ThemeAlignCenter" />
+                        <DataColumnSort DataColumn="AddedDBPAfterClaim" DataType="Number" />
+                      </DataTableColumn>
+                    </Remark>
+                    <Remark>
+                      <DataTableColumn ID="colDBP" Header="DBP" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                        <Label ID="lblDBP" Caption="@Data.DBP~" Class="ThemeAlignCenter" />
+                        <DataColumnSort DataColumn="DBP" DataType="Number" />
+                      </DataTableColumn>
+                    </Remark>
+                    <Remark>
+                      <InteractivePaging PageRowCount="20" ShowPageNumber="True" Location="Top" CaptionType="Image" />
+                    </Remark>
+                  </DataTable>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter />
+  <ideTestParams rptStart="" rptEnd="" ISLDBP="" ICLClaimTypes="" />
+</Report>

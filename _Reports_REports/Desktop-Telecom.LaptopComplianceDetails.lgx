@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Desktop-Telecom.LaptopComplianceDetails" Caption="Laptop Security Compliance Details" SecurityReportRightID="ENG-Desktop Engineering,BIG-Developer,RSDevelopers,logict,CIO_Org" SavedBy="JOMAX\dezell" SavedAt="11/14/2013 4:44:18 PM" EngineVersion="11.0.43">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader />
+  <Body>
+    <DataTable SortArrows="True" ID="dtDetails" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="7px" Layout="Fixed">
+      <DataLayer Type="Linked" LinkedDataLayerID="dlLaptopResults" ID="dlDetails">
+        <CalculatedColumn Formula="iif(@Data.MIA~ == 1, &quot;MIA&quot;,iif(@Data.Inventory~ == 1, &quot;Inventory&quot;, iif(@Data.Exempt~ == 1, &quot;Exempt&quot;, &quot;Error&quot;)))" ID="calcExemptBucket" />
+        <CalculatedColumn Formula="iif(@Data.less30Deployed~ = 1, &quot;Less than 30 Days&quot;,iif(@Data.more30Deployed~ = 1, &quot;Greater than 30 Days&quot;, iif(@Data.noCheckinDeployed~ = 1, &quot;Hasn't Checked In&quot;, &quot;Error&quot;)))" ID="calcDeployedBucket" />
+        <CalculatedColumn Formula="iif(&quot;@Request.complianceType~&quot; == &quot;Deployed&quot;,&quot;@Data.calcDeployedBucket~&quot;,iif(&quot;@Request.complianceType~&quot; == &quot;Exempt&quot;,&quot;@Data.calcExemptBucket~&quot;,&quot;&quot;))" ID="calcComplianceType" />
+        <CalculatedColumn ID="calcIsCompliant" Formula="iif(@Data.less30DeployedCompliant~ == &quot;1&quot; || @Data.more30DeployedCompliant~ == &quot;1&quot; || @Data.noCheckinDeployedCompliant~ == &quot;1&quot;,&quot;Yes&quot;,&quot;No&quot;)" />
+        <CalculatedColumn Formula="iif(@Data.DeployedSynamtec~ == &quot;1&quot;,&quot;Yes&quot;, &quot;No&quot;)" ID="calcSymantecFriendly" />
+        <CalculatedColumn Formula="iif(@Data.DeployedDriveEncryption~ == &quot;1&quot;,&quot;Yes&quot;, &quot;No&quot;)" ID="calcDriveEncryptionFriendly" />
+        <CalculatedColumn Formula="iif(@Data.DeployedComputrace~ == &quot;1&quot;,&quot;Yes&quot;, &quot;No&quot;)" ID="calcComputraceFriendly" />
+        <ConditionFilter Condition="iif(&quot;@Data.complianceType~&quot; == &quot;Software&quot;,(@Data.less30Deployed~ == 1 || @Data.more30Deployed~ == 1 || @Data.noCheckinDeployed~ == 1),(1 ==1))" />
+        <CompareFilter DataColumn="calcComplianceType" CompareType="=" CompareValue="@Request.complianceGroup~" />
+      </DataLayer>
+      <DataTableColumn ID="colIsComplaint" Header="Compliant" IdeDisplayStatus="Collapsed">
+        <Label Caption="@Data.calcIsCompliant~" />
+        <DataColumnSort DataColumn="calcIsCompliant" DataType="Text" />
+      </DataTableColumn>
+      <DataTableColumn ID="colDeployedSynamtec" Header="Symantec Compliant" IdeDisplayStatus="Collapsed">
+        <Label ID="lblDeployedSynamtec" Caption="@Data.calcSymantecFriendly~" />
+        <DataColumnSort DataColumn="DeployedSynamtec" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colDeployedDriveEncryption" Header="Drive Encryption Compliant" IdeDisplayStatus="Collapsed">
+        <Label ID="lblDeployedDriveEncryption" Caption="@Data.calcDriveEncryptionFriendly~" />
+        <DataColumnSort DataColumn="DeployedDriveEncryption" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colDeployedComputrace" Header="Computrace Compliant" IdeDisplayStatus="Collapsed">
+        <Label ID="lblDeployedComputrace" Caption="@Data.calcComputraceFriendly~" />
+        <DataColumnSort DataColumn="DeployedComputrace" DataType="Number" />
+      </DataTableColumn>
+      <Remark>
+        <DataTableColumn ID="colless30Deployed" Header="less30Deployed" IdeDisplayStatus="Collapsed">
+          <Label ID="lblless30Deployed" Caption="@Data.less30Deployed~" />
+          <DataColumnSort DataColumn="less30Deployed" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colless30DeployedCompliant" Header="less30DeployedCompliant" IdeDisplayStatus="Collapsed">
+          <Label ID="lblless30DeployedCompliant" Caption="@Data.less30DeployedCompliant~" />
+          <DataColumnSort DataColumn="less30DeployedCompliant" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colmore30Deployed" Header="more30Deployed" IdeDisplayStatus="Collapsed">
+          <Label ID="lblmore30Deployed" Caption="@Data.more30Deployed~" />
+          <DataColumnSort DataColumn="more30Deployed" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colmore30DeployedCompliant" Header="more30DeployedCompliant" IdeDisplayStatus="Collapsed">
+          <Label ID="lblmore30DeployedCompliant" Caption="@Data.more30DeployedCompliant~" />
+          <DataColumnSort DataColumn="more30DeployedCompliant" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colnoCheckinDeployed" Header="noCheckinDeployed" IdeDisplayStatus="Collapsed">
+          <Label ID="lblnoCheckinDeployed" Caption="@Data.noCheckinDeployed~" />
+          <DataColumnSort DataColumn="noCheckinDeployed" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colnoCheckinDeployedCompliant" Header="noCheckinDeployedCompliant" IdeDisplayStatus="Collapsed">
+          <Label ID="lblnoCheckinDeployedCompliant" Caption="@Data.noCheckinDeployedCompliant~" />
+          <DataColumnSort DataColumn="noCheckinDeployedCompliant" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colDeployed" Header="Deployed" IdeDisplayStatus="Collapsed">
+          <Label ID="lblDeployed" Caption="@Data.Deployed~" />
+          <DataColumnSort DataColumn="Deployed" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colInventory" Header="Inventory" IdeDisplayStatus="Collapsed">
+          <Label ID="lblInventory" Caption="@Data.Inventory~" />
+          <DataColumnSort DataColumn="Inventory" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colInventoryCompliant" Header="InventoryCompliant" IdeDisplayStatus="Collapsed">
+          <Label ID="lblInventoryCompliant" Caption="@Data.InventoryCompliant~" />
+          <DataColumnSort DataColumn="InventoryCompliant" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colMIA" Header="MIA" IdeDisplayStatus="Collapsed">
+          <Label ID="lblMIA" Caption="@Data.MIA~" />
+          <DataColumnSort DataColumn="MIA" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colMIACompliant" Header="MIACompliant" IdeDisplayStatus="Collapsed">
+          <Label ID="lblMIACompliant" Caption="@Data.MIACompliant~" />
+          <DataColumnSort DataColumn="MIACompliant" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colExempt" Header="Exempt" IdeDisplayStatus="Collapsed">
+          <Label ID="lblExempt" Caption="@Data.Exempt~" />
+          <DataColumnSort DataColumn="Exempt" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colExemptCompliant" Header="ExemptCompliant" IdeDisplayStatus="Collapsed">
+          <Label ID="lblExemptCompliant" Caption="@Data.ExemptCompliant~" />
+          <DataColumnSort DataColumn="ExemptCompliant" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <DataTableColumn ID="colAssetTag" Header="Asset Tag" IdeDisplayStatus="Collapsed">
+        <Label ID="lblAssetTag" Caption="@Data.AssetTag~" />
+        <DataColumnSort DataColumn="AssetTag" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSerialNumber" Header="Serial Number" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSerialNumber" Caption="@Data.SerialNumber~" />
+        <DataColumnSort DataColumn="SerialNumber" />
+      </DataTableColumn>
+      <DataTableColumn ID="colComputerName" Header="Computer Name" IdeDisplayStatus="Collapsed">
+        <Label ID="lblComputerName" Caption="@Data.ComputerName~" />
+        <DataColumnSort DataColumn="ComputerName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colFirstName" Header="First Name" IdeDisplayStatus="Collapsed">
+        <Label ID="lblFirstName" Caption="@Data.FirstName~" />
+        <DataColumnSort DataColumn="FirstName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colLastName" Header="Last Name" IdeDisplayStatus="Collapsed">
+        <Label ID="lblLastName" Caption="@Data.LastName~" />
+        <DataColumnSort DataColumn="LastName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colEmailAddress" Header="Email Address" IdeDisplayStatus="Collapsed">
+        <Label ID="lblEmailAddress" Caption="@Data.EmailAddress~" />
+        <DataColumnSort DataColumn="EmailAddress" />
+      </DataTableColumn>
+      <DataTableColumn ID="colModel" Header="Model" IdeDisplayStatus="Collapsed">
+        <Label ID="lblModel" Caption="@Data.Model~" />
+        <DataColumnSort DataColumn="Model" />
+      </DataTableColumn>
+      <DataTableColumn ID="colMake" Header="Make" IdeDisplayStatus="Collapsed">
+        <Label ID="lblMake" Caption="@Data.Make~" />
+        <DataColumnSort DataColumn="Make" />
+      </DataTableColumn>
+      <DataTableColumn ID="colOS" Header="OS" IdeDisplayStatus="Collapsed">
+        <Label ID="lblOS" Caption="@Data.OS~" />
+        <DataColumnSort DataColumn="OS" />
+      </DataTableColumn>
+      <DataTableColumn ID="colLastContact SCCM/JAMF" Header="Last Contact SCCM/JAMF" IdeDisplayStatus="Collapsed">
+        <Label ID="lblLastContact SCCM/JAMF" Caption="@Data.LastContact SCCM/JAMF~" Format="Short Date" />
+        <DataColumnSort DataColumn="LastContact SCCM/JAMF" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colLastContact AD" Header="Last Contact AD" IdeDisplayStatus="Collapsed">
+        <Label ID="lblLastContact AD" Caption="@Data.LastContact AD~" Format="Short Date" />
+        <DataColumnSort DataColumn="LastContact AD" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colStatus" Header="Status" IdeDisplayStatus="Collapsed">
+        <Label ID="lblStatus" Caption="@Data.Status~" />
+        <DataColumnSort DataColumn="Status" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSub-Status" Header="Sub-Status" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSub-Status" Caption="@Data.Sub-Status~" />
+        <DataColumnSort DataColumn="Sub-Status" />
+      </DataTableColumn>
+      <DataTableColumn ID="colLocation" Header="Location" IdeDisplayStatus="Collapsed">
+        <Label ID="lblLocation" Caption="@Data.Location~" />
+        <DataColumnSort DataColumn="Location" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams complianceType="" complianceGroup="" />
+</Report>

@@ -1,0 +1,191 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Iris.Incident_Touches_by_Group" SavedBy="JOMAX\dezell" SavedAt="3/13/2014 9:27:30 AM" EngineVersion="11.2.040-SP2" Caption="Incident Touches by Group" SecurityReportRightID="LogiC3Sups">
+  <DefaultRequestParams vc_groupList="@Request.checkIrisGroups~" vc_actionList="@Request.checkIncidentActions~" dt_end="@Request.inpEndDate~" dt_begin="@Request.inpStartDate~" />
+  <FormulaScriptFile ScriptFile="gdITJscript.js" ID="scriptgdJScript" />
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px" IdeDisplayStatus="Collapsed">
+      <Row Class="gdReportHeader" IdeDisplayStatus="Collapsed">
+        <Column>
+          <Label Caption="Incident Touches By Group" Class="gdReportHeaderNameIT" />
+        </Column>
+        <Column Class="ThemeAlignLeft" IdeDisplayStatus="Collapsed">
+          <Spaces Size="10" />
+          <InputDate ID="inpStartDate" Caption="Start Date:" DefaultValue="@Request.dt_begin~" CalendarLinkType="Image" Format="General Date" InputDateReformat="General Date" />
+          <Spaces Size="10" />
+          <InputDate CalendarLinkType="Image" ID="inpEndDate" Caption="End Date:" Format="General Date" InputDateReformat="General Date" DefaultValue="@Request.dt_end~" />
+          <Spaces Size="25" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport" Validate="True">
+              <Target Type="Report" Report="Iris.Incident_Touches_by_Group" ID="tgtTouchesbyGroup" RequestForwarding="True" />
+            </Action>
+          </Button>
+          <Spaces Size="10" />
+          <Division>
+            <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+              <Action Type="NativeExcel" ID="excelExport">
+                <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" ExportDataTableID="dtTouchesByGroup" />
+              </Action>
+            </Image>
+          </Division>
+        </Column>
+      </Row>
+      <Row IdeDisplayStatus="Collapsed">
+        <Column />
+        <Column IdeDisplayStatus="Collapsed">
+          <Spaces Size="10" />
+          <InputCheckboxList MultiSelect="True" ID="checkIrisGroups" Caption="Group:" CheckboxListDropdown="True" OptionCaptionColumn="GroupDescription" OptionValueColumn="iris_groupID" SaveInCookie="True" DefaultValue="@Cookie.checkIrisGroups~">
+            <DataLayer Type="Cached" CacheKey="groupCache" ExpirationTime="04:00" ID="cacheGroup" ExpirationTimeSpan="24:00">
+              <DataLayer Type="SP" Command="eRpt.irisGroupGetAll_sp" ConnectionID="prodC3Analytics" ID="dlGetIrisGroups" />
+            </DataLayer>
+          </InputCheckboxList>
+          <Spaces Size="3" />
+          <InputCheckboxList MultiSelect="True" ID="checkIncidentActions" Caption="Actions:" CheckboxListDropdown="True" OptionCaptionColumn="incidentAction" OptionValueColumn="iris_incidentActionID" SaveInCookie="True" DefaultValue="@Cookie.checkIncidentActions~">
+            <DataLayer Type="Cached" ID="cacheIncidentActions" CacheKey="actionCache" ExpirationTime="04:00" ExpirationTimeSpan="24:00" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="SP" Command="eRpt.irisIncidentActionGetAll_sp" ConnectionID="devC3Analytics" ID="dlGetIncidentActions" />
+            </DataLayer>
+          </InputCheckboxList>
+        </Column>
+      </Row>
+    </Rows>
+    <LineBreak LineCount="3" />
+    <DataTable ID="dtTouchesByGroup" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="7 px" HideWhenZeroRows="True">
+      <DataLayer Type="SP" ID="dlTouches" ConnectionID="devC3Analytics" Command="eRpt.ticketTouchesByGroup_sp">
+        <SPParameters>
+          <SPParameter ID="dt_begin" Value="@Request.dt_begin~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+          <SPParameter ID="dt_end" Value="@Request.dt_end~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+          <SPParameter ID="vc_groupList" Value="@Request.vc_groupList~" SPParamDirection="Input" SPParamSize="8000" SPParamType="dt-200" />
+          <SPParameter ID="vc_actionList" Value="@Request.vc_actionList~" SPParamDirection="Input" SPParamSize="8000" SPParamType="dt-200" />
+        </SPParameters>
+        <CalculatedColumn Formula="&quot;@Data.LastName~&quot; + &quot;, &quot; + &quot;@Data.FirstName~&quot;" ID="calcFullName" />
+        <CalculatedColumn Formula="iif(&quot;@Data.iris_employeeID~&quot; = &quot;&quot;,0,@Data.iris_employeeID~)" ID="calcEmpID" />
+        <Note Note="Calculated column below is for validation." />
+        <Remark>
+          <CalculatedColumn Formula="convertHoursToSeconds(@Data.hoursInGroup~)" ID="calcSecondsFromHoursGroup" />
+        </Remark>
+        <DataLayerLink ID="dlTouch" />
+        <GroupFilter GroupColumn="GroupDescription" IdeDisplayStatus="Collapsed">
+          <GroupAggregateColumn AggregateColumn="iris_incidentID" AggregateFunction="Count" ID="groupAggCountIncidents1" />
+        </GroupFilter>
+        <SortFilter SortColumn="GroupDescription" SortSequence="Ascending" />
+      </DataLayer>
+      <DataTableColumn ID="coliris_groupDescription" Header="Group" IdeDisplayStatus="Collapsed">
+        <Label ID="lbliris_GroupDescription" Caption="@Data.GroupDescription~" IdeDisplayStatus="Collapsed">
+          <Action Type="ShowElement" ID="actShowEmpDetails" ElementID="MIREmployee" Display="Toggle" />
+        </Label>
+        <DataColumnSort DataColumn="GroupDescription" DataType="Text" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Text" />
+      </DataTableColumn>
+      <DataTableColumn ID="colgroupAggCountIncidents1" Header="Incident Touches" Class="ThemeAlignCenter" Tooltip="A touch is defined as one of the following actions on an Iris Incident:&#xD;&#xA;&#xD;&#xA;Create,&#xD;&#xA;Resolve,&#xD;&#xA;NeedInfo,&#xD;&#xA;Save,&#xD;&#xA;Cancel,&#xD;&#xA;Reply,&#xD;&#xA;Suspend,&#xD;&#xA;Comment,&#xD;&#xA;Transfer.&#xD;&#xA;&#xD;&#xA;Multiple touches on a single incident are being included in the count." IdeDisplayStatus="Collapsed">
+        <Label ID="lblgroupAggCountIncidents1" Caption="@Data.groupAggCountIncidents1~" />
+        <DataColumnSort DataColumn="groupAggCountIncidents1" DataType="Number" />
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Number" />
+      </DataTableColumn>
+      <MoreInfoRow ID="MIREmployee" ShowModes="None">
+        <HR Size="5" />
+        <SubDataTable ID="sdtEmployeeRow" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="7px">
+          <SubDataLayer ID="sdlEmployeeRole">
+            <DataLayer Type="Linked" LinkedDataLayerID="dlTouch" ID="dlTouchEmployees">
+              <GroupFilter GroupColumn="GroupDescription,iris_employeeID" DataType="Text">
+                <GroupAggregateColumn AggregateColumn="iris_incidentID" AggregateFunction="Count" ID="groupaggIncCount" />
+              </GroupFilter>
+              <Remark>
+                <SortFilter SortColumn="calcFullName" SortSequence="Ascending" />
+              </Remark>
+            </DataLayer>
+            <SubDataLayerRelationColumn ChildColumn="GroupDescription" ParentColumn="GroupDescription" ID="sdlrelcolumnGroup" />
+          </SubDataLayer>
+          <DataTableColumn ID="colEmployee" Header="Employee Name" IdeDisplayStatus="Collapsed">
+            <Label Caption="@Data.calcFullName~">
+              <Action Type="ShowElement" ID="actShowIncidentDetails" ElementID="mirIncidentDetails" />
+            </Label>
+          </DataTableColumn>
+          <DataTableColumn ID="colgroupAggIncidentCount" Header="Incident Touches" Class="ThemeAlignCenter">
+            <Label Caption="@Data.groupaggIncCount~" />
+          </DataTableColumn>
+          <MoreInfoRow ID="mirIncidentDetails" ShowModes="None">
+            <HR Size="5" />
+            <SubDataTable ID="sdtIncident" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="7px">
+              <SubDataLayer ID="sdlIncidentRow">
+                <DataLayer Type="Linked" LinkedDataLayerID="dlTouch" ID="dlTouchIncidentRow">
+                  <SortFilter SortColumn="ModifyDate" SortSequence="Descending" />
+                </DataLayer>
+                <SubDataLayerRelationColumn ChildColumn="GroupDescription" ParentColumn="GroupDescription" ID="sdlrelcolGroupdetails" />
+                <SubDataLayerRelationColumn ChildColumn="iris_employeeID" ParentColumn="iris_employeeID" ID="sdlrelcolEmployeeDetails" />
+              </SubDataLayer>
+              <DataTableColumn ID="colIncidentID" Header="Incident" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.iris_incidentID~">
+                  <Action Type="Link" ID="alIris">
+                    <Target Type="Link" Link="javascript:void(window.open('https://iris.prod.intranet.gdg/IncidentEditView.aspx?incidentID=@Data.iris_incidentID~'))" ID="tlIris" />
+                  </Action>
+                </Label>
+              </DataTableColumn>
+              <DataTableColumn ID="colService" Header="Service" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.ServiceDescription~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colStatus" Header="Status" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.StatusDescription~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colGroup2" Header="Group" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.GroupDescription~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSource" Header="Source" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.SourceDescription~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCategory" Header="Category" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.CategoryDescription~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSummary" Header="Incident Summary" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.IncidentDescription~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastModified" Header="Modify Date" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.ModifyDate~" Format="yyyy/MM/dd hh:mm:ss tt" />
+              </DataTableColumn>
+              <DataTableColumn ID="colAction" Header="Action Performed" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.incidentAction~" />
+              </DataTableColumn>
+              <DataTableColumn Header="Employee" ID="colEmployee" IdeDisplayStatus="Collapsed">
+                <Label Caption="@Data.calcFullName~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colTimeInGroup" Header="Time in Group">
+                <Label ID="lblhoursInGroup" Caption="=convertSecondstoDHM(convertHoursToSeconds(@Data.hoursInGroup~))" />
+              </DataTableColumn>
+              <DataTableColumn ID="colTimeInTier" Header="Time in Tier">
+                <Label ID="lblhoursInTier" Caption="=convertSecondstoDHM(convertHoursToSeconds(@Data.hoursInTier~))" />
+              </DataTableColumn>
+              <DataTableColumn ID="coliris_tierID" Header="Tier">
+                <Label ID="lbliris_tierID" Caption="@Data.iris_tierID~" />
+              </DataTableColumn>
+              <DataTableColumn ID="collabelList" Header="Tags" IdeDisplayStatus="Collapsed">
+                <Label ID="lbllabelList" Caption="@Data.labelList~" />
+              </DataTableColumn>
+              <Note Note="Columns below are for validation only." />
+              <Remark>
+                <DataTableColumn ID="colRawHoursInGroup" Header="Raw Hours in Group" IdeDisplayStatus="Collapsed">
+                  <Label ID="lbRawTimeInGroup" Caption="@Data.hoursInGroup~" />
+                </DataTableColumn>
+              </Remark>
+              <Remark>
+                <DataTableColumn ID="colRawHoursInTier" Header="Raw Hours inTier" IdeDisplayStatus="Collapsed">
+                  <Label ID="lblRawTimeinTier" Caption="@Data.hoursInTier~" />
+                </DataTableColumn>
+              </Remark>
+              <Remark>
+                <DataTableColumn ID="colRawSecsGroup" Header="Seconds in Group" IdeDisplayStatus="Collapsed">
+                  <Label ID="lblrawSecsGroup" Caption="@Data.calcSecondsFromHoursGroup~" Format="General Number" />
+                </DataTableColumn>
+              </Remark>
+            </SubDataTable>
+            <HR Size="5" />
+          </MoreInfoRow>
+        </SubDataTable>
+        <HR Size="5" />
+      </MoreInfoRow>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams dt_begin="" dt_end="" vc_groupList="" checkIrisGroups="" vc_actionList="" checkIncidentActions="" inpStartDate="" inpEndDate="" />
+</Report>

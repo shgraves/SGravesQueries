@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.NPS.TrendNPS" SavedBy="JOMAX\bgaer" SavedAt="12/13/2012 3:57:05 PM" EngineVersion="10.2.424">
+  <StyleSheet />
+  <ReportHeader />
+  <Body>
+    <Chart Type="XY" ID="chtNPSTrend" ChartHeight="300" ChartWidth="300" ChartDataColumn="NPS" XYChartType="Line" ChartTitle="Net Promoter Score Trend" ChartLabelColumn="Week" Color="Orange" YAxisTitle="NPS" XAxisTitle="Week" LineWidth="2">
+      <DataLayer Type="SP" ID="dlTrendNPS" ConnectionID="BiLogiReporting-TEST" Command="dbo.logiXML_getNPSTrend_sp">
+        <SPParameters />
+      </DataLayer>
+      <DataScale ScaleLowerBound="-100" ScaleUpperBound="100" Format="mp" TickDensity="10" />
+      <FontLabel FontAngle="45" />
+      <FontChartTitle FontSize="10" />
+    </Chart>
+  </Body>
+  <ReportFooter />
+</Report>

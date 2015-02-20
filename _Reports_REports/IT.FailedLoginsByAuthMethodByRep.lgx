@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="IT.FailedLoginsByAuthMethodByRep" SavedBy="JOMAX\twakefield" SavedAt="4/14/2014 12:07:43 PM" EngineVersion="11.0.43">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader />
+  <Body>
+    <DataTable SortArrows="True" ID="dtRepFails" CellSpacing="7 px" Width="100" WidthScale="%">
+      <DataLayer Type="Linked" LinkedDataLayerID="dllFailedAttemptsByAuthMethod" ID="dllFailedRepsByAuthMethod">
+        <CompareFilter DataColumn="shopper_id" CompareValue="@Request.shopper_id~" ID="cfShopperId" />
+        <CompareFilter ID="cfValidationType" DataColumn="validationTypeDescription" CompareValue="@Request.validationTypeDescription~" />
+      </DataLayer>
+      <DataTableColumn ID="colcreateDate" Header="Date" IdeDisplayStatus="Collapsed">
+        <Label ID="lblcreateDate" Caption="@Data.createDate~" Format="MM/dd/yyyy" />
+        <DataColumnSort DataColumn="createDate" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colRepName" Header="EmployeeName" IdeDisplayStatus="Collapsed">
+        <Label ID="lblRepName" Caption="@Data.RepName~" />
+        <DataColumnSort DataColumn="RepName" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams shopper_id="" validationTypeDescription="" />
+</Report>

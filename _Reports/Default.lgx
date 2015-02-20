@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Default" SavedBy="JOMAX\bgaer" SavedAt="4/22/2013 4:14:32 PM" EngineVersion="10.2.424">
+  <DefaultRequestParams StartDate="@Date.Yesterday~" EndDate="@Date.Today~" PanelHeight="400" PanelWidth="400" />
+  <StyleSheet Theme="GDRPortal" StyleSheet="ERHubTheme.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeader" ID="sharedHeaderElement" SharedElementID="sharedHeader" />
+  </ReportHeader>
+  <Body>
+    <Division>
+      <Rows Width="100" WidthScale="%" ID="rowDefault">
+        <Row>
+          <Column Width="100" WidthScale="%" Class="gdThemeDefault">
+            <LineBreak LineCount="3" />
+            <Label Caption="Welcome to the" Class="gdThemeDefault" />
+            <LineBreak LineCount="2" />
+            <Label Caption="Enterprise Reporting Hub" Class="gdThemeDefaultMainTitle" />
+          </Column>
+        </Row>
+      </Rows>
+    </Division>
+  </Body>
+  <ReportFooter>
+    <Division Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+      <Remark>
+        <Rows IdeDisplayStatus="Collapsed">
+          <Row>
+            <Column Class="ThemeAlignCenter">
+              <Label Caption="Copyright © 2012 Go Daddy Operating Company, LLC. All rights reserved." Class="ThemeAlignCenter" />
+            </Column>
+          </Row>
+        </Rows>
+      </Remark>
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="sharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams />
+</Report>

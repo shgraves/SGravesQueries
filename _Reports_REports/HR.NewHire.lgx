@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="HR.NewHire" SavedBy="JOMAX\twakefield" SavedAt="7/9/2014 11:28:38 AM" EngineVersion="11.0.43">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows>
+      <Row Class="gdReportHeader">
+        <Column IdeDisplayStatus="Collapsed">
+          <Spaces Size="2" />
+          <Label Caption="New Hire" Class="gdReportHeaderNameIT" />
+        </Column>
+      </Row>
+      <Row>
+        <Column ID="colDropDowns">
+          <Rows ID="rowDropDowns" Class="gdDefaultDropDownBground">
+            <Row ID="rowDropCols">
+              <Column Width="270" WidthScale="px" ID="colLeft">
+                <Rows Width="250" WidthScale="px" ID="rowsHeader">
+                  <Row ID="rowStartDate" IdeDisplayStatus="Collapsed">
+                    <Column ID="colStartDate" Width="160" WidthScale="px">
+                      <Label Caption="Start (&gt;=):" />
+                    </Column>
+                    <Column ID="colRptStart" Width="250" WidthScale="px">
+                      <InputDate ID="rptStart" DefaultValue="@Request.rptStart~" Class="gdSelectFixedWidth" CalendarLinkType="Image" CaptionClass="ThemeAlignTopRight">
+                        <Validation Type="Date" />
+                        <Validation Type="Required" />
+                      </InputDate>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Column>
+              <Column Width="270" WidthScale="px" ID="colCenter">
+                <Rows Width="250" WidthScale="px">
+                  <Row ID="rowEndDate">
+                    <Column ID="colEndDate" Width="160" WidthScale="px">
+                      <Label Caption="End (&lt;):" />
+                    </Column>
+                    <Column ID="colRptEnd" Width="250" WidthScale="px">
+                      <InputDate ID="rptEnd" DefaultValue="@Request.rptEnd~" CalendarLinkType="Image" Class="gdSelectFixedWidth" CaptionClass="ThemeAlignTopRight">
+                        <Validation Type="Date" />
+                        <Validation Type="Required" />
+                      </InputDate>
+                      <Remark>
+                        <Spaces Size="3" />
+                      </Remark>
+                    </Column>
+                  </Row>
+                </Rows>
+              </Column>
+            </Row>
+            <Row ID="rowSubmit">
+              <Column ID="colSubmit" ColSpan="5" RowSpan="1">
+                <Button ID="Submit" Caption="Submit" Tooltip="Click to Run Report">
+                  <EventHandler DhtmlEvent="onclick">
+                    <Action Type="Javascript" Javascript="validateForm()" ID="actValidate" />
+                  </EventHandler>
+                  <Action Type="Report" ID="actReport">
+                    <Target Type="Report" ID="tgtNewHire" Report="HR.NewHire" />
+                  </Action>
+                </Button>
+                <Spaces Size="3" />
+                <Button ID="btnExportExcel" Caption="Excel Export" Tooltip="Click to Export to Excel">
+                  <Action Type="NativeExcel" ID="expExcel">
+                    <Target Type="NativeExcel" ID="tgtExcel" ExportFilename="NewHire.xlsx" ShowGridlines="True" ExportDataTableID="DataTable1" ExcelOutputFormat="Excel2007" />
+                  </Action>
+                </Button>
+                <Spaces Size="3" />
+                <Button ID="btnExportCSV" Caption="CSV Export" Tooltip="Click to Export to CSV">
+                  <Action Type="CSV" ID="expCSV">
+                    <Target Type="CSV" ID="tgtCSV" ExportFilename="NewHire.csv" ExportDataTableID="DataTable1" />
+                  </Action>
+                </Button>
+              </Column>
+            </Row>
+          </Rows>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <DataTable SortArrows="True" ID="DataTable1" HideWhenZeroRows="True" AltRowClass="gdThemeAltRowNoPadding td" TableBorder="1">
+            <DataLayer Type="SP" ID="SPDataLayer3" ConnectionID="connEmployeeMaster" Command="eRpt.NewHire_sp">
+              <SPParameters>
+                <SPParameter ID="Startdate" Value="@Request.rptStart~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                <SPParameter ID="EndDate" Value="@Request.rptEnd~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+              </SPParameters>
+            </DataLayer>
+            <DataTableColumn ID="colManagerUserID" Header="ManagerUserID" IdeDisplayStatus="Collapsed">
+              <Label ID="lblManagerUserID" Caption="@Data.ManagerUserID~" />
+              <DataColumnSort DataColumn="ManagerUserID" DataType="Number" />
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="colName" Header="Name" IdeDisplayStatus="Collapsed">
+              <Label ID="lblName" Caption="@Data.Name~" />
+              <DataColumnSort DataColumn="Name" />
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="colTC/C3" Header="TC/C3">
+              <Label ID="lblTC/C3" Caption="@Data.TC/C3~" />
+              <DataColumnSort DataColumn="TC/C3" />
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="colSupervisor" Header="Supervisor" IdeDisplayStatus="Collapsed">
+              <Label ID="lblSupervisor" Caption="@Data.Supervisor~" />
+              <DataColumnSort DataColumn="Supervisor" />
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="colHireDate" Header="Hire Date" IdeDisplayStatus="Collapsed">
+              <Label ID="lblHireDate" Caption="@Data.HireDate~" Format="MM/dd/yyyy" />
+              <DataColumnSort DataColumn="HireDate" DataType="Date" />
+              <ExcelColumnFormat ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <InteractivePaging PageRowCount="50" ShowPageNumber="True" Location="Top" CaptionType="Image" />
+          </DataTable>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Division ID="DivInput" />
+        </Column>
+      </Row>
+    </Rows>
+    <Division ID="DivTable" />
+  </Body>
+  <DefaultRequestParams rptEnd="=DateAdd(&quot;d&quot;, 9,Date())" rptStart="=DateAdd(&quot;d&quot;,-7,Date())" />
+  <LocalData />
+  <ideTestParams rptStart="" rptEnd="" />
+</Report>

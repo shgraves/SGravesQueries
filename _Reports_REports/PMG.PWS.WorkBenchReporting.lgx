@@ -1,0 +1,231 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.PWS.WorkBenchReporting" SavedBy="JOMAX\jkaplan" SavedAt="5/6/2014 1:22:03 PM" EngineVersion="11.2.040-SP2" DefaultShowModes="rdBrowser">
+  <DefaultRequestParams rptStart="=DateAdd(&quot;d&quot;,-14,Date())" rptEnd="@Date.Today~" RoleName="Project Lead" isPublished="0" />
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <ReportHeader ShowModes="rdBrowser">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+    <IncludeHtml Html="&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; media=&quot;all&quot; href=&quot;_SupportFiles/jsDatePick_ltr.min.css&quot; /&gt;&#xD;&#xA;&lt;script type=&quot;text/javascript&quot; src=&quot;_SupportFiles/jsDatePick.min.1.3.js&quot;&gt;&lt;/script&gt;" ID="IncludeCalendar" />
+    <IncludeHtml Html="&lt;style&gt;&#xD;&#xA;.gdMetricTable {&#xD;&#xA;border-collapse:collapse;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td,th {&#xD;&#xA;border:2px solid white;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td.none {&#xD;&#xA;border-style:none;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable a&#xD;&#xA;{&#xD;&#xA;color:black;&#xD;&#xA;text-decoration:underline;&#xD;&#xA;}&#xD;&#xA;.gdReportHeaderPrimaryBackground&#xD;&#xA;{&#xD;&#xA;background-color:#9BB3CC;&#xD;&#xA;}&#xD;&#xA;.gdReportHeaderSecondaryBackground&#xD;&#xA;{&#xD;&#xA;background-color:#CDD9E6;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdReportHeaderSecondaryBackground a&#xD;&#xA;{&#xD;&#xA;color:black;&#xD;&#xA;text-decoration:underline;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;input[type=&quot;submit&quot;]:enabled {&#xD;&#xA;background: #CDD9E6 !important;&#xD;&#xA;border: 1px solid #386090 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: black !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;submit&quot;]:hover:enabled {&#xD;&#xA;background: #ffffff !important;&#xD;&#xA;border: 1px solid #386090 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: #386090 !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;button&quot;] {&#xD;&#xA;background: #386090 !important;&#xD;&#xA;border: 1px solid #386090 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: #ffffff !important;&#xD;&#xA;padding: 2px 4px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;button&quot;]:hover {&#xD;&#xA;background: #ffffff !important;&#xD;&#xA;border: 1px solid #386090 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: #386090 !important;&#xD;&#xA;padding: 2px 4px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&lt;/style&gt;&#xD;&#xA;&#xD;&#xA;&lt;!--[if IE]&gt;&#xD;&#xA;&lt;style type=&quot;text/css&quot;&gt;&#xD;&#xA;input[type=&quot;submit&quot;] {&#xD;&#xA;background: #CDD9E6 !important;&#xD;&#xA;border: 1px solid #386090 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: black !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;}&#xD;&#xA;&lt;/style&gt;&#xD;&#xA;&lt;![endif]--&gt;" ID="CustomCSS" />
+  </ReportHeader>
+  <Body>
+    <Division ID="divDropDowns" ShowModes="rdBrowser">
+      <Rows ID="rowsHeader" Class="gdReportHeader" IdeDisplayStatus="Collapsed">
+        <Row ID="rowTitle" IdeDisplayStatus="Collapsed">
+          <Column ID="colSpanTitle" ColSpan="4" IdeDisplayStatus="Collapsed">
+            <Label Caption="PWS Workbench Reporting" Class="gdReportHeaderNameBI" />
+          </Column>
+        </Row>
+        <Row ID="rowOneHierachy" IdeDisplayStatus="Collapsed">
+          <Column ID="colOne">
+            <Label Caption="Report Start (&gt;=):" />
+          </Column>
+          <Column ID="colTwo">
+            <InputText ID="rptStart" DefaultValue="@Request.rptStart~" Format="MM-dd-yyyy" />
+          </Column>
+          <Column ID="colThree">
+            <Label Caption="End (&lt;):" />
+          </Column>
+          <Column ID="colFour">
+            <InputText ID="rptEnd" DefaultValue="@Request.rptEnd~" Format="MM-dd-yyyy" />
+            <Spaces Size="3" />
+          </Column>
+        </Row>
+        <Row ID="rowTwoHierachy" IdeDisplayStatus="Collapsed">
+          <Column ID="colOne">
+            <Label Caption="Role Name: " />
+          </Column>
+          <Column ID="colTwo">
+            <InputSelectList ID="RoleName" OptionValueColumn="RoleName" OptionCaptionColumn="RoleName" IncludeBlank="False" DefaultValue="@Request.RoleName~" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Static" ID="dlRoleName">
+                <StaticDataRow RoleName="Builder" />
+                <StaticDataRow RoleName="Content Writer" />
+                <StaticDataRow RoleName="Designer" />
+                <StaticDataRow RoleName="Project Lead" />
+              </DataLayer>
+              <EventHandler DhtmlEvent="onchange" IdeDisplayStatus="Collapsed">
+                <Action Type="RefreshElement" ElementID="isPublished" ID="actRefreshPublished">
+                  <WaitPage Caption="Processing, please wait..." />
+                </Action>
+              </EventHandler>
+            </InputSelectList>
+          </Column>
+          <Column ID="colThree">
+            <Label Caption="Published: " />
+          </Column>
+          <Column ID="colFour">
+            <InputSelectList ID="isPublished" OptionCaptionColumn="DisplayName" OptionValueColumn="Value" DefaultValue="@Request.isPublished~">
+              <DataLayer Type="SQL" Source="SELECT CASE WHEN '@Request.RoleName~' = 'Project Lead' THEN 'Submitted to Build'&#xD;&#xA;			WHEN '@Request.RoleName~' = 'Designer' THEN 'Design Complete'&#xD;&#xA;			WHEN '@Request.RoleName~' = 'Content Writer' THEN 'Content Complete'&#xD;&#xA;			WHEN '@Request.RoleName~' = 'Builder' THEN 'Build Complete'&#xD;&#xA;			END AS DisplayName,&#xD;&#xA;		0 AS Value&#xD;&#xA;UNION ALL&#xD;&#xA;SELECT 'Published' AS DisplayName,&#xD;&#xA;		1 AS Value" ID="dlIsPublished" ConnectionID="connP3CSS-Quote" />
+            </InputSelectList>
+          </Column>
+        </Row>
+        <Row ID="rowThreeHierachy" IdeDisplayStatus="Collapsed">
+          <Column ID="colOne" ColSpan="2">
+            <LineBreak />
+            <Button ID="Submit" Caption="Submit">
+              <EventHandler DhtmlEvent="onclick">
+                <Action Type="Javascript" Javascript="isDate(rptStart)" ID="isDate" />
+              </EventHandler>
+              <Action Type="Report" ID="actPerformanceRank" Validate="True">
+                <Target Type="Report" RequestForwarding="True" Report="PMG.PWS.WorkBenchReporting">
+                  <WaitPage Caption="Processing, please wait..." />
+                </Target>
+              </Action>
+            </Button>
+            <Spaces Size="3" />
+            <Button ID="btnExportExcel" Caption="Export">
+              <Action Type="NativeExcel" ID="expExcel">
+                <Target Type="NativeExcel" ID="tgtExcel" ReportShowModes="rdExportExcel" ExportFilename="PWSProductivity.xls" />
+              </Action>
+            </Button>
+          </Column>
+        </Row>
+      </Rows>
+      <LineBreak />
+      <Rows Class="gdDefaultRowBground">
+        <Row>
+          <Column Class="gdColumnCell">
+            <Division ID="divQuotes" ShowModes="rdBrowser">
+              <DataTable ID="dtQuotes" AltRowClass="gdThemeAltRowNoPadding td" Class="gdMetricTable" ColumnHeaderClass="gdReportHeaderPrimaryBackground" Width="800">
+                <DataLayer Type="SP" ConnectionID="connP3CSS-Quote" ID="dlQuotesAgg" Command="wb.report_ProjectSummaryByRoleName_sp">
+                  <SPParameters NullValue="@rptStart =@request.rptStart~">
+                    <SPParameter SPParamDirection="Input" ID="@rptStart" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                    <SPParameter SPParamDirection="input" ID="@rptEnd" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                    <SPParameter SPParamDirection="Input" ID="@RoleName" SPParamSize="50" SPParamType="dt-204" Value="@Request.RoleName~" />
+                    <SPParameter SPParamDirection="input" ID="@isPublished" SPParamSize="0" SPParamType="dt-3" Value="@Request.isPublished~" />
+                  </SPParameters>
+                  <Join ID="joinDaysPresent" JoinType="InnerJoin">
+                    <DataLayer Type="SQL" ID="dlDaysPresent" Source="USE CallCenterReporting;&#xD;&#xA;&#xD;&#xA;SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;&#xD;&#xA;DECLARE @rptStart DATE = '@Request.rptStart~';&#xD;&#xA;DECLARE @rptEnd DATE = '@Request.rptEnd~';&#xD;&#xA;&#xD;&#xA;;WITH MgrUsers AS (&#xD;&#xA;SELECT DISTINCT &#xD;&#xA;		Manager_UserID&#xD;&#xA;FROM	crm_RepHierarchy&#xD;&#xA;WHERE	Department = 23&#xD;&#xA;)&#xD;&#xA;,MgrAttendance AS (&#xD;&#xA;SELECT  MgrUserID,&#xD;&#xA;		SUM(CASE WHEN Present &gt; 1.00 THEN 1.00 ELSE Present END) AS Present&#xD;&#xA;FROM	rptDailyStatsByRep&#xD;&#xA;WHERE	rptDate &gt;= @rptStart&#xD;&#xA;		AND rptDate &lt; @rptEnd&#xD;&#xA;		AND DeptID = 23&#xD;&#xA;GROUP BY MgrUserID&#xD;&#xA;)		&#xD;&#xA;&#xD;&#xA;SELECT	 MU.ID AS MgrUserID,&#xD;&#xA;		 MU.LastName + ', ' + MU.FirstName + ' ' + MU.MiddleName AS MgrName,&#xD;&#xA;		 ISNULL(A.Present,0) AS Present&#xD;&#xA;FROM		MgrUsers U&#xD;&#xA;JOIN		manager_users MU ON MU.ID = U.Manager_UserID&#xD;&#xA;LEFT JOIN	MgrAttendance A ON A.MgrUserID = U.Manager_UserID&#xD;&#xA;;" ConnectionID="connP3BIG-CallCenterReporting">
+                      <DataLayerLink ID="rptDaysPresent" />
+                    </DataLayer>
+                    <MatchCondition RightDataColumn="MgrUserID" LeftDataColumn="MgrUserID" ID="MgrUserID" />
+                  </Join>
+                  <CalculatedColumn Formula="@Data.Total~ - @Data.Std_Site~ - @Data.Dlx_Site~ - @Data.Maintenance~" ID="calcOther" />
+                </DataLayer>
+                <HeaderRow ID="hrTotals" Caption="Total:" Class="gdReportHeaderSecondaryBackground" />
+                <DataTableColumn ID="colName" Header="Name" IdeDisplayStatus="Collapsed">
+                  <Label Caption="@Data.MgrName~">
+                    <Action Type="ShowElement" ElementID="mirRepDetail" ID="actShowData" Display="Toggle" />
+                  </Label>
+                </DataTableColumn>
+                <DataTableColumn ID="colStd" Header="Std" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+                  <Label Caption="@Data.Std_Site~" Format="#,##0" />
+                  <DataColumnSummary DataColumn="Std_Site" Function="Sum" ID="dcStdSite" />
+                </DataTableColumn>
+                <DataTableColumn ID="colDlx" Header="Dlx" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+                  <Label Caption="@Data.Dlx_Site~" Format="#,##0" />
+                  <DataColumnSummary DataColumn="Dlx_Site" Function="Sum" ID="dcDlxSite" />
+                </DataTableColumn>
+                <DataTableColumn ID="colMaintenance" Header="Maintenance" Class="ThemeAlignRight">
+                  <Label Caption="@Data.Maintenance~" Format="#,##0" />
+                  <DataColumnSummary DataColumn="Maintenance" Function="Sum" ID="dcMaintenance" />
+                </DataTableColumn>
+                <DataTableColumn ID="colOther" Header="Other" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+                  <Label Caption="@Data.calcOther~" Format="#,##0" />
+                  <DataColumnSummary DataColumn="calcOther" Function="Sum" ID="dcOther" />
+                </DataTableColumn>
+                <DataTableColumn ID="colPresentDays" Header="Present Days*" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+                  <Label Caption="@Data.Present~" Format="#,##0" />
+                  <DataColumnSummary DataColumn="Present" Function="Sum" ID="dcPresent" />
+                </DataTableColumn>
+                <MoreInfoRow ShowModes="None" ID="mirRepDetail" Class="gdIframe">
+                  <SubDataTable ID="sdtQuotes">
+                    <SubDataLayer ID="dlSubQuotes">
+                      <DataLayer Type="SP" ConnectionID="connP3CSS-Quote" ID="dlQuotesDetail" Command="wb.report_ProjectDetailByRoleName_sp">
+                        <SPParameters>
+                          <SPParameter SPParamDirection="Input" ID="@rptStart" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                          <SPParameter SPParamDirection="input" ID="@rptEnd" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                          <SPParameter SPParamDirection="Input" ID="@RoleName" SPParamSize="50" SPParamType="dt-204" Value="@Request.RoleName~" />
+                          <SPParameter SPParamDirection="input" ID="@isPublished" SPParamSize="0" SPParamType="dt-3" Value="@Request.isPublished~" />
+                        </SPParameters>
+                        <DataLayerLink ID="rptQuotesDetail" />
+                      </DataLayer>
+                      <SubDataLayerRelationColumn ID="dlQuote" ParentColumn="MgrUserID" ChildColumn="MgrUserID" />
+                    </SubDataLayer>
+                    <DataTableColumn ID="colCompleteDate" Header="Complete Date" ShowModes="rdExportExcel">
+                      <Label Caption="@Data.completeDate~" Format="Short Date" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colIris" Header="Iris" ShowModes="rdExportExcel">
+                      <Label Caption="@Data.iris_incidentID~" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colProject" Header="Project" ShowModes="rdExportExcel">
+                      <Label Caption="@Data.ProjectID~" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colProjectType" Header="Project Type" ShowModes="rdExportExcel">
+                      <Label Caption="@Data.ProjectphaseName~" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colPlanType" Header="Plan Type" ShowModes="rdExportExcel">
+                      <Label Caption="@Data.ProjecttypeName~" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colDomain" Header="Domain" ShowModes="rdExportExcel" Condition="@Request.isPublished~ = 0">
+                      <Label Caption="@Data.Domain~" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colDomainLink" Header="Domain" ShowModes="rdExportExcel" Condition="@Request.isPublished~ = 1">
+                      <Label Caption="@Data.Domain~">
+                        <Action Type="Link" ID="actDomain">
+                          <Target Type="Link" ID="tgtDomain" Link="http://@Data.Domain~" FrameID="NewWindow" />
+                        </Action>
+                      </Label>
+                    </DataTableColumn>
+                  </SubDataTable>
+                </MoreInfoRow>
+              </DataTable>
+            </Division>
+          </Column>
+        </Row>
+      </Rows>
+    </Division>
+    <Division ID="divExcel" ShowModes="rdExportExcel">
+      <DataTable ID="dtExcel" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="gdReportHeaderPrimaryBackground" Class="gdMetricTable">
+        <DataLayer Type="Linked" ID="dlQuotesDetail.Linked" LinkedDataLayerID="rptQuotesDetail">
+          <Join ID="joinDaysPresent" JoinType="InnerJoin">
+            <DataLayer Type="Linked" ID="dlDaysPresent.Linked" LinkedDataLayerID="rptDaysPresent" />
+            <MatchCondition RightDataColumn="MgrUserID" LeftDataColumn="MgrUserID" ID="MgrUserID" />
+          </Join>
+        </DataLayer>
+        <DataTableColumn ID="colRoleName" Header="Role Name" ShowModes="rdExportExcel" IdeDisplayStatus="Collapsed">
+          <Label Caption="@Data.RoleName~" />
+        </DataTableColumn>
+        <DataTableColumn ID="colName" Header="Name" ShowModes="rdExportExcel" IdeDisplayStatus="Collapsed">
+          <Label Caption="@Data.MgrName~" />
+        </DataTableColumn>
+        <DataTableColumn ID="colCompleteDate" Header="Complete Date" ShowModes="rdExportExcel" IdeDisplayStatus="Collapsed">
+          <Label Caption="@Data.completeDate~" Format="Short Date" />
+        </DataTableColumn>
+        <DataTableColumn ID="colIris" Header="Iris" ShowModes="rdExportExcel" IdeDisplayStatus="Collapsed">
+          <Label Caption="@Data.iris_incidentID~" />
+        </DataTableColumn>
+        <DataTableColumn ID="colProject" Header="Project" ShowModes="rdExportExcel" IdeDisplayStatus="Collapsed">
+          <Label Caption="@Data.ProjectID~" />
+        </DataTableColumn>
+        <DataTableColumn ID="colProjectType" Header="Project Type" ShowModes="rdExportExcel" IdeDisplayStatus="Collapsed">
+          <Label Caption="@Data.ProjectphaseName~" />
+        </DataTableColumn>
+        <DataTableColumn ID="colPlanType" Header="Plan Type" ShowModes="rdExportExcel" IdeDisplayStatus="Collapsed">
+          <Label Caption="@Data.ProjecttypeName~" />
+        </DataTableColumn>
+        <DataTableColumn ID="colDomain" Header="Domain" ShowModes="rdExportExcel" IdeDisplayStatus="Collapsed">
+          <Label Caption="@Data.Domain~" />
+        </DataTableColumn>
+      </DataTable>
+    </Division>
+  </Body>
+  <ReportFooter>
+    <Division Class="ThemeAlignCenter">
+      <Rows ID="rowsFooter">
+        <Row ID="rowFooter" IdeDisplayStatus="Collapsed">
+          <Column Class="ThemeAlignCenter" ID="columnFooterText">
+            <Label Caption="*Does not calculate powershifts as 1.25 days, rounds down to 1 present day" Class="gdTextNormalWhite" ID="lblFooterText" />
+          </Column>
+        </Row>
+        <Row ID="rowFooter" IdeDisplayStatus="Collapsed">
+          <Column Class="ThemeAlignCenter" ID="columnFooterText" IdeDisplayStatus="Collapsed">
+            <Label Caption="Copyright © 2014 GoDaddy Operating Company, LLC. All rights reserved." Class="gdTextNormalWhite" ID="lblFooterText" />
+          </Column>
+        </Row>
+      </Rows>
+    </Division>
+    <IncludeScript IncludedScript="function SetDates(Date1,Date2) {&#xD;&#xA;&#xD;&#xA;	document.getElementById('rptStart').value = Date1; &#xD;&#xA;	document.getElementById('rptEnd').value = Date2; &#xD;&#xA;&#xD;&#xA;}&#xD;&#xA;" ID="functions" />
+    <IncludeScript IncludedScript="	window.onload = function(){&#xD;&#xA;		new JsDatePick({&#xD;&#xA;			useMode:2,&#xD;&#xA;			target:&quot;rptStart&quot;,&#xD;&#xA;			dateFormat:&quot;%m-%d-%Y&quot;,&#xD;&#xA;			imgPath:&quot;img/&quot;&#xD;&#xA;		});&#xD;&#xA;		&#xD;&#xA;		new JsDatePick({&#xD;&#xA;			useMode:2,&#xD;&#xA;			target:&quot;rptEnd&quot;,&#xD;&#xA;			dateFormat:&quot;%m-%d-%Y&quot;,&#xD;&#xA;			imgPath:&quot;img/&quot;&#xD;&#xA;		});&#xD;&#xA;	};" />
+  </ReportFooter>
+  <ideTestParams rptStart="" rptEnd="" RoleName="" isPublished="" />
+</Report>

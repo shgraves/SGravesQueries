@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Hosting.rpt_FreeCredits_Activations_ByDay" SavedBy="JOMAX\jgauer" SavedAt="2/27/2014 10:19:49 AM" EngineVersion="11.2.040-SP2">
+  <DefaultRequestParams dt_start="@Date.LastWeekStart~" dt_end="@Date.ThisWeekStart~" />
+  <LocalData>
+    <DataLayer Type="SQL" ID="dl_totalActiveFreeCredits" ConnectionID="connM1BIG-BIGReporting" Source="SELECT&#xD;&#xA;	count(resource_id) as 'numActivated' &#xD;&#xA;FROM GoDaddyBilling.dbo.gdshop_billingHosting gd WITH (NOLOCK)&#xD;&#xA;WHERE &#xD;&#xA;	PATINDEX('%[^0123456789]%',gd.shopper_id) = 0&#xD;&#xA;	AND gdshop_billing_statusID = 2 &#xD;&#xA;	@Request.slct_PLID~" />
+  </LocalData>
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column ColSpan="2">
+          <Label Caption="Hosting Free Credits - Activations By Day  |  " Class="gdReportHeaderNameIT" />
+        </Column>
+        <Column ColSpan="1">
+          <Label Caption="Total Active Free Credits: " Class="gdReportHeaderNameIT" />
+          <Label Caption="@Local.numActivated~" Class="gdReportHeaderNameIT" />
+        </Column>
+      </Row>
+      <Row />
+    </Rows>
+    <Rows>
+      <Row>
+        <Column>
+          <InputDate ID="dt_start" Caption="Start Date:" CalendarLinkType="Image" Format="General Date" InputDateReformat="General Date" DefaultValue="@Request.dt_start~" />
+        </Column>
+        <Column Class="ThemeAlignLeft" ColSpan="2">
+          <InputDate CalendarLinkType="Image" ID="dt_end" Caption="End Date:" Format="General Date" InputDateReformat="General Date" DefaultValue="@Request.dt_end~" />
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <InputSelectList ID="slct_PLID" MultiSelect="False" OptionValueColumn="Column2" Caption="Private Label ID: " OptionCaptionColumn="Column1" DefaultValue="@Request.slct_PLID~">
+            <DataLayer Type="Static" ID="dl_staticPLID">
+              <StaticDataRow Column1="All PLs" Column2=" " Column3="" />
+              <StaticDataRow Column1="Go Daddy" Column2="AND PrivateLabelID = 1" Column3="" />
+              <StaticDataRow Column1="Non - GD" Column2="AND PrivateLabelID != 1" Column3="" />
+            </DataLayer>
+          </InputSelectList>
+        </Column>
+        <Column Class="ThemeAlignCenter">
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmit">
+              <Target Type="Report" ID="tgtSubmit" Report="Hosting.rpt_FreeCredits_Activations_ByDay" RequestForwarding="True" />
+            </Action>
+          </Button>
+          <Division>
+            <Spaces Size="2" />
+            <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel" Width="13" Height="12">
+              <Action Type="NativeExcel" ID="excelExport">
+                <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" ExportDataTableID="dt_freeCreditActivations" />
+              </Action>
+            </Image>
+          </Division>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Spaces Size="1" />
+        </Column>
+      </Row>
+    </Rows>
+    <HR Class="ThemeHeaderLargest" />
+  </ReportHeader>
+  <Body>
+    <Rows>
+      <Row>
+        <Column>
+          <DataTable SortArrows="True" ID="dt_freeCreditActivations" AltRowClass="gdSubmitButton" HideWhenZeroRows="True" AjaxPaging="True" ColumnHeaderClass="gdTableHeaderBold" IdeDisplayStatus="Collapsed">
+            <DataLayer Type="SQL" ID="dl_freeCreditsByDay" ConnectionID="connM1BIG-BIGReporting" Source="SELECT&#xD;&#xA;	CAST(createDate as date) as 'createDate', &#xD;&#xA;	resource_id as 'numActivated' &#xD;&#xA;FROM GoDaddyBilling.dbo.gdshop_billingHosting gd WITH (NOLOCK)&#xD;&#xA;WHERE &#xD;&#xA;	PATINDEX('%[^0123456789]%',gd.shopper_id) = 0&#xD;&#xA;	AND createDate BETWEEN '@Request.dt_start~' AND '@Request.dt_end~'&#xD;&#xA;	AND (gdshop_free_product_packageID IS NULL OR parent_product_typeID = 56)&#xD;&#xA;	@Request.slct_PLID~&#xD;&#xA;	&#xD;&#xA;">
+              <SqlParameters>
+                <SqlParameter SqlParamType="dt-7" Value="@Request.dt_start~" ID="dt_start" />
+                <SqlParameter SqlParamType="dt-7" Value="@Request.dt_end~" ID="dt_end" />
+                <SqlParameter SqlParamType="dt-200" Value="@Request.slct_PLID~" ID="slct_PLID" />
+              </SqlParameters>
+              <GroupFilter GroupColumn="createDate" ID="grp_createDate">
+                <GroupAggregateColumn AggregateColumn="numActivated" AggregateFunction="Count" ID="grp_agr_numActivated" />
+              </GroupFilter>
+              <DataLayerLink ID="dll_freeCreditsByDay" />
+            </DataLayer>
+            <DataTableColumn ID="colcreateDate" Header="Date">
+              <Label ID="lblcreateDate" Caption="@Data.createDate~" Format="Short Date" />
+              <DataColumnSort DataColumn="createDate" DataType="Date" />
+            </DataTableColumn>
+            <DataTableColumn ID="colgrp_agr_numActivated" Header="Number of Activations">
+              <Label ID="lblgrp_agr_numActivated" Caption="@Data.grp_agr_numActivated~" />
+              <DataColumnSort DataColumn="grp_agr_numActivated" DataType="Number" />
+            </DataTableColumn>
+            <InteractivePaging PageRowCount="14" ShowPageNumber="True" Location="Top" CaptionType="Image" />
+          </DataTable>
+        </Column>
+      </Row>
+    </Rows>
+    <Rows>
+      <Row IdeDisplayStatus="Collapsed">
+        <Column>
+          <Spaces Size="1" />
+        </Column>
+      </Row>
+    </Rows>
+    <HR Size="1" Class="ThemeHeaderLargest" />
+    <Rows>
+      <Row>
+        <Column>
+          <Spaces Size="1" />
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Spaces Size="1" />
+        </Column>
+      </Row>
+    </Rows>
+    <Chart Type="XY" ID="chrt_freeCreditsByDay" XYChartType="Line" ChartDataColumn="grp_agr_numActivated" ChartHeight="400" ChartWidth="800" ChartTitle="Free Credit Activations - By Day" ChartLabelColumn="createDate" ChartLabelColumnDataType="Date" XAxisTitle="Date of Activations" YAxisTitle="# of Activations">
+      <DataLayer Type="Linked" LinkedDataLayerID="dll_freeCreditsByDay" />
+      <LabelScale LinearTickIncrement="Weeks" Format="Short Date" ScaleLowerBound="@Request.dt_start~" ScaleUpperBound="@Request.dt_end~" ScalingMode="LinearTime" />
+      <ChartTrendLine Color="#00CFFD" LineWidth="2" ShowDataValues="False" />
+    </Chart>
+  </Body>
+  <ReportFooter />
+  <ideTestParams dt_start="" dt_end="" slct_PLID=" " />
+</Report>

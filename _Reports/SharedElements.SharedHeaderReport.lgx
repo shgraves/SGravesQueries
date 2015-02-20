@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="SharedElements.SharedHeaderReport" SavedBy="JOMAX\slyoung" SavedAt="3/3/2014 12:54:48 PM" EngineVersion="11.0.43">
+  <SharedElement ID="sharedHeader">
+    <StyleSheet StyleSheet="dropdown_one.css" />
+    <Image Caption="header_logo.png" ID="imgHeaderLogo" Width="275px" />
+    <Image Caption="HomeBtnDB.png" Tooltip="BI Dashboards &amp; Reports Home Page" Class="ThemeAlignBottom" ID="HomeNav" Width="30px">
+      <Action Type="Link">
+        <Target Type="Link" Link="https://logi.int.godaddy.com/Reports/rdPage.aspx?rdReport=Admin.LogiTOCnav" ID="tLinkHomeNav" FrameID="Self" />
+      </Action>
+    </Image>
+    <Image Caption="gdMainLogo_WT.png" ID="GDlogo" Class="ThemeAlignRight" />
+    <Image Caption="HdrSeparator_WT.png" ID="imgHorzRule" Width="100%" Height="3px" />
+    <Remark>
+      <IncludeHtml ID="inclTopNav" Html="@Session.TopNavMarkup~" />
+    </Remark>
+    <IncludeHtmlFile IncludedHtmlFile="c:\LogiHtmlIncludes\logiMenuHTML.html" />
+    <StyleSheet Theme="GDRPortal" StyleSheet="ReportsStyles.css" />
+  </SharedElement>
+  <ideTestParams />
+</Report>

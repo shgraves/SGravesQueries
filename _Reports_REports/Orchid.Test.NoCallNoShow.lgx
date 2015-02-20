@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Orchid.Test.NoCallNoShow" SavedBy="JOMAX\twakefield" SavedAt="6/9/2014 10:07:28 AM" EngineVersion="11.0.43" SecurityReportRightID="GDSP_C3_C3workforce_Owners, Dev-C3 Support, BIG-Developer, InternalToolsQA, overlord_test_users, LogiXMLOrchidReports">
+  <DefaultRequestParams EMDepartmentID="@Request.CheckNoRollCallDeptList~" Date="@Request.inpNoRollCallDate~" />
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Caption="No Call  No Show (Test)" Class="gdReportHeaderNameIT" />
+          <Spaces Size="20" />
+        </Column>
+        <Column Class="ThemeAlignLeft">
+          <Spaces Size="3" />
+          <InputDate ID="inpNoRollCallDate" Caption="No Call No Show  Date:" DefaultValue="@Request.inpNoRollCallDate~" CalendarLinkType="Image" Format="MM/dd/yyyy" InputDateReformat="General Date" />
+          <Spaces Size="5" />
+          <InputCheckboxList ID="CheckNoRollCallDeptList" OptionCaptionColumn="DepartmentName" OptionValueColumn="EMDepartmentID" Caption="Department:" CheckboxListDropdown="True" MultiSelect="True" SaveInLocalStorage="True">
+            <DataLayer Type="SP" ConnectionID="connTestOrchid" Command="eRpt.NoRollCallDeptList_sp" ID="dlNoRollCallDepts" />
+          </InputCheckboxList>
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" Report="Orchid.Test.NoCallNoShow" ID="tgtAdminsByServer" RequestForwarding="True" KeepShowElements="True" />
+            </Action>
+          </Button>
+          <Spaces Size="10" />
+          <Division>
+            <Image Caption="ExportToExcel2.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+              <Action Type="NativeExcel" ID="excelExport">
+                <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" ExportDataTableID="dtCallout" />
+              </Action>
+            </Image>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <DataTable ID="dtCallout" AltRowClass="gdThemeAltRowNoPadding td" TableBorder="1" CellSpacing="5 px" SortArrows="True">
+      <DataLayer Type="SP" ConnectionID="connTestOrchid" Command="eRpt.NoCallNoShowByDeptForDate_sp" IdeDisplayStatus="Collapsed">
+        <SPParameters>
+          <SPParameter ID="EMDepartmentID" Value="@Request.EMDepartmentID~" SPParamDirection="Input" SPParamSize="500" SPParamType="dt-200" />
+          <SPParameter ID="Date" Value="@Request.Date~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+        </SPParameters>
+      </DataLayer>
+      <DataTableColumn ID="colDate" Header="Date">
+        <Label ID="lblDate" Caption="@Data.Date~" Format="MM/dd/yyyy" />
+        <DataColumnSort DataColumn="Date" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colManagerUserID" Header="ManagerUserID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblManagerUserID" Caption="@Data.ManagerUserID~" />
+        <DataColumnSort DataColumn="ManagerUserID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colEmployee" Header="Employee" IdeDisplayStatus="Collapsed">
+        <Label ID="lblEmployee" Caption="@Data.Employee~" />
+        <DataColumnSort DataColumn="Employee" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSupervisorID" Header="SupervisorID" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSupervisorID" Caption="@Data.SupervisorID~" />
+        <DataColumnSort DataColumn="SupervisorID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colSupervisor" Header="Supervisor" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSupervisor" Caption="@Data.Supervisor~" />
+        <DataColumnSort DataColumn="Supervisor" />
+      </DataTableColumn>
+      <DataTableColumn ID="colDepartmentName" Header="DepartmentName" IdeDisplayStatus="Collapsed">
+        <Label ID="lblDepartmentName" Caption="@Data.DepartmentName~" />
+        <DataColumnSort DataColumn="DepartmentName" />
+      </DataTableColumn>
+      <InteractivePaging PageRowCount="50" ShowPageNumber="True" Location="Top" CaptionType="Image" />
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams inpNoRollCallDate="" EMDepartmentID="" Date="" CheckNoRollCallDeptList="" />
+</Report>

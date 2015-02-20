@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.GDOB.GDOBDashboardTV" SavedBy="JOMAX\asham" SavedAt="12/17/2013 6:06:40 PM" EngineVersion="11.0.43">
+  <DefaultRequestParams ChartHeight="400" ChartWidth="600" LegendLeft="150" LegendTop="372" ShowSignupValues="True" LegendLeftLongTitle="85" LegendFontLongTitle="10" />
+  <StyleSheet />
+  <Body>
+    <Rows ID="rowHeader" IdeDisplayStatus="Collapsed">
+      <Row IdeDisplayStatus="Collapsed">
+        <Column IdeDisplayStatus="Collapsed">
+          <Division ID="divTitle" Class="rdAlternateTextColorWhite">
+            <IncludeHtml Html="&lt;h2&gt;GDOB Dashboard&lt;/h2&gt;" />
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <Dashboard2 SaveFile="@Function.AppPhysicalPath~\Dashboard\GDOBTV_@Function.UserName~.xml" DashboardTabs="True" ID="gdobDash" SaveFileStarter="@Function.AppPhysicalPath~\Dashboard\GDOBTVDefault.xml">
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlPurchases" ID="pnl_KPI_Purchases" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlSignups" ID="pnl_KPI_Signups" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlActivationRate" ID="pnl_KPI_ActivationRate" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlActiveUse" ID="pnl_KPI_ActiveUse" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlLPFunnel" ID="pnl_Funnels_LP" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlMYAFunnel" ID="pnl_Funnels_MYA" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlUpgradeFunnel" ID="pnl_Funnels_Upgrade" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlPaidSignupFunnel" ID="pnl_Funnels_PaidSignup" />
+    </Dashboard2>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <Division Class="ThemeAlignCenter">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="sharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams />
+</Report>

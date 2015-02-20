@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Aprimo.JZJ_Dev.QTY_Open" SavedBy="JOMAX\jzwayerjones" SavedAt="12/30/2013 2:56:59 PM" EngineVersion="11.0.43">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams idEndDate1="=DateAdd(&quot;d&quot;,-0,Date())" idStartDate1="=DateAdd(&quot;d&quot;,-7,Date())" idSourceCodes="'gd31218a','gd31218b','gd31218c','gd31218d','gd31218e'" />
+  <ReportHeader />
+  <Body>
+    <Rows ID="rowDropDowns" Class="gdDefaultDropDownBground">
+      <Row>
+        <Column ID="colDateRangeOneSelect">
+          <Rows Caption="Choose Date Range and Source Codes">
+            <Row ID="rowStartDT1">
+              <Column>
+                <Label Caption="StartDate1:" />
+              </Column>
+              <Column>
+                <InputDate ID="idStartDate1" Format="yyyy-MM-dd" DefaultValue="@Request.idStartDate1~">
+                  <Validation Type="Date" ErrorMsg="Incorrect Date Format" />
+                  <Validation Type="Required" ErrorMsg="Incorrect Date Format" />
+                </InputDate>
+              </Column>
+            </Row>
+            <Row ID="rowEndDT1">
+              <Column>
+                <Label Caption="EndDate1:" />
+              </Column>
+              <Column>
+                <InputDate ID="idEndDate1" Format="yyyy-MM-dd" DefaultValue="@Request.idEndDate1~">
+                  <Validation Type="Date" ErrorMsg="Incorrect Date Format" />
+                  <Validation Type="Required" ErrorMsg="Incorrect Date Format" />
+                </InputDate>
+              </Column>
+            </Row>
+            <Row ID="rowSourceCode">
+              <Column>
+                <Label Caption="Source Codes:" />
+              </Column>
+              <Column>
+                <InputDate ID="idSourceCodes" DefaultValue="@Request.idSourceCodes~" />
+              </Column>
+            </Row>
+            <Row ID="rowSubmit">
+              <Column ID="colSubmit" ColSpan="5" RowSpan="1">
+                <Button ID="Submit" Caption="Submit">
+                  <Action Type="Report">
+                    <Target Type="Report" ID="trgDateInput1" Report="Aprimo.JZJ_Dev.QTY_Open" RequestForwarding="True">
+                      <WaitPage Caption="Loading..." />
+                    </Target>
+                  </Action>
+                </Button>
+              </Column>
+            </Row>
+          </Rows>
+        </Column>
+      </Row>
+    </Rows>
+    <LineBreak />
+    <DataTable SortArrows="True" ID="dtOpenQTY">
+      <DataLayer Type="SQL" ID="dlOpenQTY" ConnectionID="connODBC-TD-GD2-Prod" Source="SELECT&#xD;&#xA;FIN.Source_Code&#xD;&#xA;, FIN.Date_Sent&#xD;&#xA;, SUM(FIN.Quantity) AS QTY&#xD;&#xA;, SUM(FIN.Opened) AS Opens&#xD;&#xA;, Opens * 1.000 / QTY AS Open_Pct&#xD;&#xA;FROM&#xD;&#xA;                (&#xD;&#xA;                SELECT          qty.source_code             AS Source_Code &#xD;&#xA;                                , CAST(qty.dt AS DATE)      AS Date_Sent &#xD;&#xA;                                , SUM(qty.qty)              AS Quantity &#xD;&#xA;                                , SUM(opens.opens)          AS Opened &#xD;&#xA;                                &#xD;&#xA;                                FROM          ( &#xD;&#xA;                                        SELECT        lq.src1cd                 AS source_code &#xD;&#xA;                                                      , lq.ActnDttm             AS dt &#xD;&#xA;                                                      , SUM(LQ.LeadQty)         AS qty &#xD;&#xA;                                        FROM          P_Tapps.vfleadqty LQ   &#xD;&#xA;                                        WHERE         LQ.src1cd in (@Request.idSourceCodes~)&#xD;&#xA;										AND			  LQ.ActnDttm &gt;= @Request.idStartDate1~&#xD;&#xA;										AND			  LQ.ActnDttm &lt;= @Request.idEndDate1~&#xD;&#xA;                                        GROUP BY      LQ.ActnDttm &#xD;&#xA;                                                      , lq.src1cd &#xD;&#xA;                                )   qty &#xD;&#xA;                JOIN            &#xD;&#xA;                                ( &#xD;&#xA;                                        SELECT        ar.src1cd                 AS source_code  &#xD;&#xA;                                                      , ar.ActnDttm             AS dt &#xD;&#xA;                                                      , SUM(ar.posrespqty)      AS opens &#xD;&#xA;                                        FROM          P_Tapps.vfaggresp ar  &#xD;&#xA;                                        WHERE         ar.src1cd in (@Request.idSourceCodes~) &#xD;&#xA;                                        AND           ar.RespNm = 'Open'&#xD;&#xA;										AND			  AR.ActnDttm &gt;= @Request.idStartDate1~&#xD;&#xA;										AND			  AR.ActnDttm &lt;= @Request.idEndDate1~&#xD;&#xA;                                        GROUP BY      ar.ActnDttm &#xD;&#xA;                                                      , ar.src1cd &#xD;&#xA;                                )   opens &#xD;&#xA;                ON              qty.source_code = opens.source_code&#xD;&#xA;                AND             qty.dt &lt;= opens.dt &#xD;&#xA;                GROUP BY        QTY.Source_Code&#xD;&#xA;                              , QTY.DT&#xD;&#xA;                ) FIN&#xD;&#xA;GROUP BY        FIN.Source_Code&#xD;&#xA;              , FIN.Date_Sent&#xD;&#xA;ORDER BY        FIN.Date_Sent&#xD;&#xA;              , FIN.source_code         &#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;" IdeDisplayStatus="Collapsed">
+        <Remark>
+          <GroupFilter GroupColumn="Channel" DataType="Text" ID="gfChannel" />
+        </Remark>
+      </DataLayer>
+      <DataTableColumn ID="colSourceCode" Header="Source Code" IdeDisplayStatus="Collapsed">
+        <Label ID="lblSourceCode" Caption="@Data.Source_Code~" />
+        <DataColumnSort DataColumn="Source_Code" DataType="Text" />
+      </DataTableColumn>
+      <DataTableColumn ID="colDateSent" Header="Date Sent" IdeDisplayStatus="Collapsed">
+        <Label ID="lblDateSent" Caption="@Data.Date_Sent~" />
+        <DataColumnSort DataColumn="Date_Sent" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colQTY" Header="QTY" IdeDisplayStatus="Collapsed">
+        <Label ID="lblQTY" Caption="@Data.QTY~" />
+        <DataColumnSort DataColumn="QTY" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colOpens" Header="Opens" IdeDisplayStatus="Collapsed">
+        <Label ID="lblOpens" Caption="@Data.Opens~" />
+        <DataColumnSort DataColumn="Opens" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colOpenPct" Header="Open %" IdeDisplayStatus="Collapsed">
+        <Label ID="lblOpenPct" Caption="@Data.Open_Pct~" />
+        <DataColumnSort DataColumn="Open_Pct" DataType="Number" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams idStartDate1="" idEndDate1="" idSourceCodes="" />
+</Report>

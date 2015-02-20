@@ -1,0 +1,217 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.International.Microsoft365DPPReport" SavedBy="JOMAX\shgraves" SavedAt="12/3/2013 12:28:51 PM" EngineVersion="11.0.43" SecurityReportRightID="LogiCT">
+  <StyleSheet StyleSheet="ReportsStyles.css" ID="ssMain" />
+  <LocalData ID="ldMain">
+    <DataLayer Type="SQL" ConnectionID="connODBC-TD-GD2-Prod" Source="&#xD;&#xA;select &#xD;&#xA;    CAST(r.order_date AS DATE) - EXTRACT(DAY FROM r.order_date) + 1 AS order_month&#xD;&#xA;	, cast(order_date AS DATE) as OrderDate&#xD;&#xA;	, count(distinct order_id) as Orders&#xD;&#xA;	, sum(case when dp.PnL_Category = 'Domain Registration' then 1 else 0 end) as Domains&#xD;&#xA;	, sum(case when dp.PnL_Category = 'Domain Registration' then adjusted_price * 0.01 end) as DomainGCR&#xD;&#xA;	, sum(adjusted_price*0.01) as GCR&#xD;&#xA;	, count(distinct case when is_first_order = 1 then shopper_id end) as NewCustomers&#xD;&#xA;From BIGReporting.rptorderdetail r &#xD;&#xA;	JOIN BIGReporting.CDWDim_Product dp ON r.pf_id = dp.pf_id&#xD;&#xA;where order_id in (select order_id From BIGReporting.rptorderdetail r where item_tracking_code = 'dpp_mso365' and order_date &gt;= DATE'2013-07-01' )&#xD;&#xA;	and order_date &gt;= DATE'2013-07-01'&#xD;&#xA;GROUP BY 1, 2&#xD;&#xA;ORDER BY 1, 2&#xD;&#xA;;" ID="dlMS365DPPProduct">
+      <DataLayerLink ID="dllMS365Detail" />
+    </DataLayer>
+    <DataLayer Type="SQL" Source="&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;    CAST(sh.orderdate AS DATE) - EXTRACT(DAY FROM sh.orderdate) + 1 AS OrderMonth&#xD;&#xA;    , CAST(sh.orderdate AS DATE) AS OrderDate&#xD;&#xA;    , sh.shopper_id AS ShopperId&#xD;&#xA;    , COALESCE(SUM(adjusted_price*0.01),0) AS TotalGCR&#xD;&#xA;    , COALESCE(SUM(CASE WHEN dp.UnitsAsOrders = 1 THEN 1 ELSE  od.quantity END),0) AS TotalUnits&#xD;&#xA;    , COALESCE(SUM(CASE WHEN PnL_Group = 'Domains' AND dp.UnitsAsOrders = 1 THEN 1&#xD;&#xA;               WHEN PnL_Group = 'Domains' THEN od.quantity END),0) AS Domain_units&#xD;&#xA;    , COALESCE(SUM(CASE WHEN PnL_Group = 'Domains' THEN adjusted_price*0.01 END),0) as DomainGCR&#xD;&#xA;    , COALESCE(SUM(CASE WHEN PnL_Category IN ('Web Hosting', 'Other Hosting')   AND dp.UnitsAsOrders = 1 THEN 1&#xD;&#xA;               WHEN PnL_Category IN ('Web Hosting', 'Other Hosting')   THEN od.quantity END),0) AS Hosting_units&#xD;&#xA;    , COALESCE(SUM(CASE WHEN PnL_Category IN ('Web Hosting', 'Other Hosting') THEN adjusted_price*0.01 END),0) as HostingGCR&#xD;&#xA;    , COALESCE(SUM(CASE WHEN PnL_Line = 'Email' AND dp.UnitsAsOrders = 1 THEN 1&#xD;&#xA;               WHEN PnL_Line = 'Email' THEN od.quantity END),0) AS Email_units&#xD;&#xA;    , COALESCE(SUM(CASE WHEN PnL_Line = 'Email' THEN adjusted_price*0.01 END),0) as EmailGCR&#xD;&#xA;    , COALESCE(SUM(CASE WHEN PnL_Category = 'Security' AND dp.UnitsAsOrders = 1 THEN 1&#xD;&#xA;               WHEN PnL_Category = 'Security' THEN od.quantity END),0) AS Security_units&#xD;&#xA;    , COALESCE(SUM(CASE WHEN PnL_Category = 'Security' THEN adjusted_price*0.01 END),0) as SecurityGCR&#xD;&#xA;    , COALESCE(SUM(CASE WHEN PnL_Category = 'Presence' AND dp.UnitsAsOrders = 1 THEN 1&#xD;&#xA;               WHEN PnL_Category = 'Presence' THEN od.quantity END),0) AS Presence_units&#xD;&#xA;    , COALESCE(SUM(CASE WHEN PnL_Category = 'Presence' THEN adjusted_price*0.01 END),0) as PresenceGCR&#xD;&#xA;FROM BigReporting.rptOrderDetail od&#xD;&#xA;    JOIN (select distinct shopper_id&#xD;&#xA;        	 , min(cast(order_date AS DATE)) AS orderDate&#xD;&#xA;        From BIGReporting.rptorderdetail r &#xD;&#xA;        	JOIN BIGReporting.CDWDim_Product dp ON r.pf_id = dp.pf_id&#xD;&#xA;        where order_id in (select order_id From BIGReporting.rptorderdetail r where item_tracking_code = 'dpp_mso365' and order_date &gt;= DATE'2013-07-01' and is_first_order = 1)&#xD;&#xA;        	and order_date &gt;= DATE'2013-07-01'&#xD;&#xA;        GROUP BY 1) sh ON od.shopper_id = sh.shopper_id&#xD;&#xA;    JOIN BigReporting.CDWDim_Product dp ON od.pf_id = dp.pf_id&#xD;&#xA;WHERE  IsPrimaryProduct = 1&#xD;&#xA;    AND New_Renewal = 'New Purchase'&#xD;&#xA;    AND order_date &gt;= DATE'2013-07-01'&#xD;&#xA;GROUP BY 1,2,3&#xD;&#xA;ORDER BY 1,2,3&#xD;&#xA;;&#xD;&#xA;" ConnectionID="connODBC-TD-GD2-Prod" ID="dlMS365ShopperDtl">
+      <DataLayerLink ID="dllMS365ShopperDtl" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader ID="rhHeader">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body ID="bMain">
+    <Division ID="divHeader" ShowModes="rdBrowser">
+      <Rows ID="rowReportHeader" Class="gdReportHeader">
+        <Row ID="rowReportTitle" Class="gdReportHeader">
+          <Column Width="350" WidthScale="px">
+            <Label Caption="Microsoft 365 DPP Report" Class="gdReportHeaderNameBI" />
+          </Column>
+          <Column>
+            <Image Caption="betasoftware.jpg" ID="imgBeta" Width="50" Height="50" />
+          </Column>
+        </Row>
+        <Remark>
+          <Row IdeDisplayStatus="Collapsed">
+            <Column Class="ThemeAlignRight">
+              <InputDate ID="rptStart" Caption="Report Start (&gt;=):" DefaultValue="@Request.rptStart~" />
+            </Column>
+            <Column Class="ThemeAlignRight">
+              <InputDate ID="rptEnd" Caption="End (&lt;):" DefaultValue="@Request.rptEnd~" />
+            </Column>
+            <Column RowSpan="2">
+              <Button ID="btnSubmit" Caption="Submit">
+                <Action Type="Report" ID="actSubmit">
+                  <Target Type="Report" ID="tgOfferWalls" Report="PMG.International.IndiaResellerNewCusts">
+                    <WaitPage Caption="Updating results" />
+                  </Target>
+                </Action>
+              </Button>
+              <LineBreak />
+              <Button ID="btnExport" Caption="Export to Excel">
+                <Action Type="NativeExcel" ID="actExportExcel">
+                  <Target Type="NativeExcel" ExcelOutputFormat="Excel2007" ExportFilename="IndiaResellerNewCustomers.xlsx" ID="tgtExcel">
+                    <WaitPage Caption="Please wait while report is generated" />
+                  </Target>
+                </Action>
+              </Button>
+            </Column>
+          </Row>
+        </Remark>
+      </Rows>
+      <LineBreak />
+      <Button ID="btnExport" Caption="Export to Excel">
+        <Action Type="NativeExcel" ID="actExportExcel">
+          <Target Type="NativeExcel" ExcelOutputFormat="Excel2007" ExportFilename="MS365DPPReport.xlsx" ID="tgtExcel">
+            <WaitPage Caption="Please wait while report is generated" />
+          </Target>
+        </Action>
+      </Button>
+    </Division>
+    <Division ID="divMain" ShowModes="All">
+      <Tabs ID="tMain">
+        <TabPanel Caption="Summary" ID="tpSummary">
+          <DataTable ID="dtMSOrders" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="2" ColumnHeaderClass="gdReportColumnHdrSSRS-fill" Width="700" WidthScale="px">
+            <DataLayer Type="Linked" LinkedDataLayerID="dllMS365Detail">
+              <GroupFilter GroupColumn="order_month" DataType="Date" ID="gfOrderMY" KeepGroupedRows="True">
+                <GroupAggregateColumn AggregateColumn="Orders" ID="gacOrders" AggregateFunction="Sum" />
+                <GroupAggregateColumn AggregateColumn="Domains" AggregateFunction="sum" ID="gacDomains" />
+                <GroupAggregateColumn AggregateColumn="DomainGCR" AggregateFunction="sum" ID="gacDomainGCR" />
+                <GroupAggregateColumn AggregateColumn="GCR" AggregateFunction="sum" ID="gacGCR" />
+                <GroupAggregateColumn AggregateColumn="NewCustomers" AggregateFunction="sum" ID="gacNewCustomers" />
+              </GroupFilter>
+              <SortFilter SortColumn="order_month" SortSequence="Descending" />
+            </DataLayer>
+            <GroupHeaderRow GroupFilterID="gfOrderMY" PrependBlankRows="1">
+              <Column ID="cOrderMY" ColSpan="6">
+                <Label Caption="@Data.order_month~" Class="gdTableHeader" Format="MMM-yy" />
+              </Column>
+            </GroupHeaderRow>
+            <DataTableColumn ID="dtOrderDate" Header="Order Date" Width="100" WidthScale="px" Class="ThemeAlignCenter">
+              <Label Caption="@Data.OrderDate~" ID="lOrderDate" Format="Short Date" Class="gdColumnCellText" />
+              <ExcelColumnFormat DataType="Date" ExcelFormat="m/d/yy" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcOrders" Header="Orders" Width="50" WidthScale="px" Class="ThemeAlignCenter">
+              <Label Caption="@Data.Orders~" ID="lOrders" Format="General Number" />
+              <DataColumnSummary DataColumn="Orders" ID="dcsOrders" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcDomains" Header="Domains" Class="ThemeAlignCenter" Width="75" WidthScale="px">
+              <Label Caption="@Data.Domains~" ID="lDomains" Format="General Number" />
+              <DataColumnSummary DataColumn="Domains" ID="dcsDomain" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcDomainGCR" Header="Domain GCR" Class="ThemeAlignRight" Width="75" WidthScale="px">
+              <Label Caption="@Data.DomainGCR~" ID="lDomainGCR" Format="Currency" />
+              <DataColumnSummary DataColumn="DomainGCR" ID="dcsDomainGCR" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcTotalGCR" Header="Total GCR" Class="ThemeAlignRight" Width="75" WidthScale="px">
+              <Label Caption="@Data.GCR~" ID="dTotalGCR" Format="Currency" />
+              <DataColumnSummary DataColumn="GCR" ID="dcsGCR" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcNewCustomers" Header="NewCustomers" Class="ThemeAlignCenter" Width="75" WidthScale="px">
+              <Label Caption="@Data.NewCustomers~" ID="lNewCustomers" Format="General Number" />
+              <DataColumnSummary DataColumn="NewCustomers" ID="dcsNewCustomers" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcSubHostingOrders" Header="Subsequent Hosting Orders" Class="ThemeAlignCenter" Width="75" WidthScale="px">
+              <Label Caption="@Data.NewCustomers~" ID="lNewCustomers" Format="General Number" />
+              <DataColumnSummary DataColumn="NewCustomers" ID="dcsNewCustomers" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <GroupSummaryRow GroupFilterID="gfOrderMY" Caption="Month Total" Class="gdTableHeader" />
+            <SummaryRow ID="srTotal" Caption="Total" Class="gdTableHeaderBold" LastPageOnly="True" />
+          </DataTable>
+        </TabPanel>
+        <TabPanel Caption="Shopper Detail" ID="tpDetail">
+          <DataTable ID="dtMSShoppers" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="2" ColumnHeaderClass="gdReportColumnHdrSSRS-fill" Width="700" WidthScale="px">
+            <DataLayer Type="Linked" LinkedDataLayerID="dllMS365ShopperDtl" ID="dllMS365Shopper">
+              <GroupFilter GroupColumn="OrderMonth" DataType="Date" ID="gfSHOrderMY" KeepGroupedRows="True">
+                <GroupAggregateColumn AggregateColumn="ShopperId" ID="gacShoppers" AggregateFunction="DistinctCount" />
+                <GroupAggregateColumn AggregateColumn="TotalGCR" AggregateFunction="sum" ID="gacTotalGCr" />
+                <GroupAggregateColumn AggregateColumn="TotalUnits" AggregateFunction="sum" ID="gacTotalUnits" />
+                <GroupAggregateColumn AggregateColumn="Domain_units" AggregateFunction="sum" ID="gacDomainU" />
+                <GroupAggregateColumn AggregateColumn="DomainGCR" AggregateFunction="sum" ID="gacDomainG" />
+                <GroupAggregateColumn AggregateColumn="Hosting_units" AggregateFunction="sum" ID="gacHostingU" />
+                <GroupAggregateColumn AggregateColumn="HostingGCR" AggregateFunction="sum" ID="gacHostingG" />
+                <GroupAggregateColumn AggregateColumn="Email_units" AggregateFunction="sum" ID="gacEmailU" />
+                <GroupAggregateColumn AggregateColumn="EmailGCR" AggregateFunction="sum" ID="gacEmailG" />
+                <GroupAggregateColumn AggregateColumn="Security_units" AggregateFunction="sum" ID="gacSecurityU" />
+                <GroupAggregateColumn AggregateColumn="Security_units" AggregateFunction="sum" ID="gacSecurityU" />
+                <GroupAggregateColumn AggregateColumn="PresenceGCR" AggregateFunction="sum" ID="gacPresenceG" />
+                <GroupAggregateColumn AggregateColumn="PresenceGCR" AggregateFunction="sum" ID="gacPresenceG" />
+              </GroupFilter>
+              <SortFilter SortColumn="OrderMonth" SortSequence="Descending" />
+            </DataLayer>
+            <GroupHeaderRow GroupFilterID="gfSHOrderMY" PrependBlankRows="1">
+              <Column ID="cSHOrderMY" ColSpan="6">
+                <Label Caption="@Data.OrderMonth~" Class="gdTableHeader" Format="MMM-yy" />
+              </Column>
+            </GroupHeaderRow>
+            <DataTableColumn ID="dtSHOrderDate" Header="Order Date" Width="100" WidthScale="px" Class="ThemeAlignCenter">
+              <Label Caption="@Data.OrderDate~" ID="lSHOrderDate" Format="Short Date" Class="gdColumnCellText" />
+              <ExcelColumnFormat DataType="Date" ExcelFormat="m/d/yy" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtShopper" Header="Shopper Id" Width="100" WidthScale="px" Class="ThemeAlignCenter">
+              <Label Caption="@Data.ShopperId~" ID="lShopperID" Format="General Number" Class="gdColumnCellText" />
+              <ExcelColumnFormat DataType="Text" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcSHTotalGCR" Header="Total GCR" Width="50" WidthScale="px" Class="ThemeAlignCenter">
+              <Label Caption="@Data.TotalGCR~" ID="lshTotalGCR" Format="Currency" />
+              <DataColumnSummary DataColumn="TotalGCR" ID="dcsSHTotalGCR" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcSHDomainU" Header="Domain Units" Class="ThemeAlignCenter" Width="75" WidthScale="px">
+              <Label Caption="@Data.Domain_units~" ID="lshDomainU" Format="General Number" />
+              <DataColumnSummary DataColumn="Domain_units" ID="dcsShDomainU" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcShDomainGCR" Header="Domain GCR" Class="ThemeAlignRight" Width="75" WidthScale="px">
+              <Label Caption="@Data.DomainGCR~" ID="lShDomainGCR" Format="Currency" />
+              <DataColumnSummary DataColumn="DomainGCR" ID="dcsShDomainGCR" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcSHHostingU" Header="Hosting Units" Class="ThemeAlignCenter" Width="75" WidthScale="px">
+              <Label Caption="@Data.Hosting_units~" ID="lshHostingU" Format="General Number" />
+              <DataColumnSummary DataColumn="Hosting_units" ID="dcsShHostingU" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcShHostingGCR" Header="Hosting GCR" Class="ThemeAlignRight" Width="75" WidthScale="px">
+              <Label Caption="@Data.HostingGCR~" ID="lShHostingGCR" Format="Currency" />
+              <DataColumnSummary DataColumn="HostingGCR" ID="dcsShHostingGCR" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcSHEmailU" Header="Email Units" Class="ThemeAlignCenter" Width="75" WidthScale="px">
+              <Label Caption="@Data.Email_units~" ID="lshEmailU" Format="General Number" />
+              <DataColumnSummary DataColumn="Email_units" ID="dcsShEmailU" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcShEmailGCR" Header="Email GCR" Class="ThemeAlignRight" Width="75" WidthScale="px">
+              <Label Caption="@Data.EmailGCR~" ID="lShEmailGCR" Format="Currency" />
+              <DataColumnSummary DataColumn="EmailGCR" ID="dcsShEmailGCR" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcSHSecurityU" Header="Security Units" Class="ThemeAlignCenter" Width="75" WidthScale="px">
+              <Label Caption="@Data.Security_units~" ID="lshSecurityU" Format="General Number" />
+              <DataColumnSummary DataColumn="Security_units" ID="dcsShSecurityU" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcShSecurityGCR" Header="Security GCR" Class="ThemeAlignRight" Width="75" WidthScale="px">
+              <Label Caption="@Data.SecurityGCR~" ID="lShSecurityGCR" Format="Currency" />
+              <DataColumnSummary DataColumn="SecurityGCR" ID="dcsShSecurityGCR" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcSHPresenceU" Header="Presence Units" Class="ThemeAlignCenter" Width="75" WidthScale="px">
+              <Label Caption="@Data.Presence_units~" ID="lshPresenceU" Format="General Number" />
+              <DataColumnSummary DataColumn="Presence_units" ID="dcsShPresenceU" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <DataTableColumn ID="dtcShPresenceGCR" Header="Presence GCR" Class="ThemeAlignRight" Width="75" WidthScale="px">
+              <Label Caption="@Data.PresenceGCR~" ID="lShPresenceGCR" Format="Currency" />
+              <DataColumnSummary DataColumn="PresenceGCR" ID="dcsShPresenceGCR" Function="sum" />
+              <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+            </DataTableColumn>
+            <GroupSummaryRow GroupFilterID="gfSHOrderMY" Caption="Month Total" Class="gdTableHeader" />
+            <SummaryRow ID="srTotal" Caption="Total" Class="gdTableHeaderBold" LastPageOnly="True" />
+          </DataTable>
+        </TabPanel>
+      </Tabs>
+    </Division>
+  </Body>
+  <ReportFooter ID="rfFooter" />
+  <ideTestParams rptStart="" rptEnd="" />
+</Report>

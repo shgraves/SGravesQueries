@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.CRMNotes.CRMNotesDashboard" Class="ThemeBold" SavedBy="JOMAX\dezell" SavedAt="11/18/2013 12:40:49 PM" EngineVersion="11.0.43" SecurityReportRightID="logicrmnotes">
+  <DefaultRequestParams startDate="=DateAdd(&quot;d&quot;,-14, &quot;@Date.Today~&quot;)" endDate="@Date.Today~" inpkeywordlist="" />
+  <StyleSheet Theme="GDRPortal" StyleSheet="ERHubTheme.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeader" ID="sharedHeaderElement" SharedElementID="sharedHeader" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rowHeader" IdeDisplayStatus="Collapsed">
+      <Row>
+        <Column>
+          <Division ID="divTitle" Class="rdAlternateTextColorWhite">
+            <IncludeHtml Html="&lt;h2&gt;CRM Notes Dashboard&lt;/h2&gt;" />
+          </Division>
+        </Column>
+        <Column>
+          <Spaces Size="6" />
+          <InputText CaptionClass="rdAlternateTextColorWhite" Caption="Keyword(s)" DefaultValue="@Request.inpkeywordlist~" ID="inpkeywordlist" InputSize="65px" />
+          <Spaces Size="3" />
+          <InputDate ID="startDate" Caption="Start Date:" CaptionClass="rdAlternateTextColorWhite" DefaultValue="@Request.startDate~" />
+          <Spaces Size="3" />
+          <InputDate ID="endDate" Caption="End Date:" DefaultValue="@Request.endDate~" CaptionClass="rdAlternateTextColorWhite" />
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit" IdeDisplayStatus="Collapsed">
+            <EventHandler ID="eventHandlerParamValidation" DhtmlEvent="onClick">
+              <Action Type="Javascript" ID="actJSValidate" Javascript="var test = document.getElementById('inpkeywordlist').value;&#xD;&#xA;var arr = new Array();&#xD;&#xA;arr = test.split(',');&#xD;&#xA;&#xD;&#xA;var dStart = new Date(document.getElementById('startDate').value);&#xD;&#xA;var dEnd = new Date(document.getElementById('endDate').value);&#xD;&#xA;var off = dEnd - dStart;&#xD;&#xA;var days = off / (1000*60*60*24);&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;if (arr.length &gt; 5)&#xD;&#xA;	{&#xD;&#xA;			var replacetext = '';&#xD;&#xA;			document.forms[0].inpkeywordlist.value = replacetext; &#xD;&#xA;			alert('Please enter a maximum of 5 keywords.');&#xD;&#xA;	}&#xD;&#xA;if (days &gt; 14)&#xD;&#xA;	{&#xD;&#xA;			var replacetext = '';&#xD;&#xA;			document.forms[0].startDate.value = replacetext;&#xD;&#xA;			document.forms[0].endDate.value = replacetext; &#xD;&#xA;			alert('Please enter a date range containing no more than 14 days.');&#xD;&#xA;	}&#xD;&#xA;if (arr.length &gt; 5 || days &gt; 14)&#xD;&#xA;{&#xD;&#xA;	return false;&#xD;&#xA;}&#xD;&#xA;	&#xD;&#xA;else&#xD;&#xA;	{&#xD;&#xA;		return true;&#xD;&#xA;	}" ScriptFile="I" />
+            </EventHandler>
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtReport" Report="Dashboards.CRMNotes.CRMNotesDashboard" />
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+    </Rows>
+    <Dashboard2 SaveFile="@Function.AppPhysicalPath~\Dashboard\CRMNotes_@Function.UserName~.xml" AllowFreeformLayout="False" DashboardAdjustable="False" ID="dashCRMNotes" SaveFileStarter="@Function.AppPhysicalPath~\Dashboard\CRMNotesDashdefault.xml" DashboardTabs="False" IdeDisplayStatus="Collapsed">
+      <Panel Caption="Keyword Counts" ID="pnlCRM_Keyword_Count">
+        <PanelContent>
+          <DataTable SortArrows="True" ID="DataTable1">
+            <DataLayer Type="SP" ID="SPDataLayer" ConnectionID="connGDNote" Command="dbo.reports2005_CustomerNoteSearchCount_sp">
+              <SPParameters>
+                <SPParameter ID="list" Value="@Request.inpkeywordlist~" SPParamDirection="Input" SPParamSize="4000" SPParamType="dt-202" />
+                <SPParameter ID="start" Value="@Request.startDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+                <SPParameter ID="end" Value="@Request.endDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-133" />
+              </SPParameters>
+            </DataLayer>
+            <DataTableColumn ID="colkeyword" Header="keyword">
+              <Label ID="lblkeyword" Caption="@Data.keyword~" />
+              <DataColumnSort DataColumn="keyword" />
+            </DataTableColumn>
+            <DataTableColumn ID="colCOUNT" Header="COUNT">
+              <Label ID="lblCOUNT" Caption="@Data.COUNT~" />
+              <DataColumnSort DataColumn="COUNT" DataType="Number" />
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+    </Dashboard2>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <Division Class="ThemeAlignCenter">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="sharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams endDate="" startDate="" inpkeywordlist="" />
+</Report>

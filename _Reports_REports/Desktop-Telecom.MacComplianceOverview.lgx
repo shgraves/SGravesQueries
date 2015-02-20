@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Desktop-Telecom.MacComplianceOverview" SavedBy="JOMAX\dezell" SavedAt="11/1/2013 11:39:28 AM" EngineVersion="11.0.43" Caption="Mac Compliance" SecurityReportRightID="ENG-Desktop Engineering,BIG-Developer,RSDevelopers,logict,CIO_Org">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px" IdeDisplayStatus="Collapsed">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Class="gdReportHeaderNameIT" Caption="Mac Compliance" />
+          <Spaces Size="100" />
+          <Division ID="divExport">
+            <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+              <Action Type="NativeExcel" ID="excelExport" IdeDisplayStatus="Collapsed">
+                <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" />
+              </Action>
+            </Image>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <Rows CellSpacing="10px" Layout="Auto" IdeDisplayStatus="Collapsed">
+      <Row>
+        <Column Class="gdColumnCellIT" ID="colUpdates">
+          <DataTable SortArrows="True" ID="dtUpdateCompliance" Caption="Updates Compliance" CellSpacing="10px" CaptionClass="gdTableHeaderBoldIT" ColumnHeaderClass="gdTableHeaderITcenter" Layout="Auto">
+            <DataLayer Type="SP" ID="dlUpdateCompliance" ConnectionID="connSMDB" Command="patch.jamfReportGet_sp">
+              <SPParameters />
+              <CalculatedColumn Formula="iif(@Data.Is_Updates_Compliant~ = 0, 1, 0)" ID="calcNonCompliantPatch" />
+              <GroupFilter GroupColumn="Patch_Compliance_Group" IdeDisplayStatus="Collapsed">
+                <GroupAggregateColumn AggregateColumn="Is_Off_Network" AggregateFunction="Sum" ID="gaggOffNetworkPatch" />
+                <GroupAggregateColumn ID="gaggCompliantPatch" AggregateColumn="Is_Updates_Compliant" AggregateFunction="Sum" />
+                <GroupAggregateColumn AggregateColumn="calcNonCompliantPatch" AggregateFunction="Sum" ID="gaggNonCompliantPatch" />
+              </GroupFilter>
+              <CalculatedColumn Formula="iif(&quot;@Data.Patch_Compliance_Group~&quot; = &quot;Compliant&quot;,@Data.gaggCompliantPatch~,iif(&quot;@Data.Patch_Compliance_Group~&quot; = &quot;Noncompliant&quot;,@Data.gaggNonCompliantPatch~,iif(&quot;@Data.Patch_Compliance_Group~&quot; = &quot;Off Network&quot;,@Data.gaggOffNetworkPatch~,&quot;Count Error&quot;)))" ID="calcCountsPatch" />
+              <CalculatedColumn ID="calcCountsPatchNoOffNetwork" Formula="iif(&quot;@Data.Patch_Compliance_Group~&quot; = &quot;Compliant&quot;,@Data.gaggCompliantPatch~,iif(&quot;@Data.Patch_Compliance_Group~&quot; = &quot;Noncompliant&quot;,@Data.gaggNonCompliantPatch~,iif(&quot;@Data.Patch_Compliance_Group~&quot; = &quot;Off Network&quot;,&quot;&quot;,&quot;Count Error&quot;)))">
+                <Note Note="Excludes Off Network servers since end user doesn't want &quot;Off Network&quot; machines in the percentage." />
+              </CalculatedColumn>
+              <PercentOfTotalColumn DataColumn="calcCountsPatchNoOffNetwork" ID="calcPercentPatch" />
+            </DataLayer>
+            <DataTableColumn ID="colPatchComplianceGroup" Class="gdTableHeaderITleft" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.Patch_Compliance_Group~" Class="gdTableHeaderITlink" Tooltip="Click to expand details." />
+              <Action Type="ShowElement" ID="actShowDetailsPatch" ElementID="laptopDetailsRowPatch" Display="Toggle" />
+            </DataTableColumn>
+            <DataTableColumn ID="colLaptopCounts" Header="Count" Class="gdTableHeaderITcenter">
+              <DataColumnSummary ID="colSumCountsPatch" DataColumn="calcCountsPatch" Function="Sum" DataType="Number" />
+              <Label Caption="@Data.calcCountsPatch~" Class="gdTableHeaderITright" />
+            </DataTableColumn>
+            <DataTableColumn ID="colLaptopPercentages" Header="Percentage" Class="gdTableHeaderITcenter">
+              <Label Caption="@Data.calcPercentPatch~" Format="Percent" Class="gdTableHeaderITright" />
+              <DataColumnSummary DataColumn="calcPercentPatch" Function="Sum" ID="colSumPercentsPatch" DataType="Number" />
+            </DataTableColumn>
+            <MoreInfoRow ShowModes="None" ID="laptopDetailsRowPatch">
+              <HR />
+              <IncludeFrame SubReportMode="Embedded" ID="subRepLaptopDetailsPatch" FrameBorder="False">
+                <Target Type="IncludeFrameReport" Report="Desktop-Telecom.MacComplianceDetails" ID="tgtLaptopDetailsPatch" />
+                <LinkParams complianceGroup="@Data.Patch_Compliance_Group~" complianceType="Patch" />
+              </IncludeFrame>
+            </MoreInfoRow>
+            <SummaryRow ID="sumRowPatch" Caption="Totals:" Class="gdFontXLboldBlack" />
+          </DataTable>
+        </Column>
+        <Column ID="colAntiVirusHoriz" Class="gdColumnCellIT">
+          <DataTable SortArrows="True" ID="dtAVCompliance" Caption="Antivirus Compliance" CellSpacing="10px" CaptionClass="gdTableHeaderBoldIT" ColumnHeaderClass="gdTableHeaderITcenter">
+            <DataLayer Type="SP" ID="dlAVCompliance" ConnectionID="connSMDB" Command="patch.jamfReportGet_sp">
+              <SPParameters />
+              <CalculatedColumn Formula="iif(@Data.Is_Antivirus_Compliant~ = 0, 1, 0)" ID="calcNonCompliantAV" />
+              <GroupFilter GroupColumn="AV_Compliance_Group" IdeDisplayStatus="Collapsed">
+                <GroupAggregateColumn AggregateColumn="Is_Off_Network" AggregateFunction="Sum" ID="gaggOffNetworkAV" />
+                <GroupAggregateColumn ID="gaggCompliantAV" AggregateColumn="Is_Antivirus_Compliant" AggregateFunction="Sum" />
+                <GroupAggregateColumn AggregateColumn="calcNonCompliantAV" AggregateFunction="Sum" ID="gaggNonCompliantAV" />
+              </GroupFilter>
+              <CalculatedColumn Formula="iif(&quot;@Data.AV_Compliance_Group~&quot; = &quot;Compliant&quot;,&quot;@Data.gaggCompliantAV~&quot;,iif(&quot;@Data.AV_Compliance_Group~&quot; = &quot;Noncompliant&quot;,&quot;@Data.gaggNonCompliantAV~&quot;,iif(&quot;@Data.AV_Compliance_Group~&quot; = &quot;Off Network&quot;,&quot;@Data.gaggOffNetworkAV~&quot;,&quot;Count Error&quot;)))" ID="calcCountsAV">
+                <Note Note="Excludes Off Network servers since end user doesn't want &quot;Off Network&quot; machines in the percentage." />
+              </CalculatedColumn>
+              <CalculatedColumn ID="calcCountsAVNoOffNetwork" Formula="iif(&quot;@Data.AV_Compliance_Group~&quot; = &quot;Compliant&quot;,&quot;@Data.gaggCompliantAV~&quot;,iif(&quot;@Data.AV_Compliance_Group~&quot; = &quot;Noncompliant&quot;,&quot;@Data.gaggNonCompliantAV~&quot;,iif(&quot;@Data.AV_Compliance_Group~&quot; = &quot;Off Network&quot;,&quot;&quot;,&quot;Count Error&quot;)))" />
+              <PercentOfTotalColumn DataColumn="calcCountsAVNoOffNetwork" ID="calcPercentAV" />
+            </DataLayer>
+            <DataTableColumn ID="colAVComplianceGroup" Class="gdTableHeaderITleft">
+              <Label Caption="@Data.AV_Compliance_Group~" Class="gdTableHeaderITlink" Tooltip="Click to expand details." />
+              <Action Type="ShowElement" ID="actShowDetailsAV" ElementID="laptopDetailsRowAV" Display="Toggle" />
+            </DataTableColumn>
+            <DataTableColumn ID="colAVLaptopCounts" Header="Count" Class="gdTableHeaderITcenter">
+              <Label Caption="@Data.calcCountsAV~" Class="gdTableHeaderITright" />
+              <DataColumnSummary ID="colSumCountsAV" DataColumn="calcCountsAV" Function="Sum" DataType="Number" />
+            </DataTableColumn>
+            <DataTableColumn ID="colAVLaptopPercentages" Header="Percentage" Class="gdTableHeaderITcenter">
+              <Label Caption="@Data.calcPercentAV~" Format="Percent" Class="gdTableHeaderITright" />
+              <DataColumnSummary DataColumn="calcPercentAV" Function="Sum" ID="colSumPercentsAV" DataType="Number" />
+            </DataTableColumn>
+            <MoreInfoRow ShowModes="None" ID="laptopDetailsRowAV">
+              <HR />
+              <IncludeFrame SubReportMode="Embedded" ID="subRepLaptopDetailsAV" FrameBorder="False">
+                <Target Type="IncludeFrameReport" Report="Desktop-Telecom.MacComplianceDetails" ID="tgtLaptopDetailsAV" />
+                <LinkParams complianceGroup="@Data.AV_Compliance_Group~" complianceType="AV" />
+              </IncludeFrame>
+            </MoreInfoRow>
+            <SummaryRow ID="sumRowAV" Caption="Totals:" Class="gdTableHeaderBoldIT" />
+          </DataTable>
+        </Column>
+      </Row>
+    </Rows>
+    <Label Caption="Report Notes" Class="gdReportNoteHeaderIT">
+      <Remark>
+        <Action Type="ShowElement" ElementID="divreportNotes" ID="rptnoteshow" Display="Show" />
+      </Remark>
+    </Label>
+    <LineBreak />
+    <Division ID="divreportNotes">
+      <Label Caption="Off Network - A machine that has not checked in or been on the Go Daddy network for more than 7 days." ID="rptnotelabel" Class="gdReportNoteLabelIT" />
+    </Division>
+  </Body>
+  <ReportFooter />
+  <ideTestParams />
+</Report>

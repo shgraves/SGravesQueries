@@ -1,0 +1,768 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.C3Health.C3HealthDashYY" SavedBy="JOMAX\jminette" SavedAt="1/13/2015 2:01:13 PM" EngineVersion="11.0.43-SP27" SecurityReportRightID="LogiC3Managers">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams rptMonth="=DateAdd(&quot;m&quot;, DateDiff(&quot;m&quot;, &quot;1900-01-01&quot;, &quot;@Date.Yesterday~&quot;), &quot;1900-01-01&quot;)" rptType="MTD" rptView="Historic" rptYearOne="2014" rptYearTwo="2013" iclDepartment="-1" />
+  <DefaultRequestParams rptYearOne="=Year(CDate(&quot;@Request.rptMonth~&quot;))" />
+  <LocalData ID="ldWidgets">
+    <DataLayer Type="SP" ID="dlrptC3HealthDaily" ConnectionID="connP3BIG-BiLogiReporting" Command="dbo.rptLogiC3HealthMetricsGet_sp">
+      <SPParameters>
+        <SPParameter SPParamDirection="Input" ID="@rptMonth" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptMonth~" />
+        <SPParameter SPParamDirection="Input" ID="@rptType" SPParamSize="3" SPParamType="dt-200" Value="@Request.rptType~" />
+        <SPParameter SPParamDirection="Input" ID="@rptView" SPParamSize="12" SPParamType="dt-200" Value="@Request.rptView~" />
+        <SPParameter ID="@rollupDeptID" SPParamDirection="Input" SPParamType="dt-2" SPParamSize="2" />
+        <SPParameter Value="@Request.rptYearOne~" ID="@rptYearOne" SPParamDirection="Input" SPParamType="dt-2" SPParamSize="4" />
+        <SPParameter Value="@Request.rptYearTwo~" ID="@rptYearTwo" SPParamDirection="Input" SPParamType="dt-2" SPParamSize="4" />
+        <SPParameter SPParamDirection="Input" ID="@rptDeptIDs" SPParamType="dt-200" SPParamSize="1000" Value="@Request.iclDepartment~" />
+      </SPParameters>
+      <DataLayerLink ID="rptC3HealthDaily" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.C3Header" SharedElementID="sharedHeader" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <LineBreak />
+    <Rows Class="gdDefaultRowBground">
+      <Row Class="gdReportHeader" ID="rowTitle">
+        <Column ID="colHeader" Width="50" ColSpan="3">
+          <Label Caption="C3 Health" Class="ThemeTextSmall">
+            <Action Type="Link" ID="actLinkCurrentYear">
+              <Target Type="Link" ID="tgtrptC3Health" Link="@Function.AppVirtualPath~?rdReport=PMG.C3Health.C3HealthDash" />
+            </Action>
+          </Label>
+          <Label Caption=" | " Class="ThemeTextSmall" />
+          <Label Caption="Y/Y" Class="ThemeTextSmall">
+            <Action Type="Link" ID="actLinkYY">
+              <Target Type="Link" ID="tgtrptC3Health" Link="@Function.AppVirtualPath~?rdReport=PMG.C3Health.C3HealthDashYY" />
+            </Action>
+          </Label>
+          <LineBreak LineCount="2" />
+          <Label Caption="C3 Y/Y" Class="gdReportHeaderNameBI" />
+          <LineBreak LineCount="2" />
+          <Spaces Size="3" />
+          <InputSelectList DefaultValue="@Request.rptYearTwo~" ID="rptYearTwo" OptionCaptionColumn="fcPreviousYear" OptionValueColumn="fcPreviousYear" Caption="Prior Year: ">
+            <DataLayer Type="SQL" ConnectionID="connP3BIG-CallCenterReporting" ID="dlPreviousYears" Source="DECLARE @yr SMALLINT&#xD;&#xA;DECLARE @years AS TABLE&#xD;&#xA;(previousYear SMALLINT)&#xD;&#xA;&#xD;&#xA;SET @yr = 2011&#xD;&#xA;&#xD;&#xA;WHILE @yr &lt; DATEPART(YEAR, GETDATE())&#xD;&#xA;BEGIN &#xD;&#xA;	INSERT INTO @years&#xD;&#xA;	(previousYear)&#xD;&#xA;	VALUES (@yr)&#xD;&#xA;&#xD;&#xA;	SET @yr = @yr + 1&#xD;&#xA;END &#xD;&#xA;&#xD;&#xA;SELECT previousYear&#xD;&#xA;FROM @years&#xD;&#xA;ORDER BY previousYear DESC&#xD;&#xA;">
+              <FormattedColumn DataColumn="previousYear" Format="General Number" ID="fcPreviousYear" />
+            </DataLayer>
+          </InputSelectList>
+          <Spaces Size="3" />
+          <InputSelectList ID="rptMonth" OptionCaptionColumn="fcMonthStart" OptionValueColumn="MonthStart" DefaultValue="@Request.rptMonth~" Caption="Month: ">
+            <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3HealthDropDownMonthGet_sp" ConnectionID="connP3BIG-BiLogiReporting">
+              <FormattedColumn DataColumn="MonthStart" Format="MMM-yyyy" ID="fcMonthStart" />
+            </DataLayer>
+          </InputSelectList>
+          <Spaces Size="3" />
+          <InputCheckboxList OptionCaptionColumn="Department" ID="iclDepartment" OptionValueColumn="rollupDeptID" Caption="Dept:" MultiSelect="True" CheckboxListDropdown="True" DefaultValue="@Request.iclDepartment~">
+            <DataLayer Type="SQL" Source="SELECT DISTINCT D2.Department&#xD;&#xA;			,CASE WHEN D2.Department = 'All' THEN '_All' ELSE D2.Department END AS sortOrder&#xD;&#xA;			,D2.rollupDeptID&#xD;&#xA;FROM CallCenterReporting.dbo.fn_ActiveC3Departments() D &#xD;&#xA;JOIN CallCenterReporting.dbo.fn_ActiveC3Departments() D2&#xD;&#xA;	ON D.rollupDeptID = D2.DepartmentID&#xD;&#xA;ORDER BY CASE WHEN D2.Department = 'All' THEN '_All' ELSE D2.Department END" ID="dlrptDepartment" ConnectionID="connP3BIG-CallCenterReporting" />
+          </InputCheckboxList>
+          <Remark>
+            <InputSelectList ID="rptDepartment" OptionValueColumn="rollupDeptID" OptionCaptionColumn="Department" DefaultValue="@Request.rptDepartment~" Caption="Dept: " MultiSelect="True">
+              <DataLayer Type="SQL" Source="SELECT DISTINCT D2.Department&#xD;&#xA;			,CASE WHEN D2.Department = 'All' THEN '_All' ELSE D2.Department END AS sortOrder&#xD;&#xA;			,D2.rollupDeptID&#xD;&#xA;FROM CallCenterReporting.dbo.fn_ActiveC3Departments() D &#xD;&#xA;JOIN CallCenterReporting.dbo.fn_ActiveC3Departments() D2&#xD;&#xA;	ON D.rollupDeptID = D2.DepartmentID&#xD;&#xA;ORDER BY CASE WHEN D2.Department = 'All' THEN '_All' ELSE D2.Department END" ID="dlrptDepartment" ConnectionID="connP3BIG-CallCenterReporting" />
+            </InputSelectList>
+          </Remark>
+          <Spaces Size="3" />
+          <InputSelectList DefaultValue="@Request.rptType~" ID="rptType" OptionCaptionColumn="rptType" OptionValueColumn="rptType">
+            <DataLayer Type="Static" ID="dlrptType">
+              <StaticDataRow rptType="MTD" />
+              <StaticDataRow rptType="YTD" />
+            </DataLayer>
+          </InputSelectList>
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtCurrentReport" Report="PMG.C3Health.C3HealthDashYY" RequestForwarding="True" />
+            </Action>
+          </Button>
+          <LineBreak LineCount="1" />
+        </Column>
+      </Row>
+      <Row ID="rowOne">
+        <Column ID="colRevenueByDay" Class="ThemeAlignTop">
+          <Division ID="divRevenueByDay">
+            <Rows IdeDisplayStatus="Collapsed">
+              <Row ID="Titles">
+                <Column ID="colRevenueByDayTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="GCR (000's)" Class="gdTableHeader, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colRevenueByDayChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divRevenueByDayChart">
+                    <DataTable ID="dtRevenueByDayDelta" Class="ThemeAlignRight" Layout="Fixed" CellSpacing="5">
+                      <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked1" LinkedDataLayerID="rptC3HealthDaily">
+                        <AggregateColumn AggregateColumn="current_GCR" AggregateFunction="Sum" ID="aggCurrent" />
+                        <AggregateColumn AggregateColumn="prior_GCR" AggregateFunction="Sum" ID="aggPrior" />
+                        <CalculatedColumn Formula="@Data.aggCurrent~ - @Data.aggPrior~" ID="calcDelta" />
+                        <CalculatedColumn ID="calcDeltaPercent" Formula="(@Data.aggCurrent~ - @Data.aggPrior~)/@Data.aggPrior~" />
+                        <DeDuplicateFilter DataColumns="aggCurrent, aggPrior" />
+                      </DataLayer>
+                      <DataTableColumn ID="colTitle">
+                        <Label Caption="Total Delta: " ID="lblTitle" Class="ThemeBold" />
+                      </DataTableColumn>
+                      <DataTableColumn ID="colDelta">
+                        <Label Caption="@Data.calcDelta~" ID="lblDelta" Format="$#,##0;($#,##0)">
+                          <ConditionalClass Condition="@Data.calcDelta~ &lt; 0" Class="gdFont12Red" />
+                        </Label>
+                      </DataTableColumn>
+                      <DataTableColumn ID="colPercent">
+                        <Label Caption="@Data.calcDeltaPercent~" ID="lblPercent" Format="Percent">
+                          <ConditionalClass Condition="@Data.calcDeltaPercent~ &lt; 0" Class="gdFont12Red" />
+                        </Label>
+                      </DataTableColumn>
+                    </DataTable>
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="calcCurrent" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#D3414A" ID="chtRevenueByDay" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="2" LegendLabel="@Request.rptYearOne~" BorderColor="transparent">
+                      <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked2" LinkedDataLayerID="rptC3HealthDaily">
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                        <CalculatedColumn Formula="@Data.current_GCR~/1000" ID="calcCurrent" />
+                        <CalculatedColumn Formula="@Data.prior_GCR~/1000" ID="calcPrior" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="calcPrior" LegendLabel="@Request.rptYearTwo~" LineWidth="2" Color="#81A3D0" />
+                      <DataScale Format="$#,##0" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <ZoomChart Location="None" />
+                    </Chart>
+                    <Rows>
+                      <Row ID="rowDrillThrough">
+                        <Column ID="colShowData" Class="ThemeAlignLeft" WidthScale="px" Width="200">
+                          <Label Caption="Show Data" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="divRevenueByDayTable" ID="actShowData" />
+                          </Label>
+                        </Column>
+                        <Column ID="colDepartments" Class="ThemeAlignRight" Width="200" WidthScale="px">
+                          <Label Caption="Department Level" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="pnlDepartmentRevenue" ID="actShowData" />
+                          </Label>
+                          <PopupPanel ID="pnlDepartmentRevenue" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="Department GCR" PopupPanelLocation="Mouse">
+                            <IncludeFrame ID="srDepartmentRevenue" Class="ThemeAlignCenter" SubReportMode="IncludeFrame">
+                              <Target Type="IncludeFrameReport" ID="tgtRevenueDetail" Report="PMG.C3Health.C3HealthDeptRev" LinkDataLayers="True" RequestForwarding="True" />
+                              <LinkParams rptType="@Request.rptType~" rptMonth="@Request.rptMonth~" rptView="@Request.rptView~" rptLegendOne="@Request.rptYearOne~" rptLegendTwo="@Request.rptYearTwo~" rptYearOne="@Request.rptYearOne~" rptYearTwo="@Request.rptYearTwo~" />
+                            </IncludeFrame>
+                          </PopupPanel>
+                        </Column>
+                      </Row>
+                    </Rows>
+                    <Division ID="divRevenueByDayTable" ShowModes="None">
+                      <DataTable ID="dtRevenueByDay" AltRowClass="gdThemeAltRowNoPadding td" Width="400">
+                        <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked3" LinkedDataLayerID="rptC3HealthDaily">
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                          <CalculatedColumn ID="calcDelta" Formula="@Data.current_GCR~ - @Data.prior_GCR~" />
+                          <CalculatedColumn Formula="(@Data.current_GCR~ - @Data.prior_GCR~)/@Data.prior_GCR~" ID="calcDeltaPercent" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                          <Label Caption="@Data.current_GCR~" Format="$#,##0;($#,##0)" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colPrior" Class="ThemeAlignRight" Header="Prior">
+                          <Label Caption="@Data.prior_GCR~" Format="$#,##0;($#,##0)" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDelta" Header="Delta +/-" Class="ThemeAlignRight">
+                          <Label Caption="@Data.calcDelta~" Format="$#,##0;($#,##0)">
+                            <ConditionalClass Condition="@Data.calcDelta~ &lt; 0" Class="gdFont12Red" />
+                          </Label>
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDeltaPercent" Header="Delta %" Class="ThemeAlignRight">
+                          <Label Caption="@Data.calcDeltaPercent~" Format="Percent">
+                            <ConditionalClass Condition="@Data.calcDeltaPercent~ &lt; 0" Class="gdFont12Red" />
+                          </Label>
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+        <Column ID="colContactsByDay" Class="ThemeAlignTop">
+          <Division ID="divContactsByDay">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colContactsByDayTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="Contacts" Class="gdTableHeader, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colContactsByDayChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divContactsByDayChart">
+                    <DataTable ID="dtContactsByDayDelta" Class="ThemeAlignRight" Layout="Fixed" CellSpacing="5">
+                      <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked4" LinkedDataLayerID="rptC3HealthDaily">
+                        <AggregateColumn AggregateColumn="current_Contacts" AggregateFunction="Sum" ID="aggCurrent" />
+                        <AggregateColumn AggregateColumn="prior_Contacts" AggregateFunction="Sum" ID="aggPrior" />
+                        <CalculatedColumn Formula="@Data.aggCurrent~ - @Data.aggPrior~" ID="calcDelta" />
+                        <CalculatedColumn ID="calcDeltaPercent" Formula="(@Data.aggCurrent~ - @Data.aggPrior~)/@Data.aggPrior~" />
+                        <DeDuplicateFilter DataColumns="aggCurrent, aggPrior" />
+                      </DataLayer>
+                      <DataTableColumn ID="colTitle">
+                        <Label Caption="Total Delta: " ID="lblTitle" Format="Currency" Class="ThemeBold" />
+                      </DataTableColumn>
+                      <DataTableColumn ID="colDelta">
+                        <Label Caption="@Data.calcDelta~" ID="lblDelta" Format="#,##0">
+                          <ConditionalClass Condition="@Data.calcDelta~ &lt; 0" Class="gdFont12Red" />
+                        </Label>
+                      </DataTableColumn>
+                      <DataTableColumn ID="colPercent">
+                        <Label Caption="@Data.calcDeltaPercent~" ID="lblPercent" Format="Percent">
+                          <ConditionalClass Condition="@Data.calcDeltaPercent~ &lt; 0" Class="gdFont12Red" />
+                        </Label>
+                      </DataTableColumn>
+                    </DataTable>
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="calcCurrent" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#D3414A" ID="chtContactsByDay" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="2" LegendLabel="@Request.rptYearOne~" BorderColor="transparent">
+                      <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked5" LinkedDataLayerID="rptC3HealthDaily">
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                        <CalculatedColumn Formula="@Data.current_Contacts~/1000" ID="calcCurrent" />
+                        <CalculatedColumn Formula="@Data.prior_Contacts~/1000" ID="calcPrior" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="calcPrior" LegendLabel="@Request.rptYearTwo~" LineWidth="2" Color="#81A3D0" />
+                      <DataScale Format="#,##0k" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <ZoomChart Location="None" />
+                    </Chart>
+                    <Rows>
+                      <Row ID="rowDrillThrough">
+                        <Column ID="colShowData" Class="ThemeAlignLeft" WidthScale="px" Width="200">
+                          <Label Caption="Show Data" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="divContactsByDayTable" ID="actShowData" />
+                          </Label>
+                        </Column>
+                        <Column ID="colDepartments" Class="ThemeAlignRight" Width="200" WidthScale="px">
+                          <Label Caption="Department Level" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="pnlDepartmentContacts" ID="actShowData" />
+                          </Label>
+                          <PopupPanel ID="pnlDepartmentContacts" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="Department Contacts" PopupPanelLocation="Mouse">
+                            <IncludeFrame ID="srDepartmentContacts" Class="ThemeAlignCenter" SubReportMode="IncludeFrame">
+                              <Target Type="IncludeFrameReport" ID="tgtContactsDetail" Report="PMG.C3Health.C3HealthDeptContact" LinkDataLayers="True" RequestForwarding="True" />
+                              <LinkParams rptType="@Request.rptType~" rptMonth="@Request.rptMonth~" rptView="@Request.rptView~" rptLegendOne="@Request.rptYearOne~" rptLegendTwo="@Request.rptYearTwo~" rptYearOne="@Request.rptYearOne~" rptYearTwo="@Request.rptYearTwo~" />
+                            </IncludeFrame>
+                          </PopupPanel>
+                        </Column>
+                      </Row>
+                    </Rows>
+                    <Division ID="divContactsByDayTable" ShowModes="None">
+                      <DataTable ID="dtContactsByDay" AltRowClass="gdThemeAltRowNoPadding td" Width="400">
+                        <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked6" LinkedDataLayerID="rptC3HealthDaily">
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                          <CalculatedColumn ID="calcDelta" Formula="@Data.current_Contacts~ - @Data.prior_Contacts~" />
+                          <CalculatedColumn Formula="(@Data.current_Contacts~ - @Data.prior_Contacts~)/@Data.prior_Contacts~" ID="calcDeltaPercent" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                          <Label Caption="@Data.current_Contacts~" Format="#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colPrior" Class="ThemeAlignRight" Header="Prior">
+                          <Label Caption="@Data.prior_Contacts~" Format="#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDelta" Header="Delta +/-" Class="ThemeAlignRight">
+                          <Label Caption="@Data.calcDelta~" Format="#,##0">
+                            <ConditionalClass Condition="@Data.calcDelta~ &lt; 0" Class="gdFont12Red" />
+                          </Label>
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDeltaPercent" Header="Delta %" Class="ThemeAlignRight">
+                          <Label Caption="@Data.calcDeltaPercent~" Format="Percent">
+                            <ConditionalClass Condition="@Data.calcDeltaPercent~ &lt; 0" Class="gdFont12Red" />
+                          </Label>
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+        <Column ID="colHeadcountByDay" Class="ThemeAlignTop">
+          <Division ID="divHeadcountByDay">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colHeadcountByDayTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="Headcount" Class="gdTableHeader, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colHeadcountByDayChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divHeadcountByDayChart">
+                    <Rows ID="RollUpSummary">
+                      <Row>
+                        <Column ID="colCurrent">
+                          <DataTable ID="dtHeadcountByDayCurrentDelta" Class="ThemeAlignRight" Layout="Fixed" CellSpacing="5">
+                            <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked7" LinkedDataLayerID="rptC3HealthDaily">
+                              <CalculatedColumn Formula="@Data.current_Headcount~ - @Data.prior_Headcount~" ID="calcDelta" />
+                              <CalculatedColumn Formula="(@Data.current_Headcount~ - @Data.prior_Headcount~)/@Data.prior_Headcount~" ID="calcDeltaPercent" />
+                              <ConditionFilter Condition="@Data.isCurrent~ = 1" IncludeCondition="True" />
+                            </DataLayer>
+                            <DataTableColumn ID="colTitle">
+                              <Label Caption="Current Delta: " ID="lblTitle" Format="Currency" Class="ThemeBold" />
+                            </DataTableColumn>
+                            <DataTableColumn ID="colDelta">
+                              <Label Caption="@Data.calcDelta~" ID="lblDelta" Format="#,##0">
+                                <ConditionalClass Condition="@Data.calcDelta~ &lt; 0" Class="gdFont12Red" />
+                              </Label>
+                            </DataTableColumn>
+                            <DataTableColumn ID="colPercent">
+                              <Label Caption="@Data.calcDeltaPercent~" ID="lblPercent" Format="Percent">
+                                <ConditionalClass Condition="@Data.calcDeltaPercent~ &lt; 0" Class="gdFont12Red" />
+                              </Label>
+                            </DataTableColumn>
+                          </DataTable>
+                        </Column>
+                        <Column ID="colAvg">
+                          <DataTable ID="dtHeadcountByDayAvgDelta" Class="ThemeAlignRight" Layout="Fixed" CellSpacing="5">
+                            <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked8" LinkedDataLayerID="rptC3HealthDaily">
+                              <AggregateColumn AggregateFunction="Sum" ID="aggCurrent" AggregateColumn="current_Headcount" />
+                              <AggregateColumn AggregateFunction="Sum" ID="aggPrior" AggregateColumn="prior_Headcount" />
+                              <AggregateColumn ID="countDate" AggregateColumn="rptDate" AggregateFunction="Count" />
+                              <CalculatedColumn Formula="(@Data.aggCurrent~ *1.00)/@Data.countDate~" ID="avgActual" />
+                              <CalculatedColumn ID="avgBudget" Formula="(@Data.aggPrior~ *1.00)/@Data.countDate~" />
+                              <CalculatedColumn Formula="@Data.avgActual~ - @Data.avgBudget~" ID="calcDelta" />
+                              <CalculatedColumn Formula="(@Data.avgActual~ - @Data.avgBudget~)/@Data.avgBudget~" ID="calcDeltaPercent" />
+                              <DeDuplicateFilter DataColumns="aggCurrent, aggPrior, countDate" />
+                            </DataLayer>
+                            <DataTableColumn ID="colTitle">
+                              <Label Caption="Avg Delta: " ID="lblTitle" Format="Currency" Class="ThemeBold" />
+                            </DataTableColumn>
+                            <DataTableColumn ID="colDelta">
+                              <Label Caption="@Data.calcDelta~" ID="lblDelta" Format="#,##0">
+                                <ConditionalClass Condition="@Data.calcDelta~ &lt; 0" Class="gdFont12Red" />
+                              </Label>
+                            </DataTableColumn>
+                            <DataTableColumn ID="colPercent">
+                              <Label Caption="@Data.calcDeltaPercent~" ID="lblPercent" Format="Percent">
+                                <ConditionalClass Condition="@Data.calcDeltaPercent~ &lt; 0" Class="gdFont12Red" />
+                              </Label>
+                            </DataTableColumn>
+                          </DataTable>
+                        </Column>
+                      </Row>
+                    </Rows>
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="calcCurrent" ChartHeight="254" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#D3414A" ID="chtHeadcountByDay" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="2" LegendLabel="@Request.rptYearOne~" BorderColor="transparent">
+                      <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked9" LinkedDataLayerID="rptC3HealthDaily">
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                        <CalculatedColumn Formula="@Data.current_Headcount~" ID="calcCurrent" />
+                        <CalculatedColumn Formula="@Data.prior_Headcount~" ID="calcPrior" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="calcPrior" LegendLabel="@Request.rptYearTwo~" LineWidth="2" Color="#81A3D0" />
+                      <DataScale Format="#,##0" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <ZoomChart Location="None" />
+                    </Chart>
+                    <Rows>
+                      <Row ID="rowDrillThrough">
+                        <Column ID="colShowData" Class="ThemeAlignLeft" WidthScale="px" Width="200">
+                          <Label Caption="Show Data" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="divHeadcountByDayTable" ID="actShowData" />
+                          </Label>
+                        </Column>
+                        <Column ID="colDepartments" Class="ThemeAlignRight" Width="200" WidthScale="px">
+                          <Label Caption="Department Level" Class="gdDecorated">
+                            <Action Type="ShowElement" ElementID="pnlDepartmentHeadcount" ID="actShowData" />
+                          </Label>
+                          <PopupPanel ID="pnlDepartmentHeadcount" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="Department Headcount" PopupPanelLocation="Mouse">
+                            <IncludeFrame ID="srDepartmentHeadcount" Class="ThemeAlignCenter" SubReportMode="IncludeFrame">
+                              <Target Type="IncludeFrameReport" ID="tgtHeadcountDetail" Report="PMG.C3Health.C3HealthDeptHC" LinkDataLayers="True" RequestForwarding="True" />
+                              <LinkParams rptType="@Request.rptType~" rptMonth="@Request.rptMonth~" rptView="@Request.rptView~" rptLegendOne="@Request.rptYearOne~" rptLegendTwo="@Request.rptYearTwo~" rptYearOne="@Request.rptYearOne~" rptYearTwo="@Request.rptYearTwo~" />
+                            </IncludeFrame>
+                          </PopupPanel>
+                        </Column>
+                      </Row>
+                    </Rows>
+                    <Division ID="divHeadcountByDayTable" ShowModes="None">
+                      <DataTable ID="dtHeadcountByDay" AltRowClass="gdThemeAltRowNoPadding td" Width="400">
+                        <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked10" LinkedDataLayerID="rptC3HealthDaily">
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                          <CalculatedColumn ID="calcDelta" Formula="@Data.current_Headcount~ - @Data.prior_Headcount~" />
+                          <CalculatedColumn Formula="(@Data.current_Headcount~ - @Data.prior_Headcount~)/@Data.prior_Headcount~" ID="calcDeltaPercent" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                          <Label Caption="@Data.current_Headcount~" Format="#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colPrior" Class="ThemeAlignRight" Header="Prior">
+                          <Label Caption="@Data.prior_Headcount~" Format="#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDelta" Header="Delta +/-" Class="ThemeAlignRight">
+                          <Label Caption="@Data.calcDelta~" Format="#,##0">
+                            <ConditionalClass Condition="@Data.calcDelta~ &lt; 0" Class="gdFont12Red" />
+                          </Label>
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDeltaPercent" Header="Delta %" Class="ThemeAlignRight">
+                          <Label Caption="@Data.calcDeltaPercent~" Format="Percent">
+                            <ConditionalClass Condition="@Data.calcDeltaPercent~ &lt; 0" Class="gdFont12Red" />
+                          </Label>
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+      </Row>
+      <Row ID="rowTwo">
+        <Column ID="colAOSByDay" Class="ThemeAlignTop">
+          <Division ID="divAOSByDay">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colAOSByDayTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="Average Order Size" Class="gdTableHeader, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colAOSByDayChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divAOSByDayChart">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="calcCurrent" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#D3414A" ID="chtAOSByDay" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="2" LegendLabel="@Request.rptYearOne~" BorderColor="transparent">
+                      <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked11" LinkedDataLayerID="rptC3HealthDaily">
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                        <CalculatedColumn Formula="@Data.current_AOS~" ID="calcCurrent" />
+                        <CalculatedColumn Formula="@Data.prior_AOS~" ID="calcPrior" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="calcPrior" LegendLabel="@Request.rptYearTwo~" LineWidth="2" Color="#81A3D0" />
+                      <DataScale Format="$#,##0" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <ZoomChart Location="None" />
+                    </Chart>
+                    <LineBreak />
+                    <Label Caption="Show Data" Class="gdDecorated">
+                      <Action Type="ShowElement" ElementID="divAOSByDayTable" ID="actShowData" />
+                    </Label>
+                    <Division ID="divAOSByDayTable" ShowModes="None">
+                      <DataTable ID="dtAOSByDay" Width="400" AltRowClass="gdThemeAltRowNoPadding td">
+                        <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked12" LinkedDataLayerID="rptC3HealthDaily">
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                          <CalculatedColumn ID="calcDelta" Formula="@Data.current_AOS~ - @Data.prior_AOS~" />
+                          <CalculatedColumn Formula="(@Data.current_AOS~ - @Data.prior_AOS~)/@Data.prior_AOS~" ID="calcDeltaPercent" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                          <Label Caption="@Data.current_AOS~" Format="Currency" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colPrior" Class="ThemeAlignRight" Header="Prior">
+                          <Label Caption="@Data.prior_AOS~" Format="Currency" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDeltaPercent" Header="Delta +/-" Class="ThemeAlignRight">
+                          <Label Caption="@Data.calcDelta~" Format="Currency">
+                            <ConditionalClass Condition="@Data.calcDelta~ &lt; 0" Class="gdFont12Red" />
+                          </Label>
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDeltaPercent" Header="Delta %" Class="ThemeAlignRight">
+                          <Label Caption="@Data.calcDeltaPercent~" Format="Percent">
+                            <ConditionalClass Condition="@Data.calcDeltaPercent~ &lt; 0" Class="gdFont12Red" />
+                          </Label>
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+        <Column ID="colConversionByDay" Class="ThemeAlignTop">
+          <Division ID="divConversionByDay" IdeDisplayStatus="Collapsed">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colConversionByDayTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Caption="Conversion Rate" Class="gdTableHeader, ThemeAlignCenter" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colConversionByDayChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divConversionByDayChart">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="calcCurrent" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#D3414A" ID="chtConversionByDay" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="2" LegendLabel="@Request.rptYearOne~" BorderColor="transparent" BorderLeft="40">
+                      <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked13" LinkedDataLayerID="rptC3HealthDaily">
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                        <CalculatedColumn Formula="@Data.current_Conversion~" ID="calcCurrent" />
+                        <CalculatedColumn Formula="@Data.prior_Conversion~" ID="calcPrior" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="calcPrior" LegendLabel="@Request.rptYearTwo~" LineWidth="2" Color="#81A3D0" />
+                      <DataScale Format="00%" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                      <ZoomChart Location="None" />
+                    </Chart>
+                    <LineBreak />
+                    <Label Caption="Show Data" Class="gdDecorated">
+                      <Action Type="ShowElement" ElementID="divConversionByDayTable" ID="actShowData" />
+                    </Label>
+                    <Division ID="divConversionByDayTable" ShowModes="None">
+                      <DataTable ID="dtConversionByDay" Width="400" AltRowClass="gdThemeAltRowNoPadding td">
+                        <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked14" LinkedDataLayerID="rptC3HealthDaily">
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                          <CalculatedColumn ID="calcDelta" Formula="@Data.current_Conversion~ - @Data.prior_Conversion~" />
+                          <CalculatedColumn Formula="(@Data.current_Conversion~ - @Data.prior_Conversion~)/@Data.prior_Conversion~" ID="calcDeltaPercent" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+                          <Label Caption="@Data.current_Conversion~" Format="Percent" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colPrior" Class="ThemeAlignRight" Header="Prior">
+                          <Label Caption="@Data.prior_Conversion~" Format="Percent" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDeltaPercent" Header="Delta +/-" Class="ThemeAlignRight">
+                          <Label Caption="@Data.calcDelta~" Format="Percent">
+                            <ConditionalClass Condition="@Data.calcDelta~ &lt; 0" Class="gdFont12Red" />
+                          </Label>
+                        </DataTableColumn>
+                        <DataTableColumn ID="colDeltaPercent" Header="Delta %" Class="ThemeAlignRight">
+                          <Label Caption="@Data.calcDeltaPercent~" Format="Percent">
+                            <ConditionalClass Condition="@Data.calcDeltaPercent~ &lt; 0" Class="gdFont12Red" />
+                          </Label>
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+        <Column ID="colOutboundByDay" Class="ThemeAlignTop" Condition="IIF(InStr(&quot;@Request.iclDepartment~&quot;, &quot;-1&quot;), &quot;True&quot;, IIF(InStr(&quot;@Request.iclDepartment~&quot;, &quot;-4&quot;), &quot;True&quot;, &quot;False&quot;))">
+          <Division ID="divOutboundByDay">
+            <Rows>
+              <Row ID="Titles">
+                <Column ID="colOutboundByDayTitle" Width="400" Class="ThemeAlignCenter">
+                  <Label Class="gdTableHeader, ThemeAlignCenter" Caption="Percentage Outbound Contacts" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colOutboundByDayChart" Class="gdColumnCell" Width="400">
+                  <Division ID="divOutboundByDayChart">
+                    <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_calcOutboundPercent" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#D3414A" ID="chtOutboundByDay" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="2" BorderColor="transparent" LegendLabel="@Request.rptYearOne~" BorderLeft="40">
+                      <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked15" LinkedDataLayerID="rptC3HealthDaily">
+                        <SortFilter SortColumn="rptDate" DataType="Date" />
+                        <CalculatedColumn Formula="(@Data.current_Outbounds~ *1.00)/@Data.current_Contacts~" ID="current_calcOutboundPercent" />
+                        <CalculatedColumn Formula="(@Data.prior_Outbounds~ *1.00)/@Data.prior_Contacts~" ID="prior_calcOutboundPercent" />
+                      </DataLayer>
+                      <ExtraXYDataColumn ChartDataColumn="prior_calcOutboundPercent" LegendLabel="@Request.rptYearTwo~" LineWidth="2" Color="#81A3D0" />
+                      <DataScale Format="#0%" />
+                      <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                      <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                      <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                      <ZoomChart Location="None" />
+                      <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                        <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                      </Legend>
+                    </Chart>
+                    <LineBreak />
+                    <Label Caption="Show Data" Class="gdDecorated">
+                      <Action Type="ShowElement" ElementID="divOutboundByDayTable" ID="actShowData" />
+                    </Label>
+                    <Division ID="divOutboundByDayTable" ShowModes="None">
+                      <DataTable ID="dtOutboundByDay" Width="400" AltRowClass="gdThemeAltRowNoPadding td">
+                        <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked16" LinkedDataLayerID="rptC3HealthDaily">
+                          <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                          <CalculatedColumn Formula="(@Data.current_Outbounds~ *1.00)/@Data.current_Contacts~" ID="current_calcOutboundPercent" />
+                          <CalculatedColumn Formula="(@Data.prior_Outbounds~ *1.00)/@Data.prior_Contacts~" ID="prior_calcOutboundPercent" />
+                        </DataLayer>
+                        <DataTableColumn ID="colDay" Header="Date">
+                          <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colOutbounds" Header="Outbounds" Class="ThemeAlignRight">
+                          <Label Caption="@Data.current_Outbounds~" Format="#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colContacts" Class="ThemeAlignRight" Header="Contacts">
+                          <Label Caption="@Data.current_Contacts~" Format="#,##0" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colOutboundPercent" Header="% Outbound" Class="ThemeAlignRight">
+                          <Label Caption="@Data.current_calcOutboundPercent~" Format="Percent" />
+                        </DataTableColumn>
+                        <DataTableColumn ID="colPriorOutboundPercent" Header="Prior % Outbound" Class="ThemeAlignRight">
+                          <Label Caption="@Data.prior_calcOutboundPercent~" Format="Percent" />
+                        </DataTableColumn>
+                      </DataTable>
+                    </Division>
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+      </Row>
+      <Remark>
+        <Row ID="rowThree">
+          <Column ID="colAbandonByDay" Class="ThemeAlignTop">
+            <Division ID="divAbandonByDay">
+              <Rows>
+                <Row ID="Titles">
+                  <Column ID="colAbandonByDayTitle" Width="400" Class="ThemeAlignCenter">
+                    <Label Caption="Abandon Rate" Class="gdTableHeader, ThemeAlignCenter" />
+                  </Column>
+                </Row>
+                <Row>
+                  <Column ID="colAbandonByDayChart" Class="gdColumnCell" Width="400">
+                    <Division ID="divAbandonByDayChart">
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="calcABA" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#D3414A" ID="chtAbandonByDay" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="2" BorderColor="transparent">
+                        <DataLayer Type="Cached" ID="dlrptABADaily.Cached1" ExpirationNow="False" ExpirationTimeSpan="01:00" CacheKey="dlrptABADaily1, @Request.rptMonth~, @Request.rptType~">
+                          <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3HealthABAGet_sp" ConnectionID="connM1BIG-biLogiReporting" ID="dlrptABADaily1">
+                            <SPParameters>
+                              <SPParameter SPParamDirection="Input" ID="@rptMonth" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptMonth~" />
+                              <SPParameter SPParamDirection="Input" ID="@rptType" SPParamSize="3" SPParamType="dt-200" Value="@Request.rptType~" />
+                            </SPParameters>
+                            <CalculatedColumn ID="calcABA" Formula="(@Data.CallsAbandoned~*1.00)/@Data.CallsOffered~" />
+                            <SortFilter SortColumn="rptDate" DataType="Date" />
+                          </DataLayer>
+                        </DataLayer>
+                        <DataScale Format="#0%" />
+                        <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                        <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                        <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                        <ZoomChart Location="None" />
+                      </Chart>
+                      <LineBreak />
+                      <Label Caption="Show Data" Class="gdDecorated">
+                        <Action Type="ShowElement" ElementID="divAbandonByDayTable" ID="actShowData" />
+                      </Label>
+                      <Division ID="divAbandonByDayTable" ShowModes="None">
+                        <DataTable ID="dtAbandonByDay" Width="200" AltRowClass="gdThemeAltRowNoPadding td">
+                          <DataLayer Type="Cached" ID="dlrptABADaily.Cached2" ExpirationNow="False" ExpirationTimeSpan="01:00" CacheKey="dlrptABADaily2, @Request.rptMonth~, @Request.rptType~">
+                            <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3HealthABAGet_sp" ConnectionID="connM1BIG-biLogiReporting" ID="dlrptABADaily2">
+                              <SPParameters>
+                                <SPParameter SPParamDirection="Input" ID="@rptMonth" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptMonth~" />
+                                <SPParameter SPParamDirection="Input" ID="@rptType" SPParamSize="3" SPParamType="dt-200" Value="@Request.rptType~" />
+                              </SPParameters>
+                              <CalculatedColumn ID="calcABA" Formula="(@Data.CallsAbandoned~*1.00)/@Data.CallsOffered~" />
+                              <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                            </DataLayer>
+                          </DataLayer>
+                          <DataTableColumn ID="colDay" Header="Date">
+                            <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                          </DataTableColumn>
+                          <DataTableColumn ID="colAbandons" Header="Abandons" Class="ThemeAlignRight">
+                            <Label Caption="@Data.CallsAbandoned~" Format="#,##0" />
+                          </DataTableColumn>
+                          <DataTableColumn ID="colCalls" Header="Calls" Class="ThemeAlignRight">
+                            <Label Caption="@Data.CallsOffered~" Format="#,##0" />
+                          </DataTableColumn>
+                          <DataTableColumn ID="colABA" Header="ABA" Class="ThemeAlignRight">
+                            <Label Caption="@Data.calcABA~" Format="Percent" />
+                          </DataTableColumn>
+                        </DataTable>
+                      </Division>
+                    </Division>
+                  </Column>
+                </Row>
+              </Rows>
+            </Division>
+          </Column>
+          <Column ID="colASAByDay" Class="ThemeAlignTop">
+            <Division ID="div3MinuteASAByDay" IdeDisplayStatus="Collapsed">
+              <Rows>
+                <Row ID="Titles">
+                  <Column ID="col3MinuteASAByDayTitle" Width="400" Class="ThemeAlignCenter">
+                    <Label Caption="% Calls W/I 3 Min. SLA" Class="gdTableHeader, ThemeAlignCenter" />
+                  </Column>
+                </Row>
+                <Row>
+                  <Column ID="col3MinuteASAByDayChart" Class="gdColumnCell" Width="400">
+                    <Division ID="div3MinuteASAByDayChart">
+                      <Remark>
+                        <DataTable ID="dt3MinuteASAByDayDelta" Class="ThemeAlignRight" Layout="Fixed" CellSpacing="5" IdeDisplayStatus="Collapsed">
+                          <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked14" LinkedDataLayerID="rptC3HealthDaily">
+                            <AggregateColumn AggregateColumn="InboundCalls" AggregateFunction="Sum" ID="aggInboundCalls" />
+                            <AggregateColumn AggregateColumn="InboundCallsASA3" AggregateFunction="Sum" ID="aggInboundCallsASA3" />
+                            <CalculatedColumn ID="calcPercent" Formula="(@Data.aggInboundCallsASA3~*1.00)/@Data.aggInboundCalls~" />
+                            <CalculatedColumn ID="calcSLACalls" Formula="(@Data.aggInboundCallsASA3~/1000)" />
+                            <DeDuplicateFilter DataColumns="aggInboundCalls, aggInboundCallsASA3" />
+                          </DataLayer>
+                          <DataTableColumn ID="colTitle">
+                            <Label Caption="Calls W/I SLA: " ID="lblTitle" Format="Currency" Class="ThemeBold" />
+                          </DataTableColumn>
+                          <DataTableColumn ID="colSLACalls">
+                            <Label Caption="@Data.calcSLACalls~" ID="lblSLACalls" Format="#,###k">
+                              <ConditionalClass Condition="@Data.calcDelta~ &lt; 0" Class="gdFont12Red" />
+                            </Label>
+                          </DataTableColumn>
+                          <DataTableColumn ID="colPercent">
+                            <Label Caption="@Data.calcPercent~" ID="lblPercent" Format="Percent">
+                              <ConditionalClass Condition="@Data.calcDeltaPercent~ &lt; 0" Class="gdFont12Red" />
+                            </Label>
+                          </DataTableColumn>
+                        </DataTable>
+                      </Remark>
+                      <Chart Type="XY" XYChartType="Line" ChartDataColumn="current_calcPercent" ChartHeight="260" ChartWidth="380" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#D3414A" ID="cht3MinuteASAByDay" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="10" LineStyle="SolidLine" ChartSymbolEdgeColor="Black" BorderRight="10" LineWidth="2" BorderColor="transparent">
+                        <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked17" LinkedDataLayerID="rptC3HealthDaily">
+                          <SortFilter SortColumn="rptDate" DataType="Date" />
+                          <CalculatedColumn ID="current_calcPercent" Formula="(@Data.current_InboundCallsASA3~*1.00)/@Data.current_InboundCalls~" />
+                        </DataLayer>
+                        <DataScale Format="#0%" ScaleLowerBound="0" ScaleUpperBound="1" />
+                        <LabelScale Format="MM-dd" LinearTickIncrement="Auto" ScalingMode="LinearTime" />
+                        <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                        <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                        <ZoomChart Location="None" />
+                      </Chart>
+                      <LineBreak />
+                      <Label Caption="Show Data" Class="gdDecorated">
+                        <Action Type="ShowElement" ElementID="div3MinuteASAByDayTable" ID="actShowData" />
+                      </Label>
+                      <Division ID="div3MinuteASAByDayTable" ShowModes="None">
+                        <DataTable ID="dt3MinuteASAByDay" Width="350" AltRowClass="gdThemeAltRowNoPadding td">
+                          <DataLayer Type="Linked" ID="dlrptC3HealthDaily.Linked18" LinkedDataLayerID="rptC3HealthDaily">
+                            <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" />
+                            <CalculatedColumn ID="current_calcPercent" Formula="(@Data.current_InboundCallsASA3~*1.00)/@Data.current_InboundCalls~" />
+                          </DataLayer>
+                          <DataTableColumn ID="colDay" Header="Date">
+                            <Label Caption="@Data.rptDate~" Format="MM-dd-yy" />
+                          </DataTableColumn>
+                          <DataTableColumn ID="colTotal" Header="Total Calls" Class="ThemeAlignRight">
+                            <Label Caption="@Data.current_InboundCalls~" Format="#,###" />
+                          </DataTableColumn>
+                          <DataTableColumn ID="colSLACalls" Class="ThemeAlignRight" Header="W/I SLA">
+                            <Label Caption="@Data.current_InboundCallsASA3~" Format="#,###" />
+                          </DataTableColumn>
+                          <DataTableColumn ID="colDeltaPercent" Header="% W/I SLA" Class="ThemeAlignRight">
+                            <Label Caption="@Data.current_calcPercent~" Format="Percent">
+                              <ConditionalClass Condition="@Data.calcDeltaPercent~ &lt; 0" Class="gdFont12Red" />
+                            </Label>
+                          </DataTableColumn>
+                        </DataTable>
+                      </Division>
+                    </Division>
+                  </Column>
+                </Row>
+              </Rows>
+            </Division>
+          </Column>
+        </Row>
+      </Remark>
+    </Rows>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <Division Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams rptType="" rptMonth="" rptDepartment="" rptView="" rptYearOne="" rptYearTwo="" iclDepartment="" />
+</Report>

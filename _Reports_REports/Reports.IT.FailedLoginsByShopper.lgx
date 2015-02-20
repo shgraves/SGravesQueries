@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Reports.IT.FailedLoginsByShopper" SavedBy="JOMAX\rschrafel" SavedAt="1/31/2014 5:55:17 PM" EngineVersion="11.0.43" Caption="Failed Login Attempts" Class="gdReportHeaderNameIT">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Remark>
+      <Rows ID="rHeader" Class="gdReportHeader" />
+    </Remark>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Caption="Failed Validations" Class="gdReportHeaderNameIT" />
+          <Spaces Size="70" />
+          <Division>
+            <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+              <Action Type="NativeExcel" ID="excelExport">
+                <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" />
+              </Action>
+            </Image>
+          </Division>
+        </Column>
+      </Row>
+      <Remark>
+        <Row IdeDisplayStatus="Collapsed">
+          <Column />
+          <Column>
+            <Spaces Size="3" />
+            <InputCheckboxList MultiSelect="True" ID="checkIrisGroups" Caption="Group:" CheckboxListDropdown="True" OptionCaptionColumn="GroupDescription" OptionValueColumn="iris_groupID" SaveInLocalStorage="True">
+              <DataLayer Type="SP" Command="eRpt.irisGroupGetAll_sp" ConnectionID="prodC3Analytics" ID="dlGetIrisGroups" />
+            </InputCheckboxList>
+          </Column>
+        </Row>
+      </Remark>
+    </Rows>
+    <DataTable SortArrows="True" ID="dtFailedAttemptsLastHour" Caption="Past Hour" CellSpacing="7 px" AltRowClass="gdThemeAltRowNoPadding td" CaptionClass="gdTableHeaderBold" Class="gdBody" WidthScale="%" Width="25">
+      <DataLayer Type="SP" ID="SPDataLayer" ConnectionID="connGDNote" Command="eRpt.ShopperFailedAttemptsLastHourByRep_sp">
+        <SPParameters />
+        <DataLayerLink ID="dllFailedAttemptsLAstHour" />
+        <GroupFilter GroupColumn="shopper_id">
+          <GroupAggregateColumn AggregateColumn="FailedAttempts" AggregateFunction="Sum" ID="gacAttemptsHr" />
+        </GroupFilter>
+      </DataLayer>
+      <DataTableColumn ID="colshopper_id" Header="Shopper" Class="ThemeAlignLeft" HeaderType="Text">
+        <Label ID="lblshopper_id" Caption="@Data.shopper_id~" Tooltip="Click here to see shopper in CRM." />
+        <DataColumnSort DataColumn="shopper_id" />
+        <Action Type="Link" ID="actLink">
+          <Target Type="Link" Link="https://crm.intranet.gdg/crmsilverlight.web/ShopperSearchPage.aspx?ShopperID=@Data.shopper_id~&amp;QuickSearch=1" ID="tlShopper" />
+        </Action>
+      </DataTableColumn>
+      <DataTableColumn ID="colFailedAttempts" Header="Attempts" Class="ThemeAlignLeft" HeaderType="Text">
+        <Label ID="lblFailedAttempts" Caption="@Data.FailedAttempts~" Class="ThemeAlignCenter" Tooltip="Click here to see attempts by rep.">
+          <Action Type="ShowElement" ID="actShowDetails" ElementID="mirRepsAttempts" Display="Toggle" />
+        </Label>
+        <DataColumnSort DataColumn="FailedAttempts" DataType="Number" />
+      </DataTableColumn>
+      <InteractivePaging PageRowCount="100" ShowPageNumber="Numbered" Location="Top" HideShowPrevNextCaptions="True" CaptionType="Text" HideWhenOnePage="True" />
+      <Remark>
+        <DataTableColumn ID="colRepId" Header="Rep ID">
+          <Label ID="lblRepId" Caption="@Data.RepID~" />
+          <DataColumnSort DataColumn="RepName" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colRepName" Header="Rep" IdeDisplayStatus="Collapsed">
+          <Label ID="lblRepName" Caption="@Data.RepName~" />
+          <DataColumnSort DataColumn="RepName" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colSupName" Header="Sup" IdeDisplayStatus="Collapsed">
+          <Label ID="lblSupName" Caption="@Data.SupName~" />
+          <DataColumnSort DataColumn="SupName" />
+        </DataTableColumn>
+      </Remark>
+      <MoreInfoRow ID="mirRepsAttempts" ShowModes="None">
+        <IncludeFrame ID="srRepAttempts" FrameBorder="False" WidthScale="%" Width="100" SubReportMode="IncludeFrame">
+          <Target Type="IncludeFrameReport" ID="trgFailedReps" Report="Reports.IT.FailedLoginsByRep" />
+          <LinkParams shopper_id="@Data.shopper_id~" />
+        </IncludeFrame>
+      </MoreInfoRow>
+    </DataTable>
+    <Spaces Size="4000" />
+    <DataTable ID="dtFailedAttempts24Hr" Caption="Past 24 Hours" CellSpacing="7 px" AltRowClass="gdThemeAltRowNoPadding td" CaptionClass="gdTableHeaderBold" WidthScale="%" Width="25" Class="gdBody">
+      <DataLayer Type="SP" ID="SPDataLayer" ConnectionID="connGDNote" Command="eRpt.ShopperFailedAttemptsLast24HoursByRep_sp">
+        <SPParameters />
+        <DataLayerLink ID="dllFailedAttemptsLast24Hour" />
+        <GroupFilter GroupColumn="shopper_id">
+          <GroupAggregateColumn AggregateColumn="FailedAttempts" AggregateFunction="Sum" ID="gacAttempts" />
+        </GroupFilter>
+      </DataLayer>
+      <DataTableColumn ID="colshopper_id" Header="Shopper" Class="ThemeAlignLeft">
+        <Label ID="lblshopper_id" Caption="@Data.shopper_id~" Tooltip="Click here to see shopper in CRM." />
+        <DataColumnSort DataColumn="shopper_id" />
+        <Action Type="Link" ID="actLink">
+          <Target Type="Link" Link="https://crm.intranet.gdg/crmsilverlight.web/ShopperSearchPage.aspx?ShopperID=@Data.shopper_id~&amp;QuickSearch=1" ID="tlShopper" />
+        </Action>
+      </DataTableColumn>
+      <DataTableColumn ID="colFailedAttempts" Header="Attempts" Class="ThemeAlignLeft" HeaderType="Text">
+        <Label ID="lblFailedAttempts" Caption="@Data.gacAttempts~" Class="ThemeAlignCenter" Tooltip="Click here to see attempts by rep.">
+          <Action Type="ShowElement" ID="actShow24HrDetails" ElementID="mirRepsAttemptsPast24" Display="Toggle" />
+        </Label>
+        <DataColumnSort DataColumn="FailedAttempts" DataType="Number" />
+      </DataTableColumn>
+      <MoreInfoRow ID="mirRepsAttemptsPast24" ShowModes="None">
+        <IncludeFrame ID="srRepAttempts24Hrs" FrameBorder="False" WidthScale="%" Width="100" SubReportMode="IncludeFrame">
+          <Target Type="IncludeFrameReport" ID="trgFailedReps" Report="Reports.IT.FailedLoginsByRepPast24Hrs" />
+          <LinkParams shopper_id="@Data.shopper_id~" />
+        </IncludeFrame>
+      </MoreInfoRow>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams />
+</Report>

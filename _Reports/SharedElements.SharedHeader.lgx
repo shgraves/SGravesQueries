@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="SharedElements.SharedHeader" SavedBy="JOMAX\slyoung" SavedAt="3/3/2014 12:54:51 PM" EngineVersion="11.0.43">
+  <SharedElement ID="sharedHeader">
+    <Rows ID="logoNavHeader" WidthScale="100%" Height="42px">
+      <Row ID="headerRow">
+        <Column ID="colGDlogo" IdeDisplayStatus="Collapsed">
+          <Image Caption="header_logo.png" ID="imgHeaderLogo" Width="350px" Height="30px" />
+        </Column>
+        <Column Width="30" WidthScale="px">
+          <Image Caption="HomeBtnDB.png" Tooltip="BI Dashboards &amp; Reports Home Page" Class="ThemeAlignBottom" ID="HomeNav">
+            <Action Type="Link">
+              <Target Type="Link" Link="https://logi.int.godaddy.com/Reports/rdPage.aspx?rdReport=Admin.LogiTOCnav" ID="tLinkHomeNav" FrameID="Self" />
+            </Action>
+          </Image>
+        </Column>
+        <Column ID="colNavigation" Width="100" WidthScale="%">
+          <Remark>
+            <IncludeHtml ID="inclTopNav" Html="@Session.TopNavMarkup~" />
+          </Remark>
+          <IncludeHtml Html="&lt;SPAN  id=&quot;inclTopNav&quot;&gt;&#xD;&#xA;&lt;ul id=&quot;menu&quot;&gt;&#xD;&#xA;&lt;li id=&quot;1&quot;&gt;&lt;a href=&quot;&quot;&gt;Dashboards&lt;/a&gt;&#xD;&#xA;&lt;ul&gt;&#xD;&#xA;&lt;li id=&quot;36&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Dashboards.AdvancedSupport.AdvancedSupportDash&quot;&gt;Adv Support&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;24&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Dashboards.C3.Workforce.C3Workforcedash&quot;&gt;C3 Workforce&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;30&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Dashboards.Calls.InternationalDash&quot;&gt;Call Queues&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;35&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Dashboards.WBS.HOSTDashboard&quot;&gt;Hosting&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;25&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Dashboards.Acquisitions.NewCustomerDashboard&quot;&gt;New Customers&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;20&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Dashboards.NPS.NPSDashboard&quot;&gt;NPS&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;22&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Dashboards.GDOB.GDOBDashboard&quot;&gt;Online Bookkeeping&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;29&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Dashboards.WBS.PWDDashBoard&quot;&gt;PWD&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;33&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Dashboards.Productivity.ProductivityDash&quot;&gt;Productivity&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;34&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Dashboards.Acquisitions.SEMdashboard&quot;&gt;SEM&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;21&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Dashboards.WBS.WBSDashboard&quot;&gt;WSB&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;/ul&gt;&#xD;&#xA;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;26&quot;&gt;&#xD;&#xA;&lt;a href=&quot;&quot;&gt;Cubes&lt;/a&gt;&#xD;&#xA;&lt;ul&gt;&#xD;&#xA;&lt;li id=&quot;40&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Reports.Cubes.irisCubeViewer&quot;&gt;Iris&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;27&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Reports.Cubes.OrdersCubeViewer&quot;&gt;Orders&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;28&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Reports.Cubes.StarCubeViewer&quot;&gt;Star&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;/ul&gt;&#xD;&#xA;&lt;/li&gt;&#xD;&#xA;&lt;li id=&quot;31&quot;&gt;&#xD;&#xA;&lt;a href=&quot;&quot;&gt;Reports&lt;/a&gt;&#xD;&#xA;&lt;ul&gt;&#xD;&#xA;&lt;li id=&quot;32&quot;&gt;&lt;a href=&quot;@Function.AppVirtualPath~?rdReport=Reports.QSCchurn&quot;&gt;QSC Churn&lt;/a&gt;&lt;/li&gt;&#xD;&#xA;&lt;/ul&gt;&#xD;&#xA;&lt;/li&gt;&#xD;&#xA;&lt;/ul&gt;&#xD;&#xA;&lt;/SPAN&gt;" />
+        </Column>
+        <Column ID="colGDlogo" Width="215" WidthScale="px" Class="ThemeAlignRight">
+          <Image Caption="gdMainLogo_WT.png" ID="GDlogo" />
+        </Column>
+      </Row>
+    </Rows>
+    <Image Caption="HdrSeparator_WT.png" ID="imgHorzRule" Width="100%" Height="1px" />
+    <StyleSheet StyleSheet="dropdown_one.css" />
+    <Remark>
+      <StyleSheet Theme="GDRPortal" StyleSheet="ERHubTheme.css" />
+    </Remark>
+  </SharedElement>
+  <ideTestParams />
+</Report>

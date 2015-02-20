@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Iris.IrisHostnameAnalysisGrid" Caption="Iris Hostname Reporting" SavedBy="JOMAX\dezell" SavedAt="4/24/2013 10:35:36 AM" EngineVersion="10.2.424" SecurityReportRightID="Domain Users">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Caption="Iris Hostname Analysis Grid" Class="gdReportHeaderNameIT" />
+        </Column>
+      </Row>
+    </Rows>
+    <AnalysisGrid ID="agIrisHostname" ShowPageNumber="True" SortArrows="True" DraggableColumns="True" SavedAnalysisGridFolder="@Function.AppPhysicalPath~\UserData">
+      <DataLayer Type="SQL" ID="SQLDataLayer" ConnectionID="testC3Analytics" Source="SELECT [ConfigItem]&#xD;&#xA;      ,[iris_incidentID]&#xD;&#xA;      ,[StatusDescription]&#xD;&#xA;      ,[GroupDescription]&#xD;&#xA;      ,[CategoryDescription]&#xD;&#xA;      ,[ServiceDescription]&#xD;&#xA;      ,[PriorityDescription]&#xD;&#xA;      ,[TicketCreateDate]&#xD;&#xA;      ,[TicketModifyDate]&#xD;&#xA;	  ,[IncidentDescription]&#xD;&#xA;  FROM [C3Analytics].[dbo].[IRISIncidentConfigItemWide_vw]" />
+      <AnalysisGridColumn ID="colConfigItem" Header="Hostname" DataColumn="ConfigItem" DataType="Text">
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Text" />
+      </AnalysisGridColumn>
+      <AnalysisGridColumn ID="coliris_incidentID" Header="Incident" DataColumn="iris_incidentID" DataType="Number">
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Number" />
+      </AnalysisGridColumn>
+      <AnalysisGridColumn ID="colTicketCreateDate" Header="Created" DataColumn="TicketCreateDate" DataType="Date" Format="Short Date" PopupValuesForFilter="Calendar">
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Date" ExcelFormat="Short Date" />
+      </AnalysisGridColumn>
+      <AnalysisGridColumn ID="colTicketModifyDate" Header="Last Modified" DataColumn="TicketModifyDate" DataType="Date" Format="Short Date" PopupValuesForFilter="Calendar">
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Date" ExcelFormat="Short Date" />
+      </AnalysisGridColumn>
+      <AnalysisGridColumn ID="colServiceDescription" Header="Service" DataColumn="ServiceDescription" DataType="Text" PopupValuesForFilter="List">
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Text" />
+      </AnalysisGridColumn>
+      <AnalysisGridColumn ID="colIncidentDescription" Header="Summary" DataColumn="IncidentDescription" DataType="Text">
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Text" />
+      </AnalysisGridColumn>
+      <AnalysisGridColumn ID="colCategoryDescription" Header="Category" DataColumn="CategoryDescription" DataType="Text" PopupValuesForFilter="List">
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Text" />
+      </AnalysisGridColumn>
+      <AnalysisGridColumn ID="colGroupDescription" Header="Group" DataColumn="GroupDescription" DataType="Text" PopupValuesForFilter="List">
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Text" />
+      </AnalysisGridColumn>
+      <AnalysisGridColumn ID="colPriorityDescription" Header="Priority" DataColumn="PriorityDescription" DataType="Text" PopupValuesForFilter="List">
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Text" />
+      </AnalysisGridColumn>
+      <AnalysisGridColumn ID="colStatusDescription" Header="Status" DataColumn="StatusDescription" DataType="Text" PopupValuesForFilter="List">
+        <ExcelColumnFormat ExcelColumnWidth="Auto" DataType="Text" />
+      </AnalysisGridColumn>
+    </AnalysisGrid>
+    <LineBreak />
+    <Division ID="divLinks" IdeDisplayStatus="Collapsed">
+      <Label Caption="Save" ID="lblSave">
+        <Action Type="Process" ID="actSave" Process="AnalysisGridTasks" TaskID="tskSaveAg" ConfirmMessage="Save this grid layout?" />
+      </Label>
+      <Spaces Size="3" />
+      <Label ID="lblRestore" Caption="Restore" IdeDisplayStatus="Collapsed">
+        <Action Type="Report" ID="actReport">
+          <Target Type="Report" Report="Iris.IrisHostnameAnalysisGrid" />
+          <LinkParams rdAgLoadSaved="@Cookie.AgFileName~" />
+        </Action>
+      </Label>
+      <Spaces Size="3" />
+      <Label ID="lblReset" Caption="Reset">
+        <Action Type="Report" ID="actReport">
+          <Target Type="Report" Report="Iris.IrisHostnameAnalysisGrid" />
+          <LinkParams rdAgReset="True" />
+        </Action>
+      </Label>
+    </Division>
+    <Remark>
+      <Label Caption="Save Bookmark" ID="lblSaveBookmark">
+        <Action Type="AddBookmark" BookmarkCollection="IrisHostName_@Function.UserName~" ID="IrisHostnameBookmark" BookmarkDescriptionMessage="Enter Bookmark Name: " BookmarkName="@Request.rdReport~" />
+      </Label>
+    </Remark>
+    <LineBreak />
+    <Remark>
+      <Label Caption="Manage Bookmarks" ID="lblManageBookmarks">
+        <Action Type="ShowElement" ElementID="divBookmarks" ID="actShowBookmarks" Display="Toggle" />
+      </Label>
+    </Remark>
+    <Remark>
+      <Division ID="divBookmarks" ShowModes="None" IdeDisplayStatus="Collapsed">
+        <DataTable ID="dtBookmarks" CellSpacing="7px">
+          <DataLayer Type="Bookmarks" BookmarkCollection="IrisHostName_@Function.UserName~" ID="dLBookmarks" />
+          <Remark>
+            <DataTableColumn ID="colReport" Header="Report">
+              <Label ID="lblReport" Caption="@Data.Report~" />
+              <DataColumnSort DataColumn="Report" />
+            </DataTableColumn>
+          </Remark>
+          <Remark>
+            <DataTableColumn ID="colName" Header="Name">
+              <Label ID="lblName" Caption="@Data.Name~">
+                <Action Type="RunBookmark" BookmarkCollection="IrisHostName_@Function.UserName~" BookmarkID="@Data.BookmarkID~" ID="actRunBookmark" />
+              </Label>
+              <DataColumnSort DataColumn="Name" />
+            </DataTableColumn>
+          </Remark>
+          <Remark>
+            <DataTableColumn ID="colCustomColumn1" Header="CustomColumn1">
+              <Label ID="lblCustomColumn1" Caption="@Data.CustomColumn1~" />
+              <DataColumnSort DataColumn="CustomColumn1" />
+            </DataTableColumn>
+          </Remark>
+          <Remark>
+            <DataTableColumn ID="colCustomColumn2" Header="CustomColumn2">
+              <Label ID="lblCustomColumn2" Caption="@Data.CustomColumn2~" />
+              <DataColumnSort DataColumn="CustomColumn2" />
+            </DataTableColumn>
+          </Remark>
+          <DataTableColumn ID="colDescription" Header="Name">
+            <Label ID="lblDescription" Caption="@Data.Description~">
+              <Action Type="RunBookmark" BookmarkCollection="IrisHostName_@Function.UserName~" BookmarkID="@Data.BookmarkID~" ID="actRunBookmark" />
+            </Label>
+            <DataColumnSort DataColumn="Description" />
+          </DataTableColumn>
+          <DataTableColumn ID="colSaveTime" Header="Saved">
+            <Label ID="lblSaveTime" Caption="@Data.SaveTime~" Format="Short Date" />
+            <DataColumnSort DataColumn="SaveTime" DataType="Date" />
+          </DataTableColumn>
+          <Remark>
+            <DataTableColumn ID="colBookmarkID" Header="BookmarkID">
+              <Label ID="lblBookmarkID" Caption="@Data.BookmarkID~" />
+              <DataColumnSort DataColumn="BookmarkID" />
+            </DataTableColumn>
+          </Remark>
+          <Remark>
+            <DataTableColumn ID="colExtraFile" Header="ExtraFile">
+              <Label ID="lblExtraFile" Caption="@Data.ExtraFile~" />
+              <DataColumnSort DataColumn="ExtraFile" />
+            </DataTableColumn>
+          </Remark>
+        </DataTable>
+      </Division>
+    </Remark>
+  </Body>
+  <ReportFooter />
+  <ideTestParams />
+</Report>

@@ -1,0 +1,491 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.IndiaC3Reporting.EmailReport" SavedBy="JOMAX\vyancey" SavedAt="12/3/2013 4:18:39 PM" EngineVersion="11.0.43">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams CampaignName="All" rptStartDate="=DateAdd(&quot;d&quot;,-30,&quot;@Request.rptEndDate~&quot;)" rptEndDate="@Date.Today~" />
+  <LocalData IdeDisplayStatus="Collapsed">
+    <DataLayer Type="Cached" ID="dlIndiaOutboundMetricsByDate.Cached" CacheKey="ByDate,@Request.rdReport~,@Request.rptStartDate~,@Request.rptEndDate~,@Request.CampaignName~" ExpirationTimeSpan="04:00" ExpirationNow="False">
+      <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;USE goDaddyCalls&#xD;&#xA;&#xD;&#xA;DECLARE @StartDate datetime = '@Request.rptStartDate~',&#xD;&#xA;		@EndDate datetime = '@Request.rptEndDate~'&#xD;&#xA;		&#xD;&#xA;DECLARE @IndianOffSetMinutes Int SELECT @IndianOffSetMinutes =( 12 * 60 + 30)&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#tasks') IS NOT NULL DROP TABLE #tasks;&#xD;&#xA;CREATE TABLE #tasks (crm_callHeaderAuditID int, crm_callHeaderID int, crm_ActivityTypeID int, CreateDate datetime, IndiaDate datetime&#xD;&#xA;					 ,Manager_userID int, TaskActionID int, Shopper_id varchar(10)) &#xD;&#xA;INSERT INTO #tasks				 &#xD;&#xA;SELECT crm_callHeaderAuditID&#xD;&#xA;		  ,crm_callHeaderID&#xD;&#xA;		  ,crm_ActivityTypeID&#xD;&#xA;		  ,cha.CreateDate&#xD;&#xA;		  ,DATEADD(minute,@IndianOffSetMinutes, cha.createDate)  AS IndiaDate		  &#xD;&#xA;		  ,Manager_UserID&#xD;&#xA;		  ,TaskActionID&#xD;&#xA;		  ,Shopper_id&#xD;&#xA;FROM	dbo.rptGenpactCallHeaderAudit  cha&#xD;&#xA;WHERE	cha.createDate &gt; = DATEADD(minute, -@IndianOffSetMinutes, @StartDate) &#xD;&#xA;AND		cha.createDate &lt;  DATEADD(minute, -@IndianOffSetMinutes, @EndDate) &#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#taskActions') IS NOT NULL DROP TABLE #taskActions;  &#xD;&#xA;CREATE TABLE #taskActions (TaskActionID int,TaskActionDescription varchar(50), isContact int, isVoicemail int, isWorked int)&#xD;&#xA;INSERT INTO #taskActions VALUES &#xD;&#xA;(1,	'ContactedCustomer', 1, 0, 1) ,&#xD;&#xA;(2,	'PhoneMessage', 0, 1, 1) , &#xD;&#xA;(6,	'CustomerUnavailable', 0, 0, 1) ,&#xD;&#xA;(7,	'PhoneBusy', 0, 0, 1) ,&#xD;&#xA;(8,	'CancelTask', 0, 0, 0) ,&#xD;&#xA;(11,'DeclinedToProcess', 0, 0, 1) ,&#xD;&#xA;(14,'InvalidContactInformation', 0, 0, 1) ,&#xD;&#xA;(41,'Automated Voicemail', 0, 1, 1) ,&#xD;&#xA;(43,'Reschedule', 0, 0, 0) &#xD;&#xA;&#xD;&#xA;--Get the orders related to contacts, ranking so that I can limit to the closest contact in timing&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#orderRankings') IS NOT NULL DROP TABLE #orderRankings;&#xD;&#xA;CREATE TABLE #orderRankings (crm_callHeaderAuditID int, Order_id varchar(20), row_id int, pf_id int, point_of_purchase_ID int&#xD;&#xA;				,  order_Date datetime, createDate datetime, TimingOffsetRank int&#xD;&#xA;				,  Sales money) &#xD;&#xA;INSERT INTO #orderRankings&#xD;&#xA;SELECT  crm_callHeaderAuditID, Order_id, row_id, pf_id, point_of_purchase_ID,  order_Date&#xD;&#xA;		, t.createDate&#xD;&#xA;		,DENSE_RANK() OVER (PARTITION BY Order_id, Row_id ORDER BY ABS(DATEDIFF(second,order_Date,t.createDate)) ASC) AS TimingOffsetRank&#xD;&#xA;		, adjusted_price * .01&#xD;&#xA;FROM    #tasks t &#xD;&#xA;JOIN	BigReporting.dbo.rptorderdetail rod ON t.Shopper_id = rod.Shopper_id&#xD;&#xA;				AND rod.order_date &gt; = DATEADD(hour,-2,t.createDate)&#xD;&#xA;				AND rod.order_date &lt; DATEADD(hour,24,t.CreateDate)&#xD;&#xA;JOIN	#taskActions ta ON t.TaskActionID = ta.TaskActionID	&#xD;&#xA;				AND ta.isContact = 1			&#xD;&#xA;WHERE	rod.point_of_purchase_id IN (1,3)&#xD;&#xA;	&#xD;&#xA;SELECT  DATEADD(D,(DATEDIFF(d,-1,t.IndiaDate)),-1) as IndiaDate&#xD;&#xA;		, COUNT(DISTINCT t.crm_callHeaderAuditID) as  Dials&#xD;&#xA;		--, COUNT(DISTINCT crm_callHeaderID) as  Tasks&#xD;&#xA;		, SUM(ta.isContact) as Contacts&#xD;&#xA;		, SUM(ta.isVoicemail) as Voicemails&#xD;&#xA;		, COUNT(DISTINCT ork.order_id) as Orders&#xD;&#xA;		, ISNULL(SUM(Sales),0) as Sales&#xD;&#xA;		, ISNULL(SUM(CASE WHEN dp.New_Renewal = 'New Purchase' THEN Sales ELSE 0 END),0) as NewSales&#xD;&#xA;FROM    #tasks t&#xD;&#xA;JOIN	dbo.rptDimC3Campaign cmp ON t.crm_ActivityTypeID = cmp.C3CampaignID&#xD;&#xA;LEFT JOIN #taskActions ta ON t.TaskActionID = ta.TaskActionID&#xD;&#xA;LEFT JOIN #orderRankings ork ON t.crm_callHeaderAuditID = ork.crm_callHeaderAuditID&#xD;&#xA;				AND ork.TimingOffsetRank = 1&#xD;&#xA;LEFT JOIN  dmstaging.dbo.dim_product dp ON ork.pf_id = dp.pf_id	&#xD;&#xA;JOIN  gdreportStaging.dbo.manager_users mu ON t.Manager_userID = mu.ID&#xD;&#xA;				AND AccountTypeID &lt;&gt; 1&#xD;&#xA;WHERE (cmp.Name = '@Request.CampaignName~' OR '@Request.CampaignName~' = 'All')&#xD;&#xA;GROUP BY DATEADD(D,(DATEDIFF(d,-1,t.IndiaDate)),-1)" ID="dlIndiaOutboundMetricsByDate" ConnectionID="connM1BIG-biLogiReporting">
+        <AggregateColumn AggregateColumn="Dials" AggregateFunction="Sum" ID="aggDials" />
+        <AggregateColumn AggregateColumn="Contacts" AggregateFunction="Sum" ID="aggContacts" />
+        <AggregateColumn AggregateColumn="Orders" AggregateFunction="Sum" ID="aggOrders" />
+        <AggregateColumn AggregateColumn="Sales" AggregateFunction="Sum" ID="aggSales" />
+        <AggregateColumn AggregateColumn="NewSales" AggregateFunction="Sum" ID="aggNewSales" />
+      </DataLayer>
+    </DataLayer>
+  </LocalData>
+  <LocalData IdeDisplayStatus="Collapsed">
+    <DataLayer Type="Cached" ID="dlIndiaOutboundMetricsByRep.Cached" ExpirationNow="False" ExpirationTimeSpan="04:00" CacheKey="ByRep,@Request.rdReport~,@Request.rptStartDate~,@Request.rptEndDate~,@Request.CampaignName~">
+      <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;USE goDaddyCalls&#xD;&#xA;&#xD;&#xA;DECLARE @StartDate datetime = '@Request.rptStartDate~',&#xD;&#xA;		@EndDate datetime = '@Request.rptEndDate~'&#xD;&#xA;		&#xD;&#xA;DECLARE @IndianOffSetMinutes Int SELECT @IndianOffSetMinutes =( 12 * 60 + 30)&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#tasks') IS NOT NULL DROP TABLE #tasks;&#xD;&#xA;CREATE TABLE #tasks (crm_callHeaderAuditID int, crm_callHeaderID int, crm_ActivityTypeID int, CreateDate datetime, IndiaDate datetime&#xD;&#xA;					 ,Manager_userID int, TaskActionID int, Shopper_id varchar(10)) &#xD;&#xA;INSERT INTO #tasks				 &#xD;&#xA;SELECT crm_callHeaderAuditID&#xD;&#xA;		  ,crm_callHeaderID&#xD;&#xA;		  ,crm_ActivityTypeID&#xD;&#xA;		  ,cha.CreateDate&#xD;&#xA;		  ,DATEADD(minute,@IndianOffSetMinutes, cha.createDate)  AS IndiaDate		  &#xD;&#xA;		  ,Manager_UserID&#xD;&#xA;		  ,TaskActionID&#xD;&#xA;		  ,Shopper_id&#xD;&#xA;FROM	dbo.rptGenpactCallHeaderAudit  cha&#xD;&#xA;WHERE	cha.createDate &gt; = DATEADD(minute, -@IndianOffSetMinutes, @StartDate) &#xD;&#xA;AND		cha.createDate &lt;  DATEADD(minute, -@IndianOffSetMinutes, @EndDate) &#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#taskActions') IS NOT NULL DROP TABLE #taskActions;  &#xD;&#xA;CREATE TABLE #taskActions (TaskActionID int,TaskActionDescription varchar(50), isContact int, isVoicemail int, isWorked int)&#xD;&#xA;INSERT INTO #taskActions VALUES &#xD;&#xA;(1,	'ContactedCustomer', 1, 0, 1) ,&#xD;&#xA;(2,	'PhoneMessage', 0, 1, 1) , &#xD;&#xA;(6,	'CustomerUnavailable', 0, 0, 1) ,&#xD;&#xA;(7,	'PhoneBusy', 0, 0, 1) ,&#xD;&#xA;(8,	'CancelTask', 0, 0, 0) ,&#xD;&#xA;(11,'DeclinedToProcess', 0, 0, 1) ,&#xD;&#xA;(14,'InvalidContactInformation', 0, 0, 1) ,&#xD;&#xA;(41,'Automated Voicemail', 0, 1, 1) ,&#xD;&#xA;(43,'Reschedule', 0, 0, 0) &#xD;&#xA;&#xD;&#xA;--Get the orders related to contacts, ranking so that I can limit to the closest contact in timing&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#orderRankings') IS NOT NULL DROP TABLE #orderRankings;&#xD;&#xA;CREATE TABLE #orderRankings (crm_callHeaderAuditID int, Order_id varchar(20), row_id int, pf_id int, point_of_purchase_ID int&#xD;&#xA;				,  order_Date datetime, createDate datetime, TimingOffsetRank int&#xD;&#xA;				,  Sales money) &#xD;&#xA;INSERT INTO #orderRankings&#xD;&#xA;SELECT  crm_callHeaderAuditID, Order_id, row_id, pf_id, point_of_purchase_ID,  order_Date&#xD;&#xA;		, t.createDate&#xD;&#xA;		,DENSE_RANK() OVER (PARTITION BY Order_id, Row_id ORDER BY ABS(DATEDIFF(second,order_Date,t.createDate)) ASC) AS TimingOffsetRank&#xD;&#xA;		, adjusted_price * .01&#xD;&#xA;FROM    #tasks t &#xD;&#xA;JOIN	BigReporting.dbo.rptorderdetail rod ON t.Shopper_id = rod.Shopper_id&#xD;&#xA;				AND rod.order_date &gt; = DATEADD(hour,-2,t.createDate)&#xD;&#xA;				AND rod.order_date &lt; DATEADD(hour,24,t.CreateDate)&#xD;&#xA;JOIN	#taskActions ta ON t.TaskActionID = ta.TaskActionID	&#xD;&#xA;				AND ta.isContact = 1			&#xD;&#xA;WHERE	rod.point_of_purchase_id IN (1,3)&#xD;&#xA;	&#xD;&#xA;SELECT  mu.Name&#xD;&#xA;		, COUNT(DISTINCT t.crm_callHeaderAuditID) as  Dials&#xD;&#xA;		--, COUNT(DISTINCT crm_callHeaderID) as  Tasks&#xD;&#xA;		, SUM(ta.isContact) as Contacts&#xD;&#xA;		, SUM(ta.isVoicemail) as Voicemails&#xD;&#xA;		, COUNT(DISTINCT ork.order_id) as Orders&#xD;&#xA;		, ISNULL(SUM(Sales),0) as Sales&#xD;&#xA;		, ISNULL(SUM(CASE WHEN dp.New_Renewal = 'New Purchase' THEN Sales ELSE 0 END),0) as NewSales&#xD;&#xA;FROM    #tasks t&#xD;&#xA;JOIN	dbo.rptDimC3Campaign cmp ON t.crm_ActivityTypeID = cmp.C3CampaignID&#xD;&#xA;LEFT JOIN #taskActions ta ON t.TaskActionID = ta.TaskActionID&#xD;&#xA;LEFT JOIN #orderRankings ork ON t.crm_callHeaderAuditID = ork.crm_callHeaderAuditID&#xD;&#xA;				AND ork.TimingOffsetRank = 1&#xD;&#xA;LEFT JOIN  dmstaging.dbo.dim_product dp ON ork.pf_id = dp.pf_id	&#xD;&#xA;JOIN  gdreportStaging.dbo.manager_users mu ON t.Manager_userID = mu.ID&#xD;&#xA;				AND AccountTypeID &lt;&gt; 1&#xD;&#xA;WHERE (cmp.Name = '@Request.CampaignName~' OR '@Request.CampaignName~' = 'All')&#xD;&#xA;GROUP BY mu.Name" ID="dlIndiaOutboundMetricsByRep" ConnectionID="connM1BIG-biLogiReporting">
+        <AggregateColumn AggregateColumn="Dials" AggregateFunction="Sum" ID="aggDials" />
+        <AggregateColumn AggregateColumn="Contacts" AggregateFunction="Sum" ID="aggContacts" />
+        <AggregateColumn AggregateColumn="Orders" AggregateFunction="Sum" ID="aggOrders" />
+        <AggregateColumn AggregateColumn="Sales" AggregateFunction="Sum" ID="aggSales" />
+        <AggregateColumn AggregateColumn="NewSales" AggregateFunction="Sum" ID="aggNewSales" />
+      </DataLayer>
+    </DataLayer>
+  </LocalData>
+  <Body>
+    <Rows Class="gdDefaultRowBground" IdeDisplayStatus="Collapsed">
+      <Row Class="gdReportHeader" ShowModes="NotEmailSub">
+        <Column>
+          <Label Caption="Rep Summary" Class="ThemeTextSmall" IdeDisplayStatus="Collapsed">
+            <Action Type="Link" ID="actLinkRepSummary">
+              <Target Type="Link" ID="tgtrpt" Link="@Function.AppVirtualPath~?rdReport=PMG.IndiaC3Reporting.RepSummary" />
+            </Action>
+          </Label>
+          <Label Caption=" | " Class="ThemeTextSmall" />
+          <Label Caption="Daily Summary" Class="ThemeTextSmall" IdeDisplayStatus="Collapsed">
+            <Action Type="Link" ID="actLinkDailySummary">
+              <Target Type="Link" ID="tgtrpt" Link="@Function.AppVirtualPath~?rdReport=PMG.IndiaC3Reporting.DailySummary" />
+            </Action>
+          </Label>
+          <Label Caption=" | " Class="ThemeTextSmall" />
+          <Label Caption="Daily Tasks" Class="ThemeTextSmall" IdeDisplayStatus="Collapsed">
+            <Action Type="Link" ID="actLinkAdHocSales">
+              <Target Type="Link" ID="tgtrpt" Link="@Function.AppVirtualPath~?rdReport=PMG.IndiaC3Reporting.DailyTasks" />
+            </Action>
+          </Label>
+          <Label Caption=" | " Class="ThemeTextSmall" />
+          <Label Caption="Ad Hoc Sales" Class="ThemeTextSmall" IdeDisplayStatus="Collapsed">
+            <Action Type="Link" ID="actLinkAdHocSales">
+              <Target Type="Link" ID="tgtrpt" Link="@Function.AppVirtualPath~?rdReport=PMG.IndiaC3Reporting.AdHocOrders" />
+            </Action>
+          </Label>
+        </Column>
+      </Row>
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Caption="India Outbound Sales - Daily Tasks" Class="gdReportHeaderNameBI" />
+        </Column>
+      </Row>
+      <Row Class="gdReportHeader" ShowModes="NotEmailSub">
+        <Column>
+          <InputGrid IdeDisplayStatus="Collapsed">
+            <InputDate ID="rptStartDate" Caption="Start Date:" DefaultValue="@Request.rptStartDate~" CaptionClass="rdAlternateTextColorWhite">
+              <EventHandler DhtmlEvent="onChange">
+                <Action Type="RefreshElement" ElementID="CampaignName" ID="refCampaign" />
+              </EventHandler>
+            </InputDate>
+            <InputDate ID="rptEndDate" Caption="End Date:" DefaultValue="@Request.rptEndDate~" CaptionClass="rdAlternateTextColorWhite">
+              <EventHandler DhtmlEvent="onChange">
+                <Action Type="RefreshElement" ElementID="CampaignName" ID="refCampaign" />
+              </EventHandler>
+            </InputDate>
+            <InputSelectList ID="CampaignName" OptionValueColumn="Name" OptionCaptionColumn="Name" DefaultValue="@Request.CampaignName~" IncludeBlank="True" IncludeBlankCaption="All" IncludeBlankValue="All" Caption="Campaign:">
+              <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;USE goDaddyCalls&#xD;&#xA;&#xD;&#xA;DECLARE @StartDate datetime = '@Request.rptStartDate~',&#xD;&#xA;		@EndDate datetime = '@Request.rptEndDate~'&#xD;&#xA;		&#xD;&#xA;DECLARE @IndianOffSetMinutes Int SELECT @IndianOffSetMinutes =( 12 * 60 + 30)&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#tasks') IS NOT NULL DROP TABLE #tasks;&#xD;&#xA;CREATE TABLE #tasks (crm_callHeaderAuditID int, crm_callHeaderID int, crm_ActivityTypeID int, CreateDate datetime, IndiaDate datetime&#xD;&#xA;					 ,Manager_userID int, TaskActionID int, Shopper_id varchar(10)) &#xD;&#xA;INSERT INTO #tasks				 &#xD;&#xA;SELECT crm_callHeaderAuditID&#xD;&#xA;		  ,crm_callHeaderID&#xD;&#xA;		  ,crm_ActivityTypeID&#xD;&#xA;		  ,cha.CreateDate&#xD;&#xA;		  ,DATEADD(minute,@IndianOffSetMinutes, cha.createDate)  AS IndiaDate		  &#xD;&#xA;		  ,Manager_UserID&#xD;&#xA;		  ,TaskActionID&#xD;&#xA;		  ,Shopper_id&#xD;&#xA;FROM	dbo.rptGenpactCallHeaderAudit  cha&#xD;&#xA;WHERE	cha.createDate &gt; = DATEADD(minute, -@IndianOffSetMinutes, @StartDate) &#xD;&#xA;AND		cha.createDate &lt;  DATEADD(minute, -@IndianOffSetMinutes, @EndDate) &#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT  DISTINCT cmp.Name &#xD;&#xA;FROM    #tasks t&#xD;&#xA;JOIN	dbo.rptDimC3Campaign cmp ON t.crm_ActivityTypeID = cmp.C3CampaignID&#xD;&#xA;ORDER BY cmp.Name " ID="dlCampaignName" ConnectionID="connM1BIG-biLogiReporting" />
+            </InputSelectList>
+          </InputGrid>
+          <Button ID="btnSubmit" Caption="Submit" IdeDisplayStatus="Collapsed">
+            <Action Type="Report" ID="actSubmitReport">
+              <LinkParams rdAgRefreshData="True" />
+              <Target Type="Report" ID="tgtCurrentReport" Report="PMG.IndiaC3Reporting.DailyTasks" RequestForwarding="True">
+                <WaitPage Caption="Updating Data..." />
+              </Target>
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+      <Row>
+        <Column Class="gdColumnCell">
+          <DataTable ID="dtTasks" CaptionClass="gdColumnCellTitle" ColumnHeaderClass="gdTableHeader" AltRowClass="gdThemeAltRowNoPadding td" Width="450">
+            <DataLayer Type="SQL" ID="dlTasks" Source="USE CRM&#xD;&#xA;&#xD;&#xA;SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED&#xD;&#xA;&#xD;&#xA;DECLARE @rptStart DATETIME,&#xD;&#xA;		@rptEnd DATETIME,&#xD;&#xA;		@IndianOffSetMinutes Int&#xD;&#xA;&#xD;&#xA;SELECT @rptStart = CAST(GETDATE() AS DATE)&#xD;&#xA;SELECT @rptEnd = DATEADD(DAY,1,CAST(GETDATE() AS DATE))&#xD;&#xA;&#xD;&#xA;SELECT @IndianOffSetMinutes = ( 12 * 60 + 30)&#xD;&#xA;&#xD;&#xA;SELECT	T.ActivityDescription,&#xD;&#xA;		T.RolloverTasks,&#xD;&#xA;		T.CreatedTasks,&#xD;&#xA;		T2.ClosedTasks,&#xD;&#xA;		T2.LostTasks&#xD;&#xA;FROM&#xD;&#xA;(SELECT	AT.crm_ActivityTypeID,&#xD;&#xA;		AT.ActivityDescription,&#xD;&#xA;		SUM(CASE WHEN CH.createDate &lt; DATEADD(MINUTE,-@IndianOffSetMinutes,@rptStart) &#xD;&#xA;			     THEN 1 ELSE 0 &#xD;&#xA;			END) AS RolloverTasks,&#xD;&#xA;		SUM(CASE WHEN CH.createDate &gt;= DATEADD(MINUTE,-@IndianOffSetMinutes,@rptStart) &#xD;&#xA;					  AND CH.createDate &lt; DATEADD(MINUTE,-@IndianOffSetMinutes,@rptEnd) &#xD;&#xA;				 THEN 1 ELSE 0 &#xD;&#xA;			END) AS CreatedTasks&#xD;&#xA;FROM	crm_callHeader CH&#xD;&#xA;JOIN	crm_ActivityType AT ON AT.crm_ActivityTypeID = CH.crm_ActivityTypeID&#xD;&#xA;WHERE	crm_callheadertypeid = 5 -- India call queue&#xD;&#xA;		AND crm_callStateID = 1 -- pending call&#xD;&#xA;GROUP BY AT.crm_ActivityTypeID,&#xD;&#xA;		 AT.ActivityDescription&#xD;&#xA;		)T&#xD;&#xA;FULL JOIN&#xD;&#xA;(SELECT		CHA.crm_ActivityTypeID,&#xD;&#xA;			COUNT(DISTINCT CASE WHEN CHA.crm_callStateID = 4 THEN CHA.crm_callHeaderID END) AS ClosedTasks,&#xD;&#xA;			COUNT(DISTINCT CASE WHEN CHA.crm_callStateID = 7 THEN CHA.crm_callHeaderID END) AS LostTasks&#xD;&#xA;FROM		crm_callCompletedHeader CHA&#xD;&#xA;WHERE		CHA.crm_callheadertypeid = 5 -- India call queue&#xD;&#xA;			AND CHA.modifyDate &gt;= DATEADD(MINUTE,-@IndianOffSetMinutes,@rptStart)&#xD;&#xA;			AND CHA.modifyDate &lt; DATEADD(MINUTE,-@IndianOffSetMinutes,@rptEnd)&#xD;&#xA;GROUP BY CHA.crm_ActivityTypeID&#xD;&#xA;		)T2 ON T.crm_ActivityTypeID = T2.crm_ActivityTypeID&#xD;&#xA;WHERE (T.ActivityDescription = '@Request.CampaignName~' OR '@Request.CampaignName~' = 'All')" ConnectionID="connP3CRM-CRM" />
+            <DataTableColumn ID="colCampaign" Header="Campaign" Class="ThemeAlignCenter">
+              <Label Caption="@Data.ActivityDescription~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colRollover" Header="Rollover" Class="ThemeAlignCenter">
+              <Label Caption="@Data.RolloverTasks~" Format="#,##0" />
+            </DataTableColumn>
+            <DataTableColumn ID="colCreated" Header="Created" Class="ThemeAlignCenter">
+              <Label Caption="@Data.CreatedTasks~" Format="#,##0" />
+            </DataTableColumn>
+            <DataTableColumn Header="Worked" ID="colCompleted" Class="ThemeAlignCenter">
+              <Label Caption="@Data.ClosedTasks~" Format="#,##0" />
+            </DataTableColumn>
+            <DataTableColumn Header="Not Worked" ID="colSystemCompleted" Class="ThemeAlignCenter">
+              <Label Caption="@Data.LostTasks~" Format="#,##0" />
+            </DataTableColumn>
+          </DataTable>
+        </Column>
+      </Row>
+    </Rows>
+    <Rows Class="gdDefaultRowBground">
+      <Row Class="gdReportHeader" ShowModes="NotEmailSub">
+        <Column ID="colHeader" ColSpan="3">
+          <Label Caption="Rep Summary" Class="ThemeTextSmall" IdeDisplayStatus="Collapsed">
+            <Action Type="Link" ID="actLinkRepSummary">
+              <Target Type="Link" ID="tgtrpt" Link="@Function.AppVirtualPath~?rdReport=PMG.IndiaC3Reporting.RepSummary" />
+            </Action>
+          </Label>
+          <Label Caption=" | " Class="ThemeTextSmall" />
+          <Label Caption="Daily Summary" Class="ThemeTextSmall" IdeDisplayStatus="Collapsed">
+            <Action Type="Link" ID="actLinkDailySummary">
+              <Target Type="Link" ID="tgtrpt" Link="@Function.AppVirtualPath~?rdReport=PMG.IndiaC3Reporting.DailySummary" />
+            </Action>
+          </Label>
+          <Label Caption=" | " Class="ThemeTextSmall" />
+          <Label Caption="Daily Tasks" Class="ThemeTextSmall" IdeDisplayStatus="Collapsed">
+            <Action Type="Link" ID="actLinkAdHocSales">
+              <Target Type="Link" ID="tgtrpt" Link="@Function.AppVirtualPath~?rdReport=PMG.IndiaC3Reporting.DailyTasks" />
+            </Action>
+          </Label>
+          <Label Caption=" | " Class="ThemeTextSmall" />
+          <Label Caption="Ad Hoc Sales" Class="ThemeTextSmall" IdeDisplayStatus="Collapsed">
+            <Action Type="Link" ID="actLinkAdHocSales">
+              <Target Type="Link" ID="tgtrpt" Link="@Function.AppVirtualPath~?rdReport=PMG.IndiaC3Reporting.AdHocOrders" />
+            </Action>
+          </Label>
+        </Column>
+      </Row>
+      <Row Class="gdReportHeader">
+        <Column ID="colHeader" ColSpan="3">
+          <Label Caption="India Outbound Sales - Daily Summary" Class="gdReportHeaderNameBI" />
+        </Column>
+      </Row>
+      <Row Class="gdReportHeader" ShowModes="NotEmailSub">
+        <Column ID="colHeader" ColSpan="3">
+          <Spaces Size="3" />
+          <InputDate ID="rptStartDate" Caption="Start Date:" DefaultValue="@Request.rptStartDate~" CaptionClass="rdAlternateTextColorWhite">
+            <InputDateCalendar ID="calStartDate" />
+          </InputDate>
+          <Spaces Size="3" />
+          <InputDate ID="rptEndDate" Caption="End Date:" DefaultValue="@Request.rptEndDate~" CaptionClass="rdAlternateTextColorWhite">
+            <InputDateCalendar ID="calEndDate" />
+          </InputDate>
+          <Spaces Size="3" />
+          <InputSelectList ID="CampaignName" OptionValueColumn="Name" OptionCaptionColumn="Name" DefaultValue="@Request.CampaignName~" IncludeBlank="True" IncludeBlankCaption="All" IncludeBlankValue="All" Caption="Campaign:">
+            <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;USE goDaddyCalls&#xD;&#xA;&#xD;&#xA;DECLARE @StartDate datetime = '@Request.rptStartDate~',&#xD;&#xA;		@EndDate datetime = '@Request.rptEndDate~'&#xD;&#xA;		&#xD;&#xA;DECLARE @IndianOffSetMinutes Int SELECT @IndianOffSetMinutes =( 12 * 60 + 30)&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#tasks') IS NOT NULL DROP TABLE #tasks;&#xD;&#xA;CREATE TABLE #tasks (crm_callHeaderAuditID int, crm_callHeaderID int, crm_ActivityTypeID int, CreateDate datetime, IndiaDate datetime&#xD;&#xA;					 ,Manager_userID int, TaskActionID int, Shopper_id varchar(10)) &#xD;&#xA;INSERT INTO #tasks				 &#xD;&#xA;SELECT crm_callHeaderAuditID&#xD;&#xA;		  ,crm_callHeaderID&#xD;&#xA;		  ,crm_ActivityTypeID&#xD;&#xA;		  ,cha.CreateDate&#xD;&#xA;		  ,DATEADD(minute,@IndianOffSetMinutes, cha.createDate)  AS IndiaDate		  &#xD;&#xA;		  ,Manager_UserID&#xD;&#xA;		  ,TaskActionID&#xD;&#xA;		  ,Shopper_id&#xD;&#xA;FROM	dbo.rptGenpactCallHeaderAudit  cha&#xD;&#xA;WHERE	cha.createDate &gt; = DATEADD(minute, -@IndianOffSetMinutes, @StartDate) &#xD;&#xA;AND		cha.createDate &lt;  DATEADD(minute, -@IndianOffSetMinutes, @EndDate) &#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT  DISTINCT cmp.Name &#xD;&#xA;FROM    #tasks t&#xD;&#xA;JOIN	dbo.rptDimC3Campaign cmp ON t.crm_ActivityTypeID = cmp.C3CampaignID&#xD;&#xA;ORDER BY cmp.Name " ID="dlCampaignName" ConnectionID="connM1BIG-biLogiReporting" />
+          </InputSelectList>
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtCurrentReport" Report="PMG.IndiaC3Reporting.DailySummary" RequestForwarding="True">
+                <WaitPage Caption="Updating Data..." />
+              </Target>
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+      <Row ID="rowOne">
+        <Column ID="colContactsByDate" Class="gdColumnCell">
+          <Division ID="divContactsByDate">
+            <DataTable ID="dtContactsByDate" CellSpacing="5 px" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="gdTableHeader" CaptionClass="gdColumnCellTitle">
+              <DataLayer Type="Cached" ID="dlIndiaOutboundMetricsByDate.Cached" CacheKey="ByDate,@Request.rdReport~,@Request.rptStartDate~,@Request.rptEndDate~,@Request.CampaignName~" ExpirationTimeSpan="04:00" ExpirationNow="False">
+                <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;USE goDaddyCalls&#xD;&#xA;&#xD;&#xA;DECLARE @StartDate datetime = '@Request.rptStartDate~',&#xD;&#xA;		@EndDate datetime = '@Request.rptEndDate~'&#xD;&#xA;		&#xD;&#xA;DECLARE @IndianOffSetMinutes Int SELECT @IndianOffSetMinutes =( 12 * 60 + 30)&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#tasks') IS NOT NULL DROP TABLE #tasks;&#xD;&#xA;CREATE TABLE #tasks (crm_callHeaderAuditID int, crm_callHeaderID int, crm_ActivityTypeID int, CreateDate datetime, IndiaDate datetime&#xD;&#xA;					 ,Manager_userID int, TaskActionID int, Shopper_id varchar(10)) &#xD;&#xA;INSERT INTO #tasks				 &#xD;&#xA;SELECT crm_callHeaderAuditID&#xD;&#xA;		  ,crm_callHeaderID&#xD;&#xA;		  ,crm_ActivityTypeID&#xD;&#xA;		  ,cha.CreateDate&#xD;&#xA;		  ,DATEADD(minute,@IndianOffSetMinutes, cha.createDate)  AS IndiaDate		  &#xD;&#xA;		  ,Manager_UserID&#xD;&#xA;		  ,TaskActionID&#xD;&#xA;		  ,Shopper_id&#xD;&#xA;FROM	dbo.rptGenpactCallHeaderAudit  cha&#xD;&#xA;WHERE	cha.createDate &gt; = DATEADD(minute, -@IndianOffSetMinutes, @StartDate) &#xD;&#xA;AND		cha.createDate &lt;  DATEADD(minute, -@IndianOffSetMinutes, @EndDate) &#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#taskActions') IS NOT NULL DROP TABLE #taskActions;  &#xD;&#xA;CREATE TABLE #taskActions (TaskActionID int,TaskActionDescription varchar(50), isContact int, isVoicemail int, isWorked int)&#xD;&#xA;INSERT INTO #taskActions VALUES &#xD;&#xA;(1,	'ContactedCustomer', 1, 0, 1) ,&#xD;&#xA;(2,	'PhoneMessage', 0, 1, 1) , &#xD;&#xA;(6,	'CustomerUnavailable', 0, 0, 1) ,&#xD;&#xA;(7,	'PhoneBusy', 0, 0, 1) ,&#xD;&#xA;(8,	'CancelTask', 0, 0, 0) ,&#xD;&#xA;(11,'DeclinedToProcess', 0, 0, 1) ,&#xD;&#xA;(14,'InvalidContactInformation', 0, 0, 1) ,&#xD;&#xA;(41,'Automated Voicemail', 0, 1, 1) ,&#xD;&#xA;(43,'Reschedule', 0, 0, 0) &#xD;&#xA;&#xD;&#xA;--Get the orders related to contacts, ranking so that I can limit to the closest contact in timing&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#orderRankings') IS NOT NULL DROP TABLE #orderRankings;&#xD;&#xA;CREATE TABLE #orderRankings (crm_callHeaderAuditID int, Order_id varchar(20), row_id int, pf_id int, point_of_purchase_ID int&#xD;&#xA;				,  order_Date datetime, createDate datetime, TimingOffsetRank int&#xD;&#xA;				,  Sales money) &#xD;&#xA;INSERT INTO #orderRankings&#xD;&#xA;SELECT  crm_callHeaderAuditID, Order_id, row_id, pf_id, point_of_purchase_ID,  order_Date&#xD;&#xA;		, t.createDate&#xD;&#xA;		,DENSE_RANK() OVER (PARTITION BY Order_id, Row_id ORDER BY ABS(DATEDIFF(second,order_Date,t.createDate)) ASC) AS TimingOffsetRank&#xD;&#xA;		, adjusted_price * .01&#xD;&#xA;FROM    #tasks t &#xD;&#xA;JOIN	BigReporting.dbo.rptorderdetail rod ON t.Shopper_id = rod.Shopper_id&#xD;&#xA;				AND rod.order_date &gt; = DATEADD(hour,-2,t.createDate)&#xD;&#xA;				AND rod.order_date &lt; DATEADD(hour,24,t.CreateDate)&#xD;&#xA;JOIN	#taskActions ta ON t.TaskActionID = ta.TaskActionID	&#xD;&#xA;				AND ta.isContact = 1			&#xD;&#xA;WHERE	rod.point_of_purchase_id IN (1,3)&#xD;&#xA;	&#xD;&#xA;SELECT  DATEADD(D,(DATEDIFF(d,-1,t.IndiaDate)),-1) as IndiaDate&#xD;&#xA;		, COUNT(DISTINCT t.crm_callHeaderAuditID) as  Dials&#xD;&#xA;		--, COUNT(DISTINCT crm_callHeaderID) as  Tasks&#xD;&#xA;		, SUM(ta.isContact) as Contacts&#xD;&#xA;		, SUM(ta.isVoicemail) as Voicemails&#xD;&#xA;		, COUNT(DISTINCT ork.order_id) as Orders&#xD;&#xA;		, ISNULL(SUM(Sales),0) as Sales&#xD;&#xA;		, ISNULL(SUM(CASE WHEN dp.New_Renewal = 'New Purchase' THEN Sales ELSE 0 END),0) as NewSales&#xD;&#xA;FROM    #tasks t&#xD;&#xA;JOIN	dbo.rptDimC3Campaign cmp ON t.crm_ActivityTypeID = cmp.C3CampaignID&#xD;&#xA;LEFT JOIN #taskActions ta ON t.TaskActionID = ta.TaskActionID&#xD;&#xA;LEFT JOIN #orderRankings ork ON t.crm_callHeaderAuditID = ork.crm_callHeaderAuditID&#xD;&#xA;				AND ork.TimingOffsetRank = 1&#xD;&#xA;LEFT JOIN  dmstaging.dbo.dim_product dp ON ork.pf_id = dp.pf_id	&#xD;&#xA;JOIN  gdreportStaging.dbo.manager_users mu ON t.Manager_userID = mu.ID&#xD;&#xA;				AND AccountTypeID &lt;&gt; 1&#xD;&#xA;WHERE (cmp.Name = '@Request.CampaignName~' OR '@Request.CampaignName~' = 'All')&#xD;&#xA;GROUP BY DATEADD(D,(DATEDIFF(d,-1,t.IndiaDate)),-1)" ID="dlIndiaOutboundMetricsByDate" ConnectionID="connM1BIG-biLogiReporting">
+                  <AggregateColumn AggregateColumn="Dials" AggregateFunction="Sum" ID="aggDials" />
+                  <AggregateColumn AggregateColumn="Contacts" AggregateFunction="Sum" ID="aggContacts" />
+                  <AggregateColumn AggregateColumn="Orders" AggregateFunction="Sum" ID="aggOrders" />
+                  <AggregateColumn AggregateColumn="Sales" AggregateFunction="Sum" ID="aggSales" />
+                  <AggregateColumn AggregateColumn="NewSales" AggregateFunction="Sum" ID="aggNewSales" />
+                </DataLayer>
+                <CalculatedColumn ID="calcAggContactRate" Formula="@Data.aggContacts~ / @Data.aggDials~" />
+                <CalculatedColumn Formula="@Data.Contacts~ / @Data.Dials~" ID="calcContactRate" />
+                <SortFilter SortColumn="IndiaDate" SortSequence="Descending" />
+              </DataLayer>
+              <DataTableColumn ID="colDate" Header="Date">
+                <Label Caption="@Data.IndiaDate~" Format="Short Date" />
+              </DataTableColumn>
+              <DataTableColumn ID="colDials" Header="Dials" Class="ThemeAlignRight">
+                <Label Caption="@Data.Dials~" Format="#,##0" />
+                <DataColumnSummary DataColumn="Dials" Function="Sum" ID="sumDials" />
+              </DataTableColumn>
+              <DataTableColumn ID="colContacts" Header="Contacts" Class="ThemeAlignRight">
+                <Label Caption="@Data.Contacts~" Format="#,##0" />
+                <DataColumnSummary DataColumn="Contacts" Function="Sum" ID="sumContacts" />
+              </DataTableColumn>
+              <DataTableColumn ID="colContactRate" Header="Contact Rate" Class="ThemeAlignRight">
+                <Label Caption="@Data.calcContactRate~" Format="Percent" />
+                <DataColumnSummary Function="Max" ID="sumAggContactRate" DataColumn="calcAggContactRate" />
+              </DataTableColumn>
+              <DataTableColumn ID="colVoicemails" Header="Voicemails" Class="ThemeAlignRight">
+                <Label Caption="@Data.Voicemails~" Format="#,##0" />
+                <DataColumnSummary DataColumn="Voicemails" Function="Sum" ID="sumVoicemails" />
+              </DataTableColumn>
+              <SummaryRow ID="srTotals" Caption="Totals: " Class="ThemeBold">
+                <Column Class="ThemeAlignCenter">
+                  <Label Caption="Totals: " />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumDials~" Format="#,##0" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumContacts~" Format="#,##0" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumAggContactRate~" Format="Percent" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumVoicemails~" Format="#,##0" />
+                </Column>
+              </SummaryRow>
+            </DataTable>
+          </Division>
+        </Column>
+        <Column ID="colSalesByDate" Class="gdColumnCell">
+          <Division ID="divSalesByDate">
+            <DataTable ID="dtSalesByDate" CellSpacing="5 px" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="gdTableHeader" CaptionClass="gdColumnCellTitle">
+              <DataLayer Type="Cached" ID="dlIndiaOutboundMetricsByDate.Cached" CacheKey="ByDate,@Request.rdReport~,@Request.rptStartDate~,@Request.rptEndDate~,@Request.CampaignName~" ExpirationTimeSpan="04:00" ExpirationNow="False">
+                <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;USE goDaddyCalls&#xD;&#xA;&#xD;&#xA;DECLARE @StartDate datetime = '@Request.rptStartDate~',&#xD;&#xA;		@EndDate datetime = '@Request.rptEndDate~'&#xD;&#xA;		&#xD;&#xA;DECLARE @IndianOffSetMinutes Int SELECT @IndianOffSetMinutes =( 12 * 60 + 30)&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#tasks') IS NOT NULL DROP TABLE #tasks;&#xD;&#xA;CREATE TABLE #tasks (crm_callHeaderAuditID int, crm_callHeaderID int, crm_ActivityTypeID int, CreateDate datetime, IndiaDate datetime&#xD;&#xA;					 ,Manager_userID int, TaskActionID int, Shopper_id varchar(10)) &#xD;&#xA;INSERT INTO #tasks				 &#xD;&#xA;SELECT crm_callHeaderAuditID&#xD;&#xA;		  ,crm_callHeaderID&#xD;&#xA;		  ,crm_ActivityTypeID&#xD;&#xA;		  ,cha.CreateDate&#xD;&#xA;		  ,DATEADD(minute,@IndianOffSetMinutes, cha.createDate)  AS IndiaDate		  &#xD;&#xA;		  ,Manager_UserID&#xD;&#xA;		  ,TaskActionID&#xD;&#xA;		  ,Shopper_id&#xD;&#xA;FROM	dbo.rptGenpactCallHeaderAudit  cha&#xD;&#xA;WHERE	cha.createDate &gt; = DATEADD(minute, -@IndianOffSetMinutes, @StartDate) &#xD;&#xA;AND		cha.createDate &lt;  DATEADD(minute, -@IndianOffSetMinutes, @EndDate) &#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#taskActions') IS NOT NULL DROP TABLE #taskActions;  &#xD;&#xA;CREATE TABLE #taskActions (TaskActionID int,TaskActionDescription varchar(50), isContact int, isVoicemail int, isWorked int)&#xD;&#xA;INSERT INTO #taskActions VALUES &#xD;&#xA;(1,	'ContactedCustomer', 1, 0, 1) ,&#xD;&#xA;(2,	'PhoneMessage', 0, 1, 1) , &#xD;&#xA;(6,	'CustomerUnavailable', 0, 0, 1) ,&#xD;&#xA;(7,	'PhoneBusy', 0, 0, 1) ,&#xD;&#xA;(8,	'CancelTask', 0, 0, 0) ,&#xD;&#xA;(11,'DeclinedToProcess', 0, 0, 1) ,&#xD;&#xA;(14,'InvalidContactInformation', 0, 0, 1) ,&#xD;&#xA;(41,'Automated Voicemail', 0, 1, 1) ,&#xD;&#xA;(43,'Reschedule', 0, 0, 0) &#xD;&#xA;&#xD;&#xA;--Get the orders related to contacts, ranking so that I can limit to the closest contact in timing&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#orderRankings') IS NOT NULL DROP TABLE #orderRankings;&#xD;&#xA;CREATE TABLE #orderRankings (crm_callHeaderAuditID int, Order_id varchar(20), row_id int, pf_id int, point_of_purchase_ID int&#xD;&#xA;				,  order_Date datetime, createDate datetime, TimingOffsetRank int&#xD;&#xA;				,  Sales money) &#xD;&#xA;INSERT INTO #orderRankings&#xD;&#xA;SELECT  crm_callHeaderAuditID, Order_id, row_id, pf_id, point_of_purchase_ID,  order_Date&#xD;&#xA;		, t.createDate&#xD;&#xA;		,DENSE_RANK() OVER (PARTITION BY Order_id, Row_id ORDER BY ABS(DATEDIFF(second,order_Date,t.createDate)) ASC) AS TimingOffsetRank&#xD;&#xA;		, adjusted_price * .01&#xD;&#xA;FROM    #tasks t &#xD;&#xA;JOIN	BigReporting.dbo.rptorderdetail rod ON t.Shopper_id = rod.Shopper_id&#xD;&#xA;				AND rod.order_date &gt; = DATEADD(hour,-2,t.createDate)&#xD;&#xA;				AND rod.order_date &lt; DATEADD(hour,24,t.CreateDate)&#xD;&#xA;JOIN	#taskActions ta ON t.TaskActionID = ta.TaskActionID	&#xD;&#xA;				AND ta.isContact = 1			&#xD;&#xA;WHERE	rod.point_of_purchase_id IN (1,3)&#xD;&#xA;	&#xD;&#xA;SELECT  DATEADD(D,(DATEDIFF(d,-1,t.IndiaDate)),-1) as IndiaDate&#xD;&#xA;		, COUNT(DISTINCT t.crm_callHeaderAuditID) as  Dials&#xD;&#xA;		--, COUNT(DISTINCT crm_callHeaderID) as  Tasks&#xD;&#xA;		, SUM(ta.isContact) as Contacts&#xD;&#xA;		, SUM(ta.isVoicemail) as Voicemails&#xD;&#xA;		, COUNT(DISTINCT ork.order_id) as Orders&#xD;&#xA;		, ISNULL(SUM(Sales),0) as Sales&#xD;&#xA;		, ISNULL(SUM(CASE WHEN dp.New_Renewal = 'New Purchase' THEN Sales ELSE 0 END),0) as NewSales&#xD;&#xA;FROM    #tasks t&#xD;&#xA;JOIN	dbo.rptDimC3Campaign cmp ON t.crm_ActivityTypeID = cmp.C3CampaignID&#xD;&#xA;LEFT JOIN #taskActions ta ON t.TaskActionID = ta.TaskActionID&#xD;&#xA;LEFT JOIN #orderRankings ork ON t.crm_callHeaderAuditID = ork.crm_callHeaderAuditID&#xD;&#xA;				AND ork.TimingOffsetRank = 1&#xD;&#xA;LEFT JOIN  dmstaging.dbo.dim_product dp ON ork.pf_id = dp.pf_id	&#xD;&#xA;JOIN  gdreportStaging.dbo.manager_users mu ON t.Manager_userID = mu.ID&#xD;&#xA;				AND AccountTypeID &lt;&gt; 1&#xD;&#xA;WHERE (cmp.Name = '@Request.CampaignName~' OR '@Request.CampaignName~' = 'All')&#xD;&#xA;GROUP BY DATEADD(D,(DATEDIFF(d,-1,t.IndiaDate)),-1)" ID="dlIndiaOutboundMetricsByDate" ConnectionID="connM1BIG-biLogiReporting">
+                  <AggregateColumn AggregateColumn="Dials" AggregateFunction="Sum" ID="aggDials" />
+                  <AggregateColumn AggregateColumn="Contacts" AggregateFunction="Sum" ID="aggContacts" />
+                  <AggregateColumn AggregateColumn="Orders" AggregateFunction="Sum" ID="aggOrders" />
+                  <AggregateColumn AggregateColumn="Sales" AggregateFunction="Sum" ID="aggSales" />
+                  <AggregateColumn AggregateColumn="NewSales" AggregateFunction="Sum" ID="aggNewSales" />
+                </DataLayer>
+                <CalculatedColumn ID="calcConversionRate" Formula="@Data.Orders~ / @Data.Contacts~" />
+                <CalculatedColumn ID="calcSalesDial" Formula="@Data.Sales~ / @Data.Dials~" />
+                <CalculatedColumn ID="calcNewSalesDial" Formula="@Data.NewSales~ / @Data.Dials~" />
+                <CalculatedColumn ID="calcPercNew" Formula="@Data.NewSales~ / @Data.Sales~" />
+                <CalculatedColumn ID="calcAggConversionRate" Formula="@Data.aggOrders~ / @Data.aggContacts~" />
+                <CalculatedColumn ID="calcAggSalesDial" Formula="@Data.aggSales~ / @Data.aggDials~" />
+                <CalculatedColumn ID="calcAggNewSalesDial" Formula="@Data.aggNewSales~ / @Data.aggDials~" />
+                <CalculatedColumn ID="calcAggPercNew" Formula="@Data.aggNewSales~ / @Data.aggSales~" />
+                <SortFilter SortColumn="IndiaDate" SortSequence="Descending" />
+              </DataLayer>
+              <DataTableColumn ID="colOrders" Header="Orders" Class="ThemeAlignRight">
+                <Label Caption="@Data.Orders~" Format="#,##0" />
+                <DataColumnSummary ID="sumOrders" Function="Sum" DataColumn="Orders" />
+              </DataTableColumn>
+              <DataTableColumn ID="colConversionRate" Header="Conv Rate" Class="ThemeAlignRight">
+                <Label Caption="@Data.calcConversionRate~" Format="Percent" />
+                <DataColumnSummary ID="sumAggConversionRate" Function="Max" DataColumn="calcAggConversionRate" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSales" Header="GCR" Class="ThemeAlignRight">
+                <Label Caption="@Data.Sales~" Format="Currency" />
+                <DataColumnSummary ID="sumSales" Function="Sum" DataColumn="Sales" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSalesDial" Header="GCR/Dial" Class="ThemeAlignRight">
+                <Label Caption="@Data.calcSalesDial~" Format="Currency" />
+                <DataColumnSummary ID="sumAggSalesDial" DataColumn="calcAggSalesDial" Function="Max" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewSales" Header="New GCR" Class="ThemeAlignRight">
+                <Label Caption="@Data.NewSales~" Format="Currency" />
+                <DataColumnSummary DataColumn="NewSales" Function="Sum" ID="sumNewSales" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewSalesDial" Header="New GCR/Dial" Class="ThemeAlignRight">
+                <Label Caption="@Data.calcNewSalesDial~" Format="Currency" />
+                <DataColumnSummary ID="sumAggNewSalesDial" Function="Max" DataColumn="calcAggNewSalesDial" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPercNew" Header="% New GCR" Class="ThemeAlignRight">
+                <Label Caption="@Data.calcPercNew~" Format="Percent" />
+                <DataColumnSummary ID="sumAggPercNew" Function="Max" DataColumn="calcAggPercNew" />
+              </DataTableColumn>
+              <SummaryRow ID="srTotals" Caption="Totals: " Class="ThemeBold">
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumOrders~" Format="#,##0" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumAggConversionRate~" Format="Percent" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumSales~" Format="$#,##0" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumAggSalesDial~" Format="Currency" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumNewSales~" Format="$#,##0" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumAggNewSalesDial~" Format="Currency" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumAggPercNew~" Format="Percent" />
+                </Column>
+              </SummaryRow>
+            </DataTable>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <Rows Class="gdDefaultRowBground">
+      <Row Class="gdReportHeader" ShowModes="NotEmailSub">
+        <Column ColSpan="3">
+          <Label Caption="Rep Summary" Class="ThemeTextSmall" IdeDisplayStatus="Collapsed">
+            <Action Type="Link" ID="actLinkRepSummary">
+              <Target Type="Link" ID="tgtrpt" Link="@Function.AppVirtualPath~?rdReport=PMG.IndiaC3Reporting.RepSummary" />
+            </Action>
+          </Label>
+          <Label Caption=" | " Class="ThemeTextSmall" />
+          <Label Caption="Daily Summary" Class="ThemeTextSmall" IdeDisplayStatus="Collapsed">
+            <Action Type="Link" ID="actLinkDailySummary">
+              <Target Type="Link" ID="tgtrpt" Link="@Function.AppVirtualPath~?rdReport=PMG.IndiaC3Reporting.DailySummary" />
+            </Action>
+          </Label>
+          <Label Caption=" | " Class="ThemeTextSmall" />
+          <Label Caption="Daily Tasks" Class="ThemeTextSmall" IdeDisplayStatus="Collapsed">
+            <Action Type="Link" ID="actLinkAdHocSales">
+              <Target Type="Link" ID="tgtrpt" Link="@Function.AppVirtualPath~?rdReport=PMG.IndiaC3Reporting.DailyTasks" />
+            </Action>
+          </Label>
+          <Label Caption=" | " Class="ThemeTextSmall" />
+          <Label Caption="Ad Hoc Sales" Class="ThemeTextSmall" IdeDisplayStatus="Collapsed">
+            <Action Type="Link" ID="actLinkAdHocSales">
+              <Target Type="Link" ID="tgtrpt" Link="@Function.AppVirtualPath~?rdReport=PMG.IndiaC3Reporting.AdHocOrders" />
+            </Action>
+          </Label>
+        </Column>
+      </Row>
+      <Row Class="gdReportHeader">
+        <Column ColSpan="3">
+          <Label Caption="India Outbound Sales - Rep Summary" Class="gdReportHeaderNameBI" />
+        </Column>
+      </Row>
+      <Row Class="gdReportHeader" ShowModes="NotEmailSub">
+        <Column ColSpan="3">
+          <Spaces Size="3" />
+          <InputDate ID="rptStartDate" Caption="Start Date:" DefaultValue="@Request.rptStartDate~" CaptionClass="rdAlternateTextColorWhite">
+            <InputDateCalendar ID="calStartDate" />
+          </InputDate>
+          <Spaces Size="3" />
+          <InputDate ID="rptEndDate" Caption="End Date:" DefaultValue="@Request.rptEndDate~" CaptionClass="rdAlternateTextColorWhite">
+            <InputDateCalendar ID="calEndDate" />
+          </InputDate>
+          <Spaces Size="3" />
+          <InputSelectList ID="CampaignName" OptionValueColumn="Name" OptionCaptionColumn="Name" DefaultValue="@Request.CampaignName~" IncludeBlank="True" IncludeBlankCaption="All" IncludeBlankValue="All" Caption="Campaign:">
+            <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;USE goDaddyCalls&#xD;&#xA;&#xD;&#xA;DECLARE @StartDate datetime = '@Request.rptStartDate~',&#xD;&#xA;		@EndDate datetime = '@Request.rptEndDate~'&#xD;&#xA;		&#xD;&#xA;DECLARE @IndianOffSetMinutes Int SELECT @IndianOffSetMinutes =( 12 * 60 + 30)&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#tasks') IS NOT NULL DROP TABLE #tasks;&#xD;&#xA;CREATE TABLE #tasks (crm_callHeaderAuditID int, crm_callHeaderID int, crm_ActivityTypeID int, CreateDate datetime, IndiaDate datetime&#xD;&#xA;					 ,Manager_userID int, TaskActionID int, Shopper_id varchar(10)) &#xD;&#xA;INSERT INTO #tasks				 &#xD;&#xA;SELECT crm_callHeaderAuditID&#xD;&#xA;		  ,crm_callHeaderID&#xD;&#xA;		  ,crm_ActivityTypeID&#xD;&#xA;		  ,cha.CreateDate&#xD;&#xA;		  ,DATEADD(minute,@IndianOffSetMinutes, cha.createDate)  AS IndiaDate		  &#xD;&#xA;		  ,Manager_UserID&#xD;&#xA;		  ,TaskActionID&#xD;&#xA;		  ,Shopper_id&#xD;&#xA;FROM	dbo.rptGenpactCallHeaderAudit  cha&#xD;&#xA;WHERE	cha.createDate &gt; = DATEADD(minute, -@IndianOffSetMinutes, @StartDate) &#xD;&#xA;AND		cha.createDate &lt;  DATEADD(minute, -@IndianOffSetMinutes, @EndDate) &#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT  DISTINCT cmp.Name &#xD;&#xA;FROM    #tasks t&#xD;&#xA;JOIN	dbo.rptDimC3Campaign cmp ON t.crm_ActivityTypeID = cmp.C3CampaignID&#xD;&#xA;ORDER BY cmp.Name " ID="dlCampaignName" ConnectionID="connM1BIG-biLogiReporting" />
+          </InputSelectList>
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtCurrentReport" Report="PMG.IndiaC3Reporting.RepSummary" RequestForwarding="True">
+                <WaitPage Caption="Updating Data..." />
+              </Target>
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+      <Row ID="rowOne">
+        <Column ID="colContactsByRep" Class="gdColumnCell">
+          <Division ID="divContactsByRep">
+            <DataTable ID="dtContactsByRep" CellSpacing="5 px" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="gdTableHeader" CaptionClass="gdColumnCellTitle">
+              <DataLayer Type="Cached" ID="dlIndiaOutboundMetricsByRep.Cached" ExpirationNow="False" ExpirationTimeSpan="04:00" CacheKey="ByRep,@Request.rdReport~,@Request.rptStartDate~,@Request.rptEndDate~,@Request.CampaignName~">
+                <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;USE goDaddyCalls&#xD;&#xA;&#xD;&#xA;DECLARE @StartDate datetime = '@Request.rptStartDate~',&#xD;&#xA;		@EndDate datetime = '@Request.rptEndDate~'&#xD;&#xA;		&#xD;&#xA;DECLARE @IndianOffSetMinutes Int SELECT @IndianOffSetMinutes =( 12 * 60 + 30)&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#tasks') IS NOT NULL DROP TABLE #tasks;&#xD;&#xA;CREATE TABLE #tasks (crm_callHeaderAuditID int, crm_callHeaderID int, crm_ActivityTypeID int, CreateDate datetime, IndiaDate datetime&#xD;&#xA;					 ,Manager_userID int, TaskActionID int, Shopper_id varchar(10)) &#xD;&#xA;INSERT INTO #tasks				 &#xD;&#xA;SELECT crm_callHeaderAuditID&#xD;&#xA;		  ,crm_callHeaderID&#xD;&#xA;		  ,crm_ActivityTypeID&#xD;&#xA;		  ,cha.CreateDate&#xD;&#xA;		  ,DATEADD(minute,@IndianOffSetMinutes, cha.createDate)  AS IndiaDate		  &#xD;&#xA;		  ,Manager_UserID&#xD;&#xA;		  ,TaskActionID&#xD;&#xA;		  ,Shopper_id&#xD;&#xA;FROM	dbo.rptGenpactCallHeaderAudit  cha&#xD;&#xA;WHERE	cha.createDate &gt; = DATEADD(minute, -@IndianOffSetMinutes, @StartDate) &#xD;&#xA;AND		cha.createDate &lt;  DATEADD(minute, -@IndianOffSetMinutes, @EndDate) &#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#taskActions') IS NOT NULL DROP TABLE #taskActions;  &#xD;&#xA;CREATE TABLE #taskActions (TaskActionID int,TaskActionDescription varchar(50), isContact int, isVoicemail int, isWorked int)&#xD;&#xA;INSERT INTO #taskActions VALUES &#xD;&#xA;(1,	'ContactedCustomer', 1, 0, 1) ,&#xD;&#xA;(2,	'PhoneMessage', 0, 1, 1) , &#xD;&#xA;(6,	'CustomerUnavailable', 0, 0, 1) ,&#xD;&#xA;(7,	'PhoneBusy', 0, 0, 1) ,&#xD;&#xA;(8,	'CancelTask', 0, 0, 0) ,&#xD;&#xA;(11,'DeclinedToProcess', 0, 0, 1) ,&#xD;&#xA;(14,'InvalidContactInformation', 0, 0, 1) ,&#xD;&#xA;(41,'Automated Voicemail', 0, 1, 1) ,&#xD;&#xA;(43,'Reschedule', 0, 0, 0) &#xD;&#xA;&#xD;&#xA;--Get the orders related to contacts, ranking so that I can limit to the closest contact in timing&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#orderRankings') IS NOT NULL DROP TABLE #orderRankings;&#xD;&#xA;CREATE TABLE #orderRankings (crm_callHeaderAuditID int, Order_id varchar(20), row_id int, pf_id int, point_of_purchase_ID int&#xD;&#xA;				,  order_Date datetime, createDate datetime, TimingOffsetRank int&#xD;&#xA;				,  Sales money) &#xD;&#xA;INSERT INTO #orderRankings&#xD;&#xA;SELECT  crm_callHeaderAuditID, Order_id, row_id, pf_id, point_of_purchase_ID,  order_Date&#xD;&#xA;		, t.createDate&#xD;&#xA;		,DENSE_RANK() OVER (PARTITION BY Order_id, Row_id ORDER BY ABS(DATEDIFF(second,order_Date,t.createDate)) ASC) AS TimingOffsetRank&#xD;&#xA;		, adjusted_price * .01&#xD;&#xA;FROM    #tasks t &#xD;&#xA;JOIN	BigReporting.dbo.rptorderdetail rod ON t.Shopper_id = rod.Shopper_id&#xD;&#xA;				AND rod.order_date &gt; = DATEADD(hour,-2,t.createDate)&#xD;&#xA;				AND rod.order_date &lt; DATEADD(hour,24,t.CreateDate)&#xD;&#xA;JOIN	#taskActions ta ON t.TaskActionID = ta.TaskActionID	&#xD;&#xA;				AND ta.isContact = 1			&#xD;&#xA;WHERE	rod.point_of_purchase_id IN (1,3)&#xD;&#xA;	&#xD;&#xA;SELECT  mu.Name&#xD;&#xA;		, COUNT(DISTINCT t.crm_callHeaderAuditID) as  Dials&#xD;&#xA;		--, COUNT(DISTINCT crm_callHeaderID) as  Tasks&#xD;&#xA;		, SUM(ta.isContact) as Contacts&#xD;&#xA;		, SUM(ta.isVoicemail) as Voicemails&#xD;&#xA;		, COUNT(DISTINCT ork.order_id) as Orders&#xD;&#xA;		, ISNULL(SUM(Sales),0) as Sales&#xD;&#xA;		, ISNULL(SUM(CASE WHEN dp.New_Renewal = 'New Purchase' THEN Sales ELSE 0 END),0) as NewSales&#xD;&#xA;FROM    #tasks t&#xD;&#xA;JOIN	dbo.rptDimC3Campaign cmp ON t.crm_ActivityTypeID = cmp.C3CampaignID&#xD;&#xA;LEFT JOIN #taskActions ta ON t.TaskActionID = ta.TaskActionID&#xD;&#xA;LEFT JOIN #orderRankings ork ON t.crm_callHeaderAuditID = ork.crm_callHeaderAuditID&#xD;&#xA;				AND ork.TimingOffsetRank = 1&#xD;&#xA;LEFT JOIN  dmstaging.dbo.dim_product dp ON ork.pf_id = dp.pf_id	&#xD;&#xA;JOIN  gdreportStaging.dbo.manager_users mu ON t.Manager_userID = mu.ID&#xD;&#xA;				AND AccountTypeID &lt;&gt; 1&#xD;&#xA;WHERE (cmp.Name = '@Request.CampaignName~' OR '@Request.CampaignName~' = 'All')&#xD;&#xA;GROUP BY mu.Name" ID="dlIndiaOutboundMetricsByRep" ConnectionID="connM1BIG-biLogiReporting">
+                  <AggregateColumn AggregateColumn="Dials" AggregateFunction="Sum" ID="aggDials" />
+                  <AggregateColumn AggregateColumn="Contacts" AggregateFunction="Sum" ID="aggContacts" />
+                  <AggregateColumn AggregateColumn="Orders" AggregateFunction="Sum" ID="aggOrders" />
+                  <AggregateColumn AggregateColumn="Sales" AggregateFunction="Sum" ID="aggSales" />
+                  <AggregateColumn AggregateColumn="NewSales" AggregateFunction="Sum" ID="aggNewSales" />
+                </DataLayer>
+                <CalculatedColumn ID="calcAggContactRate" Formula="@Data.aggContacts~ / @Data.aggDials~" />
+                <CalculatedColumn Formula="@Data.Contacts~ / @Data.Dials~" ID="calcContactRate" />
+                <SortFilter SortColumn="Name" SortSequence="Ascending" />
+              </DataLayer>
+              <DataTableColumn ID="colName" Header="Rep Name">
+                <Label Caption="@Data.Name~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colDials" Header="Dials" Class="ThemeAlignRight">
+                <Label Caption="@Data.Dials~" Format="#,##0" />
+                <DataColumnSummary DataColumn="Dials" Function="Sum" ID="sumDials" />
+              </DataTableColumn>
+              <DataTableColumn ID="colContacts" Header="Contacts" Class="ThemeAlignRight">
+                <Label Caption="@Data.Contacts~" Format="#,##0" />
+                <DataColumnSummary DataColumn="Contacts" Function="Sum" ID="sumContacts" />
+              </DataTableColumn>
+              <DataTableColumn ID="colContactRate" Header="Contact Rate" Class="ThemeAlignRight">
+                <Label Caption="@Data.calcContactRate~" Format="Percent" />
+                <DataColumnSummary Function="Max" ID="sumAggContactRate" DataColumn="calcAggContactRate" />
+              </DataTableColumn>
+              <DataTableColumn ID="colVoicemails" Header="Voicemails" Class="ThemeAlignRight">
+                <Label Caption="@Data.Voicemails~" Format="#,##0" />
+                <DataColumnSummary DataColumn="Voicemails" Function="Sum" ID="sumVoicemails" />
+              </DataTableColumn>
+              <SummaryRow ID="srTotals" Caption="Totals: " Class="ThemeBold">
+                <Column Class="ThemeAlignCenter">
+                  <Label Caption="Totals: " />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumDials~" Format="#,##0" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumContacts~" Format="#,##0" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumAggContactRate~" Format="Percent" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumVoicemails~" Format="#,##0" />
+                </Column>
+              </SummaryRow>
+            </DataTable>
+          </Division>
+        </Column>
+        <Column ID="colSalesByRep" Class="gdColumnCell">
+          <Division ID="divSalesByRep">
+            <DataTable ID="dtSalesByRep" CellSpacing="5 px" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="gdTableHeader" CaptionClass="gdColumnCellTitle">
+              <DataLayer Type="Cached" ID="dlIndiaOutboundMetricsByRep.Cached" ExpirationNow="False" ExpirationTimeSpan="04:00" CacheKey="ByRep,@Request.rdReport~,@Request.rptStartDate~,@Request.rptEndDate~,@Request.CampaignName~">
+                <DataLayer Type="SQL" Source="SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;&#xD;&#xA;USE goDaddyCalls&#xD;&#xA;&#xD;&#xA;DECLARE @StartDate datetime = '@Request.rptStartDate~',&#xD;&#xA;		@EndDate datetime = '@Request.rptEndDate~'&#xD;&#xA;		&#xD;&#xA;DECLARE @IndianOffSetMinutes Int SELECT @IndianOffSetMinutes =( 12 * 60 + 30)&#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#tasks') IS NOT NULL DROP TABLE #tasks;&#xD;&#xA;CREATE TABLE #tasks (crm_callHeaderAuditID int, crm_callHeaderID int, crm_ActivityTypeID int, CreateDate datetime, IndiaDate datetime&#xD;&#xA;					 ,Manager_userID int, TaskActionID int, Shopper_id varchar(10)) &#xD;&#xA;INSERT INTO #tasks				 &#xD;&#xA;SELECT crm_callHeaderAuditID&#xD;&#xA;		  ,crm_callHeaderID&#xD;&#xA;		  ,crm_ActivityTypeID&#xD;&#xA;		  ,cha.CreateDate&#xD;&#xA;		  ,DATEADD(minute,@IndianOffSetMinutes, cha.createDate)  AS IndiaDate		  &#xD;&#xA;		  ,Manager_UserID&#xD;&#xA;		  ,TaskActionID&#xD;&#xA;		  ,Shopper_id&#xD;&#xA;FROM	dbo.rptGenpactCallHeaderAudit  cha&#xD;&#xA;WHERE	cha.createDate &gt; = DATEADD(minute, -@IndianOffSetMinutes, @StartDate) &#xD;&#xA;AND		cha.createDate &lt;  DATEADD(minute, -@IndianOffSetMinutes, @EndDate) &#xD;&#xA;&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#taskActions') IS NOT NULL DROP TABLE #taskActions;  &#xD;&#xA;CREATE TABLE #taskActions (TaskActionID int,TaskActionDescription varchar(50), isContact int, isVoicemail int, isWorked int)&#xD;&#xA;INSERT INTO #taskActions VALUES &#xD;&#xA;(1,	'ContactedCustomer', 1, 0, 1) ,&#xD;&#xA;(2,	'PhoneMessage', 0, 1, 1) , &#xD;&#xA;(6,	'CustomerUnavailable', 0, 0, 1) ,&#xD;&#xA;(7,	'PhoneBusy', 0, 0, 1) ,&#xD;&#xA;(8,	'CancelTask', 0, 0, 0) ,&#xD;&#xA;(11,'DeclinedToProcess', 0, 0, 1) ,&#xD;&#xA;(14,'InvalidContactInformation', 0, 0, 1) ,&#xD;&#xA;(41,'Automated Voicemail', 0, 1, 1) ,&#xD;&#xA;(43,'Reschedule', 0, 0, 0) &#xD;&#xA;&#xD;&#xA;--Get the orders related to contacts, ranking so that I can limit to the closest contact in timing&#xD;&#xA;IF OBJECT_ID('tempdb.dbo.#orderRankings') IS NOT NULL DROP TABLE #orderRankings;&#xD;&#xA;CREATE TABLE #orderRankings (crm_callHeaderAuditID int, Order_id varchar(20), row_id int, pf_id int, point_of_purchase_ID int&#xD;&#xA;				,  order_Date datetime, createDate datetime, TimingOffsetRank int&#xD;&#xA;				,  Sales money) &#xD;&#xA;INSERT INTO #orderRankings&#xD;&#xA;SELECT  crm_callHeaderAuditID, Order_id, row_id, pf_id, point_of_purchase_ID,  order_Date&#xD;&#xA;		, t.createDate&#xD;&#xA;		,DENSE_RANK() OVER (PARTITION BY Order_id, Row_id ORDER BY ABS(DATEDIFF(second,order_Date,t.createDate)) ASC) AS TimingOffsetRank&#xD;&#xA;		, adjusted_price * .01&#xD;&#xA;FROM    #tasks t &#xD;&#xA;JOIN	BigReporting.dbo.rptorderdetail rod ON t.Shopper_id = rod.Shopper_id&#xD;&#xA;				AND rod.order_date &gt; = DATEADD(hour,-2,t.createDate)&#xD;&#xA;				AND rod.order_date &lt; DATEADD(hour,24,t.CreateDate)&#xD;&#xA;JOIN	#taskActions ta ON t.TaskActionID = ta.TaskActionID	&#xD;&#xA;				AND ta.isContact = 1			&#xD;&#xA;WHERE	rod.point_of_purchase_id IN (1,3)&#xD;&#xA;	&#xD;&#xA;SELECT  mu.Name&#xD;&#xA;		, COUNT(DISTINCT t.crm_callHeaderAuditID) as  Dials&#xD;&#xA;		--, COUNT(DISTINCT crm_callHeaderID) as  Tasks&#xD;&#xA;		, SUM(ta.isContact) as Contacts&#xD;&#xA;		, SUM(ta.isVoicemail) as Voicemails&#xD;&#xA;		, COUNT(DISTINCT ork.order_id) as Orders&#xD;&#xA;		, ISNULL(SUM(Sales),0) as Sales&#xD;&#xA;		, ISNULL(SUM(CASE WHEN dp.New_Renewal = 'New Purchase' THEN Sales ELSE 0 END),0) as NewSales&#xD;&#xA;FROM    #tasks t&#xD;&#xA;JOIN	dbo.rptDimC3Campaign cmp ON t.crm_ActivityTypeID = cmp.C3CampaignID&#xD;&#xA;LEFT JOIN #taskActions ta ON t.TaskActionID = ta.TaskActionID&#xD;&#xA;LEFT JOIN #orderRankings ork ON t.crm_callHeaderAuditID = ork.crm_callHeaderAuditID&#xD;&#xA;				AND ork.TimingOffsetRank = 1&#xD;&#xA;LEFT JOIN  dmstaging.dbo.dim_product dp ON ork.pf_id = dp.pf_id	&#xD;&#xA;JOIN  gdreportStaging.dbo.manager_users mu ON t.Manager_userID = mu.ID&#xD;&#xA;				AND AccountTypeID &lt;&gt; 1&#xD;&#xA;WHERE (cmp.Name = '@Request.CampaignName~' OR '@Request.CampaignName~' = 'All')&#xD;&#xA;GROUP BY mu.Name" ID="dlIndiaOutboundMetricsByRep" ConnectionID="connM1BIG-biLogiReporting">
+                  <AggregateColumn AggregateColumn="Dials" AggregateFunction="Sum" ID="aggDials" />
+                  <AggregateColumn AggregateColumn="Contacts" AggregateFunction="Sum" ID="aggContacts" />
+                  <AggregateColumn AggregateColumn="Orders" AggregateFunction="Sum" ID="aggOrders" />
+                  <AggregateColumn AggregateColumn="Sales" AggregateFunction="Sum" ID="aggSales" />
+                  <AggregateColumn AggregateColumn="NewSales" AggregateFunction="Sum" ID="aggNewSales" />
+                </DataLayer>
+                <CalculatedColumn ID="calcConversionRate" Formula="@Data.Orders~ / @Data.Contacts~" />
+                <CalculatedColumn ID="calcSalesDial" Formula="@Data.Sales~ / @Data.Dials~" />
+                <CalculatedColumn ID="calcNewSalesDial" Formula="@Data.NewSales~ / @Data.Dials~" />
+                <CalculatedColumn ID="calcPercNew" Formula="@Data.NewSales~ / @Data.Sales~" />
+                <CalculatedColumn ID="calcAggConversionRate" Formula="@Data.aggOrders~ / @Data.aggContacts~" />
+                <CalculatedColumn ID="calcAggSalesDial" Formula="@Data.aggSales~ / @Data.aggDials~" />
+                <CalculatedColumn ID="calcAggNewSalesDial" Formula="@Data.aggNewSales~ / @Data.aggDials~" />
+                <CalculatedColumn ID="calcAggPercNew" Formula="@Data.aggNewSales~ / @Data.aggSales~" />
+                <SortFilter SortColumn="Name" SortSequence="Ascending" />
+              </DataLayer>
+              <DataTableColumn ID="colOrders" Header="Orders" Class="ThemeAlignRight">
+                <Label Caption="@Data.Orders~" Format="#,##0" />
+                <DataColumnSummary ID="sumOrders" Function="Sum" DataColumn="Orders" />
+              </DataTableColumn>
+              <DataTableColumn ID="colConversionRate" Header="Conv Rate" Class="ThemeAlignRight">
+                <Label Caption="@Data.calcConversionRate~" Format="Percent" />
+                <DataColumnSummary ID="sumAggConversionRate" Function="Max" DataColumn="calcAggConversionRate" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSales" Header="GCR" Class="ThemeAlignRight">
+                <Label Caption="@Data.Sales~" Format="$#,##0" />
+                <DataColumnSummary ID="sumSales" Function="Sum" DataColumn="Sales" />
+              </DataTableColumn>
+              <DataTableColumn ID="colSalesDial" Header="GCR/Dial" Class="ThemeAlignRight">
+                <Label Caption="@Data.calcSalesDial~" Format="Currency" />
+                <DataColumnSummary ID="sumAggSalesDial" DataColumn="calcAggSalesDial" Function="Max" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewSales" Header="New GCR" Class="ThemeAlignRight">
+                <Label Caption="@Data.NewSales~" Format="$#,##0" />
+                <DataColumnSummary DataColumn="NewSales" Function="Sum" ID="sumNewSales" />
+              </DataTableColumn>
+              <DataTableColumn ID="colNewSalesDial" Header="New GCR/Dial" Class="ThemeAlignRight">
+                <Label Caption="@Data.calcNewSalesDial~" Format="Currency" />
+                <DataColumnSummary ID="sumAggNewSalesDial" Function="Max" DataColumn="calcAggNewSalesDial" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPercNew" Header="% New GCR" Class="ThemeAlignRight">
+                <Label Caption="@Data.calcPercNew~" Format="Percent" />
+                <DataColumnSummary ID="sumAggPercNew" Function="Max" DataColumn="calcAggPercNew" />
+              </DataTableColumn>
+              <SummaryRow ID="srTotals" Caption="Totals: " Class="ThemeBold">
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumOrders~" Format="#,##0" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumAggConversionRate~" Format="Percent" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumSales~" Format="$#,##0" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumAggSalesDial~" Format="Currency" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumNewSales~" Format="$#,##0" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumAggNewSalesDial~" Format="Currency" />
+                </Column>
+                <Column Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumAggPercNew~" Format="Percent" />
+                </Column>
+              </SummaryRow>
+            </DataTable>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ideTestParams rptStartDate="" rptEndDate="" CampaignName="" />
+</Report>

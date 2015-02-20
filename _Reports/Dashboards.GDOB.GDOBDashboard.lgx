@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.GDOB.GDOBDashboard" SavedBy="JOMAX\asham" SavedAt="3/17/2014 4:17:54 PM" EngineVersion="11.0.43">
+  <DefaultRequestParams ChartHeight="260" ChartWidth="450" LegendLeft="85" LegendTop="220" ShowSignupValues="False" LegendFontLongTitle="9" LegendLeftLongTitle="40" TableColWidth="32" />
+  <LocalData>
+    <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="seLclDataInvoiceUsage" />
+  </LocalData>
+  <StyleSheet />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeader" ID="sharedHeaderElement" SharedElementID="sharedHeader" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rowHeader" IdeDisplayStatus="Collapsed">
+      <Row>
+        <Column>
+          <Division ID="divTitle" Class="rdAlternateTextColorWhite">
+            <IncludeHtml Html="&lt;h2&gt;GoDaddy Online Bookkeeping Dashboard&lt;/h2&gt;" />
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <Dashboard2 SaveFile="@Function.AppPhysicalPath~\Dashboard\GDOB_@Function.UserName~.xml" DashboardTabs="True" ID="dashGDOB" SaveFileStarter="@Function.AppPhysicalPath~\Dashboard\GDOBDefault.xml">
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlPurchases" ID="pnl_KPI_Purchases" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlSignups" ID="pnl_KPI_Signups" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlActivationRate" ID="pnl_KPI_ActivationRate" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlActiveUse" ID="pnl_KPI_ActiveUse" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlLPFunnel" ID="pnl_Funnels_LP" />
+      <Remark>
+        <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlMYAFunnel" ID="pnl_Funnels_MYA" />
+      </Remark>
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlUpgradeFunnel" ID="pnl_Funnels_Upgrade" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlPaidSignupFunnel" ID="pnl_Funnels_PaidSignup" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlRetentionCancelsAnnualPlan" ID="pnl_Retention_CancelsAnnualPlan" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlRetentionCancelsMonthlyPlan" ID="pnl_Retention_CancelsMonthlyPlan" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlRetentionActiveUse" ID="pnl_Retention_ActiveUse" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlInvoiceUsers" ID="pnl_Invoicing_Users" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlInvoicesSent" ID="se_Invoicing_InvoicesSent" />
+      <IncludeSharedElement DefinitionFile="SharedElements.GDOB.GDOBSharedPanelContent" SharedElementID="sePnlInvoicesPaid" ID="se_Invoicing_InvoicesPaid" />
+    </Dashboard2>
+  </Body>
+  <ReportFooter>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="sharedFooterElement" />
+  </ReportFooter>
+  <ideTestParams />
+</Report>

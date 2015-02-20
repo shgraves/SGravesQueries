@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.Iris.IrisIncidentCreateDetail" SavedBy="JOMAX\dezell" SavedAt="6/14/2013 12:03:15 PM" EngineVersion="10.2.424">
+  <StyleSheet Theme="GDRPortal" StyleSheet="ERHubTheme.css" />
+  <ReportHeader />
+  <Body>
+    <DataTable ID="dtServiceCreateDetails">
+      <DataLayer Type="SQL" Source="USE c3analytics &#xD;&#xA;&#xD;&#xA;SET TRANSACTION isolation level READ uncommitted &#xD;&#xA;&#xD;&#xA;DECLARE @rptStartDate DATETIME,&#xD;&#xA;		@rptEndDate DATETIME,&#xD;&#xA;        @rptType      VARCHAR(10)&#xD;&#xA;&#xD;&#xA;SELECT @rptType = '@Request.rptType~'&#xD;&#xA;SELECT @rptStartDate = '@Request.rptStartDate~'&#xD;&#xA;SELECT @rptEndDate = '@Request.rptEndDate~'&#xD;&#xA;&#xD;&#xA;  BEGIN &#xD;&#xA;      SELECT *&#xD;&#xA;      FROM   [C3Analytics].[dbo].[irisincidentwide_vw] &#xD;&#xA;      WHERE  [ticketcreatedate] BETWEEN @rptStartDate AND @rptEndDate&#xD;&#xA;  END" ConnectionID="devc3Analytics" />
+      <DataTableColumn ID="coliris_incidentID" Header="Incident" IdeDisplayStatus="Collapsed">
+        <Label ID="lbliris_incidentID" Caption="@Data.iris_incidentID~" />
+        <DataColumnSort DataColumn="iris_incidentID" DataType="Number" />
+      </DataTableColumn>
+      <Remark>
+        <DataTableColumn ID="coliris_statusID" Header="iris_statusID" IdeDisplayStatus="Collapsed">
+          <Label ID="lbliris_statusID" Caption="@Data.iris_statusID~" />
+          <DataColumnSort DataColumn="iris_statusID" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colStatusDescription" Header="StatusDescription" IdeDisplayStatus="Collapsed">
+          <Label ID="lblStatusDescription" Caption="@Data.StatusDescription~" />
+          <DataColumnSort DataColumn="StatusDescription" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="coliris_groupID" Header="iris_groupID" IdeDisplayStatus="Collapsed">
+          <Label ID="lbliris_groupID" Caption="@Data.iris_groupID~" />
+          <DataColumnSort DataColumn="iris_groupID" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <DataTableColumn ID="colGroupDescription" Header="Group" IdeDisplayStatus="Collapsed">
+        <Label ID="lblGroupDescription" Caption="@Data.GroupDescription~" />
+        <DataColumnSort DataColumn="GroupDescription" />
+      </DataTableColumn>
+      <Remark>
+        <DataTableColumn ID="coliris_categoryID" Header="iris_categoryID" IdeDisplayStatus="Collapsed">
+          <Label ID="lbliris_categoryID" Caption="@Data.iris_categoryID~" />
+          <DataColumnSort DataColumn="iris_categoryID" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colCategoryDescription" Header="CategoryDescription" IdeDisplayStatus="Collapsed">
+          <Label ID="lblCategoryDescription" Caption="@Data.CategoryDescription~" />
+          <DataColumnSort DataColumn="CategoryDescription" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="coliris_serviceID" Header="iris_serviceID" IdeDisplayStatus="Collapsed">
+          <Label ID="lbliris_serviceID" Caption="@Data.iris_serviceID~" />
+          <DataColumnSort DataColumn="iris_serviceID" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <DataTableColumn ID="colServiceDescription" Header="Service" IdeDisplayStatus="Collapsed">
+        <Label ID="lblServiceDescription" Caption="@Data.ServiceDescription~" />
+        <DataColumnSort DataColumn="ServiceDescription" />
+      </DataTableColumn>
+      <Remark>
+        <DataTableColumn ID="coliris_priorityID" Header="iris_priorityID" IdeDisplayStatus="Collapsed">
+          <Label ID="lbliris_priorityID" Caption="@Data.iris_priorityID~" />
+          <DataColumnSort DataColumn="iris_priorityID" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colPriorityDescription" Header="PriorityDescription" IdeDisplayStatus="Collapsed">
+          <Label ID="lblPriorityDescription" Caption="@Data.PriorityDescription~" />
+          <DataColumnSort DataColumn="PriorityDescription" />
+        </DataTableColumn>
+      </Remark>
+      <DataTableColumn ID="colTicketCreateDate" Header="Create Date" IdeDisplayStatus="Collapsed">
+        <Label ID="lblTicketCreateDate" Caption="@Data.TicketCreateDate~" Format="Short Date" />
+        <DataColumnSort DataColumn="TicketCreateDate" DataType="Date" />
+      </DataTableColumn>
+      <Remark>
+        <DataTableColumn ID="colTicketModifyDate" Header="TicketModifyDate" IdeDisplayStatus="Collapsed">
+          <Label ID="lblTicketModifyDate" Caption="@Data.TicketModifyDate~" Format="Short Date" />
+          <DataColumnSort DataColumn="TicketModifyDate" DataType="Date" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colTicketModifyBy" Header="TicketModifyBy" IdeDisplayStatus="Collapsed">
+          <Label ID="lblTicketModifyBy" Caption="@Data.TicketModifyBy~" />
+          <DataColumnSort DataColumn="TicketModifyBy" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <DataTableColumn ID="colIncidentDescription" Header="Description" IdeDisplayStatus="Collapsed">
+        <Label ID="lblIncidentDescription" Caption="@Data.IncidentDescription~" />
+        <DataColumnSort DataColumn="IncidentDescription" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams rptType="" rptStartDate="" rptEndDate="" />
+</Report>

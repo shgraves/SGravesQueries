@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.GoogleAnalyticsProfiles" SavedBy="JOMAX\slyoung" SavedAt="4/24/2013 1:31:13 PM" EngineVersion="10.2.424">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderLogo" ID="seHeader" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="ReportHeader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column>
+          <Label Caption="Current Google Analytics Profiles" Class="gdReportHeaderNameBI" />
+        </Column>
+      </Row>
+    </Rows>
+    <Remark>
+      <Division>
+        <Remark>
+          <HR />
+        </Remark>
+        <Remark>
+          <LineBreak />
+        </Remark>
+      </Division>
+    </Remark>
+    <DataTable ID="dtGAProfiles" AltRowClass="gdThemeAlternatingRow td" CellSpacing="7px">
+      <DataLayer Type="SQL" ID="SQLDataLayer" ConnectionID="connM1BIG-biLogiReporting" Source="Select rptGAProfile.GAAccount as Account,&#xA;  rptGAProfile.GAProfileName as 'Profile Name',&#xA;  rptGAProfile.GAProfileDesc as Description&#xA;From rptGAProfile" />
+      <DataTableColumn ID="colAccount" Header="ACCOUNT">
+        <Label ID="lblAccount" Caption="@Data.Account~" />
+        <DataColumnSort DataColumn="Account" />
+      </DataTableColumn>
+      <DataTableColumn ID="colProfile Name" Header="PROFILE NAME">
+        <Label ID="lblProfile Name" Caption="@Data.Profile Name~" />
+        <DataColumnSort DataColumn="Profile Name" />
+      </DataTableColumn>
+      <DataTableColumn ID="colDescription" Header="DESCRIPTION">
+        <Label ID="lblDescription" Caption="@Data.Description~" />
+        <DataColumnSort DataColumn="Description" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams />
+</Report>

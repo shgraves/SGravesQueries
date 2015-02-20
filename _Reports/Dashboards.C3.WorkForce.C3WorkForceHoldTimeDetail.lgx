@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.C3.WorkForce.C3WorkForceHoldTimeDetail" SavedBy="JOMAX\vyancey" SavedAt="2/8/2013 6:16:27 PM" EngineVersion="11.0.43">
+  <ReportHeader />
+  <Body>
+    <DataTable ID="dtDepartmentDetail">
+      <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptWorkForceDashboardCallTypeDetail_sp" ConnectionID="connM1BIG-biLogiReporting">
+        <SPParameters>
+          <SPParameter SPParamDirection="Input" ID="@ReportDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateStart~" />
+          <SPParameter SPParamDirection="Input" ID="@Baseline1" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline1~" />
+          <SPParameter SPParamDirection="Input" ID="@Baseline2" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline2~" />
+          <SPParameter SPParamDirection="Input" ID="@Baseline3" SPParamSize="7" SPParamType="dt-7" Value="@Request.dateBaseline3~" />
+          <SPParameter SPParamDirection="Input" ID="@Past" SPParamSize="7" SPParamType="dt-7" Value="@Request.datePast~" />
+          <SPParameter ID="@rptTime" SPParamDirection="Input" SPParamSize="8" SPParamType="dt-200" Value="@Request.rptTime~" />
+        </SPParameters>
+      </DataLayer>
+      <DataTableColumn ID="colDepartment" Header="Department">
+        <Label Caption="@Data.Department~" ID="lblDepartment" />
+      </DataTableColumn>
+      <DataTableColumn ID="colCurrent" Header="Current" Class="ThemeAlignRight">
+        <Label Caption="@Data.CurrentHoldTime~" ID="lblCurrent" Format="Standard" />
+      </DataTableColumn>
+      <DataTableColumn ID="colBaseline" Header="Baseline" Class="ThemeAlignRight">
+        <Label Caption="@Data.BaselineHoldTime~" ID="lblBaseline" Format="Standard" />
+      </DataTableColumn>
+      <DataTableColumn ID="colPast" Header="Last Year" Class="ThemeAlignRight">
+        <Label Caption="@Data.PastHoldTime~" ID="lblPast" Format="Standard" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams dateStart="" dateBaseline1="" dateBaseline2="" dateBaseline3="" datePast="" rptTime="" />
+</Report>

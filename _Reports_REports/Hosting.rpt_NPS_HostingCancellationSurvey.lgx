@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Hosting.rpt_NPS_HostingCancellationSurvey" SavedBy="JOMAX\jgauer" SavedAt="3/3/2014 3:56:23 PM" EngineVersion="11.2.040-SP2">
+  <DefaultRequestParams dt_start="@Date.LastWeekStart~" dt_end="@Date.ThisWeekEnd~" slct_ProductMulti="14,457,459,461" slct_Segment="-1" />
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column ColSpan="2">
+          <Label Caption="Hosting NPS Score - Cancellation Survey" Class="gdReportHeaderNameIT" />
+          <Spaces Size="5" />
+          <Label Caption="@Data.agg_nps~" />
+        </Column>
+      </Row>
+    </Rows>
+    <Rows>
+      <Row>
+        <Column>
+          <InputDate ID="dt_start" Caption="Start Date:" CalendarLinkType="Image" Format="General Date" InputDateReformat="General Date" DefaultValue="@Request.dt_start~" />
+        </Column>
+        <Column>
+          <Spaces Size="10" />
+        </Column>
+        <Column Class="ThemeAlignLeft">
+          <InputDate CalendarLinkType="Image" ID="dt_end" Caption="End Date:" Format="General Date" InputDateReformat="General Date" DefaultValue="@Request.dt_end~" />
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <InputCheckboxList OptionCaptionColumn="Column1" ID="slct_ProductMulti" DefaultValue="@Request.slct_ProductMulti~" OptionValueColumn="Column2" MultiSelect="True" CheckboxListDropdown="True" Caption="Product: " ColumnCount="2">
+            <DataLayer Type="Static" ID="dl_staticProduct">
+              <StaticDataRow Column1="Legacy" Column2="14" Column3="" />
+              <StaticDataRow Column1="cPanel" Column2="459" Column3="" />
+              <StaticDataRow Column1="Plesk" Column2="461" Column3="" />
+              <StaticDataRow Column1="WPaas" Column2="457" Column3="" />
+            </DataLayer>
+          </InputCheckboxList>
+        </Column>
+        <Column />
+        <Column>
+          <InputSelectList ID="slct_Segment" OptionCaptionColumn="name" OptionValueColumn="segmentCode" Caption="Segment: " DefaultValue="@Request.slct_Segment~" IncludeBlank="True" IncludeBlankCaption="All Segments" IncludeBlankValue="-1" MultiSelect="False">
+            <DataLayer Type="SQL" ID="dl_Segment" ConnectionID="connM1BIG-BIGReporting" Source="SELECT s.name, s.segmentCode&#xA;FROM CustomerTracking.dbo.segment s WITH (NOLOCK)&#xA;order by s.name asc" />
+          </InputSelectList>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Spaces Size="1" />
+        </Column>
+      </Row>
+      <Row>
+        <Column Class="ThemeAlignCenter" ColSpan="3">
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmit">
+              <Target Type="Report" ID="tgtSubmit" Report="Hosting.rpt_NPS_HostingCancellationSurvey" RequestForwarding="True" />
+            </Action>
+          </Button>
+          <Division>
+            <Spaces Size="2" />
+            <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel" Width="13" Height="12">
+              <Action Type="NativeExcel" ID="excelExport">
+                <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" ExportDataTableID="dt_npsBySurvey_ByDay" ExportFilename="npsCancellationSurvey" />
+              </Action>
+            </Image>
+          </Division>
+        </Column>
+      </Row>
+      <Row>
+        <Column>
+          <Spaces Size="1" />
+        </Column>
+      </Row>
+    </Rows>
+    <HR Class="ThemeHeaderLargest" />
+  </ReportHeader>
+  <Body>
+    <DataTable SortArrows="True" ID="dt_npsBySurvey_ByDay" AltRowClass="gdThemeAlternatingRow td" Class="gdColumn" ColumnHeaderClass="gdColumnHeader">
+      <DataLayer Type="SQL" ID="dl_getNPSScores" ConnectionID="connM1BIG-BIGReporting" Source="SELECT DateEntered,&#xD;&#xA;SUM(COALESCE([0],0)) as 'nps_0',&#xD;&#xA;SUM(COALESCE([1],0)) as 'nps_1',&#xD;&#xA;SUM(COALESCE([2],0)) as 'nps_2',&#xD;&#xA;SUM(COALESCE([3],0)) as 'nps_3',&#xD;&#xA;SUM(COALESCE([4],0)) as 'nps_4',&#xD;&#xA;SUM(COALESCE([5],0)) as 'nps_5',&#xD;&#xA;SUM(COALESCE([6],0)) as 'nps_6',&#xD;&#xA;SUM(COALESCE([7],0)) as 'nps_7',&#xD;&#xA;SUM(COALESCE([8],0)) as 'nps_8',&#xD;&#xA;SUM(COALESCE([9],0)) as 'nps_9',&#xD;&#xA;SUM(COALESCE([10],0)) as 'nps_10'&#xD;&#xA;FROM (&#xD;&#xA;SELECT CAST(st.dateEntered as Date) as DateEntered, a.answerText as AnswerText, count(csf.SurveyAnswerID) as pCount&#xD;&#xA;FROM godaddySurvey.dbo.csf_SurveyTakenAnswers csf WITH (NOLOCK)&#xD;&#xA;LEFT OUTER JOIN godaddySurvey.dbo.csf_Answer a WITH (NOLOCK) ON csf.answerID = a.answerID&#xD;&#xA;LEFT OUTER JOIN godaddySurvey.dbo.csf_SurveyTaken st WITH (NOLOCK) ON csf.csfSurveyTakenId = st.csfSurveyTakenId&#xD;&#xA;LEFT OUTER JOIN godaddySurvey.dbo.csf_Survey s WITH (NOLOCK) ON st.surveyID = s.surveyID&#xD;&#xA;LEFT OUTER JOIN godaddySurvey.dbo.csf_SurveyTaken_mtm_pfid pfid WITH (NOLOCK) ON csf.csfSurveyTakenId = pfid.csf_SurveyTakenID&#xD;&#xA;LEFT OUTER JOIN gdMasterCatalog.dbo.catalog_product cp WITH (NOLOCK) ON pfid.pf_id = cp.pf_id&#xD;&#xA;LEFT OUTER JOIN GoDaddy.dbo.gdshop_product_type pt WITH (NOLOCK) ON cp.gdshop_product_typeID = pt.gdshop_product_typeID&#xD;&#xA;LEFT OUTER JOIN CustomerTracking.dbo.shopperHeader sh WITH (NOLOCK) ON st.shopper_ID = sh.shopper_id&#xD;&#xA;WHERE st.dateEntered BETWEEN '@Request.dt_start~' AND '@Request.dt_end~'&#xD;&#xA;AND st.surveyID IN (159)&#xD;&#xA;AND csf.questionID IN (3287)&#xD;&#xA;AND cp.gdshop_product_typeID IN (@Request.slct_ProductMulti~)&#xD;&#xA;AND (sh.segmentCode = @Request.slct_Segment~ OR @Request.slct_Segment~ = -1)&#xD;&#xA;group by CAST(st.dateEntered as date), a.answerText&#xD;&#xA;) p&#xD;&#xA;PIVOT&#xD;&#xA; (&#xD;&#xA;	max(pCount)&#xD;&#xA;	FOR AnswerText IN ([0],[1],[2],[3],[4],[5],[6],[7],[8],[9],[10])&#xD;&#xA;) as pvt&#xD;&#xA;GROUP BY DateEntered">
+        <SqlParameters>
+          <SqlParameter SqlParamType="dt-7" Value="@Request.dt_start~" ID="dt_start" />
+          <SqlParameter SqlParamType="dt-7" Value="@Request.dt_end~" ID="dt_end" />
+        </SqlParameters>
+        <GroupFilter GroupColumn="DateEntered" ID="grp_dateEntered">
+          <GroupAggregateColumn AggregateColumn="nps_0" AggregateFunction="Sum" ID="agg_0" />
+          <GroupAggregateColumn AggregateColumn="nps_1" AggregateFunction="Sum" ID="agg_1" />
+          <GroupAggregateColumn AggregateColumn="nps_2" AggregateFunction="Sum" ID="agg_2" />
+          <GroupAggregateColumn AggregateColumn="nps_3" AggregateFunction="Sum" ID="agg_3" />
+          <GroupAggregateColumn AggregateColumn="nps_4" AggregateFunction="Sum" ID="agg_4" />
+          <GroupAggregateColumn AggregateColumn="nps_5" AggregateFunction="Sum" ID="agg_5" />
+          <GroupAggregateColumn AggregateColumn="nps_6" AggregateFunction="Sum" ID="agg_6" />
+          <GroupAggregateColumn AggregateColumn="nps_7" AggregateFunction="Sum" ID="agg_7" />
+          <GroupAggregateColumn AggregateColumn="nps_8" AggregateFunction="Sum" ID="agg_8" />
+          <GroupAggregateColumn AggregateColumn="nps_9" AggregateFunction="Sum" ID="agg_9" />
+          <GroupAggregateColumn AggregateColumn="nps_10" AggregateFunction="Sum" ID="agg_10" />
+        </GroupFilter>
+        <CalculatedColumn ID="calc_totalSurveys" Formula="@Data.agg_0~ + @Data.agg_1~ + @Data.agg_2~ + @Data.agg_3~ + @Data.agg_4~ + @Data.agg_5~ + @Data.agg_6~ + @Data.agg_7~ + @Data.agg_8~ + @Data.agg_9~ + @Data.agg_10~" />
+        <CalculatedColumn ID="calc_perc0" Formula="ROUND(((@Data.agg_0~ * 1.00) / @Data.calc_totalSurveys~) * 100,0)" />
+        <CalculatedColumn ID="calc_perc1" Formula="ROUND(((@Data.agg_1~ * 1.00) / @Data.calc_totalSurveys~) * 100,0)" />
+        <CalculatedColumn ID="calc_perc2" Formula="ROUND(((@Data.agg_2~ * 1.00) / @Data.calc_totalSurveys~) * 100,0)" />
+        <CalculatedColumn ID="calc_perc3" Formula="ROUND(((@Data.agg_3~ * 1.00) / @Data.calc_totalSurveys~) * 100,0)" />
+        <CalculatedColumn ID="calc_perc4" Formula="ROUND(((@Data.agg_4~ * 1.00) / @Data.calc_totalSurveys~) * 100,0)" />
+        <CalculatedColumn ID="calc_perc5" Formula="ROUND(((@Data.agg_5~ * 1.00) / @Data.calc_totalSurveys~) * 100,0)" />
+        <CalculatedColumn ID="calc_perc6" Formula="ROUND(((@Data.agg_6~ * 1.00) / @Data.calc_totalSurveys~) * 100,0)" />
+        <CalculatedColumn ID="calc_perc7" Formula="ROUND(((@Data.agg_7~ * 1.00) / @Data.calc_totalSurveys~) * 100,0)" />
+        <CalculatedColumn ID="calc_perc8" Formula="ROUND(((@Data.agg_8~ * 1.00) / @Data.calc_totalSurveys~) * 100,0)" />
+        <CalculatedColumn ID="calc_perc9" Formula="ROUND(((@Data.agg_9~ * 1.00) / @Data.calc_totalSurveys~) * 100,0)" />
+        <CalculatedColumn ID="calc_perc10" Formula="ROUND(((@Data.agg_10~ * 1.00) / @Data.calc_totalSurveys~) * 100,0)" />
+        <CalculatedColumn ID="calc_promoters" Formula="@Data.calc_perc9~ + @Data.calc_perc10~" />
+        <CalculatedColumn ID="calc_detractors" Formula="@Data.calc_perc0~ + @Data.calc_perc1~ + @Data.calc_perc2~ + @Data.calc_perc3~ + @Data.calc_perc4~ + @Data.calc_perc5~ + @Data.calc_perc6~" />
+        <CalculatedColumn ID="calc_npsScore" Formula="@Data.calc_promoters~ - @Data.calc_detractors~" />
+        <DataLayerLink ID="dll_npsScoreByDay" />
+      </DataLayer>
+      <InteractivePaging PageRowCount="20" ShowPageNumber="True" Location="Top" CaptionType="Image" />
+      <DataTableColumn ID="colDateEntered" Header="Date">
+        <Label ID="lblDateEntered" Caption="@Data.DateEntered~" Format="Short Date" />
+        <DataColumnSort DataColumn="DateEntered" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="col0" Header="zero">
+        <Label ID="lbl0" Caption="@Data.nps_0~" />
+        <DataColumnSort DataColumn="0" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="col1" Header="one">
+        <Label ID="lbl1" Caption="@Data.nps_1~" />
+        <DataColumnSort DataColumn="1" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="col2" Header="two">
+        <Label ID="lbl2" Caption="@Data.nps_2~" />
+        <DataColumnSort DataColumn="2" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="col3" Header="three">
+        <Label ID="lbl3" Caption="@Data.nps_3~" />
+        <DataColumnSort DataColumn="3" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="col4" Header="four">
+        <Label ID="lbl4" Caption="@Data.nps_4~" />
+        <DataColumnSort DataColumn="4" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="col5" Header="five">
+        <Label ID="lbl5" Caption="@Data.nps_5~" />
+        <DataColumnSort DataColumn="5" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="col6" Header="six">
+        <Label ID="lbl6" Caption="@Data.nps_6~" />
+        <DataColumnSort DataColumn="6" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="col7" Header="seven">
+        <Label ID="lbl7" Caption="@Data.nps_7~" />
+        <DataColumnSort DataColumn="7" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="col8" Header="eight">
+        <Label ID="lbl8" Caption="@Data.nps_8~" />
+        <DataColumnSort DataColumn="8" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="col9" Header="nine">
+        <Label ID="lbl9" Caption="@Data.nps_9~" />
+        <DataColumnSort DataColumn="9" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="col10" Header="ten">
+        <Label ID="lbl10" Caption="@Data.nps_10~" />
+        <DataColumnSort DataColumn="10" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="col_total" Header="Total Surveys">
+        <Label ID="lbl_total" Caption="@Data.calc_totalSurveys~" />
+        <DataColumnSort DataColumn="10" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colcalc_promoters" Header="% Promoters">
+        <Label ID="lblcalc_promoters" Caption="@Data.calc_promoters~%" />
+        <DataColumnSort DataColumn="calc_promoters" />
+      </DataTableColumn>
+      <DataTableColumn ID="colcalc_detractors" Header="% Detractors">
+        <Label ID="lblcalc_detractors" Caption="@Data.calc_detractors~%" />
+        <DataColumnSort DataColumn="calc_detractors" />
+      </DataTableColumn>
+      <DataTableColumn ID="colcalc_npsScore" Header="NPS Score">
+        <Label ID="lblcalc_npsScore" Caption="@Data.calc_npsScore~" />
+        <DataColumnSort DataColumn="calc_npsScore" />
+      </DataTableColumn>
+    </DataTable>
+    <HR Class="ThemeHeaderLargest" />
+    <Chart Type="XY" ID="chrt_npsScoreByDay" XYChartType="Line" ChartHeight="400" ChartWidth="800" ChartTitle="NPS Survey - Cancellation Survey - By Day" ChartLabelColumn="DateEntered" ChartLabelColumnDataType="Date" XAxisTitle="Survey Date" YAxisTitle="NPS Score" ChartDataColumn="calc_npsScore">
+      <DataLayer Type="Linked" LinkedDataLayerID="dll_npsScoreByDay" />
+      <LabelScale LinearTickIncrement="Weeks" Format="Short Date" ScaleLowerBound="@Request.dt_start~" ScaleUpperBound="@Request.dt_end~" ScalingMode="LinearTime" />
+      <ChartTrendLine Color="#00CFFD" LineWidth="2" ShowDataValues="False" />
+    </Chart>
+  </Body>
+  <ReportFooter />
+  <ideTestParams dt_end="" dt_start="" slct_ProductMulti="" slct_Segment="" />
+</Report>

@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PWS.PWSPerformanceDetails" SavedBy="JOMAX\dezell" SavedAt="9/26/2014 3:14:14 PM" EngineVersion="11.0.43-SP27">
+  <FormulaScriptFile ScriptFile="gdITJscript.js" ID="gdITJscript" />
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader />
+  <Body>
+    <DataTable SortArrows="True" ID="dtPerformanceDetails" CellSpacing="7 px" Width="1050" WidthScale="px">
+      <DataLayer Type="Linked" LinkedDataLayerID="dlPerfOverview" ID="linkedPerfOverview" IdeDisplayStatus="Collapsed">
+        <ConditionFilter Condition="&quot;@Data.ProjectGrouping~&quot; == &quot;@Request.projectGroup~&quot;" />
+        <CalculatedColumn ID="calcPhase" Formula="switch(@Data.ProjectPhase~) {&#xD;&#xA;    case 1000:&#xD;&#xA;        &quot;New Build&quot;;&#xD;&#xA;        break;&#xD;&#xA;    case 2000:&#xD;&#xA;       &quot;Update&quot;;&#xD;&#xA;        break;&#xD;&#xA;    default:&#xD;&#xA;        &quot;Error&quot;;&#xD;&#xA;}" />
+        <CalculatedColumn ID="calcCreateDate" Formula="iif(&quot;@Data.CreateDate~&quot; == &quot;&quot;, &quot;n/a&quot;,&quot;@Data.CreateDate~&quot;)" />
+        <CalculatedColumn ID="calcProjectSubmitted" Formula="iif(&quot;@Data.LeadDate~&quot; == &quot;&quot;, &quot;n/a&quot;,&quot;@Data.LeadDate~&quot;)" />
+        <CalculatedColumn ID="calcDesignerDate" Formula="iif(&quot;@Data.DesignerDate~&quot; == &quot;&quot;, &quot;n/a&quot;,&quot;@Data.DesignerDate~&quot;)" />
+        <CalculatedColumn ID="calcBuilderCompleted" Formula="iif(&quot;@Data.BuilderDate~&quot; == &quot;&quot;, &quot;n/a&quot;,&quot;@Data.BuilderDate~&quot;)" />
+        <CalculatedColumn ID="calcProjectCompleted" Formula="iif(&quot;@Data.CurrentCategoryDate~&quot; == &quot;&quot;, &quot;n/a&quot;,&quot;@Data.CurrentCategoryDate~&quot;)" />
+        <SortFilter SortColumn="CurrentCategoryDate" SortSequence="Ascending" DataType="Date" />
+      </DataLayer>
+      <DataTableColumn ID="colCurrentCategoryDate" Header="Completed" IdeDisplayStatus="Collapsed" Width="92" WidthScale="px">
+        <Label ID="lblCurrentCategoryDate" Caption="@Data.calcProjectCompleted~" Format="Short Date" />
+        <DataColumnSort DataColumn="CurrentCategoryDate" DataType="Date" />
+      </DataTableColumn>
+      <Remark>
+        <DataTableColumn ID="colBonusEnd" Header="Completed" Condition="&quot;@Request.projectGroup~&quot; != &quot;M&quot;" IdeDisplayStatus="Collapsed">
+          <Label ID="lblBonusEnd" Caption="@Data.BonusEnd~" Format="Short Date" />
+          <DataColumnSort DataColumn="BonusEnd" DataType="Date" />
+        </DataTableColumn>
+      </Remark>
+      <DataTableColumn ID="colProjectID" Header="Quote ID" Width="68" WidthScale="px" IdeDisplayStatus="Collapsed">
+        <Label ID="lblProjectID" Caption="@Data.ProjectID~" />
+        <DataColumnSort DataColumn="ProjectID" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colCreateDate" Header="Created" IdeDisplayStatus="Collapsed">
+        <Label ID="lblCreateDate" Caption="@Data.calcCreateDate~" Format="Short Date" />
+        <DataColumnSort DataColumn="CreateDate" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colBonusStart" Header="Project Submitted" IdeDisplayStatus="Collapsed">
+        <Label ID="lblBonusStart" Caption="@Data.calcProjectSubmitted~" Format="Short Date" />
+        <DataColumnSort DataColumn="BonusStart" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colDesignerDate" Header="Design Completed" IdeDisplayStatus="Collapsed">
+        <Label ID="lblDesignerDate" Caption="@Data.calcDesignerDate~" Format="Short Date" />
+        <DataColumnSort DataColumn="DesignerDate" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colBuilderDate" Header="Builder Completed" IdeDisplayStatus="Collapsed">
+        <Label ID="lblBuilderDate" Caption="@Data.calcBuilderCompleted~" Format="Short Date" />
+        <DataColumnSort DataColumn="BuilderDate" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colProjecttypeName" Header="Plan Type" IdeDisplayStatus="Collapsed" Width="75" WidthScale="px">
+        <Label ID="lblProjecttypeName" Caption="@Data.ProjecttypeName~" />
+        <DataColumnSort DataColumn="ProjecttypeName" />
+      </DataTableColumn>
+      <DataTableColumn ID="colProjectPhase" Header="Project Type" IdeDisplayStatus="Collapsed">
+        <Label ID="lblProjectPhase" Caption="@Data.calcPhase~" />
+        <DataColumnSort DataColumn="ProjectPhase" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colCalendarHours" Header="Calendar" Condition="&quot;@Request.projectGroup~&quot; != &quot;M&quot;" Class="ThemeAlignLeft" HeaderType="Text" Width="110" WidthScale="px" IdeDisplayStatus="Collapsed">
+        <Label ID="lblCalendarHours" Caption="=convertSecondstoDH(convertHoursToSeconds(@Data.CalendarHours~))" />
+        <DataColumnSort DataColumn="CalendarHours" DataType="Number" />
+      </DataTableColumn>
+      <DataTableColumn ID="colBonusTime" Header="Business" Condition="&quot;@Request.projectGroup~&quot; != &quot;M&quot;" Class="ThemeAlignLeft" Width="110" WidthScale="px" IdeDisplayStatus="Collapsed">
+        <Label Caption="=convertSecondstoDH(convertHoursToSeconds(@Data.calcBonusTime~))" Class="ThemeAlignLeft" />
+        <DataColumnSort DataColumn="@Data.calcBonusTimes~" />
+      </DataTableColumn>
+      <Remark>
+        <DataTableColumn ID="colContentDate" Header="ContentDate" IdeDisplayStatus="Collapsed">
+          <Label ID="lblContentDate" Caption="@Data.ContentDate~" Format="Short Date" />
+          <DataColumnSort DataColumn="ContentDate" DataType="Date" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colLeadDate" Header="LeadDate" IdeDisplayStatus="Collapsed">
+          <Label ID="lblLeadDate" Caption="@Data.LeadDate~" Format="Short Date" />
+          <DataColumnSort DataColumn="LeadDate" DataType="Date" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colisSTD" Header="isSTD" IdeDisplayStatus="Collapsed">
+          <Label ID="lblisSTD" Caption="@Data.isSTD~" />
+          <DataColumnSort DataColumn="isSTD" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colQADate" Header="QADate" IdeDisplayStatus="Collapsed">
+          <Label ID="lblQADate" Caption="@Data.QADate~" Format="Short Date" />
+          <DataColumnSort DataColumn="QADate" DataType="Date" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colProjecttypeID" Header="ProjecttypeID" IdeDisplayStatus="Collapsed">
+          <Label ID="lblProjecttypeID" Caption="@Data.ProjecttypeID~" />
+          <DataColumnSort DataColumn="ProjecttypeID" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colProjectGrouping" Header="ProjectGrouping" IdeDisplayStatus="Collapsed">
+          <Label ID="lblProjectGrouping" Caption="@Data.ProjectGrouping~" />
+          <DataColumnSort DataColumn="ProjectGrouping" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colNonBusinessDays" Header="NonBusinessDays" IdeDisplayStatus="Collapsed">
+          <Label ID="lblNonBusinessDays" Caption="@Data.NonBusinessDays~" />
+          <DataColumnSort DataColumn="NonBusinessDays" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colCalendarHoursValidation" Header="Calendar" Condition="&quot;@Request.projectGroup~&quot; != &quot;M&quot;" IdeDisplayStatus="Collapsed">
+          <Label ID="lblCalendarHours" Caption="@Data.CalendarHours~" />
+          <DataColumnSort DataColumn="CalendarHours" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colBonusTimeValidation" Header="Bonus" Condition="&quot;@Request.projectGroup~&quot; != &quot;M&quot;" IdeDisplayStatus="Collapsed">
+          <Label Caption="@Data.calcBonusTime~" />
+          <Remark>
+            <DataColumnSort DataColumn="@Data.calcBonusTimes~" />
+          </Remark>
+        </DataTableColumn>
+      </Remark>
+      <DataTableColumn ID="colPlaceholder" IdeDisplayStatus="Collapsed">
+        <Label />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams projectGroup="" />
+</Report>

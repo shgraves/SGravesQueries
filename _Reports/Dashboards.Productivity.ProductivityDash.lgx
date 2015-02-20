@@ -1,0 +1,2423 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.Productivity.ProductivityDash" SavedBy="JOMAX\cjeffers" SavedAt="4/3/2014 12:56:22 PM" EngineVersion="11.0.43" SecurityReportRightID="LogiCT">
+  <StyleSheet Theme="GDRPortal" StyleSheet="ERHubTheme.css" />
+  <DefaultRequestParams PanelHeight="400" PanelWidth="400" rptDay="=DateAdd(&quot;d&quot;,-1,Date())" />
+  <ReportHeader IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeader" ID="sharedHeaderElement" SharedElementID="sharedHeader" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rowHeader" IdeDisplayStatus="Collapsed">
+      <Row>
+        <Column>
+          <Division ID="divTitle" Class="rdAlternateTextColorWhite">
+            <IncludeHtml Html="&lt;h2&gt;Productivity Dashboard&lt;/h2&gt;" />
+          </Division>
+        </Column>
+        <Column>
+          <Spaces Size="6" />
+          <InputDate ID="rptDay" Caption="Report Date:" DefaultValue="@Request.rptDay~" CaptionClass="rdAlternateTextColorWhite" />
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtReport" Report="Dashboards.Productivity.ProductivityDash" />
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+    </Rows>
+    <Dashboard2 SaveFile="@Function.AppPhysicalPath~\Dashboard\Productivity_@Function.UserName~.xml" AllowFreeformLayout="False" DashboardAdjustable="True" ID="dashProductivity" SaveFileStarter="@Function.AppPhysicalPath~\Dashboard\Productivitydefault.xml" DashboardColumns="4" DashboardTabs="True">
+      <Panel Caption="Email GCR 13 Month Trend (000's)" ID="pnlEMAIL_GCRTrend" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divGCRTrendChart">
+            <DataTable ID="dtRunRateEMAIL" Class="ThemeAlignCenter">
+              <DataLayer Type="Cached" ID="dlRunRateCacheEMAIL" CacheKey="RunRateEMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlRunRateEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="RunRate" />
+                  </SPParameters>
+                </DataLayer>
+                <FormattedColumn DataColumn="MTDGCR" Format="$###,###" ID="fcMTDGCR" />
+                <FormattedColumn DataColumn="RunRateGCR" Format="$###,###" ID="fcRunRateGCR" />
+              </DataLayer>
+              <DataTableColumn ID="colMTDGCR">
+                <Label Caption="MTD GCR: @Data.fcMTDGCR~" ID="lblMTDGCR" />
+              </DataTableColumn>
+              <DataTableColumn ID="colRunRateGCR">
+                <Label Caption="Current Run Rate GCR: @Data.fcRunRateGCR~" ID="lblRunRateGCR" Format="Percent" />
+              </DataTableColumn>
+            </DataTable>
+            <Chart Type="XY" ID="chtGCRTrendEMAIL" XYChartType="Line" ChartDataColumn="calcGCR" ChartHeight="218" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Vertical" ExtraBarOptions="SideBySide" Color="#00C52B" ChartTitle="13 Month Trend" BorderTop="30" BorderBottom="60" ChartLabelColumn="rptMonth">
+              <DataLayer Type="Cached" ID="dlGCRTrendCacheEMAIL" CacheKey="GCRTrendEMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlGCRTrendDataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="GCRTrend" />
+                  </SPParameters>
+                </DataLayer>
+                <CalculatedColumn ID="calcGCR" Formula="@Data.GCR~ / 1000" />
+                <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Ascending" ID="sfMonth" />
+              </DataLayer>
+              <DataScale Format="$#,###" />
+              <LabelScale Format="MMM-yy" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divGCRTrendTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divGCRTrendTable" ShowModes="None">
+            <DataTable ID="dtGCRTrendEMAIL">
+              <DataLayer Type="Cached" ID="dlGCRTrendCacheEMAIL" CacheKey="GCRTrendEMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlGCRTrendDataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="GCRTrend" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Descending" ID="sfMonth" />
+              </DataLayer>
+              <DataTableColumn ID="colMonth" Header="Month">
+                <Label Caption="@Data.rptMonth~" Format="MMM-yy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colGCR" Header="GCR" Class="ThemeAlignRight">
+                <Label Caption="@Data.GCR~" Format="Currency" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Email Total Units By Pathway (Rolling 7 Days)" ID="pnlEMAIL_UnitsByPathway" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divUnitsByPathwayChart" Class="ThemeAlignRight">
+            <Chart Type="XY" ID="chtUnitsByPathwayEMAIL" XYChartType="Bar" ChartDataColumn="calcThisWeek" ChartLabelColumn="abrPathway" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Horizontal" ExtraBarOptions="SideBySide" Color="#00C52B" Transparency="3" BorderBottom="60" BorderTop="30" LegendLabel="Current Week">
+              <DataLayer Type="Cached" ID="dlUnitsByPathwayCacheEMAIL" CacheKey="UnitsByPathwayEMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByPathwayDataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByPathway" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Ascending" ID="sfThisWeek" />
+                <CalculatedColumn ID="calcThisWeek" Formula="@Data.ThisWeek~ / 1000" />
+                <CalculatedColumn ID="calcLastWeek" Formula="@Data.LastWeek~ / 1000" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="calcLastWeek" LegendLabel="Prior Week" Transparency="3" />
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+              <DataScale Format="0k" TickDensity="30" ZeroAffinity="1" />
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divUnitsByPathwayTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divUnitsByPathwayTable" ShowModes="None">
+            <DataTable ID="dtUnitsByPathwayEMAIL">
+              <DataLayer Type="Cached" ID="dlUnitsByPathwayCacheEMAIL" CacheKey="UnitsByPathwayEMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByPathwayDataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByPathway" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Descending" ID="sfThisWeek" />
+              </DataLayer>
+              <DataTableColumn ID="colPathway" Header="Pathway">
+                <Label Caption="@Data.Pathway~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colThisWeek" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.ThisWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="ThisWeek" Function="Sum" ID="sumThisWeek" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeek" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="LastWeek" Function="Sum" ID="sumLastWeek" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Email Total Units By Channel (Rolling 7 Days)" ID="pnlEMAIL_UnitsByChannel" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divUnitsByChannelChart">
+            <Chart Type="XY" ID="chtUnitsByChannelEMAIL" XYChartType="Bar" ChartDataColumn="calcThisWeek" ChartLabelColumn="abrChannel" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Horizontal" ExtraBarOptions="SideBySide" Color="#00C52B" LegendLabel="Current Week" Transparency="3" BorderBottom="60" BorderTop="30">
+              <DataLayer Type="Cached" ID="dlUnitsByChannelCacheEMAIL" CacheKey="UnitsByChannelEMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByChannelDataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByChannel" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Ascending" ID="sfThisWeek" />
+                <CalculatedColumn ID="calcThisWeek" Formula="@Data.ThisWeek~ / 1000" />
+                <CalculatedColumn ID="calcLastWeek" Formula="@Data.LastWeek~ / 1000" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="calcLastWeek" LegendLabel="Prior Week" Transparency="3" />
+              <DataScale Format="0k" TickDensity="30" ZeroAffinity="1" />
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divUnitsByChannelTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divUnitsByChannelTable" ShowModes="None">
+            <DataTable ID="dtUnitsByChannelEMAIL">
+              <DataLayer Type="Cached" ID="dlUnitsByChannelCacheEMAIL" CacheKey="UnitsByChannelEMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByChannelDataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByChannel" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Descending" ID="sfThisWeek" />
+              </DataLayer>
+              <DataTableColumn ID="colChannel" Header="Pathway">
+                <Label Caption="@Data.Channel~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colThisWeek" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.ThisWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="ThisWeek" Function="Sum" ID="sumThisWeek" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeek" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="LastWeek" Function="Sum" ID="sumLastWeek" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Email Support Calls Last 30 Days" ID="pnlEMAIL_SupportCalls" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSupportCallsChart">
+            <Chart Type="XY" ID="chtSupportCallsLast30DaysEMAIL" XYChartType="Bar" ChartDataColumn="Calls" ChartLabelColumn="rptDate" ChartHeight="250" ChartWidth="440" ShowWaitIcon="True" ShowDataValues="False" BorderTop="40" Color="#50C5DC" ExtraBarOptions="Stacked" LegendLabel="IB All" Transparency="3">
+              <DataLayer Type="Cached" ID="dlSupportCallsCacheEMAIL" CacheKey="SupportCallsEMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportCallsDataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Support" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Ascending" ID="sfDate" />
+                <CalculatedColumn Formula="(@Data.emailCalls~ * 1.00)/(@Data.Calls~)" ID="calcPercCalls" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="emailCalls" LegendLabel="IB Email" Color="#E88622" Transparency="3" />
+              <LabelScale Format="MM/dd" ScalingMode="LinearTime" LinearTickMinorIncrement="Days" LinearTickIncrement="Weeks" />
+              <DataScale Format="#,###" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+              <ExtraXYLayer XYChartType="Line" ChartDataColumn="calcPercCalls" Color="#848181" LegendLabel="% Email" />
+              <SecondaryAxis>
+                <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                <DataScale Format="#0%" />
+              </SecondaryAxis>
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divSupportCallsTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divSupportCallsTable" ShowModes="None">
+            <DataTable ID="dtSupportCallsEMAIL">
+              <DataLayer Type="Cached" ID="dlSupportCallsCacheEMAIL" CacheKey="SupportCallsEMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportCallsDataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Support" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" ID="sfDate" />
+                <CalculatedColumn Formula="(@Data.emailCalls~ * 1.00)/(@Data.Calls~)" ID="calcPercCalls" />
+              </DataLayer>
+              <DataTableColumn ID="colDay" Header="Day">
+                <Label Caption="@Data.rptDate~" Format="M/d" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCalls" Header="IB All" Class="ThemeAlignRight">
+                <Label Caption="@Data.Calls~" Format="#,###" />
+                <DataColumnSummary DataColumn="Calls" Function="Sum" ID="sumCalls" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCalls" Header="IB Email" Class="ThemeAlignRight">
+                <Label Caption="@Data.emailCalls~" Format="#,###" />
+                <DataColumnSummary DataColumn="emailCalls" Function="Sum" ID="sumEmailCalls" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCalls" Header="% Email" Class="ThemeAlignRight">
+                <Label Caption="@Data.calcPercCalls~" Format="Percent" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader">
+                <Column ID="colTotal">
+                  <Label Caption="Total: " />
+                </Column>
+                <Column ID="colSumCalls" Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumCalls~" Format="#,##0" />
+                </Column>
+                <Column ID="colSumEmailCalls" Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumEmailCalls~" Format="#,##0" />
+                </Column>
+                <Column ID="colTotalPercCalls" Class="ThemeAlignRight">
+                  <Label Caption="=@Data.sumEmailCalls~ / @Data.sumCalls~" Format="Percent" />
+                </Column>
+              </SummaryRow>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlEMAIL_SupportCalls_Rolling7" Caption="Email Support Calls Handled Rolling 7 Hourly" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSupportCallsRolling7Chart" Class="ThemeAlignCenter">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="250" ChartWidth="443" ID="chtSupportCallsRolling7EMAIL" ChartDataColumn="CurrentWeekCalls" ChartLabelColumn="rptHour" ChartLabelColumnDataType="Auto" LineStyle="SolidLine" LegendLabel="Current Week" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderTop="30" GridHorizontalColor="#DDDDDD" BorderRight="0" BorderLeft="35" Color="#00C52B">
+              <DataLayer Type="Cached" ID="dlSupportCallsRolling7CacheEMAIL" CacheKey="SupportCallsRolling7_EMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportCallsRolling7DataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="SupportCallsRolling7" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptHour" DataType="Date" SortSequence="Ascending" ID="sfDate" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="LastWeekCalls" ID="dcVsLastWeekCalls" LegendLabel="Prior Week" />
+              <ExtraXYDataColumn ChartDataColumn="BaselineCalls" ID="dcBaselineCalls" LegendLabel="Baseline" Color="Black" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <Legend LegendTop="-5" LegendOrientation="Horizontal" LegendLeft="25" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#,###" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divSupportCallsRolling7Table" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divSupportCallsRolling7Table" ShowModes="None">
+            <DataTable ID="dtSupportCallsRolling7EMAIL">
+              <DataLayer Type="Cached" ID="dlSupportCallsRolling7CacheEMAIL" CacheKey="SupportCallsRolling7_EMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportCallsRolling7DataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="SupportCallsRolling7" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptHour" DataType="Date" SortSequence="Ascending" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colHour" Header="Hour">
+                <Label Caption="@Data.rptHour~" Format="hh:mm tt" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCurrentWeekCalls" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.CurrentWeekCalls~" Format="#,###" />
+                <DataColumnSummary DataColumn="CurrentWeekCalls" Function="Sum" ID="sumCurrentWeekCalls" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeekCalls" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeekCalls~" Format="#,###" />
+                <DataColumnSummary DataColumn="LastWeekCalls" Function="Sum" ID="sumLastWeekCalls" />
+              </DataTableColumn>
+              <DataTableColumn ID="colBaselineCalls" Header="Baseline" Class="ThemeAlignRight">
+                <Label Caption="@Data.BaselineCalls~" Format="#,###" />
+                <DataColumnSummary DataColumn="BaselineCalls" Function="Sum" ID="sumBaselineCalls" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlEMAIL_SupportHandleTime_Rolling7" Caption="Email Support Calls Handle Time Rolling 7 Hourly" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divSupportHandleTimeRolling7Chart" Class="ThemeAlignCenter">
+            <Chart Type="XY" XYChartType="Spline" ChartHeight="250" ChartWidth="443" ID="chtSupportHandleTimeRolling7EMAIL" ChartDataColumn="CurrentWeekHandleTime" ChartLabelColumn="rptHour" ChartLabelColumnDataType="Auto" LineStyle="SolidLine" LegendLabel="Current Week" BackgroundColor="white" ChartSymbolEdgeColor="Black" BorderTop="30" GridHorizontalColor="#DDDDDD" BorderRight="0" BorderLeft="35" Color="#00C52B">
+              <DataLayer Type="Cached" ID="dlSupportHandleTimeRolling7CacheEMAIL" CacheKey="SupportHandleTimeRolling7_1EMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportHandleTimeRolling7DataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="SupportHandleTimeRolling7" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptHour" DataType="Date" SortSequence="Ascending" ID="sfDate" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="LastWeekHandleTime" ID="dcVsLastWeekHandleTime" LegendLabel="Prior Week" />
+              <ExtraXYDataColumn ChartDataColumn="BaselineHandleTime" ID="dcBaselineHandleTime" LegendLabel="Baseline" Color="Black" />
+              <LabelScale ScalingMode="LinearTime" Format="htt" />
+              <Legend LegendTop="-5" LegendOrientation="Horizontal" LegendLeft="25" BorderColor="White" BorderThickness="0,0,0,0">
+                <FontLegend FontColor="#000000" FontSize="8" FontFilename="arial" />
+              </Legend>
+              <FontLabel FontAngle="0" FontSize="8" FontColor="#000000" FontFilename="arial" BorderColor="Black" />
+              <FontData FontColor="#000000" FontSize="8" FontFilename="arial" />
+              <DataScale Format="#.##" ScaleLowerBound="8" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divSupportHandleTimeRolling7Table" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divSupportHandleTimeRolling7Table" ShowModes="None">
+            <DataTable ID="dtSupportHandleTimeRolling7EMAIL">
+              <DataLayer Type="Cached" ID="dlSupportHandleTimeRolling7CacheEMAIL" CacheKey="SupportHandleTimeRolling7_EMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportHandleTimeRolling7DataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="SupportHandleTimeRolling7" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptHour" DataType="Date" SortSequence="Ascending" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colHandleTimeHour" Header="Hour">
+                <Label Caption="@Data.rptHour~" Format="hh:mm tt" />
+              </DataTableColumn>
+              <DataTableColumn ID="colCurrentHandleTime" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.CurrentWeekHandleTime~" Format="#.00" />
+                <DataColumnSummary DataColumn="CurrentWeekHandleTime" Function="Average" ID="avgCurrentWeekHandleTime" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeekHandleTime" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeekHandleTime~" Format="#.00" />
+                <DataColumnSummary DataColumn="LastWeekHandleTime" Function="Average" ID="avgLastWeek" />
+              </DataTableColumn>
+              <DataTableColumn ID="colBaselineHandleTime" Header="Baseline" Class="ThemeAlignRight">
+                <Label Caption="@Data.BaselineHandleTime~" Format="#.00" />
+                <DataColumnSummary DataColumn="BaselineHandleTime" Function="Average" ID="avgBaselineHandleTime" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Average: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Email Iris Incidents Last 30 days" ID="pnlEMAIL_IRIS" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divIrisChart">
+            <Chart Type="XY" ID="chtIrisIncidentsLast30DaysEMAIL" XYChartType="Bar" ChartDataColumn="requestEmailTickets" ChartLabelColumn="rptDate" ChartHeight="250" ChartWidth="440" ShowWaitIcon="True" ShowDataValues="False" BorderTop="40" LegendLabel="Requests" ExtraBarOptions="Stacked" Color="#50C5DC" Transparency="3">
+              <DataLayer Type="Cached" ID="dlSupportIrisCacheEMAIL" CacheKey="SupportIrisEMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportIrisDataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Iris" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Ascending" ID="sfDate" />
+                <CalculatedColumn Formula="(@Data.incidentEmailTickets~ * 1.00)/(@Data.incidentEmailTickets~ + @Data.requestEmailTickets~)" ID="calcPercIncidents" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="incidentEmailTickets" LegendLabel="Incidents" Color="#E88622" Transparency="3" />
+              <LabelScale Format="MM/dd" LinearTickIncrement="Weeks" LinearTickMinorIncrement="Days" ScalingMode="LinearTime" />
+              <DataScale Format="#,###" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+              <ExtraXYLayer XYChartType="Line" ChartDataColumn="calcPercIncidents" Color="#848181" />
+              <SecondaryAxis>
+                <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                <DataScale Format="#0%" />
+              </SecondaryAxis>
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divIrisTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divIrisTable" ShowModes="None">
+            <DataTable ID="dtIristIncidentsEMAIL">
+              <DataLayer Type="Cached" ID="dlSupportIrisCacheEMAIL" CacheKey="SupportIrisEMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportIrisDataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Iris" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" ID="sfDate" />
+                <CalculatedColumn Formula="(@Data.incidentEmailTickets~ * 1.00)/(@Data.incidentEmailTickets~ + @Data.requestEmailTickets~)" ID="calcPercIncidents" />
+              </DataLayer>
+              <DataTableColumn ID="colDay" Header="Day">
+                <Label Caption="@Data.rptDate~" Format="M/d" />
+              </DataTableColumn>
+              <DataTableColumn ID="colRequests" Header="Requests" Class="ThemeAlignRight">
+                <Label Caption="@Data.requestEmailTickets~" Format="#,###" />
+                <DataColumnSummary DataColumn="requestEmailTickets" Function="Sum" ID="sumRequests" />
+              </DataTableColumn>
+              <DataTableColumn ID="colIncidents" Header="Incidents" Class="ThemeAlignRight">
+                <Label Caption="@Data.incidentEmailTickets~" Format="#,###" />
+                <DataColumnSummary DataColumn="incidentEmailTickets" Function="Sum" ID="sumIncidents" />
+              </DataTableColumn>
+              <DataTableColumn ID="colPercIncidents" Header="% Incidents" Class="ThemeAlignRight">
+                <Label Caption="@Data.calcPercIncidents~" Format="Percent" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader">
+                <Column ID="colTotal">
+                  <Label Caption="Total:" />
+                </Column>
+                <Column ID="colSumCalls" Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumRequests~" Format="#,##0" />
+                </Column>
+                <Column ID="colSumEmailCalls" Class="ThemeAlignRight">
+                  <Label Caption="@Data.sumIncidents~" Format="#,##0" />
+                </Column>
+                <Column ID="colTotalPercIncidents" Class="ThemeAlignRight">
+                  <Label Caption="=@Data.sumIncidents~ / (@Data.sumRequests~ + @Data.sumIncidents~)" Format="Percent" />
+                </Column>
+              </SummaryRow>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlEMAIL_KPI" Caption="Email Key Performance Indicators" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <DataTable ID="dtKPIEMAIL">
+            <HeaderRow HeaderPosition="Top">
+              <Column ID="colSpace" />
+              <Column ID="colDay" ColSpan="3">
+                <Label Caption="Day" />
+              </Column>
+              <Column ID="col7Day" ColSpan="3">
+                <Label Caption="7-Day" />
+              </Column>
+              <Column ID="col28Day" ColSpan="3">
+                <Label Caption="28-Day" />
+              </Column>
+            </HeaderRow>
+            <DataLayer Type="Cached" ID="dlKPICacheEMAIL" CacheKey="KPIEMAIL,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+              <DataLayer Type="SP" ID="dlKPIDataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                  <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="KPI" />
+                </SPParameters>
+              </DataLayer>
+              <SortFilter SortColumn="sortOrder" DataType="Number" SortSequence="Ascending" ID="sfSortOrder" />
+            </DataLayer>
+            <DataTableColumn ID="colMetricName" Header="KPI">
+              <Label Caption="@Data.RowName~" />
+            </DataTableColumn>
+            <DataTableColumn HeaderType="Value" ID="colDay_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn Header="vs. Pr Week" ID="colDay_Prior" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_1Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colDay_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_1Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Prior" Header="vs. Pr 7-day" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_7Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_7Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Prior" Header="     vs. Pr 28-day" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_28Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_28Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlEMAIL_Monthly_Churn" Caption="Email Monthly Churn Rate" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <DataTable ID="dtChurnRateEMAIL_M" Width="522" WidthScale="px">
+            <DataLayer Type="Cached" ID="dlChurnRateCacheEMAIL_M" CacheKey="ChurnRateEMAIL_M,@Request.rptDay~" ExpirationNow="False" ExpirationTimeSpan="01:00">
+              <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-BIGReporting" ID="dlChurnRateDataEMAIL">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                  <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="MonthlyChurn" />
+                </SPParameters>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" ID="sfDate" />
+              </DataLayer>
+            </DataLayer>
+            <DataTableColumn ID="colMonth" Header="Week Ending">
+              <Label Caption="@Data.rptDate~" Format="Short Date" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colBeg" Header="Beg. Units" Class="ThemeAlignRight">
+              <Label Caption="@Data.Beg_Resources~" Format="#,###" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colAdd" Header="New Units" Class="ThemeAlignRight">
+              <Label Caption="@Data.Add_Resources~" Format="#,###" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colLess" Header="Canc. Units" Class="ThemeAlignRight">
+              <Label Format="#,###" Caption="@Data.Less_Resources~" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colEnd" Header="End Units" Class="ThemeAlignRight">
+              <Label Format="#,###" Caption="@Data.End_Resources~" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colNet" Header="Net New Units" Class="ThemeAlignRight">
+              <Label Format="#,###" Caption="@Data.Net_Resources~" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colChurn" Header="Churn %" Class="ThemeAlignRight">
+              <Label Caption="@Data.Churn_Rate~" Format="Percent" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colGrowth" Header="Growth %" Class="ThemeAlignRight">
+              <Label Caption="@Data.Growth_Rate~" Format="Percent" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlEMAIL_Weekly_Churn" Caption="Email Weekly Churn Rate" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <DataTable ID="dtChurnRateEMAIL" Width="522" WidthScale="px">
+            <DataLayer Type="Cached" ID="dlChurnRateCacheEMAIL" CacheKey="ChurnRateEMAIL,@Request.rptDay~" ExpirationNow="False" ExpirationTimeSpan="01:00">
+              <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-BIGReporting" ID="dlChurnRateDataEMAIL">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                  <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="WeeklyChurn" />
+                </SPParameters>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" ID="sfDate" />
+              </DataLayer>
+            </DataLayer>
+            <DataTableColumn ID="colMonth" Header="Week Ending">
+              <Label Caption="@Data.rptDate~" Format="Short Date" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colBeg" Header="Beg. Units" Class="ThemeAlignRight">
+              <Label Caption="@Data.Beg_Resources~" Format="#,###" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colAdd" Header="New Units" Class="ThemeAlignRight">
+              <Label Caption="@Data.Add_Resources~" Format="#,###" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colLess" Header="Canc. Units" Class="ThemeAlignRight">
+              <Label Format="#,###" Caption="@Data.Less_Resources~" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colEnd" Header="End Units" Class="ThemeAlignRight">
+              <Label Format="#,###" Caption="@Data.End_Resources~" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colNet" Header="Net New Units" Class="ThemeAlignRight">
+              <Label Format="#,###" Caption="@Data.Net_Resources~" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colChurn" Header="Churn %" Class="ThemeAlignRight">
+              <Label Caption="@Data.Churn_Rate~" Format="Percent" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+            <DataTableColumn ID="colGrowth" Header="Growth %" Class="ThemeAlignRight">
+              <Label Caption="@Data.Growth_Rate~" Format="Percent" />
+              <ConditionalClass Condition="@Data.isHighlight~ = 1" Class="gdTotalRowHighlightBlackText" />
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Cancel Reason (Last 7 Days)" ID="pnlEMAIL_CancelReason" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <DataTable SortArrows="True" ID="dEMailCancelReasonsEMAIL" CaptionClass="ThemeAlignBottomLeft " Width="522" WidthScale="px">
+            <DataLayer Type="Cached" ID="dlCancelReasonCache" CacheKey="CancelReasonEMAIL,@Request.rptDay~" ExpirationNow="False" ExpirationTimeSpan="01:00" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="SP" ID="dlCancelReasonDataEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                  <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Email" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="CancelReason" />
+                </SPParameters>
+                <PercentOfTotalColumn DataColumn="answers" ID="ptcCancels" />
+                <SortFilter SortColumn="answers" DataType="Number" SortSequence="Descending" ID="sfNumAnswers" />
+              </DataLayer>
+            </DataLayer>
+            <DataTableColumn ID="colanswertext" Header="Answer">
+              <Label ID="lblanswertext" Caption="@Data.answertext~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colanswers" Header="Surveys">
+              <Label ID="lblanswers" Caption="@Data.answers~">
+                <TooltipPanel ID="ttpCancelTrend">
+                  <Chart Type="XY" ChartHeight="200" ChartWidth="200" ChartDataColumn="answers" XYChartType="Line" ChartLabelColumn="rptMonth" ChartTitle="6-Month Trend" ChartLabelColumnDataType="Date" BackgroundColor="White">
+                    <DataLayer Type="SP" ID="dlCancelReasonTrendEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                      <SPParameters>
+                        <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                        <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="EMAIL" />
+                        <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="CancelTrend" />
+                        <SPParameter SPParamDirection="Input" ID="@LogiRequest" SPParamSize="512" SPParamType="dt-200" Value="@Data.answertext~" />
+                      </SPParameters>
+                      <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Ascending" ID="sfMonth" />
+                    </DataLayer>
+                    <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                    <FontChartTitle FontSize="14" FontColor="Black" />
+                    <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                    <FontYAxisTitle FontColor="Black" />
+                    <LabelScale Format="MMM-yy" />
+                  </Chart>
+                </TooltipPanel>
+              </Label>
+              <DataColumnSort DataColumn="answers" DataType="Number" FirstSortSequence="Descending" />
+            </DataTableColumn>
+            <DataTableColumn ID="colPercent" Header="%">
+              <Label Caption="@Data.ptcCancels~" ID="lblPercent" Format="Percent" />
+              <DataColumnSort DataColumn="ptcCancels" FirstSortSequence="Descending" />
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Account Roll Forward" ID="pnlEMAIL_Acct_RollFwd" IdeDisplayStatus="Collapsed">
+        <PanelContent Height="263">
+          <DataTable ID="dtEMAILCommentaryValue" Class="ThemeAlignCenter">
+            <DataLayer Type="Cached" ID="dlCommentaryCacheEMAIL" CacheKey="CommentaryLineEMAIL,@Request.rptDay~" ExpirationNow="False" ExpirationTimeSpan="01:00">
+              <DataLayer Type="SP" ID="dlCommentaryLineEMAIL" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                  <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="EMAIL" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="RollFwdCommentary" />
+                </SPParameters>
+                <FormattedColumn DataColumn="GCR" Format="$###,###" ID="fcGCR" />
+              </DataLayer>
+            </DataLayer>
+            <DataTableColumn ID="colCommentary">
+              <Label Caption="Prior Day Sales were @Data.fcGCR~" ID="lblCommentary" />
+            </DataTableColumn>
+          </DataTable>
+          <LineBreak />
+          <DataTable ID="dtEMAILAcctRollFwd" Caption="EMAIL Roll Forward" Class="ThemeAlignCenter">
+            <DataLayer Type="Cached" ID="dlEMAILRollFwdCache" CacheKey="RollFwdEMAIL,@Request.rptDay~" ExpirationNow="False" ExpirationTimeSpan="0:30">
+              <DataLayer Type="SP" ConnectionID="connM1BIG-biLogiReporting" Command="dbo.rptProductivityDash_AcctRollFwdSummary_sp" ID="dlEMAILRollFwdSummary">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="rptDate" Value="@Request.rptDay~" SPParamType="dt-133" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="EMAIL" />
+                </SPParameters>
+              </DataLayer>
+            </DataLayer>
+            <DataTableColumn ID="colMetric" Class="ThemeAlignRight">
+              <Label Caption="@Data.metric~" />
+            </DataTableColumn>
+            <DataTableColumn Header="Yesterday" ID="colYesterday" Class="ThemeAlignRight">
+              <Label Caption="@Data.Yesterday~" Format="###,###" />
+            </DataTableColumn>
+            <DataTableColumn Header="WTD" ID="colWTD" Class="ThemeAlignRight">
+              <Label Caption="@Data.WTD~" Format="###,###" />
+            </DataTableColumn>
+            <DataTableColumn Header="MTD" ID="colMTD" Class="ThemeAlignRight">
+              <Label Caption="@Data.MTD~" Format="###,###" />
+            </DataTableColumn>
+            <DataTableColumn Header="QTD" ID="colQTD" Class="ThemeAlignRight">
+              <Label Caption="@Data.QTD~" Format="###,###" />
+            </DataTableColumn>
+            <DataTableColumn ID="colYTD" Header="YTD" Class="ThemeAlignRight">
+              <Label Caption="@Data.YTD~" Format="###,###" />
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="OFF GCR 13 Month Trend (000's)" ID="pnlOFF_GCRTrend" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divGCRTrendChart">
+            <DataTable ID="dtRunRateOFF" Class="ThemeAlignCenter">
+              <DataLayer Type="Cached" ID="dlRunRateCacheOFF" CacheKey="RunRateOFF,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlRunRateOFF" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Storage" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="RunRate" />
+                  </SPParameters>
+                </DataLayer>
+                <FormattedColumn DataColumn="MTDGCR" Format="$###,###" ID="fcMTDGCR" />
+                <FormattedColumn DataColumn="RunRateGCR" Format="$###,###" ID="fcRunRateGCR" />
+              </DataLayer>
+              <DataTableColumn ID="colMTDGCR">
+                <Label Caption="MTD GCR: @Data.fcMTDGCR~" ID="lblMTDGCR" />
+              </DataTableColumn>
+              <DataTableColumn ID="colRunRateGCR">
+                <Label Caption="Current Run Rate GCR: @Data.fcRunRateGCR~" ID="lblRunRateGCR" Format="Percent" />
+              </DataTableColumn>
+            </DataTable>
+            <Chart Type="XY" ID="chtGCRTrendOFF" XYChartType="Line" ChartDataColumn="calcGCR" ChartHeight="218" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Vertical" ExtraBarOptions="SideBySide" Color="#00C52B" ChartTitle="13 Month Trend" BorderTop="30" BorderBottom="60" ChartLabelColumn="rptMonth">
+              <DataLayer Type="Cached" ID="dlGCRTrendCacheOFF" CacheKey="GCRTrendOFF,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlGCRTrendDataOFF" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Storage" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="GCRTrend" />
+                  </SPParameters>
+                </DataLayer>
+                <CalculatedColumn ID="calcGCR" Formula="@Data.GCR~ / 1000" />
+                <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Ascending" ID="sfMonth" />
+              </DataLayer>
+              <DataScale Format="$#,###" ScaleUpperBound="500" ScaleLowerBound="200" />
+              <LabelScale Format="MMM-yy" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divGCRTrendTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divGCRTrendTable" ShowModes="None">
+            <DataTable ID="dtGCRTrendOFF">
+              <DataLayer Type="Cached" ID="dlGCRTrendCacheOFF" CacheKey="GCRTrendOFF,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlGCRTrendDataOFF" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Storage" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="GCRTrend" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Descending" ID="sfMonth" />
+              </DataLayer>
+              <DataTableColumn ID="colMonth" Header="Month">
+                <Label Caption="@Data.rptMonth~" Format="MMM-yy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colGCR" Header="GCR" Class="ThemeAlignRight">
+                <Label Caption="@Data.GCR~" Format="Currency" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="OFF Total Units By Pathway (Rolling 7 Days)" ID="pnlOFF_UnitsByPathway" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divUnitsByPathwayChart" Class="ThemeAlignRight">
+            <Chart Type="XY" ID="chtUnitsByPathwayOFF" XYChartType="Bar" ChartDataColumn="calcThisWeek" ChartLabelColumn="abrPathway" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Horizontal" ExtraBarOptions="SideBySide" Color="#00C52B" Transparency="3" BorderBottom="60" BorderTop="30" LegendLabel="Current Week">
+              <DataLayer Type="Cached" ID="dlUnitsByPathwayCacheOFF" CacheKey="UnitsByPathwayOFF,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByPathwayDataOFF" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Storage" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByPathway" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Ascending" ID="sfThisWeek" />
+                <CalculatedColumn ID="calcThisWeek" Formula="@Data.ThisWeek~ / 1000" />
+                <CalculatedColumn ID="calcLastWeek" Formula="@Data.LastWeek~ / 1000" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="calcLastWeek" LegendLabel="Prior Week" Transparency="3" />
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+              <DataScale Format="0k" TickDensity="60" ZeroAffinity="1" />
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divUnitsByPathwayTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divUnitsByPathwayTable" ShowModes="None">
+            <DataTable ID="dtUnitsByPathwayOFF">
+              <DataLayer Type="Cached" ID="dlUnitsByPathwayCacheOFF" CacheKey="UnitsByPathwayOFF,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByPathwayDataOFF" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Storage" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByPathway" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Descending" ID="sfThisWeek" />
+              </DataLayer>
+              <DataTableColumn ID="colPathway" Header="Pathway">
+                <Label Caption="@Data.Pathway~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colThisWeek" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.ThisWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="ThisWeek" Function="Sum" ID="sumThisWeek" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeek" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="LastWeek" Function="Sum" ID="sumLastWeek" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="OFF Total Units By Channel (Rolling 7 Days)" ID="pnlOFF_UnitsByChannel" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divUnitsByChannelChart">
+            <Chart Type="XY" ID="chtUnitsByChannelOFF" XYChartType="Bar" ChartDataColumn="calcThisWeek" ChartLabelColumn="abrChannel" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Horizontal" ExtraBarOptions="SideBySide" Color="#00C52B" LegendLabel="Current Week" Transparency="3" BorderBottom="60" BorderTop="30">
+              <DataLayer Type="Cached" ID="dlUnitsByChannelCacheOFF" CacheKey="UnitsByChannelOFF,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByChannelDataOFF" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Storage" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByChannel" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Ascending" ID="sfThisWeek" />
+                <CalculatedColumn ID="calcThisWeek" Formula="@Data.ThisWeek~ / 1000" />
+                <CalculatedColumn ID="calcLastWeek" Formula="@Data.LastWeek~ / 1000" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="calcLastWeek" LegendLabel="Prior Week" Transparency="3" />
+              <DataScale Format="0k" TickDensity="60" ZeroAffinity="1" />
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divUnitsByChannelTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divUnitsByChannelTable" ShowModes="None">
+            <DataTable ID="dtUnitsByChannelOFF">
+              <DataLayer Type="Cached" ID="dlUnitsByChannelCacheOFF" CacheKey="UnitsByChannelOFF,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByChannelDataOFF" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Storage" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByChannel" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Descending" ID="sfThisWeek" />
+              </DataLayer>
+              <DataTableColumn ID="colChannel" Header="Pathway">
+                <Label Caption="@Data.Channel~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colThisWeek" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.ThisWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="ThisWeek" Function="Sum" ID="sumThisWeek" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeek" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="LastWeek" Function="Sum" ID="sumLastWeek" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="OFF Iris Incidents Last 30 days" ID="pnlOFF_IRIS" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divIrisChart">
+            <Chart Type="XY" ID="chtIrisIncidentsLast30DaysOFF" XYChartType="Line" ChartDataColumn="Tickets" ChartLabelColumn="rptDate" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" BorderTop="30">
+              <DataLayer Type="Cached" ID="dlSupportIrisCacheOFF" CacheKey="SupportIrisOFF,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportIrisDataOFF" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Storage" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Iris" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Ascending" ID="sfDate" />
+              </DataLayer>
+              <LabelScale Format="MM/dd" LinearTickIncrement="Weeks" LinearTickMinorIncrement="Days" ScalingMode="LinearTime" />
+              <DataScale Format="#,###" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divIrisTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divIrisTable" ShowModes="None">
+            <DataTable ID="dtIristIncidentsOFF">
+              <DataLayer Type="Cached" ID="dlSupportIrisCacheOFF" CacheKey="SupportIrisOFF,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportIrisDataOFF" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Storage" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Iris" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colDay" Header="Day">
+                <Label Caption="@Data.rptDate~" Format="M/d" />
+              </DataTableColumn>
+              <DataTableColumn ID="colIncidents" Header="Iris Incidents" Class="ThemeAlignRight">
+                <Label Caption="@Data.Tickets~" Format="#,###" />
+                <DataColumnSummary DataColumn="OFF_Support_Tickets" Function="Sum" ID="sumIncidents" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlOFF_KPI" Caption="OFF Key Performance Indicators" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <DataTable ID="dtKPIOFF">
+            <HeaderRow HeaderPosition="Top">
+              <Column ID="colSpace" />
+              <Column ID="colDay" ColSpan="3">
+                <Label Caption="Day" />
+              </Column>
+              <Column ID="col7Day" ColSpan="3">
+                <Label Caption="7-Day" />
+              </Column>
+              <Column ID="col28Day" ColSpan="3">
+                <Label Caption="28-Day" />
+              </Column>
+            </HeaderRow>
+            <DataLayer Type="Cached" ID="dlKPICacheOFF" CacheKey="KPIOFF,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+              <DataLayer Type="SP" ID="dlKPIDataOFF" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                  <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Storage" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="KPI" />
+                </SPParameters>
+                <SortFilter SortColumn="sortOrder" DataType="Number" SortSequence="Ascending" ID="sfSortOrder" />
+              </DataLayer>
+            </DataLayer>
+            <DataTableColumn ID="colMetricName" Header="KPI">
+              <Label Caption="@Data.RowName~" />
+            </DataTableColumn>
+            <DataTableColumn HeaderType="Value" ID="colDay_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn Header="vs. Pr Week" ID="colDay_Prior" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_1Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colDay_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_1Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Prior" Header="vs. Pr 7-day" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_7Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_7Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Prior" Header="     vs. Pr 28-day" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_28Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_28Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Calendar GCR 13 Month Trend (000's)" ID="pnlCalendar_GCRTrend" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divGCRTrendChart">
+            <DataTable ID="dtRunRateCalendar" Class="ThemeAlignCenter">
+              <DataLayer Type="Cached" ID="dlRunRateCacheCalendar" CacheKey="RunRateCalendar,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlRunRateCalendar" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Calendar" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="RunRate" />
+                  </SPParameters>
+                </DataLayer>
+                <FormattedColumn DataColumn="MTDGCR" Format="$###,###" ID="fcMTDGCR" />
+                <FormattedColumn DataColumn="RunRateGCR" Format="$###,###" ID="fcRunRateGCR" />
+              </DataLayer>
+              <DataTableColumn ID="colMTDGCR">
+                <Label Caption="MTD GCR: @Data.fcMTDGCR~" ID="lblMTDGCR" />
+              </DataTableColumn>
+              <DataTableColumn ID="colRunRateGCR">
+                <Label Caption="Current Run Rate GCR: @Data.fcRunRateGCR~" ID="lblRunRateGCR" Format="Percent" />
+              </DataTableColumn>
+            </DataTable>
+            <Chart Type="XY" ID="chtGCRTrendCalendar" XYChartType="Line" ChartDataColumn="calcGCR" ChartHeight="218" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Vertical" ExtraBarOptions="SideBySide" Color="#00C52B" ChartTitle="13 Month Trend" BorderTop="30" BorderBottom="60" ChartLabelColumn="rptMonth">
+              <DataLayer Type="Cached" ID="dlGCRTrendCacheCalendar" CacheKey="GCRTrendCalendar,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlGCRTrendDataCalendar" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Calendar" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="GCRTrend" />
+                  </SPParameters>
+                </DataLayer>
+                <CalculatedColumn ID="calcGCR" Formula="@Data.GCR~ / 1000" />
+                <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Ascending" ID="sfMonth" />
+              </DataLayer>
+              <DataScale Format="$#,###" ScaleLowerBound="200" ScaleUpperBound="800" />
+              <LabelScale Format="MMM-yy" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divGCRTrendTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divGCRTrendTable" ShowModes="None">
+            <DataTable ID="dtGCRTrendCalendar">
+              <DataLayer Type="Cached" ID="dlGCRTrendCacheCalendar" CacheKey="GCRTrendCalendar,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlGCRTrendDataCalendar" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Calendar" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="GCRTrend" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Descending" ID="sfMonth" />
+              </DataLayer>
+              <DataTableColumn ID="colMonth" Header="Month">
+                <Label Caption="@Data.rptMonth~" Format="MMM-yy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colGCR" Header="GCR" Class="ThemeAlignRight">
+                <Label Caption="@Data.GCR~" Format="Currency" ID="dlGCRTrendData2Calendar" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Calendar Total Units By Pathway (Rolling 7 Days)" ID="pnlCalendar_UnitsByPathway" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divUnitsByPathwayChart" Class="ThemeAlignRight">
+            <Chart Type="XY" ID="chtUnitsByPathwayCalendar" XYChartType="Bar" ChartDataColumn="calcThisWeek" ChartLabelColumn="abrPathway" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Horizontal" ExtraBarOptions="SideBySide" Color="#00C52B" Transparency="3" BorderBottom="60" BorderTop="30" LegendLabel="Current Week">
+              <DataLayer Type="Cached" ID="dlUnitsByPathwayCacheCalendar" CacheKey="UnitsByPathwayCalendar,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByPathwayDataCalendar" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Calendar" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByPathway" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Ascending" ID="sfThisWeek" />
+                <CalculatedColumn ID="calcThisWeek" Formula="@Data.ThisWeek~ / 1000" />
+                <CalculatedColumn ID="calcLastWeek" Formula="@Data.LastWeek~ / 1000" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="calcLastWeek" LegendLabel="Prior Week" Transparency="3" />
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+              <DataScale Format="0k" TickDensity="60" ZeroAffinity="1" />
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divUnitsByPathwayTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divUnitsByPathwayTable" ShowModes="None">
+            <DataTable ID="dtUnitsByPathwayCalendar">
+              <DataLayer Type="Cached" ID="dlUnitsByPathwayCacheCalendar" CacheKey="UnitsByPathwayCalendar,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByPathwayDataCalendar" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Calendar" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByPathway" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Descending" ID="sfThisWeek" />
+              </DataLayer>
+              <DataTableColumn ID="colPathway" Header="Pathway">
+                <Label Caption="@Data.Pathway~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colThisWeek" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.ThisWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="ThisWeek" Function="Sum" ID="sumThisWeek" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeek" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="LastWeek" Function="Sum" ID="sumLastWeek" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Calendar Total Units By Channel (Rolling 7 Days)" ID="pnlCalendar_UnitsByChannel" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divUnitsByChannelChart">
+            <Chart Type="XY" ID="chtUnitsByChannelCalendar" XYChartType="Bar" ChartDataColumn="calcThisWeek" ChartLabelColumn="abrChannel" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Horizontal" ExtraBarOptions="SideBySide" Color="#00C52B" LegendLabel="Current Week" Transparency="3" BorderBottom="60" BorderTop="30">
+              <DataLayer Type="Cached" ID="dlUnitsByChannelCacheCalendar" CacheKey="UnitsByChannelCalendar,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByChannelDataCalendar" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Calendar" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByChannel" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Ascending" ID="sfThisWeek" />
+                <CalculatedColumn ID="calcThisWeek" Formula="@Data.ThisWeek~ / 1000" />
+                <CalculatedColumn ID="calcLastWeek" Formula="@Data.LastWeek~ / 1000" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="calcLastWeek" LegendLabel="Prior Week" Transparency="3" />
+              <DataScale Format="0k" TickDensity="60" ZeroAffinity="1" />
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divUnitsByChannelTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divUnitsByChannelTable" ShowModes="None">
+            <DataTable ID="dtUnitsByChannelCalendar">
+              <DataLayer Type="Cached" ID="dlUnitsByChannelCacheCalendar" CacheKey="UnitsByChannelCalendar,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByChannelDataCalendar" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Calendar" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByChannel" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Descending" ID="sfThisWeek" />
+              </DataLayer>
+              <DataTableColumn ID="colChannel" Header="Pathway">
+                <Label Caption="@Data.Channel~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colThisWeek" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.ThisWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="ThisWeek" Function="Sum" ID="sumThisWeek" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeek" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="LastWeek" Function="Sum" ID="sumLastWeek" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Calendar Iris Incidents Last 30 days" ID="pnlCalendar_IRIS" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divIrisChart">
+            <Chart Type="XY" ID="chtIrisIncidentsLast30DaysCalendar" XYChartType="Line" ChartDataColumn="Tickets" ChartLabelColumn="rptDate" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" BorderTop="30">
+              <DataLayer Type="Cached" ID="dlSupportIrisCacheCalendar" CacheKey="SupportIrisCalendar,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportIrisDataCalendar" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Calendar" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Iris" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Ascending" ID="sfDate" />
+              </DataLayer>
+              <LabelScale Format="MM/dd" LinearTickIncrement="Weeks" LinearTickMinorIncrement="Days" ScalingMode="LinearTime" />
+              <DataScale Format="#,###" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divIrisTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divIrisTable" ShowModes="None">
+            <DataTable ID="dtIristIncidentsCalendar">
+              <DataLayer Type="Cached" ID="dlSupportIrisCacheCalendar" CacheKey="SupportIrisCalendar,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportIrisDataCalendar" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Calendar" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Iris" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colDay" Header="Day">
+                <Label Caption="@Data.rptDate~" Format="M/d" />
+              </DataTableColumn>
+              <DataTableColumn ID="colIncidents" Header="Iris Incidents" Class="ThemeAlignRight">
+                <Label Caption="@Data.Tickets~" Format="#,###" />
+                <DataColumnSummary DataColumn="Calendar_Support_Tickets" Function="Sum" ID="sumIncidents" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlCalendar_KPI" Caption="Calendar Key Performance Indicators" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <DataTable ID="dtKPICalendar">
+            <HeaderRow HeaderPosition="Top">
+              <Column ID="colSpace" />
+              <Column ID="colDay" ColSpan="3">
+                <Label Caption="Day" />
+              </Column>
+              <Column ID="col7Day" ColSpan="3">
+                <Label Caption="7-Day" />
+              </Column>
+              <Column ID="col28Day" ColSpan="3">
+                <Label Caption="28-Day" />
+              </Column>
+            </HeaderRow>
+            <DataLayer Type="Cached" ID="dlKPICacheCalendar" CacheKey="KPICalendar,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+              <DataLayer Type="SP" ID="dlKPIDataCalendar" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                  <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Online Calendar" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="KPI" />
+                </SPParameters>
+                <SortFilter SortColumn="sortOrder" DataType="Number" SortSequence="Ascending" ID="sfSortOrder" />
+              </DataLayer>
+            </DataLayer>
+            <DataTableColumn ID="colMetricName" Header="KPI">
+              <Label Caption="@Data.RowName~" />
+            </DataTableColumn>
+            <DataTableColumn HeaderType="Value" ID="colDay_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn Header="vs. Pr Week" ID="colDay_Prior" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_1Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colDay_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_1Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Prior" Header="vs. Pr 7-day" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_7Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_7Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Prior" Header="     vs. Pr 28-day" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_28Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_28Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Exchange GCR 13 Month Trend (000's)" ID="pnlEXCHANGE_GCRTrend" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divGCRTrendChart">
+            <DataTable ID="dtRunRateEXCHANGE" Class="ThemeAlignCenter">
+              <DataLayer Type="Cached" ID="dlRunRateCacheEXCHANGE" CacheKey="RunRateEXCHANGE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlRunRateEXCHANGE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Hosted Exchange" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="RunRate" />
+                  </SPParameters>
+                </DataLayer>
+                <FormattedColumn DataColumn="MTDGCR" Format="$###,###" ID="fcMTDGCR" />
+                <FormattedColumn DataColumn="RunRateGCR" Format="$###,###" ID="fcRunRateGCR" />
+              </DataLayer>
+              <DataTableColumn ID="colMTDGCR">
+                <Label Caption="MTD GCR: @Data.fcMTDGCR~" ID="lblMTDGCR" />
+              </DataTableColumn>
+              <DataTableColumn ID="colRunRateGCR">
+                <Label Caption="Current Run Rate GCR: @Data.fcRunRateGCR~" ID="lblRunRateGCR" Format="Percent" />
+              </DataTableColumn>
+            </DataTable>
+            <Chart Type="XY" ID="chtGCRTrendEXCHANGE" XYChartType="Line" ChartDataColumn="calcGCR" ChartHeight="218" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Vertical" ExtraBarOptions="SideBySide" Color="#00C52B" ChartTitle="13 Month Trend" BorderTop="30" BorderBottom="60" ChartLabelColumn="rptMonth">
+              <DataLayer Type="Cached" ID="dlGCRTrendCacheEXCHANGE" CacheKey="GCRTrendEXCHANGE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlGCRTrendDataEXCHANGE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Hosted Exchange" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="GCRTrend" />
+                  </SPParameters>
+                </DataLayer>
+                <CalculatedColumn ID="calcGCR" Formula="@Data.GCR~ / 1000" />
+                <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Ascending" ID="sfMonth" />
+              </DataLayer>
+              <DataScale Format="$#,###" ScaleUpperBound="1800" ScaleLowerBound="1000" />
+              <LabelScale Format="MMM-yy" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divGCRTrendTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divGCRTrendTable" ShowModes="None">
+            <DataTable ID="dtGCRTrendEXCHANGE">
+              <DataLayer Type="Cached" ID="dlGCRTrendCacheEXCHANGE" CacheKey="GCRTrendEXCHANGE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlGCRTrendDataEXCHANGE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Hosted Exchange" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="GCRTrend" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Descending" ID="sfMonth" />
+              </DataLayer>
+              <DataTableColumn ID="colMonth" Header="Month">
+                <Label Caption="@Data.rptMonth~" Format="MMM-yy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colGCR" Header="GCR" Class="ThemeAlignRight">
+                <Label Caption="@Data.GCR~" Format="Currency" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Exchange Total Units By Pathway (Rolling 7 Days)" ID="pnlEXCHANGE_UnitsByPathway" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divUnitsByPathwayChart" Class="ThemeAlignRight">
+            <Chart Type="XY" ID="chtUnitsByPathwayEXCHANGE" XYChartType="Bar" ChartDataColumn="calcThisWeek" ChartLabelColumn="abrPathway" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Horizontal" ExtraBarOptions="SideBySide" Color="#00C52B" Transparency="3" BorderBottom="60" BorderTop="30" LegendLabel="Current Week">
+              <DataLayer Type="Cached" ID="dlUnitsByPathwayCacheEXCHANGE" CacheKey="UnitsByPathwayEXCHANGE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByPathwayDataEXCHANGE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Hosted Exchange" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByPathway" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Ascending" ID="sfThisWeek" />
+                <CalculatedColumn ID="calcThisWeek" Formula="@Data.ThisWeek~ " />
+                <CalculatedColumn ID="calcLastWeek" Formula="@Data.LastWeek~" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="calcLastWeek" LegendLabel="Prior Week" Transparency="3" />
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+              <DataScale TickDensity="30" />
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divUnitsByPathwayTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divUnitsByPathwayTable" ShowModes="None">
+            <DataTable ID="dtUnitsByPathwayEXCHANGE">
+              <DataLayer Type="Cached" ID="dlUnitsByPathwayCacheEXCHANGE" CacheKey="UnitsByPathwayEXCHANGE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByPathwayDataEXCHANGE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Hosted Exchange" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByPathway" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Descending" ID="sfThisWeek" />
+              </DataLayer>
+              <DataTableColumn ID="colPathway" Header="Pathway">
+                <Label Caption="@Data.Pathway~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colThisWeek" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.ThisWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="ThisWeek" Function="Sum" ID="sumThisWeek" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeek" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="LastWeek" Function="Sum" ID="sumLastWeek" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Exchange Total Units By Channel (Rolling 7 Days)" ID="pnlEXCHANGE_UnitsByChannel" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divUnitsByChannelChart">
+            <Chart Type="XY" ID="chtUnitsByChannelEXCHANGE" XYChartType="Bar" ChartDataColumn="calcThisWeek" ChartLabelColumn="abrChannel" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Horizontal" ExtraBarOptions="SideBySide" Color="#00C52B" LegendLabel="Current Week" Transparency="3" BorderBottom="60" BorderTop="30">
+              <DataLayer Type="Cached" ID="dlUnitsByChannelCacheEXCHANGE" CacheKey="UnitsByChannelEXCHANGE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByChannelDataEXCHANGE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Hosted Exchange" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByChannel" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Ascending" ID="sfThisWeek" />
+                <CalculatedColumn ID="calcThisWeek" Formula="@Data.ThisWeek~" />
+                <CalculatedColumn ID="calcLastWeek" Formula="@Data.LastWeek~ " />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="calcLastWeek" LegendLabel="Prior Week" Transparency="3" />
+              <DataScale TickDensity="30" />
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divUnitsByChannelTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divUnitsByChannelTable" ShowModes="None">
+            <DataTable ID="dtUnitsByChannelEXCHANGE">
+              <DataLayer Type="Cached" ID="dlUnitsByChannelCacheEXCHANGE" CacheKey="UnitsByChannelEXCHANGE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByChannelDataEXCHANGE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Hosted Exchange" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByChannel" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Descending" ID="sfThisWeek" />
+              </DataLayer>
+              <DataTableColumn ID="colChannel" Header="Pathway">
+                <Label Caption="@Data.Channel~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colThisWeek" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.ThisWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="ThisWeek" Function="Sum" ID="sumThisWeek" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeek" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="LastWeek" Function="Sum" ID="sumLastWeek" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Exchange Iris Incidents Last 30 days" ID="pnlEXCHANGE_IRIS" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divIrisChart">
+            <Chart Type="XY" ID="chtIrisIncidentsLast30DaysEXCHANGE" XYChartType="Line" ChartDataColumn="Tickets" ChartLabelColumn="rptDate" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" BorderTop="30">
+              <DataLayer Type="Cached" ID="dlSupportIrisCacheEXCHANGE" CacheKey="SupportIrisEXCHANGE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportIrisDataEXCHANGE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Hosted Exchange" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Iris" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Ascending" ID="sfDate" />
+              </DataLayer>
+              <LabelScale Format="MM/dd" LinearTickIncrement="Weeks" LinearTickMinorIncrement="Days" ScalingMode="LinearTime" />
+              <DataScale Format="#,###" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divIrisTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divIrisTable" ShowModes="None">
+            <DataTable ID="dtIristIncidentsEXCHANGE">
+              <DataLayer Type="Cached" ID="dlSupportIrisCacheEXCHANGE" CacheKey="SupportIrisEXCHANGE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportIrisDataEXCHANGE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Hosted Exchange" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Iris" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colDay" Header="Day">
+                <Label Caption="@Data.rptDate~" Format="M/d" />
+              </DataTableColumn>
+              <DataTableColumn ID="colIncidents" Header="Iris Incidents" Class="ThemeAlignRight">
+                <Label Caption="@Data.Tickets~" Format="#,###" />
+                <DataColumnSummary DataColumn="EXCHANGE_Support_Tickets" Function="Sum" ID="sumIncidents" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlEXCHANGE_KPI" Caption="Exchange Key Performance Indicators" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <DataTable ID="dtKPIEXCHANGE">
+            <HeaderRow HeaderPosition="Top">
+              <Column ID="colSpace" />
+              <Column ID="colDay" ColSpan="3">
+                <Label Caption="Day" />
+              </Column>
+              <Column ID="col7Day" ColSpan="3">
+                <Label Caption="7-Day" />
+              </Column>
+              <Column ID="col28Day" ColSpan="3">
+                <Label Caption="28-Day" />
+              </Column>
+            </HeaderRow>
+            <DataLayer Type="Cached" ID="dlKPICacheEXCHANGE" CacheKey="KPIEXCHANGE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+              <DataLayer Type="SP" ID="dlKPIDataEXCHANGE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                  <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Hosted Exchange" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="KPI" />
+                </SPParameters>
+                <SortFilter SortColumn="sortOrder" DataType="Number" SortSequence="Ascending" ID="sfSortOrder" />
+                <ConditionFilter Condition="@Data.sortOrder~ &lt; 9" ID="cfNotEmpty" />
+              </DataLayer>
+            </DataLayer>
+            <DataTableColumn ID="colMetricName" Header="KPI">
+              <Label Caption="@Data.RowName~" />
+            </DataTableColumn>
+            <DataTableColumn HeaderType="Value" ID="colDay_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn Header="vs. Pr Week" ID="colDay_Prior" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_1Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colDay_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_1Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Prior" Header="vs. Pr 7-day" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_7Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_7Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Prior" Header="     vs. Pr 28-day" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_28Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_28Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="FTE GCR 13 Month Trend (000's)" ID="pnlFTE_GCRTrend" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divGCRTrendChart">
+            <DataTable ID="dtRunRateFTE" Class="ThemeAlignCenter">
+              <DataLayer Type="Cached" ID="dlRunRateCacheFTE" CacheKey="RunRateFTE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlRunRateFTE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Fax Thru Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="RunRate" />
+                  </SPParameters>
+                </DataLayer>
+                <FormattedColumn DataColumn="MTDGCR" Format="$###,###" ID="fcMTDGCR" />
+                <FormattedColumn DataColumn="RunRateGCR" Format="$###,###" ID="fcRunRateGCR" />
+              </DataLayer>
+              <DataTableColumn ID="colMTDGCR">
+                <Label Caption="MTD GCR: @Data.fcMTDGCR~" ID="lblMTDGCR" />
+              </DataTableColumn>
+              <DataTableColumn ID="colRunRateGCR">
+                <Label Caption="Current Run Rate GCR: @Data.fcRunRateGCR~" ID="lblRunRateGCR" Format="Percent" />
+              </DataTableColumn>
+            </DataTable>
+            <Chart Type="XY" ID="chtGCRTrendFTE" XYChartType="Line" ChartDataColumn="calcGCR" ChartHeight="218" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Vertical" ExtraBarOptions="SideBySide" Color="#00C52B" ChartTitle="13 Month Trend" BorderTop="30" BorderBottom="60" ChartLabelColumn="rptMonth">
+              <DataLayer Type="Cached" ID="dlGCRTrendCacheFTE" CacheKey="GCRTrendFTE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlGCRTrendDataFTE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Fax Thru Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="GCRTrend" />
+                  </SPParameters>
+                </DataLayer>
+                <CalculatedColumn ID="calcGCR" Formula="@Data.GCR~ / 1000" />
+                <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Ascending" ID="sfMonth" />
+              </DataLayer>
+              <DataScale Format="$#,###" ScaleUpperBound="230" ScaleLowerBound="170" />
+              <LabelScale Format="MMM-yy" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divGCRTrendTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divGCRTrendTable" ShowModes="None">
+            <DataTable ID="dtGCRTrendFTE">
+              <DataLayer Type="Cached" ID="dlGCRTrendCacheFTE" CacheKey="GCRTrendFTE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlGCRTrendDataFTE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Fax Thru Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="GCRTrend" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Descending" ID="sfMonth" />
+              </DataLayer>
+              <DataTableColumn ID="colMonth" Header="Month">
+                <Label Caption="@Data.rptMonth~" Format="MMM-yy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colGCR" Header="GCR" Class="ThemeAlignRight">
+                <Label Caption="@Data.GCR~" Format="Currency" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="FTE Total Units By Pathway (Rolling 7 Days)" ID="pnlFTE_UnitsByPathway" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divUnitsByPathwayChart" Class="ThemeAlignRight">
+            <Chart Type="XY" ID="chtUnitsByPathwayFTE" XYChartType="Bar" ChartDataColumn="calcThisWeek" ChartLabelColumn="abrPathway" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Horizontal" ExtraBarOptions="SideBySide" Color="#00C52B" Transparency="3" BorderBottom="60" BorderTop="30" LegendLabel="Current Week">
+              <DataLayer Type="Cached" ID="dlUnitsByPathwayCacheFTE" CacheKey="UnitsByPathwayFTE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByPathwayDataFTE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Fax Thru Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByPathway" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Ascending" ID="sfThisWeek" />
+                <CalculatedColumn ID="calcThisWeek" Formula="@Data.ThisWeek~" />
+                <CalculatedColumn ID="calcLastWeek" Formula="@Data.LastWeek~" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="calcLastWeek" LegendLabel="Prior Week" Transparency="3" />
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divUnitsByPathwayTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divUnitsByPathwayTable" ShowModes="None">
+            <DataTable ID="dtUnitsByPathwayFTE">
+              <DataLayer Type="Cached" ID="dlUnitsByPathwayCacheFTE" CacheKey="UnitsByPathwayFTE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByPathwayDataFTE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Fax Thru Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByPathway" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Descending" ID="sfThisWeek" />
+              </DataLayer>
+              <DataTableColumn ID="colPathway" Header="Pathway">
+                <Label Caption="@Data.Pathway~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colThisWeek" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.ThisWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="ThisWeek" Function="Sum" ID="sumThisWeek" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeek" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="LastWeek" Function="Sum" ID="sumLastWeek" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="FTE Total Units By Channel (Rolling 7 Days)" ID="pnlFTE_UnitsByChannel" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divUnitsByChannelChart">
+            <Chart Type="XY" ID="chtUnitsByChannelFTE" XYChartType="Bar" ChartDataColumn="calcThisWeek" ChartLabelColumn="abrChannel" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Horizontal" ExtraBarOptions="SideBySide" Color="#00C52B" LegendLabel="Current Week" Transparency="3" BorderBottom="60" BorderTop="30">
+              <DataLayer Type="Cached" ID="dlUnitsByChannelCacheFTE" CacheKey="UnitsByChannelFTE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByChannelDataFTE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Fax Thru Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByChannel" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Ascending" ID="sfThisWeek" />
+                <CalculatedColumn ID="calcThisWeek" Formula="@Data.ThisWeek~" />
+                <CalculatedColumn ID="calcLastWeek" Formula="@Data.LastWeek~" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="calcLastWeek" LegendLabel="Prior Week" Transparency="3" />
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divUnitsByChannelTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divUnitsByChannelTable" ShowModes="None">
+            <DataTable ID="dtUnitsByChannelFTE">
+              <DataLayer Type="Cached" ID="dlUnitsByChannelCacheFTE" CacheKey="UnitsByChannelFTE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByChannelDataFTE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Fax Thru Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByChannel" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Descending" ID="sfThisWeek" />
+              </DataLayer>
+              <DataTableColumn ID="colChannel" Header="Pathway">
+                <Label Caption="@Data.Channel~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colThisWeek" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.ThisWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="ThisWeek" Function="Sum" ID="sumThisWeek" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeek" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="LastWeek" Function="Sum" ID="sumLastWeek" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="FTE Iris Incidents Last 30 days" ID="pnlFTE_IRIS" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divIrisChart">
+            <Chart Type="XY" ID="chtIrisIncidentsLast30DaysFTE" XYChartType="Line" ChartDataColumn="Tickets" ChartLabelColumn="rptDate" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" BorderTop="30">
+              <DataLayer Type="Cached" ID="dlSupportIrisCacheFTE" CacheKey="SupportIrisFTE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportIrisDataFTE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Fax Thru Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Iris" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Ascending" ID="sfDate" />
+              </DataLayer>
+              <LabelScale Format="MM/dd" LinearTickIncrement="Weeks" LinearTickMinorIncrement="Days" ScalingMode="LinearTime" />
+              <DataScale Format="#,###" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divIrisTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divIrisTable" ShowModes="None">
+            <DataTable ID="dtIristIncidentsFTE">
+              <DataLayer Type="Cached" ID="dlSupportIrisCacheFTE" CacheKey="SupportIrisFTE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportIrisDataFTE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Fax Thru Email" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Iris" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colDay" Header="Day">
+                <Label Caption="@Data.rptDate~" Format="M/d" />
+              </DataTableColumn>
+              <DataTableColumn ID="colIncidents" Header="Iris Incidents" Class="ThemeAlignRight">
+                <Label Caption="@Data.Tickets~" Format="#,###" />
+                <DataColumnSummary DataColumn="FTE_Support_Tickets" Function="Sum" ID="sumIncidents" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlFTE_KPI" Caption="FTE Key Performance Indicators" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <DataTable ID="dtKPIFTE">
+            <HeaderRow HeaderPosition="Top">
+              <Column ID="colSpace" />
+              <Column ID="colDay" ColSpan="3">
+                <Label Caption="Day" />
+              </Column>
+              <Column ID="col7Day" ColSpan="3">
+                <Label Caption="7-Day" />
+              </Column>
+              <Column ID="col28Day" ColSpan="3">
+                <Label Caption="28-Day" />
+              </Column>
+            </HeaderRow>
+            <DataLayer Type="Cached" ID="dlKPICacheFTE" CacheKey="KPIFTE,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+              <DataLayer Type="SP" ID="dlKPIDataFTE" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                  <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="Fax Thru Email" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="KPI" />
+                </SPParameters>
+                <SortFilter SortColumn="sortOrder" DataType="Number" SortSequence="Ascending" ID="sfSortOrder" />
+              </DataLayer>
+            </DataLayer>
+            <DataTableColumn ID="colMetricName" Header="KPI">
+              <Label Caption="@Data.RowName~" />
+            </DataTableColumn>
+            <DataTableColumn HeaderType="Value" ID="colDay_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn Header="vs. Pr Week" ID="colDay_Prior" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_1Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colDay_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_1Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Prior" Header="vs. Pr 7-day" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_7Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_7Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Prior" Header="     vs. Pr 28-day" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_28Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_28Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+      <Remark>
+        <Panel ID="pnlEMAILUsage" Caption="Email Access 30-Day Trend" IdeDisplayStatus="Collapsed">
+          <DefaultRequestParams islPlanType="Personal" />
+          <PanelContent>
+            <Division Class="ThemeAlignCenter">
+              <Spaces Size="25" />
+              <InputSelectList OptionCaptionColumn="Plan_type" ID="islPlanType" OptionValueColumn="Plan_type" DefaultValue="Personal" IncludeBlank="False">
+                <DataLayer Type="SQL" ConnectionID="connM1BIG-pmgHoldings" Source="Select distinct Plan_type&#xD;&#xA;from pmgHoldings.dbo.cjeffers_emailaccessTEMP_20131130&#xD;&#xA;&#xD;&#xA; option(maxdop 1);&#xD;&#xA;" ID="dlSelectPlan" />
+                <EventHandler DhtmlEvent="onchange">
+                  <Action Type="RefreshElement" ElementID="divPlanAccessTrendParent" ID="actRefreshTrend" />
+                </EventHandler>
+              </InputSelectList>
+              <Spaces Size="10" />
+              <Remark>
+                <InputSelectList OptionCaptionColumn="AccessType" ID="islAccessType" OptionValueColumn="Access" DefaultValue="@Request.AccessType~" IncludeBlank="True" IncludeBlankCaption="Any" IncludeBlankValue="Any">
+                  <DataLayer Type="SQL" ConnectionID="connM1BIG-BIGReporting" Source="SELECT distinct channel&#xD;&#xA;  FROM [BiLogiReporting].[dbo].[rptNewCustomerDaily_new] (nolock)&#xD;&#xA;  where rptDate &gt;= '@Request.rptMonth~' and rptDate &lt; '@Request.rptDay~'&#xD;&#xA;  option(maxdop 1);&#xD;&#xA;" ID="dlSelectChannel" />
+                  <EventHandler DhtmlEvent="onchange" IdeDisplayStatus="Collapsed">
+                    <Action Type="RefreshElement" ElementID="divNewCustTrendParent" ID="actRefreshTrend" />
+                  </EventHandler>
+                </InputSelectList>
+              </Remark>
+              <LineBreak />
+              <LineBreak />
+            </Division>
+            <Division ID="divPlanAccessTrendParent" Class="ThemeAlignCenter">
+              <Remark>
+                <Division ID="divPlanAccessTrendData" ShowModes="None" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                  <LineBreak />
+                  <DataTable ID="dtNewCustTrend" Class="ThemeAlignCenter" WidthScale="%" Width="100">
+                    <DataLayer Type="SQL" Source="declare @ReportDate datetime = '@Request.rptDay~'&#xD;&#xA;&#xD;&#xA;select&#xD;&#xA;	a.rptDate&#xD;&#xA;	, newCusts&#xD;&#xA;	, pyDate&#xD;&#xA;	, newCustsPY&#xD;&#xA;from&#xD;&#xA;(&#xD;&#xA;select&#xD;&#xA;	rptDate&#xD;&#xA;	, sum(newCusts) as newCusts&#xD;&#xA;from [BiLogiReporting].[dbo].[rptNewCustomerDaily_new] nc (nolock)&#xD;&#xA;where rptDate &gt; dateadd(d, -30, @ReportDate) and rptDate &lt; @ReportDate&#xD;&#xA;and((region = '@Request.islNewCustTrendRegion~' or '@Request.islNewCustTrendRegion~' = 'All Regions' or '@Request.islNewCustTrendRegion~' = '')&#xD;&#xA;	or ('@Request.islNewCustTrendRegion~' = 'Intl excl China' and region not in ('United States','China'))&#xD;&#xA;	or ('@Request.islNewCustTrendRegion~' = 'Intl Total' and region not in ('United States')))&#xD;&#xA;and (channel = '@Request.islNewCustTrendChannel~' or '@Request.islNewCustTrendChannel~' = 'All Channels' or '@Request.islNewCustTrendChannel~' = '')&#xD;&#xA;group by rptDate&#xD;&#xA;) a&#xD;&#xA;join&#xD;&#xA;(&#xD;&#xA;select&#xD;&#xA;	dateadd(d,364,rptDate) as rptDate&#xD;&#xA;	, rptDate as pyDate&#xD;&#xA;	, sum(newCusts) as newCustsPY&#xD;&#xA;from [BiLogiReporting].[dbo].[rptNewCustomerDaily_new] nc (nolock)&#xD;&#xA;where rptDate &gt; dateadd(d, -394, @ReportDate) and rptDate &lt; dateadd(d,-364,@ReportDate)&#xD;&#xA;and ((region = '@Request.islNewCustTrendRegion~' or '@Request.islNewCustTrendRegion~' = 'All Regions' or '@Request.islNewCustTrendRegion~' = '')&#xD;&#xA;	or ('@Request.islNewCustTrendRegion~' = 'Intl excl China' and region not in ('United States','China'))&#xD;&#xA;	or ('@Request.islNewCustTrendRegion~' = 'Intl Total' and region not in ('United States')))&#xD;&#xA;and (channel = '@Request.islNewCustTrendChannel~' or '@Request.islNewCustTrendChannel~' = 'All Channels' or '@Request.islNewCustTrendChannel~' = '')&#xD;&#xA;group by dateadd(d,364,rptDate)&#xD;&#xA;	, rptDate&#xD;&#xA;) b on a.rptdate = b.rptdate&#xD;&#xA;order by rptDate&#xD;&#xA;option(maxdop 1);&#xD;&#xA;;&#xD;&#xA;" ConnectionID="connM1BIG-BIGReporting" ID="dlNewCustTrendData">
+                      <CalculatedColumn Formula="@Data.newCusts~ - @Data.newCustsPY~" ID="ccNewCustTrendDiff" />
+                      <CalculatedColumn Formula="@Data.newCusts~ / @Data.newCustsPY~ -1" ID="ccNewCustTrendDiffPct" />
+                      <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" ID="sfNewCustTrendDate" />
+                    </DataLayer>
+                    <Remark>
+                      <AutoColumns />
+                    </Remark>
+                    <DataTableColumn ID="colNewCustTrend_Date" Header="Date">
+                      <Label Caption="@Data.rptDate~" Format="MM/dd/yyyy" ID="lblNewCustTrend_Date" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colNewCustTrend_NewCusts" Header="New Customers" Class="ThemeAlignRight">
+                      <Label Caption="@Data.newCusts~" Format="#,#" ID="lblNewCustTrend_NewCusts" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colNewCustTrend_NewCustsPY" Header="Prior Year" Class="ThemeAlignRight">
+                      <Label Caption="@Data.newCustsPY~" Format="#,#" ID="lblNewCustTrend_NewCustsPY" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="colNewCustTrend_NewCustsDiff" Header="+/(-)" Class="ThemeAlignRight">
+                      <Label Caption="@Data.ccNewCustTrendDiff~" Format="#,#;(#,#)" ID="lblNewCustTrend_NewCustsDiff">
+                        <ConditionalClass Class="ThemeTextNegative" Condition="@Data.ccNewCustTrendDiff~ &lt; 0" />
+                      </Label>
+                    </DataTableColumn>
+                    <DataTableColumn ID="colNewCustTrend_NewCustsDiffPct" Header="+/(-)%" Class="ThemeAlignRight">
+                      <Label Caption="@Data.ccNewCustTrendDiffPct~" Format="0.0%;(0.0%)" ID="lblNewCustTrend_NewCustsDiffPct">
+                        <ConditionalClass Class="ThemeTextNegative" Condition="@Data.ccNewCustTrendDiffPct~ &lt; 0" />
+                      </Label>
+                    </DataTableColumn>
+                  </DataTable>
+                </Division>
+              </Remark>
+              <Division ID="divPlanAccessTrend" Class="ThemeAlignCenter">
+                <Chart Type="XY" XYChartType="Line" ID="chtPlanAccessTrend" ChartDataColumn="All_uses" ChartHeight="360" ChartWidth="400" ChartLabelColumn="usage_date" LegendLabel="ALL" BorderBottom="60px" BorderRight="25px" Color="Black">
+                  <DataLayer Type="SQL" Source="&#xD;&#xA;Select usage_date, &#xD;&#xA;		isNull(sum(case when access_type = 'IMAP' THen Access_uses END),0) as IMAP_uses,&#xD;&#xA;		 isNull(SUM(case when access_type = 'POP' THen Access_uses END),0) as POP_uses,&#xD;&#xA;		 isNull(SUM(case when access_type = 'WBE' THen Access_uses END),0) as WBE_uses,&#xD;&#xA;		 isNull(SUM(case when access_type = 'WBE' THen Access_uses END),0) + isNull(sum(case when access_type = 'POP' THen Access_uses END),0) as WBEplusPOP,&#xD;&#xA;		 isNull(SUM(case when access_type = 'IMAP' THen Access_uses END),0) + isNull(sum(case when access_type = 'POP' THen Access_uses END),0) as IMAPplusPOP,&#xD;&#xA;		 isNull(SUM(case when access_type = 'IMAP' THen Access_uses END),0) + isNull(sum(case when access_type = 'WBE' THen Access_uses END),0) as WBEplusIMAP,&#xD;&#xA;		 Sum(Access_uses) as All_uses&#xD;&#xA;from pmgHoldings.dbo.cjeffers_emailaccessTEMP_20131130&#xD;&#xA;where Plan_Type = '@Request.islPlanType~'&#xD;&#xA;group by usage_date" ConnectionID="connM1BIG-pmgHoldings" ID="dlPlanAccessTrend">
+                    <SqlParameters />
+                  </DataLayer>
+                  <ExtraXYDataColumn ChartDataColumn="POP_uses" ID="ecPlanAccessPOP" LegendLabel="POP_uses" Color="#FFF60A" />
+                  <ExtraXYDataColumn ChartDataColumn="WBE_uses" ID="ecPlanAccessWBE" LegendLabel="WBE_uses" Color="#FF0A0A" />
+                  <ExtraXYDataColumn ChartDataColumn="WBEplusPOP" ID="ecPlanAccessWBEplusPOP" LegendLabel="WBE +POP" Color="#FF7D0A" />
+                  <ExtraXYDataColumn ChartDataColumn="IMAPplusPOP" ID="ecPlanAccessIMAPplusPOP" LegendLabel="IMAP + POP" Color="#00C506" />
+                  <ExtraXYDataColumn ChartDataColumn="WBEplusIMAP" ID="ecPlanAccessWBEplusIMAP" LegendLabel="WBE + IMAP" Color="#A600C5" />
+                  <ExtraXYDataColumn ChartDataColumn="IMAP_uses" ID="ecPlanAccessIMAP" LegendLabel="IMAP" Color="#0A4CFF" />
+                  <FontLabel FontAngle="0" FontSize="8" BorderColor="Black" FontColor="Black" />
+                  <LabelScale LinearTickIncrement="Days" LinearTickMinorIncrement="Days" Format="MM/dd" ScalingMode="LinearTime" />
+                  <DataScale Format="#,#" />
+                  <FontChartTitle FontSize="10" FontColor="Black" />
+                  <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                  <Legend LegendOrientation="Horizontal" LegendLeft="40" LegendTop="320" BorderColor="transparent">
+                    <FontLegend FontSize="7" FontColor="Black" />
+                  </Legend>
+                </Chart>
+                <LineBreak />
+              </Division>
+            </Division>
+          </PanelContent>
+        </Panel>
+      </Remark>
+      <Panel Caption="O365 GCR 13 Month Trend (000's)" ID="pnlO365_GCRTrend" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divGCRTrendChartO365">
+            <DataTable ID="dtRunRateO365" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+              <DataLayer Type="Cached" ID="dlRunRateCacheO365" CacheKey="RunRateO365,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlRunRateO365" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_test" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="RunRate" />
+                  </SPParameters>
+                  <FormattedColumn DataColumn="MTDGCR" Format="$###,###" ID="fcMTDGCR" />
+                  <FormattedColumn DataColumn="RunRateGCR" Format="$###,###" ID="fcRunRateGCR" />
+                </DataLayer>
+              </DataLayer>
+              <DataTableColumn ID="colMTDGCR">
+                <Label Caption="MTD GCR: @Data.fcMTDGCR~" ID="lblMTDGCR" />
+              </DataTableColumn>
+              <DataTableColumn ID="colRunRateGCR">
+                <Label Caption="Current Run Rate GCR: @Data.fcRunRateGCR~" ID="lblRunRateGCR" Format="Percent" />
+              </DataTableColumn>
+            </DataTable>
+            <Chart Type="XY" ID="chtGCRTrendO365" XYChartType="Line" ChartDataColumn="GCR" ChartHeight="218" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Vertical" ExtraBarOptions="SideBySide" Color="#00C52B" ChartTitle="13 Month Trend" BorderTop="30" BorderBottom="60" ChartLabelColumn="rptMonth">
+              <DataLayer Type="Cached" ID="dlGCRTrendCacheO365" CacheKey="GCRTrendO365,@Request.rptDay~" ExpirationNow="False" ExpirationTimeSpan="1:00" IdeDisplayStatus="Collapsed">
+                <DataLayer Type="SP" ID="dlGCRTrendDataO365" Command="dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="GCRTrend" />
+                  </SPParameters>
+                </DataLayer>
+                <CalculatedColumn ID="calcGCRO365" Formula="@Data.GCR~ / 1000" />
+                <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Ascending" ID="sfMonth" />
+              </DataLayer>
+              <DataScale Format="$#,###" />
+              <LabelScale Format="MMM-yy" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divGCRTrendTableO365" ID="actShowDataO365" />
+            </Label>
+          </Division>
+          <Division ID="divGCRTrendTableO365" ShowModes="None">
+            <DataTable ID="dtGCRTrendO365">
+              <DataLayer Type="Cached" ID="dlGCRTrendCacheO365" CacheKey="GCRTrendO365,@Request.rptDay~" ExpirationNow="TRUE">
+                <DataLayer Type="SP" ID="dlGCRTrendDataO365" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="GCRTrend" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Descending" ID="sfMonth" />
+              </DataLayer>
+              <DataTableColumn ID="colMonth" Header="Month">
+                <Label Caption="@Data.rptMonth~" Format="MMM-yy" />
+              </DataTableColumn>
+              <DataTableColumn ID="colGCR" Header="GCR" Class="ThemeAlignRight">
+                <Label Caption="@Data.GCR~" Format="Currency" />
+              </DataTableColumn>
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="O365 Total Units By Pathway (Rolling 7 Days)" ID="pnlO365_UnitsByPathway" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divUnitsByPathwayChart" Class="ThemeAlignRight">
+            <Chart Type="XY" ID="chtUnitsByPathwayO365" XYChartType="Bar" ChartDataColumn="ThisWeek" ChartLabelColumn="abrPathway" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="True" ChartOrientation="Horizontal" ExtraBarOptions="SideBySide" Color="#00C52B" Transparency="3" BorderBottom="60" BorderTop="30" LegendLabel="Current Week">
+              <DataLayer Type="Cached" ID="dlUnitsByPathwayCacheO365" CacheKey="UnitsByPathwayO365,@Request.rptDay~" ExpirationTimeSpan="1:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByPathwayDataO365" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByPathway" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Ascending" ID="sfThisWeek" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="LastWeek" LegendLabel="Prior Week" Transparency="3" />
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+              <DataScale Format="General Number" TickDensity="30" ZeroAffinity="1" />
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divUnitsByPathwayTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divUnitsByPathwayTable" ShowModes="None">
+            <DataTable ID="dtUnitsByPathwayO365">
+              <DataLayer Type="Cached" ID="dlUnitsByPathwayCacheO365" CacheKey="UnitsByPathwayO365,@Request.rptDay~" ExpirationNow="False" ExpirationTimeSpan="1:00">
+                <DataLayer Type="SP" ID="dlUnitsByPathwayDataO365" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByPathway" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Descending" ID="sfThisWeek" />
+              </DataLayer>
+              <DataTableColumn ID="colPathway" Header="Pathway">
+                <Label Caption="@Data.Pathway~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colThisWeek" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.ThisWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="ThisWeek" Function="Sum" ID="sumThisWeek" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeek" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="LastWeek" Function="Sum" ID="sumLastWeek" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="O365 Total Units By Channel (Rolling 7 Days)" ID="pnlO365_UnitsByChannel" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divUnitsByChannelChart">
+            <Chart Type="XY" ID="chtUnitsByChannelO365" XYChartType="Bar" ChartDataColumn="ThisWeek" ChartLabelColumn="abrChannel" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" ChartOrientation="Horizontal" ExtraBarOptions="SideBySide" Color="#00C52B" LegendLabel="Current Week" Transparency="3" BorderBottom="60" BorderTop="30">
+              <DataLayer Type="Cached" ID="dlUnitsByChannelCacheO365" CacheKey="UnitsByChannelO365,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByChannelDataO365" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByChannel" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Ascending" ID="sfThisWeek" />
+              </DataLayer>
+              <ExtraXYDataColumn ChartDataColumn="LastWeek" LegendLabel="Prior Week" Transparency="3" />
+              <DataScale Format="General Number" TickDensity="30" ZeroAffinity="1" />
+              <Legend BorderColor="White" LegendOrientation="Horizontal">
+                <FontLegend FontSize="8" FontColor="Black" />
+              </Legend>
+              <FontLabel FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divUnitsByChannelTableO365" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divUnitsByChannelTableO365" ShowModes="None">
+            <DataTable ID="dtUnitsByChannelO365">
+              <DataLayer Type="Cached" ID="dlUnitsByChannelCacheO365" CacheKey="UnitsByChannelO365,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlUnitsByChannelDataO365" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="UnitsByChannel" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="ThisWeek" DataType="Number" SortSequence="Descending" ID="sfThisWeek" />
+              </DataLayer>
+              <DataTableColumn ID="colChannel" Header="Pathway">
+                <Label Caption="@Data.Channel~" />
+              </DataTableColumn>
+              <DataTableColumn ID="colThisWeek" Header="Current Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.ThisWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="ThisWeek" Function="Sum" ID="sumThisWeek" />
+              </DataTableColumn>
+              <DataTableColumn ID="colLastWeek" Header="Prior Week" Class="ThemeAlignRight">
+                <Label Caption="@Data.LastWeek~" Format="#,###" />
+                <DataColumnSummary DataColumn="LastWeek" Function="Sum" ID="sumLastWeek" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Office 365 Cancel Reason (Last 7 Days)" ID="pnlO365_CancelReason" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <DataTable SortArrows="True" ID="dEMailCancelReasonsO365" CaptionClass="ThemeAlignBottomLeft " Width="522" WidthScale="px">
+            <DataLayer Type="Cached" ID="dlCancelReasonCache" CacheKey="CancelReasonO365,@Request.rptDay~" ExpirationNow="False" ExpirationTimeSpan="01:00">
+              <DataLayer Type="SP" ID="dlCancelReasonDataO365" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                  <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="CancelReason" />
+                </SPParameters>
+                <PercentOfTotalColumn DataColumn="answers" ID="ptcCancels" />
+                <SortFilter SortColumn="answers" DataType="Number" SortSequence="Descending" ID="sfNumAnswers" />
+              </DataLayer>
+            </DataLayer>
+            <DataTableColumn ID="colanswertext" Header="Answer">
+              <Label ID="lblanswertext" Caption="@Data.answertext~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colanswers" Header="Surveys">
+              <Label ID="lblanswers" Caption="@Data.answers~">
+                <TooltipPanel ID="ttpCancelTrend">
+                  <Chart Type="XY" ChartHeight="200" ChartWidth="200" ChartDataColumn="answers" XYChartType="Line" ChartLabelColumn="rptMonth" ChartTitle="6-Month Trend" ChartLabelColumnDataType="Date" BackgroundColor="White">
+                    <DataLayer Type="SP" ID="dlCancelReasonTrendO365" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                      <SPParameters>
+                        <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                        <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                        <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="CancelTrend" />
+                        <SPParameter SPParamDirection="Input" ID="@LogiRequest" SPParamSize="512" SPParamType="dt-200" Value="@Data.answertext~" />
+                      </SPParameters>
+                      <SortFilter SortColumn="rptMonth" DataType="Date" SortSequence="Ascending" ID="sfMonth" />
+                    </DataLayer>
+                    <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+                    <FontChartTitle FontSize="14" FontColor="Black" />
+                    <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+                    <FontYAxisTitle FontColor="Black" />
+                    <LabelScale Format="MMM-yy" />
+                  </Chart>
+                </TooltipPanel>
+              </Label>
+              <DataColumnSort DataColumn="answers" DataType="Number" FirstSortSequence="Descending" />
+            </DataTableColumn>
+            <DataTableColumn ID="colPercent" Header="%">
+              <Label Caption="@Data.ptcCancels~" ID="lblPercent" Format="Percent" />
+              <DataColumnSort DataColumn="ptcCancels" FirstSortSequence="Descending" />
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="O365 Account Roll Forward" ID="pnlO365_Acct_RollFwd" IdeDisplayStatus="Collapsed">
+        <PanelContent Height="263">
+          <DataTable ID="dtEMAILCommentaryValue" Class="ThemeAlignCenter">
+            <DataLayer Type="Cached" ID="dlCommentaryCacheO365" CacheKey="CommentaryLineEMAIL,@Request.rptDay~" ExpirationNow="True">
+              <DataLayer Type="SP" ID="dlCommentaryLineO365" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                  <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="RollFwdCommentary" />
+                </SPParameters>
+                <FormattedColumn DataColumn="GCR" Format="$###,###" ID="fcGCR" />
+              </DataLayer>
+            </DataLayer>
+            <DataTableColumn ID="colCommentary">
+              <Label Caption="Prior Day Sales were @Data.fcGCR~" ID="lblCommentary" />
+            </DataTableColumn>
+          </DataTable>
+          <LineBreak />
+          <DataTable ID="dtO365AcctRollFwd" Caption="O365 Roll Forward" Class="ThemeAlignCenter">
+            <DataLayer Type="Cached" ID="dlO365RollFwdCache" CacheKey="RollFwdO365,@Request.rptDay~" ExpirationNow="False" ExpirationTimeSpan="0:30">
+              <DataLayer Type="SP" ConnectionID="connM1BIG-biLogiReporting" Command="dbo.rptProductivityDash_AcctRollFwdSummary_sp" ID="dlEMAILRollFwdSummary">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="rptDate" Value="@Request.rptDay~" SPParamType="dt-133" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                </SPParameters>
+              </DataLayer>
+            </DataLayer>
+            <DataTableColumn ID="colMetric" Class="ThemeAlignRight">
+              <Label Caption="@Data.metric~" />
+            </DataTableColumn>
+            <DataTableColumn Header="Yesterday" ID="colYesterday" Class="ThemeAlignRight">
+              <Label Caption="@Data.Yesterday~" Format="###,###" />
+            </DataTableColumn>
+            <DataTableColumn Header="WTD" ID="colWTD" Class="ThemeAlignRight">
+              <Label Caption="@Data.WTD~" Format="###,###" />
+            </DataTableColumn>
+            <DataTableColumn Header="MTD" ID="colMTD" Class="ThemeAlignRight">
+              <Label Caption="@Data.MTD~" Format="###,###" />
+            </DataTableColumn>
+            <DataTableColumn Header="QTD" ID="colQTD" Class="ThemeAlignRight">
+              <Label Caption="@Data.QTD~" Format="###,###" />
+            </DataTableColumn>
+            <DataTableColumn ID="colYTD" Header="YTD" Class="ThemeAlignRight">
+              <Label Caption="@Data.YTD~" Format="###,###" />
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnlO365_KPI" Caption="O365 Key Performance Indicators" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <DataTable ID="dtKPIO365">
+            <HeaderRow HeaderPosition="Top">
+              <Column ID="colSpace" />
+              <Column ID="colDay" ColSpan="3">
+                <Label Caption="Day" />
+              </Column>
+              <Column ID="col7Day" ColSpan="3">
+                <Label Caption="7-Day" />
+              </Column>
+              <Column ID="col28Day" ColSpan="3">
+                <Label Caption="28-Day" />
+              </Column>
+            </HeaderRow>
+            <DataLayer Type="Cached" ID="dlKPICacheO365" CacheKey="KPIO365,@Request.rptDay~" ExpirationNow="TRUe">
+              <DataLayer Type="SP" ID="dlKPIDataO365" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                <SPParameters>
+                  <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                  <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                  <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="KPI" />
+                </SPParameters>
+                <SortFilter SortColumn="sortOrder" DataType="Number" SortSequence="Ascending" ID="sfSortOrder" />
+              </DataLayer>
+            </DataLayer>
+            <DataTableColumn ID="colMetricName" Header="KPI">
+              <Label Caption="@Data.RowName~" />
+            </DataTableColumn>
+            <DataTableColumn HeaderType="Value" ID="colDay_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn Header="vs. Pr Week" ID="colDay_Prior" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_1Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colDay_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_1Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_1Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Prior" Header="vs. Pr 7-day" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_7Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colSeven_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_7Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_7Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Value" Header="Value" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_Current~" />
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Prior" Header="     vs. Pr 28-day" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_PriorWeek~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_28Day_PriorWeek~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+            <DataTableColumn ID="colTwentyEight_Year" Header="vs. Pr Year" Class="ThemeAlignRight">
+              <Label Caption="@Data.Value_28Day_LastYear~" Format="0.00%;(0.00%)">
+                <ConditionalClass Class="ThemeTextNegative" Condition="@Data.Value_28Day_LastYear~ &lt; 0" />
+              </Label>
+            </DataTableColumn>
+          </DataTable>
+        </PanelContent>
+      </Panel>
+      <Panel Caption="Office 365 Iris Incidents Last 30 days" ID="pnlO365_IRIS">
+        <PanelContent>
+          <Division ID="divIrisChartO365">
+            <Chart Type="XY" ID="chtIrisIncidentsLast30DaysO365" XYChartType="Line" ChartDataColumn="Tickets" ChartLabelColumn="rptDate" ChartHeight="250" ChartWidth="360" ShowWaitIcon="True" ShowDataValues="False" BorderTop="30">
+              <DataLayer Type="Cached" ID="dlSupportIrisCacheO365" CacheKey="SupportIrisO365,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportIrisDataO365" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Iris" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Ascending" ID="sfDate" />
+              </DataLayer>
+              <LabelScale Format="MM/dd" LinearTickIncrement="Weeks" LinearTickMinorIncrement="Days" ScalingMode="LinearTime" />
+              <DataScale Format="#,###" />
+              <FontLabel FontAngle="90" FontSize="8" FontColor="black" BorderColor="Black" />
+              <FontData FontSize="8" FontColor="Black" BorderColor="Black" />
+            </Chart>
+            <LineBreak />
+            <Label Caption="Show Data" Class="gdDecorated">
+              <Action Type="ShowElement" ElementID="divIrisTable" ID="actShowData" />
+            </Label>
+          </Division>
+          <Division ID="divIrisTable" ShowModes="None">
+            <DataTable ID="dtIristIncidentsO365">
+              <DataLayer Type="Cached" ID="dlSupportIrisCacheO365" CacheKey="SupportIrisO365,@Request.rptDay~" ExpirationTimeSpan="01:00" ExpirationNow="False">
+                <DataLayer Type="SP" ID="dlSupportIrisDataO365" Command="BiLogiReporting.dbo.rptLogiProductWidgetDataGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+                  <SPParameters>
+                    <SPParameter SPParamDirection="Input" ID="@rptDay" Value="@Request.rptDay~" SPParamType="dt-7" SPParamSize="7" />
+                    <SPParameter SPParamDirection="Input" ID="@PnL_Line" SPParamSize="50" SPParamType="dt-200" Value="MS Office 365" />
+                    <SPParameter SPParamDirection="Input" ID="@Widget" SPParamSize="50" SPParamType="dt-200" Value="Iris" />
+                  </SPParameters>
+                </DataLayer>
+                <SortFilter SortColumn="rptDate" DataType="Date" SortSequence="Descending" ID="sfDate" />
+              </DataLayer>
+              <DataTableColumn ID="colDay" Header="Day">
+                <Label Caption="@Data.rptDate~" Format="M/d" />
+              </DataTableColumn>
+              <DataTableColumn ID="colIncidents" Header="Iris Incidents" Class="ThemeAlignRight">
+                <Label Caption="@Data.Tickets~" Format="#,###" />
+                <DataColumnSummary DataColumn="Calendar_Support_Tickets" Function="Sum" ID="sumIncidents" />
+              </DataTableColumn>
+              <SummaryRow ID="rowSummary" Caption="Total: " Class="rdThemeDataTableHeader" />
+            </DataTable>
+          </Division>
+        </PanelContent>
+      </Panel>
+    </Dashboard2>
+  </Body>
+  <ReportFooter>
+    <Division Class="ThemeAlignCenter">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="sharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams rptDay="" islNewCustTrendRegion="" rptMonth="" islNewCustTrendChannel="" AccessType="" islPlanType="" />
+</Report>

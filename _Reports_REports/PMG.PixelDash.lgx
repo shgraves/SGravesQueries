@@ -1,0 +1,535 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.PixelDash" SavedBy="JOMAX\mxnguyen" SavedAt="6/18/2013 4:24:48 PM" EngineVersion="11.0.43" SecurityReportRightID="LogiCT">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams rptEnd="@Date.Yesterday~" islPixelNameAll="All Pixels" islPixelNameSearch="All Pixels" islPixelNamePOSM="All Pixels" islPixelNameAffiliates="All Pixels" islPixelNameOther="All Pixels" islPixelCIAffiliates="All CI Codes" islPixelCIAll="All CI Codes" islPixelCIOther="All CI Codes" islPixelCIPOSM="All CI Codes" islPixelCISearch="All CI Codes" />
+  <DefaultRequestParams rptStart="=DateAdd(&quot;d&quot;,&quot;-28&quot;,&quot;@Request.rptEnd~&quot;)" />
+  <LocalData>
+    <DataLayer Type="SQL" Source="declare @report_start datetime = '@Request.rptStart~'&#xD;&#xA;declare @report_end datetime = '@Request.rptEnd~'&#xD;&#xA;&#xD;&#xA;SELECT [rptDate]&#xD;&#xA;      ,[pixelName]&#xD;&#xA;      ,isnull(pixelDashboardReportingGroup, 'Other') as pixelGroup&#xD;&#xA;      ,[ciCode]&#xD;&#xA;      ,[clicksCurrent]&#xD;&#xA;      ,[clicksBaseline]&#xD;&#xA;  FROM [BiLogiReporting].[dbo].[rptPixelFiringDailySummary] (nolock)&#xD;&#xA;  where rptDate &gt;= @report_start and rptDate &lt;= @report_end&#xD;&#xA;  option(maxdop 1);&#xD;&#xA;" ConnectionID="connM1BIG-biLogiReporting" ID="dlClicks">
+      <DataLayerLink ID="dllClicks" />
+    </DataLayer>
+    <DataLayer Type="SQL" Source="declare @report_start datetime = '@Request.rptStart~'&#xD;&#xA;declare @report_end datetime = '@Request.rptEnd~'&#xD;&#xA;&#xD;&#xA;  select&#xD;&#xA;  distinct isnull(pixelDashboardReportingGroup, 'Other') as pixelGroup, pixelName&#xD;&#xA;  from [BiLogiReporting].[dbo].[rptPixelFiringDailySummary] (nolock)&#xD;&#xA;  where rptDate &gt;= @report_start and rptDate &lt;= @report_end&#xD;&#xA;  order by pixelName&#xD;&#xA;  option(maxdop 1);" ConnectionID="connM1BIG-biLogiReporting" ID="dlPixelName">
+      <DataLayerLink ID="dllPixelName" />
+    </DataLayer>
+    <DataLayer Type="SQL" Source="declare @report_start datetime = '@Request.rptStart~'&#xD;&#xA;declare @report_end datetime = '@Request.rptEnd~'&#xD;&#xA;&#xD;&#xA;  select&#xD;&#xA;  distinct isnull(pixelDashboardReportingGroup, 'Other') as pixelGroup, pixelName, ciCode&#xD;&#xA;  from [BiLogiReporting].[dbo].[rptPixelFiringDailySummary] (nolock)&#xD;&#xA;  where rptDate &gt;= @report_start and rptDate &lt;= @report_end&#xD;&#xA;  order by ciCode&#xD;&#xA;  option(maxdop 1);" ConnectionID="connM1BIG-biLogiReporting" ID="dlPixelCI">
+      <DataLayerLink ID="dllPixelCI" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <LineBreak />
+    <Rows ID="rowReportHeader" Class="gdReportHeader">
+      <Row ID="rowReportTitle" Class="gdReportHeader">
+        <Column>
+          <Label Caption="Pixel Dashboard" Class="gdReportHeaderNameBI" />
+        </Column>
+        <Column Class="ThemeAlignRight">
+          <Image Caption="betasoftware.jpg" ID="imgBeta" Width="50" Height="50" />
+        </Column>
+        <Column IdeDisplayStatus="Collapsed">
+          <Spaces Size="6" />
+          <InputDate ID="rptStart" Caption="Report Start:" DefaultValue="@Request.rptStart~" />
+          <Spaces Size="3" />
+          <InputDate ID="rptEnd" Caption="End:" DefaultValue="@Request.rptEnd~" />
+          <Spaces Size="3" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport">
+              <Target Type="Report" ID="tgtPixelDash" Report="PMG.PixelDash" RequestForwarding="True" />
+            </Action>
+          </Button>
+        </Column>
+      </Row>
+    </Rows>
+    <Rows Class="gdDefaultRowBground" ID="ContentRow1">
+      <Row>
+        <Column ID="AllClicks" Class="ThemeAlignTop">
+          <Division ID="divSelectListAll">
+            <InputSelectList ID="islPixelNameAll" OptionValueColumn="pixelName" OptionCaptionColumn="pixelName" IncludeBlank="True" IncludeBlankCaption="All Pixels" IncludeBlankValue="All Pixels">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllPixelName" />
+              <EventHandler DhtmlEvent="onchange" ID="evtSelectPixelName">
+                <Action Type="RefreshElement" ID="actRefreshPixelNameChartAll" ElementID="divChartAllClicks, islPixelCIAll" RequestForwarding="True">
+                  <LinkParams islPixelCIAll="All CI Codes" />
+                </Action>
+              </EventHandler>
+            </InputSelectList>
+            <InputSelectList ID="islPixelCIAll" OptionValueColumn="ciCode" OptionCaptionColumn="ciCode" IncludeBlank="True" IncludeBlankCaption="All CI Codes" IncludeBlankValue="All CI Codes">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllPixelCI">
+                <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNameAll~&quot; or &quot;@Request.islPixelNameAll~&quot; == &quot;All Pixels&quot;" ID="cfCIAllFilter" />
+              </DataLayer>
+              <EventHandler DhtmlEvent="onchange" ID="evtSelectPixelCI">
+                <Action Type="RefreshElement" ID="actRefreshPixelCIChartAll" ElementID="divChartAllClicks" RequestForwarding="True" />
+              </EventHandler>
+            </InputSelectList>
+          </Division>
+          <Division Class="ThemeAlignCenter" ID="divChartAllClicks">
+            <Rows>
+              <Row>
+                <Column Class="gdColumnCell">
+                  <Chart Type="XY" XYChartType="Line" ChartDataColumn="gacClicks" ChartHeight="260" ChartWidth="400" ChartTitle="@Request.islPixelNameAll~, @Request.islPixelCIAll~" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#F9A85F" ID="chtTotalClicks" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LegendLabel="Clicks" BorderColor="transparent" LineWidth="3">
+                    <ExtraXYDataColumn ChartDataColumn="gacClicksBaseline" Color="#010101" LegendLabel="Baseline" />
+                    <DataLayer Type="Linked" LinkedDataLayerID="dllClicks">
+                      <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNameAll~&quot; or &quot;@Request.islPixelNameAll~&quot; == &quot;All Pixels&quot;" ID="cfAllFilter" />
+                      <ConditionFilter Condition="&quot;@Data.ciCode~&quot; == &quot;@Request.islPixelCIAll~&quot; or &quot;@Request.islPixelCIAll~&quot; == &quot;All CI Codes&quot;" ID="cfAllFilterCI" />
+                      <GroupFilter GroupColumn="rptDate">
+                        <GroupAggregateColumn AggregateColumn="clicksCurrent" AggregateFunction="Sum" ID="gacClicks" />
+                        <GroupAggregateColumn AggregateColumn="clicksBaseline" AggregateFunction="Sum" ID="gacClicksBaseline" />
+                      </GroupFilter>
+                    </DataLayer>
+                    <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="12" Alignment="Center" />
+                    <LabelScale Format="M/dd" ScalingMode="LinearTime" LinearTickIncrement="Days" />
+                    <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                    <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                    <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                    <DataScale Format="#,#" />
+                    <FontData FontFilename="arial" FontColor="black" FontSize="8" />
+                    <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                      <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                    </Legend>
+                  </Chart>
+                </Column>
+              </Row>
+              <Row>
+                <Column Class="ThemeAlignLeft">
+                  <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+                    <Action Type="ShowElement" ID="actShowData" ElementID="divTableAllClicks" />
+                  </Label>
+                </Column>
+              </Row>
+            </Rows>
+            <Division Class="ThemeAlignCenter" ID="divTableAllClicks" ShowModes="None">
+              <DataTable ID="dtClicksAll" AjaxPaging="True" ColumnHeaderClass="gdTableHeader" RowClass="gdBody" Width="100" WidthScale="%">
+                <DataLayer Type="Linked" LinkedDataLayerID="dllClicks">
+                  <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNameAll~&quot; or &quot;@Request.islPixelNameAll~&quot; == &quot;All Pixels&quot;" ID="cfAllFilter" />
+                  <ConditionFilter Condition="&quot;@Data.ciCode~&quot; == &quot;@Request.islPixelCIAll~&quot; or &quot;@Request.islPixelCIAll~&quot; == &quot;All CI Codes&quot;" ID="cfAllFilterCI" />
+                  <GroupFilter GroupColumn="rptDate">
+                    <GroupAggregateColumn AggregateColumn="clicksCurrent" AggregateFunction="Sum" ID="gacClicks" />
+                    <GroupAggregateColumn AggregateColumn="clicksBaseline" AggregateFunction="Sum" ID="gacClicksBaseline" />
+                  </GroupFilter>
+                  <SortFilter SortColumn="rptDate" SortSequence="Descending" />
+                  <CalculatedColumn Formula="@Data.gacClicks~ - @Data.gacClicksBaseline~" ID="ccDiffClicks" />
+                  <CalculatedColumn Formula="@Data.gacClicks~/@Data.gacClicksBaseline~-1" ID="ccDiffClicksPct" />
+                </DataLayer>
+                <DataTableColumn ID="coldate" Header="Date">
+                  <Label Caption="@Data.rptDate~" Format="Short Date" />
+                  <DataColumnSort DataColumn="rptDate" DataType="Date" />
+                </DataTableColumn>
+                <DataTableColumn ID="colclicks" Header="Clicks" Class="ThemeAlignRight">
+                  <Label Caption="@Data.gacClicks~" Format="#,#" />
+                </DataTableColumn>
+                <DataTableColumn ID="colbaseline" Header="Baseline" Class="ThemeAlignRight">
+                  <Label Caption="@Data.gacClicksBaseline~" Format="#,#" />
+                </DataTableColumn>
+                <DataTableColumn ID="coldiffclicks" Header="+/-" Class="ThemeAlignRight">
+                  <Label Caption="@Data.ccDiffClicks~" Format="#,#">
+                    <ConditionalClass Class="ThemeTextNegative" Condition="@Data.ccDiffClicks~ &lt; 0" />
+                  </Label>
+                </DataTableColumn>
+                <DataTableColumn ID="coldiffclickspct" Header="%" Class="ThemeAlignRight">
+                  <Label Caption="@Data.ccDiffClicksPct~" Format="0.0%">
+                    <ConditionalClass Class="ThemeTextNegative" Condition="@Data.ccDiffClicksPct~ &lt; 0" />
+                  </Label>
+                </DataTableColumn>
+              </DataTable>
+            </Division>
+          </Division>
+        </Column>
+        <Column ID="SearchClicks" Class="ThemeAlignTop">
+          <Division ID="divSelectListSearch">
+            <InputSelectList ID="islPixelNameSearch" OptionValueColumn="pixelName" OptionCaptionColumn="pixelName" IncludeBlank="True" IncludeBlankCaption="All Pixels" IncludeBlankValue="All Pixels">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllPixelName">
+                <ContainFilter SearchString="Search" DataColumn="pixelGroup" />
+              </DataLayer>
+              <EventHandler DhtmlEvent="onchange" ID="evtSelectPixelName">
+                <Action Type="RefreshElement" ID="actRefreshPixelNameChartSearch" ElementID="divChartSearchClicks, islPixelCISearch" RequestForwarding="True">
+                  <LinkParams islPixelCISearch="All CI Codes" />
+                </Action>
+              </EventHandler>
+            </InputSelectList>
+            <InputSelectList ID="islPixelCISearch" OptionValueColumn="ciCode" OptionCaptionColumn="ciCode" IncludeBlank="True" IncludeBlankCaption="All CI Codes" IncludeBlankValue="All CI Codes">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllPixelCI">
+                <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNameSearch~&quot; or &quot;@Request.islPixelNameSearch~&quot; == &quot;All Pixels&quot;" ID="cfCISearchFilter" />
+                <ContainFilter SearchString="Search" DataColumn="pixelGroup" />
+              </DataLayer>
+              <EventHandler DhtmlEvent="onchange" ID="evtSelectPixelCI">
+                <Action Type="RefreshElement" ID="actRefreshPixelCIChartSearch" ElementID="divChartSearchClicks" RequestForwarding="True" />
+              </EventHandler>
+            </InputSelectList>
+          </Division>
+          <Division Class="ThemeAlignCenter" ID="divChartSearchClicks" IdeDisplayStatus="Collapsed">
+            <Rows>
+              <Row>
+                <Column Class="gdColumnCell">
+                  <Chart Type="XY" XYChartType="Line" ChartDataColumn="gacClicks" ChartHeight="260" ChartWidth="400" ChartTitle="Search: @Request.islPixelNameSearch~, @Request.islPixelCISearch~" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#F9A85F" ID="chtTotalClicks" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LegendLabel="Clicks" BorderColor="transparent" LineWidth="3">
+                    <ExtraXYDataColumn ChartDataColumn="gacClicksBaseline" Color="#010101" LegendLabel="Baseline" />
+                    <DataLayer Type="Linked" LinkedDataLayerID="dllClicks">
+                      <ContainFilter DataColumn="pixelGroup" SearchString="Search" />
+                      <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNameSearch~&quot; or &quot;@Request.islPixelNameSearch~&quot; == &quot;All Pixels&quot;" ID="cfSearchFilter" />
+                      <ConditionFilter Condition="&quot;@Data.ciCode~&quot; == &quot;@Request.islPixelCISearch~&quot; or &quot;@Request.islPixelCISearch~&quot; == &quot;All CI Codes&quot;" ID="cfSearchFilterCI" />
+                      <GroupFilter GroupColumn="rptDate">
+                        <GroupAggregateColumn AggregateColumn="clicksCurrent" AggregateFunction="Sum" ID="gacClicks" />
+                        <GroupAggregateColumn AggregateColumn="clicksBaseline" AggregateFunction="Sum" ID="gacClicksBaseline" />
+                      </GroupFilter>
+                    </DataLayer>
+                    <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="12" Alignment="Center" />
+                    <LabelScale Format="M/dd" ScalingMode="LinearTime" LinearTickIncrement="Days" />
+                    <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                    <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                    <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                    <DataScale Format="#,#" />
+                    <FontData FontFilename="arial" FontColor="black" FontSize="8" />
+                    <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                      <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                    </Legend>
+                  </Chart>
+                </Column>
+              </Row>
+              <Row>
+                <Column Class="ThemeAlignLeft">
+                  <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+                    <Action Type="ShowElement" ID="actShowData" ElementID="divTableSearchClicks" />
+                  </Label>
+                </Column>
+              </Row>
+            </Rows>
+            <Division Class="ThemeAlignCenter" ID="divTableSearchClicks" ShowModes="None">
+              <DataTable ID="dtClicksSearch" AjaxPaging="True" ColumnHeaderClass="gdTableHeader" RowClass="gdBody" Width="100" WidthScale="%">
+                <DataLayer Type="Linked" LinkedDataLayerID="dllClicks">
+                  <ContainFilter DataColumn="pixelGroup" SearchString="Search" />
+                  <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNameSearch~&quot; or &quot;@Request.islPixelNameSearch~&quot; == &quot;All Pixels&quot;" ID="cfSearchFilter" />
+                  <ConditionFilter Condition="&quot;@Data.ciCode~&quot; == &quot;@Request.islPixelCISearch~&quot; or &quot;@Request.islPixelCISearch~&quot; == &quot;All CI Codes&quot;" ID="cfSearchFilterCI" />
+                  <GroupFilter GroupColumn="rptDate">
+                    <GroupAggregateColumn AggregateColumn="clicksCurrent" AggregateFunction="Sum" ID="gacClicks" />
+                    <GroupAggregateColumn AggregateColumn="clicksBaseline" AggregateFunction="Sum" ID="gacClicksBaseline" />
+                  </GroupFilter>
+                  <SortFilter SortColumn="rptDate" SortSequence="Descending" />
+                  <CalculatedColumn Formula="@Data.gacClicks~ - @Data.gacClicksBaseline~" ID="ccDiffClicks" />
+                  <CalculatedColumn Formula="@Data.gacClicks~/@Data.gacClicksBaseline~-1" ID="ccDiffClicksPct" />
+                </DataLayer>
+                <DataTableColumn ID="coldate" Header="Date">
+                  <Label Caption="@Data.rptDate~" Format="Short Date" />
+                  <DataColumnSort DataColumn="rptDate" DataType="Date" />
+                </DataTableColumn>
+                <DataTableColumn ID="colclicks" Header="Clicks" Class="ThemeAlignRight">
+                  <Label Caption="@Data.gacClicks~" Format="#,#" />
+                </DataTableColumn>
+                <DataTableColumn ID="colbaseline" Header="Baseline" Class="ThemeAlignRight">
+                  <Label Caption="@Data.gacClicksBaseline~" Format="#,#" />
+                </DataTableColumn>
+                <DataTableColumn ID="coldiffclicks" Header="+/-" Class="ThemeAlignRight">
+                  <Label Caption="@Data.ccDiffClicks~" Format="#,#">
+                    <ConditionalClass Class="ThemeTextNegative" Condition="@Data.ccDiffClicks~ &lt; 0" />
+                  </Label>
+                </DataTableColumn>
+                <DataTableColumn ID="coldiffclickspct" Header="%" Class="ThemeAlignRight">
+                  <Label Caption="@Data.ccDiffClicksPct~" Format="0.0%">
+                    <ConditionalClass Class="ThemeTextNegative" Condition="@Data.ccDiffClicksPct~ &lt; 0" />
+                  </Label>
+                </DataTableColumn>
+              </DataTable>
+            </Division>
+          </Division>
+        </Column>
+        <Column ID="POSMClicks" Class="ThemeAlignTop">
+          <Division ID="divSelectListPOSM">
+            <InputSelectList ID="islPixelNamePOSM" OptionValueColumn="pixelName" OptionCaptionColumn="pixelName" IncludeBlank="True" IncludeBlankCaption="All Pixels" IncludeBlankValue="All Pixels">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllPixelName">
+                <ContainFilter SearchString="POSM" DataColumn="pixelGroup" />
+              </DataLayer>
+              <EventHandler DhtmlEvent="onchange" ID="evtSelectPixelName">
+                <Action Type="RefreshElement" ID="actRefreshPixelNameChartPOSM" ElementID="divChartPOSMClicks, islPixelCIPOSM" RequestForwarding="True">
+                  <LinkParams islPixelCIPOSM="All CI Codes" />
+                </Action>
+              </EventHandler>
+            </InputSelectList>
+            <InputSelectList ID="islPixelCIPOSM" OptionValueColumn="ciCode" OptionCaptionColumn="ciCode" IncludeBlank="True" IncludeBlankCaption="All CI Codes" IncludeBlankValue="All CI Codes">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllPixelCI">
+                <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNamePOSM~&quot; or &quot;@Request.islPixelNamePOSM~&quot; == &quot;All Pixels&quot;" ID="cfCIPOSMFilter" />
+                <ContainFilter SearchString="POSM" DataColumn="pixelGroup" />
+              </DataLayer>
+              <EventHandler DhtmlEvent="onchange" ID="evtSelectPixelCI">
+                <Action Type="RefreshElement" ID="actRefreshPixelCIChartPOSM" ElementID="divChartPOSMClicks" RequestForwarding="True" />
+              </EventHandler>
+            </InputSelectList>
+          </Division>
+          <Division Class="ThemeAlignCenter" ID="divChartPOSMClicks">
+            <Rows>
+              <Row>
+                <Column Class="gdColumnCell">
+                  <Chart Type="XY" XYChartType="Line" ChartDataColumn="gacClicks" ChartHeight="260" ChartWidth="400" ChartTitle="POSM: @Request.islPixelNamePOSM~, @Request.islPixelCIPOSM~" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#F9A85F" ID="chtTotalClicks" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LegendLabel="Clicks" BorderColor="transparent" LineWidth="3">
+                    <ExtraXYDataColumn ChartDataColumn="gacClicksBaseline" Color="#010101" LegendLabel="Baseline" />
+                    <DataLayer Type="Linked" LinkedDataLayerID="dllClicks">
+                      <ContainFilter DataColumn="pixelGroup" SearchString="POSM" />
+                      <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNamePOSM~&quot; or &quot;@Request.islPixelNamePOSM~&quot; == &quot;All Pixels&quot;" ID="cfPOSMFilter" />
+                      <ConditionFilter Condition="&quot;@Data.ciCode~&quot; == &quot;@Request.islPixelCIPOSM~&quot; or &quot;@Request.islPixelCIPOSM~&quot; == &quot;All CI Codes&quot;" ID="cfPOSMFilterCI" />
+                      <GroupFilter GroupColumn="rptDate">
+                        <GroupAggregateColumn AggregateColumn="clicksCurrent" AggregateFunction="Sum" ID="gacClicks" />
+                        <GroupAggregateColumn AggregateColumn="clicksBaseline" AggregateFunction="Sum" ID="gacClicksBaseline" />
+                      </GroupFilter>
+                    </DataLayer>
+                    <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="12" Alignment="Center" />
+                    <LabelScale Format="M/dd" ScalingMode="LinearTime" LinearTickIncrement="Days" />
+                    <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                    <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                    <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                    <DataScale Format="#,#" />
+                    <FontData FontFilename="arial" FontColor="black" FontSize="8" />
+                    <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                      <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                    </Legend>
+                  </Chart>
+                </Column>
+              </Row>
+              <Row>
+                <Column Class="ThemeAlignLeft">
+                  <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+                    <Action Type="ShowElement" ID="actShowData" ElementID="divTablePOSMClicks" />
+                  </Label>
+                </Column>
+              </Row>
+            </Rows>
+            <Division Class="ThemeAlignCenter" ID="divTablePOSMClicks" ShowModes="None">
+              <DataTable ID="dtClicksPOSM" AjaxPaging="True" ColumnHeaderClass="gdTableHeader" RowClass="gdBody" Width="100" WidthScale="%">
+                <DataLayer Type="Linked" LinkedDataLayerID="dllClicks">
+                  <ContainFilter DataColumn="pixelGroup" SearchString="POSM" />
+                  <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNamePOSM~&quot; or &quot;@Request.islPixelNamePOSM~&quot; == &quot;All Pixels&quot;" ID="cfPOSMFilter" />
+                  <ConditionFilter Condition="&quot;@Data.ciCode~&quot; == &quot;@Request.islPixelCIPOSM~&quot; or &quot;@Request.islPixelCIPOSM~&quot; == &quot;All CI Codes&quot;" ID="cfPOSMFilterCI" />
+                  <GroupFilter GroupColumn="rptDate">
+                    <GroupAggregateColumn AggregateColumn="clicksCurrent" AggregateFunction="Sum" ID="gacClicks" />
+                    <GroupAggregateColumn AggregateColumn="clicksBaseline" AggregateFunction="Sum" ID="gacClicksBaseline" />
+                  </GroupFilter>
+                  <SortFilter SortColumn="rptDate" SortSequence="Descending" />
+                  <CalculatedColumn Formula="@Data.gacClicks~ - @Data.gacClicksBaseline~" ID="ccDiffClicks" />
+                  <CalculatedColumn Formula="@Data.gacClicks~/@Data.gacClicksBaseline~-1" ID="ccDiffClicksPct" />
+                </DataLayer>
+                <DataTableColumn ID="coldate" Header="Date">
+                  <Label Caption="@Data.rptDate~" Format="Short Date" />
+                  <DataColumnSort DataColumn="rptDate" DataType="Date" />
+                </DataTableColumn>
+                <DataTableColumn ID="colclicks" Header="Clicks" Class="ThemeAlignRight">
+                  <Label Caption="@Data.gacClicks~" Format="#,#" />
+                </DataTableColumn>
+                <DataTableColumn ID="colbaseline" Header="Baseline" Class="ThemeAlignRight">
+                  <Label Caption="@Data.gacClicksBaseline~" Format="#,#" />
+                </DataTableColumn>
+                <DataTableColumn ID="coldiffclicks" Header="+/-" Class="ThemeAlignRight">
+                  <Label Caption="@Data.ccDiffClicks~" Format="#,#">
+                    <ConditionalClass Class="ThemeTextNegative" Condition="@Data.ccDiffClicks~ &lt; 0" />
+                  </Label>
+                </DataTableColumn>
+                <DataTableColumn ID="coldiffclickspct" Header="%" Class="ThemeAlignRight">
+                  <Label Caption="@Data.ccDiffClicksPct~" Format="0.0%">
+                    <ConditionalClass Class="ThemeTextNegative" Condition="@Data.ccDiffClicksPct~ &lt; 0" />
+                  </Label>
+                </DataTableColumn>
+              </DataTable>
+            </Division>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <LineBreak />
+    <Rows Class="gdDefaultRowBground" ID="ContentRow2">
+      <Row>
+        <Column ID="AffiliatesClicks" Class="ThemeAlignTop">
+          <Division ID="divSelectListAffiliates">
+            <InputSelectList ID="islPixelNameAffiliates" OptionValueColumn="pixelName" OptionCaptionColumn="pixelName" IncludeBlank="True" IncludeBlankCaption="All Pixels" IncludeBlankValue="All Pixels">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllPixelName">
+                <ContainFilter SearchString="Affiliates" DataColumn="pixelGroup" />
+              </DataLayer>
+              <EventHandler DhtmlEvent="onchange" ID="evtSelectPixelName">
+                <Action Type="RefreshElement" ID="actRefreshPixelNameChartAffiliates" ElementID="divChartAffiliatesClicks, islPixelCIAffiliates" RequestForwarding="True">
+                  <LinkParams islPixelCIAffiliates="All CI Codes" />
+                </Action>
+              </EventHandler>
+            </InputSelectList>
+            <InputSelectList ID="islPixelCIAffiliates" OptionValueColumn="ciCode" OptionCaptionColumn="ciCode" IncludeBlank="True" IncludeBlankCaption="All CI Codes" IncludeBlankValue="All CI Codes">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllPixelCI">
+                <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNameAffiliates~&quot; or &quot;@Request.islPixelNameAffiliates~&quot; == &quot;All Pixels&quot;" ID="cfCIAffiliatesFilter" />
+                <ContainFilter SearchString="Affiliates" DataColumn="pixelGroup" />
+              </DataLayer>
+              <EventHandler DhtmlEvent="onchange" ID="evtSelectPixelCI">
+                <Action Type="RefreshElement" ID="actRefreshPixelCIChartAffiliates" ElementID="divChartAffiliatesClicks" RequestForwarding="True" />
+              </EventHandler>
+            </InputSelectList>
+          </Division>
+          <Division Class="ThemeAlignCenter" ID="divChartAffiliatesClicks">
+            <Rows>
+              <Row>
+                <Column Class="gdColumnCell">
+                  <Chart Type="XY" XYChartType="Line" ChartDataColumn="gacClicks" ChartHeight="260" ChartWidth="400" ChartTitle="Affiliates: @Request.islPixelNameAffiliates~, @Request.islPixelCIAffiliates~" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#F9A85F" ID="chtTotalClicks" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LegendLabel="Clicks" BorderColor="transparent" LineWidth="3">
+                    <ExtraXYDataColumn ChartDataColumn="gacClicksBaseline" Color="#010101" LegendLabel="Baseline" />
+                    <DataLayer Type="Linked" LinkedDataLayerID="dllClicks">
+                      <ContainFilter DataColumn="pixelGroup" SearchString="Affiliates" />
+                      <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNameAffiliates~&quot; or &quot;@Request.islPixelNameAffiliates~&quot; == &quot;All Pixels&quot;" ID="cfAffiliatesFilter" />
+                      <ConditionFilter Condition="&quot;@Data.ciCode~&quot; == &quot;@Request.islPixelCIAffiliates~&quot; or &quot;@Request.islPixelCIAffiliates~&quot; == &quot;All CI Codes&quot;" ID="cfAffiliatesFilterCI" />
+                      <GroupFilter GroupColumn="rptDate">
+                        <GroupAggregateColumn AggregateColumn="clicksCurrent" AggregateFunction="Sum" ID="gacClicks" />
+                        <GroupAggregateColumn AggregateColumn="clicksBaseline" AggregateFunction="Sum" ID="gacClicksBaseline" />
+                      </GroupFilter>
+                    </DataLayer>
+                    <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="12" Alignment="Center" />
+                    <LabelScale Format="M/dd" ScalingMode="LinearTime" LinearTickIncrement="Days" />
+                    <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                    <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                    <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                    <DataScale Format="#,#" />
+                    <FontData FontFilename="arial" FontColor="black" FontSize="8" />
+                    <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                      <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                    </Legend>
+                  </Chart>
+                </Column>
+              </Row>
+              <Row>
+                <Column Class="ThemeAlignLeft">
+                  <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+                    <Action Type="ShowElement" ID="actShowData" ElementID="divTableAffiliatesClicks" />
+                  </Label>
+                </Column>
+              </Row>
+            </Rows>
+            <Division Class="ThemeAlignCenter" ID="divTableAffiliatesClicks" ShowModes="None">
+              <DataTable ID="dtClicksAffiliates" AjaxPaging="True" ColumnHeaderClass="gdTableHeader" RowClass="gdBody" Width="100" WidthScale="%">
+                <DataLayer Type="Linked" LinkedDataLayerID="dllClicks">
+                  <ContainFilter DataColumn="pixelGroup" SearchString="Affiliates" />
+                  <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNameAffiliates~&quot; or &quot;@Request.islPixelNameAffiliates~&quot; == &quot;All Pixels&quot;" ID="cfAffiliatesFilter" />
+                  <ConditionFilter Condition="&quot;@Data.ciCode~&quot; == &quot;@Request.islPixelCIAffiliates~&quot; or &quot;@Request.islPixelCIAffiliates~&quot; == &quot;All CI Codes&quot;" ID="cfAffiliatesFilterCI" />
+                  <GroupFilter GroupColumn="rptDate">
+                    <GroupAggregateColumn AggregateColumn="clicksCurrent" AggregateFunction="Sum" ID="gacClicks" />
+                    <GroupAggregateColumn AggregateColumn="clicksBaseline" AggregateFunction="Sum" ID="gacClicksBaseline" />
+                  </GroupFilter>
+                  <SortFilter SortColumn="rptDate" SortSequence="Descending" />
+                  <CalculatedColumn Formula="@Data.gacClicks~ - @Data.gacClicksBaseline~" ID="ccDiffClicks" />
+                  <CalculatedColumn Formula="@Data.gacClicks~/@Data.gacClicksBaseline~-1" ID="ccDiffClicksPct" />
+                </DataLayer>
+                <DataTableColumn ID="coldate" Header="Date">
+                  <Label Caption="@Data.rptDate~" Format="Short Date" />
+                  <DataColumnSort DataColumn="rptDate" DataType="Date" />
+                </DataTableColumn>
+                <DataTableColumn ID="colclicks" Header="Clicks" Class="ThemeAlignRight">
+                  <Label Caption="@Data.gacClicks~" Format="#,#" />
+                </DataTableColumn>
+                <DataTableColumn ID="colbaseline" Header="Baseline" Class="ThemeAlignRight">
+                  <Label Caption="@Data.gacClicksBaseline~" Format="#,#" />
+                </DataTableColumn>
+                <DataTableColumn ID="coldiffclicks" Header="+/-" Class="ThemeAlignRight">
+                  <Label Caption="@Data.ccDiffClicks~" Format="#,#">
+                    <ConditionalClass Class="ThemeTextNegative" Condition="@Data.ccDiffClicks~ &lt; 0" />
+                  </Label>
+                </DataTableColumn>
+                <DataTableColumn ID="coldiffclickspct" Header="%" Class="ThemeAlignRight">
+                  <Label Caption="@Data.ccDiffClicksPct~" Format="0.0%">
+                    <ConditionalClass Class="ThemeTextNegative" Condition="@Data.ccDiffClicksPct~ &lt; 0" />
+                  </Label>
+                </DataTableColumn>
+              </DataTable>
+            </Division>
+          </Division>
+        </Column>
+        <Column ID="OtherClicks" Class="ThemeAlignTop">
+          <Division ID="divSelectListOther">
+            <InputSelectList ID="islPixelNameOther" OptionValueColumn="pixelName" OptionCaptionColumn="pixelName" IncludeBlank="True" IncludeBlankCaption="All Pixels" IncludeBlankValue="All Pixels">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllPixelName">
+                <ContainFilter SearchString="Other" DataColumn="pixelGroup" />
+              </DataLayer>
+              <EventHandler DhtmlEvent="onchange" ID="evtSelectPixelName">
+                <Action Type="RefreshElement" ID="actRefreshPixelNameChartOther" ElementID="divChartOtherClicks, islPixelCIOther" RequestForwarding="True">
+                  <LinkParams islPixelCIOther="All CI Codes" />
+                </Action>
+              </EventHandler>
+            </InputSelectList>
+            <InputSelectList ID="islPixelCIOther" OptionValueColumn="ciCode" OptionCaptionColumn="ciCode" IncludeBlank="True" IncludeBlankCaption="All CI Codes" IncludeBlankValue="All CI Codes">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllPixelCI">
+                <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNameOther~&quot; or &quot;@Request.islPixelNameOther~&quot; == &quot;All Pixels&quot;" ID="cfCIOtherFilter" />
+                <ContainFilter SearchString="Other" DataColumn="pixelGroup" />
+              </DataLayer>
+              <EventHandler DhtmlEvent="onchange" ID="evtSelectPixelCI">
+                <Action Type="RefreshElement" ID="actRefreshPixelCIChartOther" ElementID="divChartOtherClicks" RequestForwarding="True" />
+              </EventHandler>
+            </InputSelectList>
+          </Division>
+          <Division Class="ThemeAlignCenter" ID="divChartOtherClicks">
+            <Rows>
+              <Row>
+                <Column Class="gdColumnCell">
+                  <Chart Type="XY" XYChartType="Line" ChartDataColumn="gacClicks" ChartHeight="260" ChartWidth="400" ChartTitle="Other: @Request.islPixelNameOther~, @Request.islPixelCIOther~" ChartLabelColumn="rptDate" ChartLabelColumnDataType="Date" BackgroundColor="White" Color="#F9A85F" ID="chtTotalClicks" GridVerticalColor="#f2f2f2" GridHorizontalColor="#f2f2f2" BorderTop="30" ChartSymbolEdgeColor="Black" BorderLeft="50" BorderRight="10" BorderBottom="70" LegendLabel="Clicks" BorderColor="transparent" LineWidth="3">
+                    <ExtraXYDataColumn ChartDataColumn="gacClicksBaseline" Color="#010101" LegendLabel="Baseline" />
+                    <DataLayer Type="Linked" LinkedDataLayerID="dllClicks">
+                      <ContainFilter DataColumn="pixelGroup" SearchString="Other" />
+                      <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNameOther~&quot; or &quot;@Request.islPixelNameOther~&quot; == &quot;All Pixels&quot;" ID="cfOtherFilter" />
+                      <ConditionFilter Condition="&quot;@Data.ciCode~&quot; == &quot;@Request.islPixelCIOther~&quot; or &quot;@Request.islPixelCIOther~&quot; == &quot;All CI Codes&quot;" ID="cfOtherFilterCI" />
+                      <GroupFilter GroupColumn="rptDate">
+                        <GroupAggregateColumn AggregateColumn="clicksCurrent" AggregateFunction="Sum" ID="gacClicks" />
+                        <GroupAggregateColumn AggregateColumn="clicksBaseline" AggregateFunction="Sum" ID="gacClicksBaseline" />
+                      </GroupFilter>
+                    </DataLayer>
+                    <FontChartTitle FontFilename="Arial" FontColor="black" FontSize="12" Alignment="Center" />
+                    <LabelScale Format="M/dd" ScalingMode="LinearTime" LinearTickIncrement="Days" />
+                    <FontXAxisTitle FontFilename="arial" FontColor="Black" FontSize="8" />
+                    <FontLabel FontAngle="90" FontColor="Black" FontFilename="arial" FontSize="8" BorderColor="black" />
+                    <FontYAxisTitle FontFilename="Arial" FontColor="black" FontSize="8" />
+                    <DataScale Format="#,#" />
+                    <FontData FontFilename="arial" FontColor="black" FontSize="8" />
+                    <Legend LegendTop="230" BorderColor="transparent" BackgroundColor="transparent" LegendLeft="110" LegendOrientation="Horizontal">
+                      <FontLegend FontColor="Black" FontFilename="Arial" FontSize="8" />
+                    </Legend>
+                  </Chart>
+                </Column>
+              </Row>
+              <Row>
+                <Column Class="ThemeAlignLeft">
+                  <Label ID="btnShowData" Caption="Show Data" Class="gdDecorated">
+                    <Action Type="ShowElement" ID="actShowData" ElementID="divTableOtherClicks" />
+                  </Label>
+                </Column>
+              </Row>
+            </Rows>
+            <Division Class="ThemeAlignCenter" ID="divTableOtherClicks" ShowModes="None">
+              <DataTable ID="dtClicksOther" AjaxPaging="True" ColumnHeaderClass="gdTableHeader" RowClass="gdBody" Width="100" WidthScale="%">
+                <DataLayer Type="Linked" LinkedDataLayerID="dllClicks">
+                  <ContainFilter DataColumn="pixelGroup" SearchString="Other" />
+                  <ConditionFilter Condition="&quot;@Data.pixelName~&quot; == &quot;@Request.islPixelNameOther~&quot; or &quot;@Request.islPixelNameOther~&quot; == &quot;All Pixels&quot;" ID="cfOtherFilter" />
+                  <ConditionFilter Condition="&quot;@Data.ciCode~&quot; == &quot;@Request.islPixelCIOther~&quot; or &quot;@Request.islPixelCIOther~&quot; == &quot;All CI Codes&quot;" ID="cfOtherFilterCI" />
+                  <GroupFilter GroupColumn="rptDate">
+                    <GroupAggregateColumn AggregateColumn="clicksCurrent" AggregateFunction="Sum" ID="gacClicks" />
+                    <GroupAggregateColumn AggregateColumn="clicksBaseline" AggregateFunction="Sum" ID="gacClicksBaseline" />
+                  </GroupFilter>
+                  <SortFilter SortColumn="rptDate" SortSequence="Descending" />
+                  <CalculatedColumn Formula="@Data.gacClicks~ - @Data.gacClicksBaseline~" ID="ccDiffClicks" />
+                  <CalculatedColumn Formula="@Data.gacClicks~/@Data.gacClicksBaseline~-1" ID="ccDiffClicksPct" />
+                </DataLayer>
+                <DataTableColumn ID="coldate" Header="Date">
+                  <Label Caption="@Data.rptDate~" Format="Short Date" />
+                  <DataColumnSort DataColumn="rptDate" DataType="Date" />
+                </DataTableColumn>
+                <DataTableColumn ID="colclicks" Header="Clicks" Class="ThemeAlignRight">
+                  <Label Caption="@Data.gacClicks~" Format="#,#" />
+                </DataTableColumn>
+                <DataTableColumn ID="colbaseline" Header="Baseline" Class="ThemeAlignRight">
+                  <Label Caption="@Data.gacClicksBaseline~" Format="#,#" />
+                </DataTableColumn>
+                <DataTableColumn ID="coldiffclicks" Header="+/-" Class="ThemeAlignRight">
+                  <Label Caption="@Data.ccDiffClicks~" Format="#,#">
+                    <ConditionalClass Class="ThemeTextNegative" Condition="@Data.ccDiffClicks~ &lt; 0" />
+                  </Label>
+                </DataTableColumn>
+                <DataTableColumn ID="coldiffclickspct" Header="%" Class="ThemeAlignRight">
+                  <Label Caption="@Data.ccDiffClicksPct~" Format="0.0%">
+                    <ConditionalClass Class="ThemeTextNegative" Condition="@Data.ccDiffClicksPct~ &lt; 0" />
+                  </Label>
+                </DataTableColumn>
+              </DataTable>
+            </Division>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter>
+    <Division Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams rptStart="" rptEnd="" islPixelNameAll="" islPixelNameSearch="" islPixelNamePOSM="" islPixelNameAffiliates="" islPixelNameOther="" islPixelCIAll="" islPixelCISearch="" islPixelCIPOSM="" islPixelCIAffiliates="" islPixelCIOther="" />
+</Report>

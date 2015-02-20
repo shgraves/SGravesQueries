@@ -1,0 +1,407 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="C3Dash.PerformanceRankDetail" SavedBy="JOMAX\vyancey" SavedAt="4/4/2014 1:08:56 PM" EngineVersion="11.2.040-SP4">
+  <IncludeHtmlFile IncludedHtmlFile="C3Landing/meta.html" />
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams username="@Function.UserName~" rptEnd="@Date.Today~" rptStart="=DateAdd(&quot;d&quot;,-28,Date())" rdDataCache="=Math.floor((Math.random()*100000000)+1);" />
+  <LocalData>
+    <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3RankRepIdentityGet_sp" ConnectionID="connP3BIG-BiLogiReporting">
+      <SPParameters>
+        <SPParameter SPParamDirection="Input" ID="username" SPParamSize="0" SPParamType="dt-200" Value="@Request.username~" />
+      </SPParameters>
+    </DataLayer>
+  </LocalData>
+  <LocalData IdeDisplayStatus="Collapsed">
+    <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3RankDatePickerGet_sp" ConnectionID="connP3BIG-BiLogiReporting" />
+  </LocalData>
+  <DefaultRequestParams LocationID="-1" MgrID="-1" SupID="@Local.SupID~" RepID="-1" DepartmentID="@Local.DepartmentID~" RoleValue="@Local.RoleValue~" deptStatus="1" ActiveUser="@Local.MgrUserID~" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.C3Header" SharedElementID="sharedHeader" ID="sharedHeaderElement" />
+    <IncludeHtml Html="&lt;style&gt;&#xD;&#xA;.gdMetricTable {&#xD;&#xA;border-collapse:collapse;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td,th {&#xD;&#xA;border-left:2px solid white;&#xD;&#xA;border-right:2px solid white;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td.none {&#xD;&#xA;border-style:none;&#xD;&#xA;background:white !important;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable th.none {&#xD;&#xA;border-style:none;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td.left {&#xD;&#xA;border-left: 1px solid #B2C7D3 !important;&#xD;&#xA;text-align:right;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td.bothName {&#xD;&#xA;border-left: 1px solid #B2C7D3 !important;&#xD;&#xA;border-right: 1px solid #B2C7D3 !important;&#xD;&#xA;text-align:left;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td.right {&#xD;&#xA;border-right: 1px solid #B2C7D3 !important;&#xD;&#xA;text-align:right;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable th:first-child.left {&#xD;&#xA;border-left: 1px solid #B2C7D3 !important;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable th:last-child.right {&#xD;&#xA;border-right: 1px solid #B2C7D3 !important;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable th.bottom, td.bottom {&#xD;&#xA;border-bottom: 1px solid #278dc1;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable a&#xD;&#xA;{&#xD;&#xA;color:black;&#xD;&#xA;text-decoration:underline;&#xD;&#xA;}&#xD;&#xA;.gdHiddenBorderTD td {&#xD;&#xA;border-style:hidden !important;&#xD;&#xA;}&#xD;&#xA;.gdReportGroupHeaderSpacer&#xD;&#xA;{&#xD;&#xA;background-color:#fff;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable tbody td:nth-of-type(odd){&#xD;&#xA;background:rgba(245, 245, 245, 0.5);&#xD;&#xA;padding-left: 4px;&#xD;&#xA;padding-top: 2px;&#xD;&#xA;padding-right: 3px;&#xD;&#xA;padding-bottom: 2px;&#xD;&#xA;border: 1px Solid #fff;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdTableColumnName a&#xD;&#xA;{&#xD;&#xA;color:#009 !important;&#xD;&#xA;text-decoration:underline;&#xD;&#xA;border-style:none;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;input[type=&quot;submit&quot;]:enabled {&#xD;&#xA;background: #278dc1 !important;&#xD;&#xA;border: 1px solid #278dc1 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;width: 120px;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;submit&quot;]:hover:enabled {&#xD;&#xA;background: #545454 !important;&#xD;&#xA;border: 1px solid #545454 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;width: 120px;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;button&quot;] {&#xD;&#xA;background: #278dc1 !important;&#xD;&#xA;border: 1px solid #278dc1 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;width: 120px;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;button&quot;]:hover {&#xD;&#xA;background: #545454 !important;&#xD;&#xA;border: 1px solid #545454 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;width: 120px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;.ScoreCardImage {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.iconScoreCard20x20.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 25px;&#xD;&#xA;height: 25px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdHighlightName {&#xD;&#xA;background: #278dc1 !important;&#xD;&#xA;color: white !important;&#xD;&#xA;border-style:hidden !important;&#xD;&#xA;text-align: left;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdHighlightName {&#xD;&#xA;background: #d2dfee !important;&#xD;&#xA;border-style:hidden !important;&#xD;&#xA;color:black !important;&#xD;&#xA;text-align: left;&#xD;&#xA;}&#xD;&#xA;.gdHighlightStars {&#xD;&#xA;background: #d2dfee !important;&#xD;&#xA;border-style:hidden !important;&#xD;&#xA;text-align: center;&#xD;&#xA;}&#xD;&#xA;.gdHighlight {&#xD;&#xA;background: #d2dfee !important;&#xD;&#xA;border-style:hidden !important;&#xD;&#xA;text-align: right;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdDefaultDropDownBackground{&#xD;&#xA;	background-color: white;&#xD;&#xA;	border-radius: 4px;&#xD;&#xA;	-webkit-border-radius: 4px;&#xD;&#xA;	-moz-border-radius: 4px;&#xD;&#xA;	border: 1px solid #B2C7D3;&#xD;&#xA;	padding-top: 8px;&#xD;&#xA;	padding-right: 10px;&#xD;&#xA;	padding-left: 10px;&#xD;&#xA;	padding-bottom: 8px;&#xD;&#xA;	margin-top: 0px;&#xD;&#xA;	margin-right: 10px;&#xD;&#xA;	margin-left: 10px;&#xD;&#xA;	margin-bottom: 0px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdReportHeaderNameBISmall {&#xD;&#xA;font: Arial, Helvetica, sans-serif;&#xD;&#xA;font-family: Arial, Helvetica, sans-serif;&#xD;&#xA;font-size: 14px;&#xD;&#xA;font-style: normal;&#xD;&#xA;text-align: left;&#xD;&#xA;font-weight: bold;&#xD;&#xA;color: #0c5176;&#xD;&#xA;vertical-align: text-bottom;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdSelectFixedWidth {&#xD;&#xA;width: 180px !important;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&lt;/style&gt;&#xD;&#xA;&#xD;&#xA;&lt;!--[if IE]&gt;&#xD;&#xA;&lt;style type=&quot;text/css&quot;&gt;&#xD;&#xA;input[type=&quot;submit&quot;] {&#xD;&#xA;background: #CDD9E6 !important;&#xD;&#xA;border: 1px solid #386090 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: black !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;}&#xD;&#xA;&lt;/style&gt;&#xD;&#xA;&lt;![endif]--&gt;" ID="CustomCSS" />
+  </ReportHeader>
+  <Body>
+    <Rows Width="100" WidthScale="%" CellSpacing="10px" Class="gdDefaultRowBground">
+      <Row Class=".gdDefaultDropDownBground">
+        <Column>
+          <Division ID="divParameters" IdeDisplayStatus="Collapsed">
+            <Rows>
+              <Row Class="gdReportHeader">
+                <Column>
+                  <Spaces Size="2" />
+                  <Label Caption="Performance Metrics" Class="gdReportHeaderNameBI" />
+                </Column>
+              </Row>
+              <Row>
+                <Column ID="colDropDowns" Width="770" WidthScale="px">
+                  <Rows ID="rowDropDowns" Class="gdDefaultDropDownBground">
+                    <Row ID="rowDropCols">
+                      <Column Width="265" WidthScale="px" ID="colLeft" IdeDisplayStatus="Collapsed">
+                        <Rows Width="225" WidthScale="px" ID="rowsHeader">
+                          <Row ID="rowStartDate">
+                            <Column ID="colStartDate" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption="Start (&gt;=):" />
+                            </Column>
+                            <Column ID="colRptStart" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <InputDate ID="rptStart" DefaultValue="@Request.rptStart~" Class="gdSelectFixedWidth">
+                                <Validation Type="Date" />
+                                <Validation Type="Required" />
+                                <EventHandler DhtmlEvent="onchange">
+                                  <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Action>
+                                </EventHandler>
+                              </InputDate>
+                            </Column>
+                          </Row>
+                          <Row ID="rowDepartment">
+                            <Column ID="colDept" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption="Department: " />
+                            </Column>
+                            <Column ID="colDeptID" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <InputSelectList ID="DepartmentID" OptionValueColumn="DepartmentID" OptionCaptionColumn="Department" IncludeBlank="True" IncludeBlankCaption="&lt;SELECT&gt;" IncludeBlankValue="-1" DefaultValue="@Request.DepartmentID~" Class="gdSelectFixedWidth">
+                                <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3RankDropDownDepartmentGet_sp" ConnectionID="connP3BIG-BiLogiReporting">
+                                  <SPParameters>
+                                    <SPParameter ID="@deptStatus" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" Value="@Request.deptStatus~" />
+                                  </SPParameters>
+                                  <SortFilter SortColumn="Department" />
+                                </DataLayer>
+                              </InputSelectList>
+                              <EventHandler DhtmlEvent="onchange">
+                                <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                                  <WaitPage Caption="Processing, please wait..." />
+                                </Action>
+                              </EventHandler>
+                            </Column>
+                          </Row>
+                          <Row ID="rowDeptStatus">
+                            <Column ID="colDeptStatus" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption="Dept Status:" />
+                            </Column>
+                            <Column ID="colDepStatus" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <InputSelectList ID="deptStatus" OptionValueColumn="StatusValue" OptionCaptionColumn="StatusName" DefaultValue="@Request.deptStatus~" Class="gdSelectFixedWidth">
+                                <DataLayer Type="Static" ID="dlDeptStatus">
+                                  <StaticDataRow StatusName="Active" StatusValue="1" />
+                                  <StaticDataRow StatusName="Inactive" StatusValue="0" />
+                                  <StaticDataRow StatusName="&lt;ALL&gt;" StatusValue="-1" />
+                                </DataLayer>
+                                <EventHandler DhtmlEvent="onchange">
+                                  <Action Type="RefreshElement" ElementID="DepartmentID" ID="actRefreshDepartments" RequestForwarding="True">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Action>
+                                </EventHandler>
+                              </InputSelectList>
+                            </Column>
+                          </Row>
+                          <Row ID="rowLocation">
+                            <Column ID="colLocation" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Label Caption="Location: " />
+                            </Column>
+                            <Column ID="colLocationID" Width="160" WidthScale="px">
+                              <InputSelectList ID="LocationID" OptionCaptionColumn="Location" OptionValueColumn="LocationID" DefaultValue="@Request.LocationID~" Class="gdSelectFixedWidth">
+                                <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3RankDropDownLocationGet_sp" ConnectionID="connP3BIG-BiLogiReporting" />
+                                <EventHandler DhtmlEvent="onchange">
+                                  <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Action>
+                                </EventHandler>
+                              </InputSelectList>
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Column Width="260" WidthScale="px" ID="colCenter" IdeDisplayStatus="Collapsed">
+                        <Rows Width="225" WidthScale="px">
+                          <Row ID="rowEndDate">
+                            <Column ID="colEndDate" Width="100" WidthScale="%" IdeDisplayStatus="Collapsed">
+                              <Label Caption="End (&lt;):" />
+                            </Column>
+                            <Column ID="colRptEnd" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <InputDate ID="rptEnd" DefaultValue="@Request.rptEnd~" Class="gdSelectFixedWidth">
+                                <Validation Type="Date" />
+                                <Validation Type="Required" />
+                                <EventHandler DhtmlEvent="onchange">
+                                  <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Action>
+                                </EventHandler>
+                              </InputDate>
+                              <Remark>
+                                <Spaces Size="3" />
+                              </Remark>
+                            </Column>
+                          </Row>
+                          <Row ID="rowManager">
+                            <Column ID="colManager" Width="100" WidthScale="%" IdeDisplayStatus="Collapsed">
+                              <Label Caption="Manager: " />
+                            </Column>
+                            <Column ID="colManagerID" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <InputSelectList ID="MgrID" OptionValueColumn="MgrUserID" OptionCaptionColumn="MgrName" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.MgrID~" Class="gdSelectFixedWidth">
+                                <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3RankDropDownManagerGet_sp" IdeDisplayStatus="Collapsed" ConnectionID="connP3BIG-BiLogiReporting">
+                                  <SPParameters>
+                                    <SPParameter SPParamDirection="Input" ID="@StartDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                                    <SPParameter SPParamDirection="Input" ID="@EndDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                                    <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+                                    <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+                                  </SPParameters>
+                                  <SortFilter SortColumn="MgrName" ID="sfName" />
+                                </DataLayer>
+                                <EventHandler DhtmlEvent="onchange">
+                                  <Action Type="RefreshElement" ElementID="SupID" ID="actRefreshPerson" RequestForwarding="True">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Action>
+                                </EventHandler>
+                              </InputSelectList>
+                            </Column>
+                          </Row>
+                          <Row ID="rowSupv">
+                            <Column ID="colSupervisor" Width="100" WidthScale="%" IdeDisplayStatus="Collapsed">
+                              <Label Caption="Supervisor: " />
+                            </Column>
+                            <Column ID="colSupID" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <InputSelectList ID="SupID" OptionValueColumn="MgrUserID" OptionCaptionColumn="MgrName" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.SupID~" Class="gdSelectFixedWidth">
+                                <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3RankDropDownSupervisorGet_sp" ConnectionID="connP3BIG-BiLogiReporting">
+                                  <SPParameters>
+                                    <SPParameter SPParamDirection="Input" ID="@StartDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                                    <SPParameter SPParamDirection="Input" ID="@EndDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                                    <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+                                    <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+                                    <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@SupID" SPParamDirection="Input" Value="@Request.MgrID~" />
+                                  </SPParameters>
+                                  <SortFilter SortColumn="MgrName" ID="sfName" />
+                                </DataLayer>
+                              </InputSelectList>
+                              <Remark>
+                                <EventHandler DhtmlEvent="onchange">
+                                  <Action Type="Javascript" Javascript="disable()" ID="jsDisable" />
+                                </EventHandler>
+                              </Remark>
+                            </Column>
+                          </Row>
+                          <Row ID="rowDisplay">
+                            <Column ID="colDisplay" Width="100" WidthScale="%" IdeDisplayStatus="Collapsed">
+                              <Label Caption="Level:" />
+                            </Column>
+                            <Column ID="colRoleValue" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <InputSelectList ID="RoleValue" OptionValueColumn="RoleValue" OptionCaptionColumn="RoleName" DefaultValue="@Request.RoleValue~" Class="gdSelectFixedWidth">
+                                <DataLayer Type="Static" ID="dlRole">
+                                  <StaticDataRow RoleName="Supervisor" RoleValue="3" />
+                                  <StaticDataRow RoleName="Representative" RoleValue="1" />
+                                </DataLayer>
+                              </InputSelectList>
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Column ID="colRight" Width="215" WidthScale="px" IdeDisplayStatus="Collapsed">
+                        <Rows Width="215" WidthScale="px">
+                          <Row>
+                            <Column ID="col1" Width="100" WidthScale="px">
+                              <Rows>
+                                <Row>
+                                  <Column ID="colBPtoDate" Width="90" WidthScale="px">
+                                    <IncludeHtml Html="@Local.INP1~" />
+                                  </Column>
+                                </Row>
+                                <Row>
+                                  <Column ID="colPriorBP" Width="90" WidthScale="px">
+                                    <IncludeHtml Html="@Local.INP2~" />
+                                  </Column>
+                                </Row>
+                                <Row>
+                                  <Column ID="colPDPtoDate" Width="90" WidthScale="px">
+                                    <IncludeHtml Html="@Local.INP7~" />
+                                  </Column>
+                                </Row>
+                                <Row>
+                                  <Column ID="colPriorPDP" Width="90" WidthScale="px">
+                                    <IncludeHtml Html="@Local.INP8~" />
+                                  </Column>
+                                </Row>
+                              </Rows>
+                            </Column>
+                            <Column ID="col2" Width="90" WidthScale="px" IdeDisplayStatus="Collapsed">
+                              <Rows>
+                                <Row>
+                                  <Column ID="colMTD" Width="90" WidthScale="px">
+                                    <IncludeHtml Html="@Local.INP3~" />
+                                  </Column>
+                                </Row>
+                                <Row>
+                                  <Column ID="colLastMonth" Width="90" WidthScale="px">
+                                    <IncludeHtml Html="@Local.INP4~" />
+                                  </Column>
+                                </Row>
+                                <Row>
+                                  <Column ID="colWTD" Width="90" WidthScale="px">
+                                    <IncludeHtml Html="@Local.INP5~" />
+                                  </Column>
+                                </Row>
+                                <Row>
+                                  <Column ID="colLastWk" Width="90" WidthScale="px">
+                                    <IncludeHtml Html="@Local.INP6~" />
+                                  </Column>
+                                </Row>
+                              </Rows>
+                            </Column>
+                            <Remark>
+                              <Column ID="col3" Width="75" WidthScale="px" IdeDisplayStatus="Collapsed">
+                                <Rows>
+                                  <Row>
+                                    <Column ID="colYesterday" Width="90" WidthScale="px">
+                                      <LineBreak />
+                                    </Column>
+                                  </Row>
+                                  <Row>
+                                    <Column ID="colYesterday" Width="90" WidthScale="px">
+                                      <IncludeHtml Html="@Local.INP9~" />
+                                    </Column>
+                                  </Row>
+                                  <Row>
+                                    <Column ID="colToday" Width="90" WidthScale="px" IdeDisplayStatus="Collapsed">
+                                      <IncludeHtml Html="@Local.INP10~" />
+                                    </Column>
+                                  </Row>
+                                  <Row IdeDisplayStatus="Collapsed">
+                                    <Column ID="colYesterday" Width="90" WidthScale="px">
+                                      <LineBreak />
+                                    </Column>
+                                  </Row>
+                                </Rows>
+                              </Column>
+                            </Remark>
+                          </Row>
+                        </Rows>
+                      </Column>
+                    </Row>
+                    <Row ID="rowSubmit">
+                      <Column ID="colSubmit" ColSpan="5" RowSpan="1" IdeDisplayStatus="Collapsed">
+                        <Button ID="Submit" Caption="Submit">
+                          <EventHandler DhtmlEvent="onclick">
+                            <Action Type="Javascript" Javascript="validateForm()" ID="actValidate" />
+                          </EventHandler>
+                          <Action Type="Report" ID="actReport">
+                            <Target Type="Report" ID="tgtPerformanceRankDetail" Report="C3Dash.PerformanceRankDetail" />
+                          </Action>
+                        </Button>
+                      </Column>
+                    </Row>
+                  </Rows>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+          <Division ID="divTables" Condition="@Request.DepartmentID~ &gt; 0">
+            <Rows Class="gdDefaultRowBground">
+              <Row ID="rowOne">
+                <Column ID="colOne" Class="gdColumnCell">
+                  <CrosstabTable ID="ctMetrics" HideWhenZeroRows="True" ColumnHeaderClass="gdReportHeaderSecondaryBground" Class="gdMetricTable">
+                    <DataLayer Type="SP" Command="BiLogiReporting.dbo.rptLogiC3RankMetricDetailGet_sp" ConnectionID="connP3BIG-BiLogiReporting" ID="dlMetrics" IdeDisplayStatus="Collapsed">
+                      <DataLayerLink ID="rptMetrics" />
+                      <CrosstabFilter CrosstabLabelColumn="DisplayName" CrosstabValueColumn="MetricValue" CrosstabValueFunction="Any" CrosstabColumn="MetricName">
+                        <ExtraCrosstabValueColumn CrosstabValueColumn="MetricFormat" ID="MetricFormat" CrosstabValueFunction="Any" />
+                        <ExtraCrosstabValueColumn CrosstabValueColumn="BorderType" ID="BorderType" CrosstabValueFunction="Any" />
+                        <ExtraCrosstabLabelColumn CrosstabLabelColumn="ID" ID="ID" />
+                        <ExtraCrosstabLabelColumn CrosstabLabelColumn="SupID" ID="SupID" />
+                        <ExtraCrosstabLabelColumn CrosstabLabelColumn="DeptID" ID="DeptID" />
+                        <ExtraCrosstabLabelColumn CrosstabLabelColumn="RepType" ID="RepType" />
+                        <ExtraCrosstabLabelColumn CrosstabLabelColumn="isSupLink" ID="isSupLink" />
+                      </CrosstabFilter>
+                      <SPParameters IdeDisplayStatus="Collapsed">
+                        <SPParameter SPParamDirection="Input" ID="@rptStart" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                        <SPParameter SPParamDirection="Input" ID="@rptEnd" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+                        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+                        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@MgrID" SPParamDirection="Input" Value="@Request.MgrID~" />
+                        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@SupID" SPParamDirection="Input" Value="@Request.SupID~" />
+                        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepID" SPParamDirection="Input" Value="@Request.RepID~" />
+                        <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepType" SPParamDirection="Input" Value="@Request.RoleValue~" />
+                      </SPParameters>
+                    </DataLayer>
+                    <HeaderRow HeaderPosition="Top" ID="GroupHeaderRow">
+                      <Column ID="colSpacer" ColSpan="1" Class="gdReportGroupHeaderSpacer" />
+                      <Column ID="colFinancial" ColSpan="4" Class="gdReportHeaderPrimaryBground,bottom" IdeDisplayStatus="Collapsed">
+                        <Label Caption="Financial" />
+                      </Column>
+                      <Column ID="colRefunds" ColSpan="2" Class="gdReportHeaderPrimaryBground,bottom" IdeDisplayStatus="Collapsed">
+                        <Label Caption="Refunds" />
+                      </Column>
+                      <Column ID="colCustServ" ColSpan="2" Class="gdReportHeaderPrimaryBground,bottom" IdeDisplayStatus="Collapsed">
+                        <Label Caption="Customer Service" />
+                      </Column>
+                      <Column ID="colOperational" ColSpan="7" Class="gdReportHeaderPrimaryBground,bottom" IdeDisplayStatus="Collapsed">
+                        <Label Caption="Operational" />
+                      </Column>
+                    </HeaderRow>
+                    <HeaderRow HeaderPosition="Top" ID="MetricHeaderRow" Class="gdReportHeaderSecondaryBground">
+                      <Column ID="colSpacer" ColSpan="1" Class="gdReportGroupHeaderSpacer" />
+                      <CrosstabTableHeaderColumn ID="ctHeader" ColSpan="1" ShowModes="None" IdeDisplayStatus="Collapsed">
+                        <Label Caption="@Data.rdCrosstabColumn~ " />
+                      </CrosstabTableHeaderColumn>
+                    </HeaderRow>
+                    <CrosstabTableLabelColumn ID="colName" Header="=if (@Request.RoleValue~ = 3) { &quot;Supervisor&quot;;} else { &quot;Representative&quot;;}" Class="none,bothName">
+                      <Division>
+                        <Rows Width="100" WidthScale="%">
+                          <Row>
+                            <Column Condition="(@Data.isSupLink~ == 1)" Width="100" WidthScale="%" Class="gdTableColumnName,none">
+                              <Label Caption="@Data.DisplayName~" IdeDisplayStatus="Collapsed">
+                                <Action Type="Report" ID="actReport" IdeDisplayStatus="Collapsed">
+                                  <LinkParams DepartmentID="@Request.DepartmentID~" LocationID="@Request.LocationID~" MgrID="@Request.MgrID~" RepID="@Request.RepID~" RepType="1" RoleValue="1" SupID="@Data.ID~" />
+                                  <Target Type="Report" RequestForwarding="True" ID="tgtReport" Report="C3Dash.PerformanceRankDetail">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Target>
+                                </Action>
+                              </Label>
+                            </Column>
+                            <Column Condition="(@Data.isSupLink~ == 0)" Width="100" WidthScale="%" Class="gdTableColumnName,none">
+                              <Label Caption="@Data.DisplayName~" />
+                            </Column>
+                            <Column Class="ThemeAlignRight" Width="100" WidthScale="%" IdeDisplayStatus="Collapsed">
+                              <Label Class="ScoreCardImage" IdeDisplayStatus="Collapsed">
+                                <Action Type="Report" ID="actRepScoreCard">
+                                  <Target Type="Report" ID="RepScoreCard" Report="C3Dash.RepScoreCard">
+                                    <WaitPage Caption="Processing, please wait..." />
+                                  </Target>
+                                  <LinkParams rptEnd="@Request.rptEnd~" RepID="@Data.ID~" DepartmentID="@Data.DeptID~" RepType="@Data.RepType~" MgrName="@Data.DisplayName~" OverallDisplayRank="@Data.OverallDisplayRank~" rptStart="@Request.rptStart~" />
+                                </Action>
+                              </Label>
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Division>
+                      <ConditionalClass Condition="(@Data.ID~ == @Request.ActiveUser~)" Class="gdHighlightName" />
+                      <ConditionalClass Condition="(@Data.ID~ == @Request.SupID~)" Class="gdHighlightName" />
+                      <DataColumnSort DataColumn="DisplayName" DataType="Text" />
+                    </CrosstabTableLabelColumn>
+                    <CrosstabTableValueColumns ID="colMetricValue" Header="@Data.rdCrosstabColumn~ " Width="80" Class="ThemeAlignRight">
+                      <Label Caption="@Data.rdCrosstabValue~" Format="@Data.rdCrosstabValue-MetricFormat~" Class="ThemeAlignRight" />
+                      <ConditionalClass Condition="(@Data.ID~ == @Request.ActiveUser~)" Class="gdHighlight" />
+                      <ConditionalClass Condition="(@Data.ID~ == @Request.SupID~)" Class="gdHighlight" />
+                      <ConditionalClass Condition="@Data.rdCrosstabValue-BorderType~ = 1" Class="left" />
+                      <ConditionalClass Condition="@Data.rdCrosstabValue-BorderType~ = 2" Class="right" />
+                      <CrosstabValueColumnSort FirstSortSequence="Descending" />
+                      <Spaces Size="2" />
+                    </CrosstabTableValueColumns>
+                    <InteractivePaging PageRowCount="100" CaptionType="Image" HideWhenOnePage="True" ShowPageNumber="Numbered" />
+                  </CrosstabTable>
+                </Column>
+              </Row>
+              <Row ID="RowTwo">
+                <Column ID="colOne">
+                  <Division Condition="@Request.RoleValue~ == 1 &amp;&amp; @Request.SupID~ != -1">
+                    <Label Caption="* Rep reported to mutliple supervisors in time frame, metrics reflect only days assigned to supervisor" />
+                  </Division>
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter>
+    <Division Class="ThemeAlignCenter">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+    <IncludeScript IncludedScript="function validateForm() {&#xD;&#xA;&#xD;&#xA;	var DeptID = document.getElementById('DepartmentID').value;&#xD;&#xA;&#xD;&#xA;	if (DeptID == -1)  {&#xD;&#xA;	alert('Department must be selected.');&#xD;&#xA;	return false;&#xD;&#xA;	}&#xD;&#xA;	else {&#xD;&#xA;	return true;&#xD;&#xA;	}&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;function SetDates(Date1,Date2) {&#xD;&#xA;&#xD;&#xA;	document.getElementById('rptStart').value = Date1; &#xD;&#xA;	document.getElementById('rptEnd').value = Date2; &#xD;&#xA;&#xD;&#xA;}" ID="functions" />
+  </ReportFooter>
+  <ideTestParams rptStart="" rptEnd="" DepartmentID="" LocationID="" MgrID="" SupID="" RoleValue="" deptStatus="" RepID="" ActiveUser="" username="" />
+</Report>

@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Admin.SessionLogging" SavedBy="JOMAX\bgaer" SavedAt="4/12/2013 3:10:27 PM" EngineVersion="10.2.424" SecurityReportRightID="BIG-Developer">
+  <DefaultRequestParams rptStartDate="=DateAdd(&quot;d&quot;,-6,Date())" rptEndDate="=DateAdd(&quot;d&quot;,+1,Date())" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderReport" ID="seReportHeader" SharedElementID="sharedHeader" />
+    <LineBreak />
+    <LineBreak />
+    <IncludeSharedElement DefinitionFile="SharedElements.AdminMenu" SharedElementID="seAdminMenu" ID="seAdminMenuLinks" />
+    <LineBreak />
+    <LineBreak />
+    <Division ID="divTitle" Class="rdAlternateTextColorWhite" IdeDisplayStatus="Collapsed">
+      <IncludeHtml Html="&lt;h2&gt;Session Logs&lt;/h2&gt;" ID="htmlTitle" />
+    </Division>
+    <Division ID="divReportParams" IdeDisplayStatus="Collapsed">
+      <InputGrid Layout="Auto" IdeDisplayStatus="Collapsed">
+        <InputDate ID="rptStartDate" Caption="Start Date:" DefaultValue="@Request.rptStartDate~" />
+        <InputDate ID="rptEndDate" Caption="End Date:" DefaultValue="@Request.rptEndDate~" />
+      </InputGrid>
+      <Remark>
+        <InputSelectList ID="islReportType" OptionCaptionColumn="EventNameFriendly" OptionValueColumn="EventNameValue" Caption="Select a Report Type:" MultiSelect="False" DefaultValue="@Request.islReportType~" IncludeBlank="True" IncludeBlankCaption="All Types" IdeDisplayStatus="Collapsed">
+          <DataLayer Type="Static" ID="dlReportTypes">
+            <StaticDataRow EventNameFriendly="Session Start" EventNameValue="SessionStart" />
+            <StaticDataRow EventNameFriendly="Run SQL" EventNameValue="RunSQL" />
+            <StaticDataRow EventNameFriendly="Run SP" EventNameValue="RunSP" />
+            <StaticDataRow EventNameFriendly="Authenticate User" EventNameValue="AuthenticateUser" />
+            <StaticDataRow EventNameFriendly="Build Report" EventNameValue="BuildReport" />
+          </DataLayer>
+        </InputSelectList>
+      </Remark>
+    </Division>
+    <Button ID="btnSubmit" Caption="Submit">
+      <Action Type="Report" ID="actSubmit">
+        <Target Type="Report" ID="tgtSubmit" Report="Admin.SessionLogging">
+          <WaitPage Caption="Querying..." />
+        </Target>
+      </Action>
+    </Button>
+  </ReportHeader>
+  <Body>
+    <LineBreak />
+    <LineBreak />
+    <DataTable ID="dtUsageLogging">
+      <DataLayer Type="SQL" ConnectionID="connM1BIG-biLogiReporting" ID="dlLogging" Source="&#xD;&#xA;select event_name, event_date, [user_name]&#xD;&#xA;from&#xD;&#xA;[BiLogiReporting].[dbo].[rptLogiEventLog] with (nolock)&#xD;&#xA;where event_name = 'SessionStart' and event_date between '@Request.rptStartDate~' and '@Request.rptEndDate~' order by event_date" />
+      <DataTableColumn Header="User Name" IdeDisplayStatus="Collapsed">
+        <Label Caption="@Data.user_name~" />
+        <DataColumnSort DataColumn="user_name" />
+      </DataTableColumn>
+      <DataTableColumn Header="Date" IdeDisplayStatus="Collapsed">
+        <Label Caption="@Data.event_date~" />
+        <DataColumnSort DataColumn="event_date" DataType="Date" />
+      </DataTableColumn>
+      <InteractivePaging CaptionType="Image" PageRowCount="20" ID="logPaging" ShowPageNumber="True" Location="Both" HideWhenOnePage="True" HideShowPrevNextCaptions="True" />
+    </DataTable>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="seFooter" />
+  </ReportFooter>
+  <ideTestParams rptStartDate="" rptEndDate="" islReportType="" />
+</Report>

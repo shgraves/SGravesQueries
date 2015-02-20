@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.GlobalWeeklyR" SavedBy="JOMAX\txadams" SavedAt="1/8/2014 3:03:15 PM" EngineVersion="11.0.43">
+  <StyleSheet />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <LineBreak />
+    <Rows ID="rowReportHeader" Class="gdDefaultRowBground" Width="100" WidthScale="%">
+      <Row>
+        <Column>
+          <Division>
+            <Rows Width="860" WidthScale="px">
+              <Row ID="rowReportTitle" Class="gdReportHeader">
+                <Column Class="gdReportHeaderNameBI">
+                  <Label Caption="Global Weekly Report" Class="gdReportHeaderNameBI" />
+                </Column>
+              </Row>
+              <Row>
+                <Column Class="gdDropDown">
+                  <InputSelectList ID="inputSelector" OptionCaptionColumn="Key" OptionValueColumn="Value" Caption="Frequency: " DefaultValue="@Request.inputSelector~" IncludeBlank="False">
+                    <DataLayer Type="Static">
+                      <StaticDataRow Key="Week Ending" Value="WeekEnding" />
+                      <StaticDataRow Key="Hour" Value="Hour" />
+                      <StaticDataRow Key="Day" Value="Day" />
+                      <StaticDataRow Key="Month" Value="Month" />
+                    </DataLayer>
+                  </InputSelectList>
+                  <Spaces Size="10" />
+                </Column>
+              </Row>
+              <Row ID="rowParameters">
+                <Column Class="gdDropDown">
+                  <InputSelectList ID="inputProduct" OptionCaptionColumn="Value" OptionValueColumn="Value" Caption="Product: " DefaultValue="@Request.inputProduct~" IncludeBlank="True" IncludeBlankValue="-1" IncludeBlankCaption="Select a Product">
+                    <DataLayer Type="Static">
+                      <StaticDataRow Key="Business Registrations" Value="Business Registrations" />
+                      <StaticDataRow Key="Certified Domains" Value="Certified Domains" />
+                      <StaticDataRow Key="Dedicated Hosting" Value="Dedicated Hosting" />
+                      <StaticDataRow Key="Domain Names (Reg + Xfer)" Value="Domain Names (Reg + Xfer)" />
+                      <StaticDataRow Key="Domain Name Registration" Value="Domain Name Registration" />
+                      <StaticDataRow Key="Domain Name Transfer" Value="Domain Name Transfer" />
+                      <StaticDataRow Key="Domain Name Transfer" Value="Domain Name Transfer" />
+                      <StaticDataRow Key="Domain Ownership Protection" Value="Domain Ownership Protection" />
+                      <StaticDataRow Key="Domains by Proxy" Value="Domains by Proxy" />
+                      <StaticDataRow Key="Email" Value="Email" />
+                      <StaticDataRow Key="Express Email Marketing" Value="Express Email Marketing" />
+                      <StaticDataRow Key="Fax Thru Email" Value="Fax Thru Email" />
+                      <StaticDataRow Key="Hosted Exchange" Value="Hosted Exchange" />
+                      <StaticDataRow Key="Online Calendar" Value="Online Calendar" />
+                      <StaticDataRow Key="Online Storage" Value="Online Storage" />
+                      <StaticDataRow Key="Premium DNS" Value="Premium DNS" />
+                      <StaticDataRow Key="Quick Shopping Cart" Value="Quick Shopping Cart" />
+                      <StaticDataRow Key="Search Engine Visibility" Value="Search Engine Visibility" />
+                      <StaticDataRow Key="SSL" Value="SSL" />
+                      <StaticDataRow Key="Virtual Hosting" Value="Virtual Hosting" />
+                      <StaticDataRow Key="Web Hosting" Value="Web Hosting" />
+                      <StaticDataRow Key="Website Builder" Value="Website Builder" />
+                      <StaticDataRow Key="Website Protection" Value="Website Protection" />
+                    </DataLayer>
+                  </InputSelectList>
+                  <Spaces Size="10" />
+                </Column>
+                <Column Class="gdDropDown">
+                  <InputSelectList ID="inputCountry" OptionCaptionColumn="Key" OptionValueColumn="Value" Caption="Country: " DefaultValue="@Request.inputCountry~" IncludeBlank="False">
+                    <DataLayer Type="Static">
+                      <StaticDataRow Key="All Countries" Value="ALL" />
+                      <StaticDataRow Key="United States" Value="US" />
+                      <StaticDataRow Key="China" Value="CN" />
+                      <StaticDataRow Key="Intl (excl. China)" Value="INTL" />
+                    </DataLayer>
+                  </InputSelectList>
+                  <Spaces Size="10" />
+                </Column>
+              </Row>
+              <Row>
+                <Column Class="gdReportHeader">
+                  <Remark>
+                    <InputText ID="inputStartDate" Format="MM/dd/yy hh:mm tt" Caption="Start Date: " DefaultValue="@Request.inputStartDate~" InputMaxLength="17" InputSize="16px" />
+                  </Remark>
+                  <InputDate ID="inputStartDate" Caption="Start Date: " DefaultValue="@Request.inputStartDate~" CaptionClass="rdAlternateTextColorWhite">
+                    <Validation Type="Date" ErrorMsg="Data for this Start Date is unavailable" RangeStart="2013-01-01" RangeEnd="@Date.Tomorrow~" Class="ThemeErrorText" />
+                  </InputDate>
+                  <Spaces Size="5" />
+                </Column>
+                <Column Class="gdReportHeader">
+                  <Remark>
+                    <InputText ID="inputEndDate" DefaultValue="@Request.inputEndDate~" Format="MM/dd/yy hh:mm tt" Caption="End Date: " InputMaxLength="17" InputSize="16px" />
+                  </Remark>
+                  <InputDate ID="inputEndDate" Caption="End Date:" DefaultValue="@Request.inputEndDate~" />
+                  <Remark>
+                    <Spaces Size="3" />
+                  </Remark>
+                </Column>
+              </Row>
+              <Row>
+                <Column Class="gdReportHeader">
+                  <Button ID="btnSubmit" Caption="Submit">
+                    <Action Type="Report" ID="actSubmitReport" Validate="True" EnterKeyDefault="True">
+                      <Target Type="Report" ID="tgtCurrentReport" Report="PMG.GlobalWeeklyR" RequestForwarding="True" />
+                      <Remark>
+                        <LinkParams inputEndDate="@Ap" inputStartDate="@Input.inputStartDate~" />
+                      </Remark>
+                    </Action>
+                  </Button>
+                  <LineBreak />
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <Rows Width="100" WidthScale="%" Class="gdDefaultRowBground">
+      <Row>
+        <Note Note="Metrics Box 1" />
+        <Column />
+      </Row>
+      <Row>
+        <Note Note="Metrics Box 2" />
+        <Column />
+      </Row>
+      <Row>
+        <Note Note="Metrics Box 3" />
+        <Column>
+          <DataTable ID="MetricsBox3">
+            <DataLayer Type="REST" ConnectionID="connBIDataApi" UrlPath="/r.xml?id=GlobalWeekly.r&amp;parms=@Request.inputSelector~|@Request.inputProduct~|@Request.inputCountry~|@Request.inputStartDate~|@Request.inputEndDate~" ID="dlRestGlobalWeekly" RemoveNamespace="True">
+              <GroupFilter GroupColumn="group" DataType="Text" Hierarchical="False" KeepGroupedRows="True" ID="grpFilter" SortSequence="Descending" />
+            </DataLayer>
+            <Remark>
+              <DataLayer Type="Cached" ID="dlcacheGTLD" CacheKey="globalweekly,@Request.inputSelector~,@Request.inputProduct~,@Request.inputCountry~,@Request.inputStartDate~,@Request.inputEndDate~" ExpirationNow="@Request.CacheExpireNow~" ExpirationTime="@Request.CacheHardExpire~" ExpirationTimeSpan="@Request.CacheExpTimeSpan~" IdeDisplayStatus="Collapsed">
+                <DataLayer Type="REST" ConnectionID="connBIDataApi" UrlPath="/r.xml?id=gTLD.r&amp;parms=@Request.inputGTLD~|@Request.inputStatus~|11/7/2013 11:00:00|11/19/2013 11:00:00" ID="dlRestGTLD" RemoveNamespace="True">
+                  <GroupFilter GroupColumn="group" DataType="Text" Hierarchical="False" KeepGroupedRows="True" ID="grpFilter" />
+                </DataLayer>
+              </DataLayer>
+            </Remark>
+            <Remark>
+              <DataLayer Type="XMLFile" XMLFile="C:\Projects\Notes and Scripts\R\XML for GlobalWeekly.xml" />
+            </Remark>
+            <DataTableColumn ID="TitleCol" />
+            <AutoColumns />
+          </DataTable>
+        </Column>
+      </Row>
+      <Row>
+        <Note Note="Metrics Box 4" />
+        <Column />
+      </Row>
+      <Row>
+        <Note Note="Metrics Box 5" />
+        <Column />
+      </Row>
+      <Row>
+        <Note Note="Metrics Box 6" />
+        <Column />
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter>
+    <Division Class="ThemeAlignCenter">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams inputCountry="" inputProduct="" inputStartDate="" inputEndDate="" inputSelector="" inputGTLD="" CacheExpireNow="" CacheHardExpire="" CacheExpTimeSpan="" />
+</Report>

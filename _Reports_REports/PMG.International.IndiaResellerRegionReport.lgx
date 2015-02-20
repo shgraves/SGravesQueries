@@ -1,0 +1,1031 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.International.IndiaResellerRegionReport" SavedBy="JOMAX\mxnguyen" SavedAt="1/13/2015 9:58:33 AM" EngineVersion="11.0.43" SecurityReportRightID="LogiCT">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams rptDay="@Date.Today~" ShowGCR="0" ShowXfer="0" ShowReg="0" ShowPlans="0" islRegion="All Regions" />
+  <DefaultRequestParams rptMonth="=DateAdd(&quot;m&quot;, DateDiff(&quot;m&quot;, &quot;1900-01-01&quot;, DateAdd(&quot;d&quot;,-1, &quot;@Request.rptDay~&quot;)),&quot;1900-01-01&quot;)" rptCurrentMonth="=DateAdd(&quot;m&quot;, DateDiff(&quot;m&quot;, &quot;1900-01-01&quot;, DateAdd(&quot;d&quot;,-1, &quot;@Date.Today~&quot;)),&quot;1900-01-01&quot;)" />
+  <ReportHeader ShowModes="rdBrowser">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <LineBreak />
+    <Division ShowModes="rdBrowser" />
+    <Rows Class="gdDefaultRowBground" Width="100" WidthScale="%">
+      <Row>
+        <Column>
+          <Rows>
+            <Row ID="rowTitle" IdeDisplayStatus="Collapsed">
+              <Column>
+                <Label Caption="India Reseller Report by Region" Class="gdReportHeaderNameBI" />
+                <Rows ID="rowHeader" Class="gdDefaultRowBground">
+                  <Row>
+                    <Remark>
+                      <Column>
+                        <Label Caption="Parameters:" Class="gdColumnCellTitle" />
+                      </Column>
+                    </Remark>
+                    <Column>
+                      <InputSelectList OptionCaptionColumn="region" ID="islRegion" OptionValueColumn="region" DefaultValue="@Request.islRegion~" Caption="Region:" CaptionClass="rdAlternateTextColorWhite">
+                        <DataLayer Type="SQL" Source="SELECT&#xD;&#xA;	'All Regions' as region&#xD;&#xA;UNION ALL&#xD;&#xA;SELECT DISTINCT region&#xD;&#xA;FROM [BiLogiReporting].[dbo].[rptIndiaResellerStateLookup] (nolock)&#xD;&#xA;UNION ALL&#xD;&#xA;SELECT 'Unknown' as region&#xD;&#xA;;&#xD;&#xA;" ConnectionID="connM1BIG-BIGReporting" ID="dlRegions" />
+                      </InputSelectList>
+                      <Spaces Size="5" />
+                    </Column>
+                    <Column ID="colCalendar" Width="235" WidthScale="px" IdeDisplayStatus="Collapsed">
+                      <InputDate ID="rptDay" Caption="Report Date:" DefaultValue="@Request.rptDay~" CaptionClass="rdAlternateTextColorWhite" Class="rdDataCalendarDropdown" CalendarLinkType="Image" />
+                    </Column>
+                    <Column Width="90" WidthScale="px">
+                      <Button ID="btnSubmit" Caption="Submit">
+                        <Action Type="Report" ID="actSubmitReport">
+                          <Target Type="Report" ID="tgtNewCustomerDashboard" Report="PMG.International.IndiaResellerRegionReport" RequestForwarding="True">
+                            <WaitPage Caption="Refreshing With Updated Report Date" />
+                          </Target>
+                        </Action>
+                      </Button>
+                      <Spaces Size="5" />
+                    </Column>
+                    <Column Width="100" WidthScale="px">
+                      <Image Caption="India-Regions_Btn.png" ID="imgIndia">
+                        <TooltipPanel ID="tipIndiaRegions">
+                          <Image Caption="India-Regions_Map.png" />
+                        </TooltipPanel>
+                      </Image>
+                    </Column>
+                    <Column>
+                      <Spaces Size="5" />
+                      <Image Tooltip="Export to Excel" ID="imgExpExcl" Caption="Export2Excel.png" IdeDisplayStatus="Collapsed">
+                        <Action Type="NativeExcel" ID="actExportExcel">
+                          <LinkParams ShowGCR="1" ShowReg="1" ShowPlans="1" ShowXfer="1" />
+                          <Target Type="NativeExcel" ExcelOutputFormat="Excel2007" ExportFilename="IndiaResellerRegionReport.xlsx" ID="tgtExcel" />
+                        </Action>
+                      </Image>
+                      <Spaces Size="5" />
+                      <Remark>
+                        <Button ID="btnExport" Caption="Export to Excel" />
+                      </Remark>
+                    </Column>
+                  </Row>
+                </Rows>
+                <Remark>
+                  <Division ID="divHeader" ShowModes="rdBrowser" />
+                </Remark>
+              </Column>
+            </Row>
+            <Row ID="rowValues">
+              <Column Class="gdColumnCell" Width="100" WidthScale="%">
+                <DataTable ID="dtValues" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="gdTableHeaderWrap" CellSpacing="5px">
+                  <DataLayer Type="SQL" Source="SELECT&#xD;&#xA;	order_date&#xD;&#xA; 	, sum(new_custs) as new_custs&#xD;&#xA;	, sum(new_gcr) as new_gcr&#xD;&#xA;	, sum(renew_gcr) as renew_gcr&#xD;&#xA;	, sum(xfers) as xfers&#xD;&#xA;	, sum(xfers_com) as xfer_com&#xD;&#xA;	, sum(xfers_in) as xfer_in&#xD;&#xA;	, sum(xfers_biz) as xfer_biz&#xD;&#xA;	, sum(xfers_info) as xfer_info&#xD;&#xA;	, sum(xfers_others) as xfer_others&#xD;&#xA;	, sum(registrations) as registrations&#xD;&#xA;	, sum(reg_com) as reg_com&#xD;&#xA;	, sum(reg_in) as reg_in&#xD;&#xA;	, sum(reg_biz) as reg_biz&#xD;&#xA;	, sum(reg_info) as reg_info&#xD;&#xA;	, sum(reg_others) as reg_others&#xD;&#xA;	, sum(hosting_units) as hosting_units&#xD;&#xA;	, sum(hosting_gcr) as hosting_gcr&#xD;&#xA;	, sum(hosting_gcr_new) as hosting_gcr_new&#xD;&#xA;	, sum(hosting_gcr_renewal) as hosting_gcr_renewal&#xD;&#xA;	, sum(vps_units) as vps_units&#xD;&#xA;	, sum(vps_gcr) as vps_gcr&#xD;&#xA;	, sum(plans_sold) as plans_sold&#xD;&#xA;	, sum(plans_super) as plans_super&#xD;&#xA;	, sum(plans_pro) as plans_pro&#xD;&#xA;	, sum(plans_basic) as plans_basic&#xD;&#xA;	, sum(plans_api) as plans_api&#xD;&#xA;	, sum(reseller_hosting_units) as reseller_hosting_units&#xD;&#xA;	, sum(reseller_hosting_gcr) as reseller_hosting_gcr&#xD;&#xA;	, sum(dedicated_units) as dedicated_hosting_units&#xD;&#xA;	, sum(dedicated_gcr) as dedicated_hosting_gcr	&#xD;&#xA;  FROM [BiLogiReporting].[dbo].[rptIndiaResellersSalesByRegion] rs (nolock)&#xD;&#xA;  where order_date &gt;= '@Request.rptMonth~' and order_date &lt; '@Request.rptDay~'&#xD;&#xA;  and (region = '@Request.islRegion~' or '@Request.islRegion~' = 'All Regions')&#xD;&#xA;  group by &#xD;&#xA;  	order_date&#xD;&#xA;order by 1&#xD;&#xA;;&#xD;&#xA;" ID="dlResellerData" ConnectionID="connM1BIG-biLogiReporting" IdeDisplayStatus="Collapsed">
+                    <CalculatedColumn Formula="@Data.new_gcr~+@Data.renew_gcr~" ID="ccTotalGCR" />
+                  </DataLayer>
+                  <Remark>
+                    <AutoColumns />
+                  </Remark>
+                  <DataTableColumn ID="colDate" Header="Date" Width="70" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.order_date~" Format="yyyy/MM/dd" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colNewCusts" Header="New Customers" Class="ThemeAlignRight" Width="75" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.new_custs~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="new_custs" Function="Sum" ID="dcNewCust" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRevenue" Header="Reseller Revenue" Class="ThemeAlignRight" Width="75" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.ccTotalGCR~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="ccTotalGCR" Function="Sum" ID="dcTotalGCR" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colShowGCR" Condition="&quot;@Request.ShowGCR~&quot;== &quot;0&quot;" IdeDisplayStatus="Collapsed" Width="25" WidthScale="px">
+                    <ExtraColumnHeader>
+                      <Button ID="togGCR" Caption="+">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues">
+                          <LinkParams ShowGCR="1" ShowReg="@Request.ShowReg~" ShowPlans="@Request.ShowPlans~" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colNewGCR" Header="New" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.new_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="new_gcr" Function="Sum" ID="dcNewGCR" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRenewGCR" Header="Renewal" Class="ThemeAlignRight" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.renew_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="renew_gcr" Function="Sum" ID="dcRenewGCR" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHideGCR" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <ExtraColumnHeader>
+                      <Button ID="togGCR" Caption="-">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues">
+                          <LinkParams ShowGCR="0" ShowReg="@Request.ShowReg~" ShowPlans="@Request.ShowPlans~" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXfers" Header="Trans-fers" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.xfers~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="xfers" Function="Sum" ID="dcXfers" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colShowXfers" Condition="&quot;@Request.ShowXfer~&quot;== &quot;0&quot;" IdeDisplayStatus="Collapsed" Width="25" WidthScale="px">
+                    <ExtraColumnHeader>
+                      <Button ID="togXfer" Caption="+">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="@Request.ShowReg~" ShowPlans="@Request.ShowPlans~" ShowXfer="1" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferCom" Header="COM" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_com~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="xfer_com" Function="Sum" ID="dcXferCom" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferIn" Header="IN" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_in~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="xfer_in" Function="Sum" ID="dcXferIn" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferBiz" Header="BIZ" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_biz~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="xfer_biz" Function="Sum" ID="dcXferBiz" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferInfo" Header="INFO" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_info~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="xfer_info" Function="Sum" ID="dcXferInfo" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferOthers" Header="Others" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_others~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="xfer_others" Function="Sum" ID="dcXferOthers" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHideXfer" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <ExtraColumnHeader>
+                      <Button ID="togXfer" Caption="-">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="@Request.ShowReg~" ShowPlans="@Request.ShowPlans~" ShowXfer="0" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colReg" Header="Regis-trations" Class="ThemeAlignRight" Width="60" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.registrations~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="registrations" Function="Sum" ID="dcRegisrations" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colShowReg" Condition="&quot;@Request.ShowReg~&quot;== &quot;0&quot;" IdeDisplayStatus="Collapsed" Width="25" WidthScale="px">
+                    <ExtraColumnHeader>
+                      <Button ID="togReg" Caption="+">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="1" ShowPlans="@Request.ShowPlans~" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegCom" Header="COM" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_com~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="reg_com" Function="Sum" ID="dcRegCom" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegIn" Header="IN" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_in~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="reg_in" Function="Sum" ID="dcRegIn" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegBiz" Header="BIZ" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_biz~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="reg_biz" Function="Sum" ID="dcRegBiz" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegInfo" Header="INFO" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_info~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="reg_info" Function="Sum" ID="dcRegInfo" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegOthers" Header="Others" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_others~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="reg_others" Function="Sum" ID="dcRegOthers" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHideReg" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <ExtraColumnHeader>
+                      <Button ID="togReg" Caption="-">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="0" ShowPlans="@Request.ShowPlans~" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHostingUnits" Header="Hosting Units" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.hosting_units~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="hosting_units" Function="Sum" ID="dcHostingUnits" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHostingGCR" Header="Hosting GCR" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.hosting_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="hosting_gcr" Function="Sum" ID="dcHostingGCR" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHostingGCRNew" Header="Hosting GCR New" Class="ThemeAlignRight" Width="85" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.hosting_gcr_new~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="hosting_gcr_new" Function="Sum" ID="dcHostingGCRNew" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHostingGCRRenewal" Header="Hosting GCR Renewal" Class="ThemeAlignRight" Width="90" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.hosting_gcr_renewal~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="hosting_gcr_renewal" Function="Sum" ID="dcHostingGCRRenewal" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colVpsUnits" Header="VPS Units" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.vps_units~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="vps_units" Function="Sum" ID="dcVpsUnits" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colVpsGCR" Header="VPS GCR" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.vps_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="vps_gcr" Function="Sum" ID="dcVpsGCR" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colResellerPlans" Header="Plans Sold" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.plans_sold~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="plans_sold" Function="Sum" ID="dcPlansSold" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colShowPlans" Condition="&quot;@Request.ShowPlans~&quot;== &quot;0&quot;" IdeDisplayStatus="Collapsed" Width="25" WidthScale="px">
+                    <ExtraColumnHeader>
+                      <Button ID="togPlans" Caption="+">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="@Request.ShowReg~" ShowPlans="1" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colPlansSuper" Header="Super" Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.plans_super~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="plans_super" Function="Sum" ID="dcPlansSuper" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colPlansPro" Header="Pro" Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.plans_pro~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="plans_pro" Function="Sum" ID="dcPlansPro" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colPlansBasic" Header="Basic" Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.plans_basic~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="plans_basic" Function="Sum" ID="dcPlansBasic" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colPlansApi" Header="API" Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.plans_api~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="plans_api" Function="Sum" ID="dcPlansApi" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHidePlans" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <ExtraColumnHeader>
+                      <Button ID="togPlans" Caption="-">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="@Request.ShowReg~" ShowPlans="0" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <Remark>
+                    <DataTableColumn ID="colResellerHostingUnits" Header="Reseller Hosting Units" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="95" WidthScale="px">
+                      <Label Caption="@Data.reseller_hosting_units~" Format="#,##0" />
+                      <DataColumnSummary DataColumn="reseller_hosting_units" Function="Sum" ID="dcResellerHostingUnits" />
+                    </DataTableColumn>
+                  </Remark>
+                  <Remark>
+                    <DataTableColumn ID="colResellerHostingGCR" Header="Reseller Hosting GCR" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="95" WidthScale="px">
+                      <Label Caption="@Data.reseller_hosting_gcr~" Format="$#,0" />
+                      <DataColumnSummary DataColumn="reseller_hosting_gcr" Function="Sum" ID="dcResellerHostingGCR" />
+                    </DataTableColumn>
+                  </Remark>
+                  <DataTableColumn ID="colDedicatedHostingUnits" Header="Dedicated Hosting Units" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="95" WidthScale="px">
+                    <Label Caption="@Data.dedicated_hosting_units~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="dedicated_hosting_units" Function="Sum" ID="dcDedicatedHostingUnits" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colDedicatedHostingGCR" Header="Dedicated Hosting GCR" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="95" WidthScale="px">
+                    <Label Caption="@Data.dedicated_hosting_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="dedicated_hosting_gcr" Function="Sum" ID="dcDedicatedHostingGCR" />
+                  </DataTableColumn>
+                  <SummaryRow ID="srTotals" Caption="Total" Class="ThemeBold" />
+                </DataTable>
+              </Column>
+              <Note Note="** Results by Day **" />
+              <Note Note="** Table to show M/M comparison **" />
+            </Row>
+            <Row>
+              <Column>
+                <LineBreak />
+              </Column>
+            </Row>
+            <Row ID="rowPMValues">
+              <Note Note="** Results by Day **" />
+              <Note Note="** Table to show M/M comparison **" />
+              <Column Class="gdColumnCell" Width="100" WidthScale="%">
+                <DataTable ID="dtPMValues" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="gdTableHeader" CellSpacing="5px">
+                  <DataLayer Type="SQL" Source="&#xD;&#xA;declare @start datetime = '@Request.rptMonth~'&#xD;&#xA;declare @end datetime = '@Request.rptDay~'&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;	'Prior MTD' as order_date&#xD;&#xA; 	, sum(new_custs) as new_custs&#xD;&#xA;	, sum(new_gcr) as new_gcr&#xD;&#xA;	, sum(renew_gcr) as renew_gcr&#xD;&#xA;	, sum(xfers) as xfers&#xD;&#xA;	, sum(xfers_com) as xfer_com&#xD;&#xA;	, sum(xfers_in) as xfer_in&#xD;&#xA;	, sum(xfers_biz) as xfer_biz&#xD;&#xA;	, sum(xfers_info) as xfer_info&#xD;&#xA;	, sum(xfers_others) as xfer_others&#xD;&#xA;	, sum(registrations) as registrations&#xD;&#xA;	, sum(reg_com) as reg_com&#xD;&#xA;	, sum(reg_in) as reg_in&#xD;&#xA;	, sum(reg_biz) as reg_biz&#xD;&#xA;	, sum(reg_info) as reg_info&#xD;&#xA;	, sum(reg_others) as reg_others&#xD;&#xA;	, sum(hosting_units) as hosting_units&#xD;&#xA;	, sum(hosting_gcr) as hosting_gcr&#xD;&#xA;	, sum(hosting_gcr_new) as hosting_gcr_new&#xD;&#xA;	, sum(hosting_gcr_renewal) as hosting_gcr_renewal&#xD;&#xA;	, sum(vps_units) as vps_units&#xD;&#xA;	, sum(vps_gcr) as vps_gcr&#xD;&#xA;	, sum(plans_sold) as plans_sold&#xD;&#xA;	, sum(plans_super) as plans_super&#xD;&#xA;	, sum(plans_pro) as plans_pro&#xD;&#xA;	, sum(plans_basic) as plans_basic&#xD;&#xA;	, sum(plans_api) as plans_api&#xD;&#xA;	, sum(reseller_hosting_units) as reseller_hosting_units&#xD;&#xA;	, sum(reseller_hosting_gcr) as reseller_hosting_gcr&#xD;&#xA;	, sum(dedicated_units) as dedicated_hosting_units&#xD;&#xA;	, sum(dedicated_gcr) as dedicated_hosting_gcr&#xD;&#xA;  FROM [BiLogiReporting].[dbo].[rptIndiaResellersSales] rs (nolock)&#xD;&#xA;  join [BiLogiReporting].[dbo].[rptIndiaResellerStateLookup] s (nolock) on rs.state = s.state&#xD;&#xA;  where order_date &gt;= dateadd(month,-1,@start) and order_date &lt; dateadd(month,-1,@end)&#xD;&#xA;  and (region = '@Request.islRegion~' or '@Request.islRegion~' = 'All Regions')&#xD;&#xA;&#xD;&#xA;UNION ALL&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;	'MTD' as order_date&#xD;&#xA; 	, sum(new_custs) as new_custs&#xD;&#xA;	, sum(new_gcr) as new_gcr&#xD;&#xA;	, sum(renew_gcr) as renew_gcr&#xD;&#xA;	, sum(xfers) as xfers&#xD;&#xA;	, sum(xfers_com) as xfer_com&#xD;&#xA;	, sum(xfers_in) as xfer_in&#xD;&#xA;	, sum(xfers_biz) as xfer_biz&#xD;&#xA;	, sum(xfers_info) as xfer_info&#xD;&#xA;	, sum(xfers_others) as xfer_others&#xD;&#xA;	, sum(registrations) as registrations&#xD;&#xA;	, sum(reg_com) as reg_com&#xD;&#xA;	, sum(reg_in) as reg_in&#xD;&#xA;	, sum(reg_biz) as reg_biz&#xD;&#xA;	, sum(reg_info) as reg_info&#xD;&#xA;	, sum(reg_others) as reg_others&#xD;&#xA;	, sum(hosting_units) as hosting_units&#xD;&#xA;	, sum(hosting_gcr) as hosting_gcr&#xD;&#xA;	, sum(hosting_gcr_new) as hosting_gcr_new&#xD;&#xA;	, sum(hosting_gcr_renewal) as hosting_gcr_renewal&#xD;&#xA;	, sum(vps_units) as vps_units&#xD;&#xA;	, sum(vps_gcr) as vps_gcr&#xD;&#xA;	, sum(plans_sold) as plans_sold&#xD;&#xA;	, sum(plans_super) as plans_super&#xD;&#xA;	, sum(plans_pro) as plans_pro&#xD;&#xA;	, sum(plans_basic) as plans_basic&#xD;&#xA;	, sum(plans_api) as plans_api&#xD;&#xA;	, sum(reseller_hosting_units) as reseller_hosting_units&#xD;&#xA;	, sum(reseller_hosting_gcr) as reseller_hosting_gcr&#xD;&#xA;	, sum(dedicated_units) as dedicated_hosting_units&#xD;&#xA;	, sum(dedicated_gcr) as dedicated_hosting_gcr&#xD;&#xA;  FROM [BiLogiReporting].[dbo].[rptIndiaResellersSalesByRegion] rs (nolock)&#xD;&#xA;  where order_date &gt;= @start and order_date &lt; @end&#xD;&#xA;  and (region = '@Request.islRegion~' or '@Request.islRegion~' = 'All Regions')&#xD;&#xA;&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;" ID="dlResellerDataPy" ConnectionID="connM1BIG-biLogiReporting">
+                    <CalculatedColumn Formula="@Data.new_gcr~+@Data.renew_gcr~" ID="ccTotalGCR" />
+                    <Note Note="Calculate the % Differences between Prior Month and Current Month" />
+                    <Note Note="to be used for Summary Row" />
+                    <DifferenceColumn DataColumn="new_custs" ID="diffNewCusts" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="ccTotalGCR" ID="diffTotalGCR" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="new_gcr" ID="diffNewGCR" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="renew_gcr" ID="diffRenewGCR" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="xfers" ID="diffXfers" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="xfer_com" ID="diffXferCom" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="xfer_in" ID="diffXferIn" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="xfer_biz" ID="diffXferBiz" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="xfer_info" ID="diffXferInfo" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="xfer_others" ID="diffXferOthers" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="registrations" ID="diffRegistrations" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reg_com" ID="diffRegCom" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reg_in" ID="diffRegIn" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reg_biz" ID="diffRegBiz" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reg_info" ID="diffRegInfo" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reg_others" ID="diffRegOthers" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="hosting_units" ID="diffHostingUnits" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="hosting_gcr" ID="diffHostingGCR" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="hosting_gcr_new" ID="diffHostingGCRNew" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="hosting_gcr_renewal" ID="diffHostingGCRRenewal" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="vps_units" ID="diffVpsUnits" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="vps_gcr" ID="diffVpsGCR" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="plans_sold" ID="diffPlansSold" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="plans_super" ID="diffPlansSuper" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="plans_pro" ID="diffPlansPro" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="plans_basic" ID="diffPlansBasic" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="plans_api" ID="diffPlansApi" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reseller_hosting_units" ID="diffResellerHostingUnits" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reseller_hosting_gcr" ID="diffResellerHostingGCR" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="dedicated_hosting_units" ID="diffDedicatedHostingUnits" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="dedicated_hosting_gcr" ID="diffDedicatedHostingGCR" DifferenceType="%" />
+                  </DataLayer>
+                  <Remark>
+                    <AutoColumns />
+                  </Remark>
+                  <DataTableColumn ID="colDate" Header="Date" IdeDisplayStatus="Collapsed" Width="70" WidthScale="px">
+                    <Label Caption="@Data.order_date~" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colNewCusts" Header="New Customers" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="75" WidthScale="px">
+                    <Label Caption="@Data.new_custs~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffNewCusts" Function="Sum" ID="dcNewCustsPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRevenue" Header="Reseller Revenue" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="75" WidthScale="px">
+                    <Label Caption="@Data.ccTotalGCR~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffTotalGCR" Function="Sum" ID="dcTotalGCRPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colShowGCR" Condition="&quot;@Request.ShowGCR~&quot;== &quot;0&quot;" IdeDisplayStatus="Collapsed" Width="25" WidthScale="px">
+                    <ExtraColumnHeader>
+                      <Button ID="togGCR" Caption="+">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="1" ShowReg="@Request.ShowReg~" ShowPlans="@Request.ShowPlans~" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colNewGCR" Header="New" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.new_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffNewGCR" Function="Sum" ID="dcNewGCRPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRenewGCR" Header="Renewal" Class="ThemeAlignRight" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.renew_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffRenewGCR" Function="Sum" ID="dcRenewGCRPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHideGCR" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <ExtraColumnHeader>
+                      <Button ID="togGCR" Caption="-">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="0" ShowReg="@Request.ShowReg~" ShowPlans="@Request.ShowPlans~" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXfers" Header="Trans-fers" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.xfers~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffXfers" Function="Sum" ID="dcXfersPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colShowXfers" Condition="&quot;@Request.ShowXfer~&quot;== &quot;0&quot;" IdeDisplayStatus="Collapsed" Width="25" WidthScale="px">
+                    <ExtraColumnHeader>
+                      <Button ID="togXfer" Caption="+">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="@Request.ShowReg~" ShowPlans="@Request.ShowPlans~" ShowXfer="1" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferCom" Header="COM" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_com~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffXferCom" Function="Sum" ID="dcXferComPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferIn" Header="IN" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_in~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffXferIn" Function="Sum" ID="dcXferInPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferBiz" Header="BIZ" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_biz~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffXferBiz" Function="Sum" ID="dcXferBizPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferInfo" Header="INFO" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_info~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffXferInfo" Function="Sum" ID="dcXferInfoPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferOthers" Header="Others" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_others~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffXferOthers" Function="Sum" ID="dcXferOthersPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHideXfer" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <ExtraColumnHeader>
+                      <Button ID="togXfer" Caption="-">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="@Request.ShowReg~" ShowPlans="@Request.ShowPlans~" ShowXfer="0" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colReg" Header="Regis-trations" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.registrations~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffRegistrations" Function="Sum" ID="dcRegistrationsPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colShowReg" Condition="&quot;@Request.ShowReg~&quot;== &quot;0&quot;" IdeDisplayStatus="Collapsed" Width="25" WidthScale="px">
+                    <ExtraColumnHeader>
+                      <Button ID="togReg" Caption="+">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="1" ShowPlans="@Request.ShowPlans~" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegCom" Header="COM" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_com~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffRegCom" Function="Sum" ID="dcRegComPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegIn" Header="IN" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_in~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffRegIn" Function="Sum" ID="dcRegInPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegBiz" Header="BIZ" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_biz~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffRegBiz" Function="Sum" ID="dcRegBizPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegInfo" Header="INFO" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_info~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffRegInfo" Function="Sum" ID="dcRegInfoPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegOthers" Header="Others" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_others~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffRegOthers" Function="Sum" ID="dcRegOthersPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHideReg" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <ExtraColumnHeader>
+                      <Button ID="togReg" Caption="-">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="0" ShowPlans="@Request.ShowPlans~" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHostingUnits" Header="Hosting Units" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.hosting_units~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffHostingUnits" Function="Sum" ID="dcHostingUnitsPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHostingGCR" Header="Hosting GCR" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.hosting_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffHostingGCR" Function="Sum" ID="dcHostingGCRPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHostingGCRNew" Header="Hosting GCR New" Class="ThemeAlignRight" Width="85" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.hosting_gcr_new~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffHostingGCRNew" Function="Sum" ID="dcHostingGCRNewPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHostingGCRRenewal" Header="Hosting GCR Renewal" Class="ThemeAlignRight" Width="90" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.hosting_gcr_renewal~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffHostingGCRRenewal" Function="Sum" ID="dcHostingGCRRenewalPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colVpsUnits" Header="VPS Units" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.vps_units~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffVpsUnits" Function="Sum" ID="dcVpsUnitsPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colVpsGCR" Header="VPS GCR" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.vps_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffVpsGCR" Function="Sum" ID="dcVpsGCRPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colResellerPlans" Header="Plans Sold" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.plans_sold~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffPlansSold" Function="Sum" ID="dcPlansSoldPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colShowPlans" Condition="&quot;@Request.ShowPlans~&quot;== &quot;0&quot;" IdeDisplayStatus="Collapsed" Width="25" WidthScale="px">
+                    <ExtraColumnHeader>
+                      <Button ID="togPlans" Caption="+">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="@Request.ShowReg~" ShowPlans="1" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colPlansSuper" Header="Super" Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.plans_super~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffPlansSuper" Function="Sum" ID="dcPlansSuperPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colPlansPro" Header="Pro" Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.plans_pro~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffPlansPro" Function="Sum" ID="dcPlansProPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colPlansBasic" Header="Basic" Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.plans_basic~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffPlansBasic" Function="Sum" ID="dcPlansBasicPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colPlansApi" Header="API" Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.plans_api~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffPlansApi" Function="Sum" ID="dcPlansApiPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHidePlans" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <ExtraColumnHeader>
+                      <Button ID="togPlans" Caption="-">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="@Request.ShowReg~" ShowPlans="0" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <Remark>
+                    <DataTableColumn ID="colResellerHostingUnits" Header="Reseller Hosting Units" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="95" WidthScale="px">
+                      <Label Caption="@Data.reseller_hosting_units~" Format="#,##0" />
+                      <DataColumnSummary DataColumn="diffResellerHostingUnits" Function="Sum" ID="dcResellerHostingUnitsPct" />
+                    </DataTableColumn>
+                  </Remark>
+                  <Remark>
+                    <DataTableColumn ID="colResellerHostingGCR" Header="Reseller Hosting GCR" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="95" WidthScale="px">
+                      <Label Caption="@Data.reseller_hosting_gcr~" Format="$#,0" />
+                      <DataColumnSummary DataColumn="diffResellerHostingGCR" Function="Sum" ID="dcResellerHostingGCRPct" />
+                    </DataTableColumn>
+                  </Remark>
+                  <DataTableColumn ID="colDedicatedHostingUnits" Header="Dedicated Hosting Units" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="95" WidthScale="px">
+                    <Label Caption="@Data.dedicated_hosting_units~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffDedicatedHostingUnits" Function="Sum" ID="dcDedicatedHostingUnitsPct" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colDedicatedHostingGCR" Header="Dedicated Hosting GCR" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="95" WidthScale="px">
+                    <Label Caption="@Data.dedicated_hosting_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffDedicatedHostingGCR" Function="Sum" ID="dcDedicatedHostingGCRPct" />
+                  </DataTableColumn>
+                  <SummaryRow ID="srTotals" Caption="Diff" Class="ThemeBold" IdeDisplayStatus="Collapsed">
+                    <Column ID="cellDate" IdeDisplayStatus="Collapsed">
+                      <Label Caption="Diff" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellNewCusts" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcNewCustsPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellTotalGCR" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcTotalGCRPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowGCR~&quot;== &quot;0&quot;" ID="cellShowGCR" />
+                    <Column Class="ThemeAlignRight" ID="cellNewGCR" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcNewGCRPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" ID="cellRenewGCR" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRenewGCRPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" ID="cellHideGCR" />
+                    <Column Class="ThemeAlignRight" ID="cellXfers" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcXfersPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;0&quot;" ID="cellShowXfers" />
+                    <Column Class="ThemeAlignRight" ID="cellXferCom" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcXferComPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellXferIn" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcXferInPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellXferBiz" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcXferBizPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellXferInfo" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcXferInfoPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellXferOthers" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcXferOthersPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" ID="cellHideXfers" />
+                    <Column Class="ThemeAlignRight" ID="cellRegistrations" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRegistrationsPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;0&quot;" ID="cellShowReg" />
+                    <Column Class="ThemeAlignRight" ID="cellRegCom" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRegComPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellRegIn" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRegInPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellRegBiz" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRegBizPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellRegInfo" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRegInfoPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellRegOthers" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRegOthersPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" ID="cellHideReg" />
+                    <Column Class="ThemeAlignRight" ID="cellHostingUnits" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcHostingUnitsPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellHostingGCR" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcHostingGCRPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellHostingGCRNew">
+                      <Label Caption="@Data.dcHostingGCRNewPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellHostingGCRRenewal" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcHostingGCRRenewalPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellVpsUnits" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcVpsUnitsPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellVpsGCR" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcVpsGCRPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellPlansSold" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcPlansSoldPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;0&quot;" ID="cellShowPlans" />
+                    <Column Class="ThemeAlignRight" ID="cellPlansSuper" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcPlansSuperPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellPlansPro" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcPlansProPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellPlansBasic" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcPlansBasicPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellPlansApi" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcPlansApiPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" ID="cellHidePlans" />
+                    <Remark>
+                      <Column Class="ThemeAlignRight" ID="cellResellerHostingUnits" IdeDisplayStatus="Collapsed">
+                        <Label Caption="@Data.dcResellerHostingUnitsPct~" Format="0%" />
+                      </Column>
+                    </Remark>
+                    <Remark>
+                      <Column Class="ThemeAlignRight" ID="cellResellerHostingGCR" IdeDisplayStatus="Collapsed">
+                        <Label Caption="@Data.dcResellerHostingGCRPct~" Format="0%" />
+                      </Column>
+                    </Remark>
+                    <Column Class="ThemeAlignRight" ID="cellDedicatedHostingUnits" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcDedicatedHostingUnitsPct~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellDedicatedHostingGCR" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcDedicatedHostingGCRPct~" Format="0%" />
+                    </Column>
+                  </SummaryRow>
+                </DataTable>
+              </Column>
+            </Row>
+            <Row>
+              <Column>
+                <LineBreak />
+              </Column>
+            </Row>
+            <Row ID="rowPYValues">
+              <Note Note="** Results by Day **" />
+              <Note Note="** Table to show M/M comparison **" />
+              <Column Class="gdColumnCell" Width="100" WidthScale="%">
+                <DataTable ID="dtPYValues" AltRowClass="gdThemeAltRowNoPadding td" ColumnHeaderClass="gdTableHeader" CellSpacing="5px">
+                  <DataLayer Type="SQL" Source="&#xD;&#xA;declare @start datetime = '@Request.rptMonth~'&#xD;&#xA;declare @end datetime = '@Request.rptDay~'&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;	'Prior Year' as order_date&#xD;&#xA; 	, sum(new_custs) as new_custs&#xD;&#xA;	, sum(new_gcr) as new_gcr&#xD;&#xA;	, sum(renew_gcr) as renew_gcr&#xD;&#xA;	, sum(xfers) as xfers&#xD;&#xA;	, sum(xfers_com) as xfer_com&#xD;&#xA;	, sum(xfers_in) as xfer_in&#xD;&#xA;	, sum(xfers_biz) as xfer_biz&#xD;&#xA;	, sum(xfers_info) as xfer_info&#xD;&#xA;	, sum(xfers_others) as xfer_others&#xD;&#xA;	, sum(registrations) as registrations&#xD;&#xA;	, sum(reg_com) as reg_com&#xD;&#xA;	, sum(reg_in) as reg_in&#xD;&#xA;	, sum(reg_biz) as reg_biz&#xD;&#xA;	, sum(reg_info) as reg_info&#xD;&#xA;	, sum(reg_others) as reg_others&#xD;&#xA;	, sum(hosting_units) as hosting_units&#xD;&#xA;	, sum(hosting_gcr) as hosting_gcr&#xD;&#xA;	, sum(hosting_gcr_new) as hosting_gcr_new&#xD;&#xA;	, sum(hosting_gcr_renewal) as hosting_gcr_renewal&#xD;&#xA;	, sum(vps_units) as vps_units&#xD;&#xA;	, sum(vps_gcr) as vps_gcr&#xD;&#xA;	, sum(plans_sold) as plans_sold&#xD;&#xA;	, sum(plans_super) as plans_super&#xD;&#xA;	, sum(plans_pro) as plans_pro&#xD;&#xA;	, sum(plans_basic) as plans_basic&#xD;&#xA;	, sum(plans_api) as plans_api&#xD;&#xA;	, sum(reseller_hosting_units) as reseller_hosting_units&#xD;&#xA;	, sum(reseller_hosting_gcr) as reseller_hosting_gcr&#xD;&#xA;	, sum(dedicated_units) as dedicated_hosting_units&#xD;&#xA;	, sum(dedicated_gcr) as dedicated_hosting_gcr&#xD;&#xA;  FROM [BiLogiReporting].[dbo].[rptIndiaResellersSales] rs (nolock)&#xD;&#xA;  join [BiLogiReporting].[dbo].[rptIndiaResellerStateLookup] s (nolock) on rs.state = s.state&#xD;&#xA;  where order_date &gt;= dateadd(year,-1,@start) and order_date &lt; dateadd(year,-1,@end)&#xD;&#xA;  and (region = '@Request.islRegion~' or '@Request.islRegion~' = 'All Regions')&#xD;&#xA;&#xD;&#xA;UNION ALL&#xD;&#xA;&#xD;&#xA;SELECT&#xD;&#xA;	'MTD' as order_date&#xD;&#xA; 	, sum(new_custs) as new_custs&#xD;&#xA;	, sum(new_gcr) as new_gcr&#xD;&#xA;	, sum(renew_gcr) as renew_gcr&#xD;&#xA;	, sum(xfers) as xfers&#xD;&#xA;	, sum(xfers_com) as xfer_com&#xD;&#xA;	, sum(xfers_in) as xfer_in&#xD;&#xA;	, sum(xfers_biz) as xfer_biz&#xD;&#xA;	, sum(xfers_info) as xfer_info&#xD;&#xA;	, sum(xfers_others) as xfer_others&#xD;&#xA;	, sum(registrations) as registrations&#xD;&#xA;	, sum(reg_com) as reg_com&#xD;&#xA;	, sum(reg_in) as reg_in&#xD;&#xA;	, sum(reg_biz) as reg_biz&#xD;&#xA;	, sum(reg_info) as reg_info&#xD;&#xA;	, sum(reg_others) as reg_others&#xD;&#xA;	, sum(hosting_units) as hosting_units&#xD;&#xA;	, sum(hosting_gcr) as hosting_gcr&#xD;&#xA;	, sum(hosting_gcr_new) as hosting_gcr_new&#xD;&#xA;	, sum(hosting_gcr_renewal) as hosting_gcr_renewal&#xD;&#xA;	, sum(vps_units) as vps_units&#xD;&#xA;	, sum(vps_gcr) as vps_gcr&#xD;&#xA;	, sum(plans_sold) as plans_sold&#xD;&#xA;	, sum(plans_super) as plans_super&#xD;&#xA;	, sum(plans_pro) as plans_pro&#xD;&#xA;	, sum(plans_basic) as plans_basic&#xD;&#xA;	, sum(plans_api) as plans_api&#xD;&#xA;	, sum(reseller_hosting_units) as reseller_hosting_units&#xD;&#xA;	, sum(reseller_hosting_gcr) as reseller_hosting_gcr&#xD;&#xA;	, sum(dedicated_units) as dedicated_hosting_units&#xD;&#xA;	, sum(dedicated_gcr) as dedicated_hosting_gcr&#xD;&#xA;  FROM [BiLogiReporting].[dbo].[rptIndiaResellersSalesByRegion] rs (nolock)&#xD;&#xA;  where order_date &gt;= @start and order_date &lt; @end&#xD;&#xA;  and (region = '@Request.islRegion~' or '@Request.islRegion~' = 'All Regions')&#xD;&#xA;&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;" ID="dlResellerDataPy" ConnectionID="connM1BIG-biLogiReporting" IdeDisplayStatus="Collapsed">
+                    <CalculatedColumn Formula="@Data.new_gcr~+@Data.renew_gcr~" ID="ccTotalGCR" />
+                    <Note Note="Calculate the % Differences between Prior Year and Current Month" />
+                    <Note Note="to be used for Summary Row" />
+                    <DifferenceColumn DataColumn="new_custs" ID="diffNewCusts" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="ccTotalGCR" ID="diffTotalGCR" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="new_gcr" ID="diffNewGCR" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="renew_gcr" ID="diffRenewGCR" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="xfers" ID="diffXfers" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="xfer_com" ID="diffXferCom" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="xfer_in" ID="diffXferIn" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="xfer_biz" ID="diffXferBiz" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="xfer_info" ID="diffXferInfo" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="xfer_others" ID="diffXferOthers" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="registrations" ID="diffRegistrations" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reg_com" ID="diffRegCom" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reg_in" ID="diffRegIn" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reg_biz" ID="diffRegBiz" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reg_info" ID="diffRegInfo" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reg_others" ID="diffRegOthers" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="hosting_units" ID="diffHostingUnits" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="hosting_gcr" ID="diffHostingGCR" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="hosting_gcr_new" ID="diffHostingGCRNew" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="hosting_gcr_renewal" ID="diffHostingGCRRenewal" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="vps_units" ID="diffVpsUnits" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="vps_gcr" ID="diffVpsGCR" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="plans_sold" ID="diffPlansSold" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="plans_super" ID="diffPlansSuper" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="plans_pro" ID="diffPlansPro" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="plans_basic" ID="diffPlansBasic" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="plans_api" ID="diffPlansApi" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reseller_hosting_units" ID="diffResellerHostingUnits" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="reseller_hosting_gcr" ID="diffResellerHostingGCR" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="dedicated_hosting_units" ID="diffDedicatedHostingUnits" DifferenceType="%" />
+                    <DifferenceColumn DataColumn="dedicated_hosting_gcr" ID="diffDedicatedHostingGCR" DifferenceType="%" />
+                  </DataLayer>
+                  <Remark>
+                    <AutoColumns />
+                  </Remark>
+                  <DataTableColumn ID="colDate" Header="Date" IdeDisplayStatus="Collapsed" Width="70" WidthScale="px">
+                    <Label Caption="@Data.order_date~" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colNewCusts" Header="New Customers" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="75" WidthScale="px">
+                    <Label Caption="@Data.new_custs~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffNewCusts" Function="Sum" ID="dcNewCustsPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRevenue" Header="Reseller Revenue" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="75" WidthScale="px">
+                    <Label Caption="@Data.ccTotalGCR~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffTotalGCR" Function="Sum" ID="dcTotalGCRPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colShowGCR" Condition="&quot;@Request.ShowGCR~&quot;== &quot;0&quot;" IdeDisplayStatus="Collapsed" Width="25" WidthScale="px">
+                    <ExtraColumnHeader IdeDisplayStatus="Collapsed">
+                      <Button ID="togGCR" Caption="+" IdeDisplayStatus="Collapsed">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="1" ShowReg="@Request.ShowReg~" ShowPlans="@Request.ShowPlans~" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colNewGCR" Header="New" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.new_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffNewGCR" Function="Sum" ID="dcNewGCRPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRenewGCR" Header="Renewal" Class="ThemeAlignRight" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.renew_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffRenewGCR" Function="Sum" ID="dcRenewGCRPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHideGCR" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <ExtraColumnHeader IdeDisplayStatus="Collapsed">
+                      <Button ID="togGCR" Caption="-" IdeDisplayStatus="Collapsed">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="0" ShowReg="@Request.ShowReg~" ShowPlans="@Request.ShowPlans~" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXfers" Header="Trans-fers" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.xfers~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffXfers" Function="Sum" ID="dcXfersPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colShowXfers" Condition="&quot;@Request.ShowXfer~&quot;== &quot;0&quot;" IdeDisplayStatus="Collapsed" Width="25" WidthScale="px">
+                    <ExtraColumnHeader IdeDisplayStatus="Collapsed">
+                      <Button ID="togXfer" Caption="+" IdeDisplayStatus="Collapsed">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="@Request.ShowReg~" ShowPlans="@Request.ShowPlans~" ShowXfer="1" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferCom" Header="COM" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_com~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffXferCom" Function="Sum" ID="dcXferComPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferIn" Header="IN" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_in~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffXferIn" Function="Sum" ID="dcXferInPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferBiz" Header="BIZ" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_biz~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffXferBiz" Function="Sum" ID="dcXferBizPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferInfo" Header="INFO" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_info~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffXferInfo" Function="Sum" ID="dcXferInfoPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colXferOthers" Header="Others" Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.xfer_others~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffXferOthers" Function="Sum" ID="dcXferOthersPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHideXfer" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <ExtraColumnHeader IdeDisplayStatus="Collapsed">
+                      <Button ID="togXfer" Caption="-" IdeDisplayStatus="Collapsed">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="@Request.ShowReg~" ShowPlans="@Request.ShowPlans~" ShowXfer="0" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colReg" Header="Regis-trations" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.registrations~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffRegistrations" Function="Sum" ID="dcRegistrationsPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colShowReg" Condition="&quot;@Request.ShowReg~&quot;== &quot;0&quot;" IdeDisplayStatus="Collapsed" Width="25" WidthScale="px">
+                    <ExtraColumnHeader IdeDisplayStatus="Collapsed">
+                      <Button ID="togReg" Caption="+" IdeDisplayStatus="Collapsed">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="1" ShowPlans="@Request.ShowPlans~" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegCom" Header="COM" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_com~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffRegCom" Function="Sum" ID="dcRegComPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegIn" Header="IN" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_in~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffRegIn" Function="Sum" ID="dcRegInPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegBiz" Header="BIZ" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_biz~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffRegBiz" Function="Sum" ID="dcRegBizPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegInfo" Header="INFO" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_info~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffRegInfo" Function="Sum" ID="dcRegInfoPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colRegOthers" Header="Others" Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.reg_others~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffRegOthers" Function="Sum" ID="dcRegOthersPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHideReg" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <ExtraColumnHeader IdeDisplayStatus="Collapsed">
+                      <Button ID="togReg" Caption="-" IdeDisplayStatus="Collapsed">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="0" ShowPlans="@Request.ShowPlans~" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHostingUnits" Header="Hosting Units" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.hosting_units~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffHostingUnits" Function="Sum" ID="dcHostingUnitsPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHostingGCR" Header="Hosting GCR" Class="ThemeAlignRight" Width="60" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.hosting_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffHostingGCR" Function="Sum" ID="dcHostingGCRPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHostingGCRNew" Header="Hosting GCR New" Class="ThemeAlignRight" Width="85" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.hosting_gcr_new~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffHostingGCRNew" Function="Sum" ID="dcHostingGCRNewPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHostingGCRRenewal" Header="Hosting GCR Renewal" Class="ThemeAlignRight" Width="90" WidthScale="px" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.hosting_gcr_renewal~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffHostingGCRRenewal" Function="Sum" ID="dcHostingGCRRenewalPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colVpsUnits" Header="VPS Units" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.vps_units~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffVpsUnits" Function="Sum" ID="dcVpsUnitsPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colVpsGCR" Header="VPS GCR" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.vps_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffVpsGCR" Function="Sum" ID="dcVpsGCRPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colResellerPlans" Header="Plans Sold" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="60" WidthScale="px">
+                    <Label Caption="@Data.plans_sold~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffPlansSold" Function="Sum" ID="dcPlansSoldPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colShowPlans" Condition="&quot;@Request.ShowPlans~&quot;== &quot;0&quot;" IdeDisplayStatus="Collapsed" Width="25" WidthScale="px">
+                    <ExtraColumnHeader IdeDisplayStatus="Collapsed">
+                      <Button ID="togPlans" Caption="+" IdeDisplayStatus="Collapsed">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="@Request.ShowReg~" ShowPlans="1" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <DataTableColumn ID="colPlansSuper" Header="Super" Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.plans_super~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffPlansSuper" Function="Sum" ID="dcPlansSuperPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colPlansPro" Header="Pro" Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.plans_pro~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffPlansPro" Function="Sum" ID="dcPlansProPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colPlansBasic" Header="Basic" Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.plans_basic~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffPlansBasic" Function="Sum" ID="dcPlansBasicPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colPlansApi" Header="API" Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <Label Caption="@Data.plans_api~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffPlansApi" Function="Sum" ID="dcPlansApiPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colHidePlans" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                    <ExtraColumnHeader IdeDisplayStatus="Collapsed">
+                      <Button ID="togPlans" Caption="-" IdeDisplayStatus="Collapsed">
+                        <Action Type="RefreshElement" ElementID="dtValues, dtPMValues, dtPYValues" IdeDisplayStatus="Collapsed">
+                          <LinkParams ShowGCR="@Request.ShowGCR~" ShowReg="@Request.ShowReg~" ShowPlans="0" ShowXfer="@Request.ShowXfer~" />
+                        </Action>
+                      </Button>
+                    </ExtraColumnHeader>
+                  </DataTableColumn>
+                  <Remark>
+                    <DataTableColumn ID="colResellerHostingUnits" Header="Reseller Hosting Units" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="95" WidthScale="px">
+                      <Label Caption="@Data.reseller_hosting_units~" Format="#,##0" />
+                      <DataColumnSummary DataColumn="diffResellerHostingUnits" Function="Sum" ID="dcResellerHostingUnitsPctPY" />
+                    </DataTableColumn>
+                  </Remark>
+                  <Remark>
+                    <DataTableColumn ID="colResellerHostingGCR" Header="Reseller Hosting GCR" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="95" WidthScale="px">
+                      <Label Caption="@Data.reseller_hosting_gcr~" Format="$#,0" />
+                      <DataColumnSummary DataColumn="diffResellerHostingGCR" Function="Sum" ID="dcResellerHostingGCRPctPY" />
+                    </DataTableColumn>
+                  </Remark>
+                  <DataTableColumn ID="colDedicatedHostingUnits" Header="Dedicated Hosting Units" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="95" WidthScale="px">
+                    <Label Caption="@Data.dedicated_hosting_units~" Format="#,##0" />
+                    <DataColumnSummary DataColumn="diffDedicatedHostingUnits" Function="Sum" ID="dcDedicatedHostingUnitsPctPY" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="colDedicatedHostingGCR" Header="Dedicated Hosting GCR" Class="ThemeAlignRight" IdeDisplayStatus="Collapsed" Width="95" WidthScale="px">
+                    <Label Caption="@Data.dedicated_hosting_gcr~" Format="$#,0" />
+                    <DataColumnSummary DataColumn="diffDedicatedHostingGCR" Function="Sum" ID="dcDedicatedHostingGCRPctPY" />
+                  </DataTableColumn>
+                  <SummaryRow ID="srTotals" Caption="Diff" Class="ThemeBold" IdeDisplayStatus="Collapsed">
+                    <Column ID="cellDate" IdeDisplayStatus="Collapsed">
+                      <Label Caption="Diff" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellNewCusts" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcNewCustsPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellTotalGCR" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcTotalGCRPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowGCR~&quot;== &quot;0&quot;" ID="cellShowGCR" />
+                    <Column Class="ThemeAlignRight" ID="cellNewGCR" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcNewGCRPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" ID="cellRenewGCR" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRenewGCRPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowGCR~&quot;== &quot;1&quot;" ID="cellHideGCR" />
+                    <Column Class="ThemeAlignRight" ID="cellXfers" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcXfersPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;0&quot;" ID="cellShowXfers" />
+                    <Column Class="ThemeAlignRight" ID="cellXferCom" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcXferComPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellXferIn" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcXferInPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellXferBiz" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcXferBizPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellXferInfo" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcXferInfoPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellXferOthers" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcXferOthersPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowXfer~&quot;== &quot;1&quot;" ID="cellHideXfers" />
+                    <Column Class="ThemeAlignRight" ID="cellRegistrations" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRegistrationsPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;0&quot;" ID="cellShowReg" />
+                    <Column Class="ThemeAlignRight" ID="cellRegCom" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRegComPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellRegIn" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRegInPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellRegBiz" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRegBizPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellRegInfo" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRegInfoPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellRegOthers" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcRegOthersPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowReg~&quot;== &quot;1&quot;" ID="cellHideReg" />
+                    <Column Class="ThemeAlignRight" ID="cellHostingUnits" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcHostingUnitsPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellHostingGCR">
+                      <Label Caption="@Data.dcHostingGCRPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellHostingGCRNew">
+                      <Label Caption="@Data.dcHostingGCRNewPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellHostingGCRRenewal">
+                      <Label Caption="@Data.dcHostingGCRRenewalPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellVpsUnits" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcVpsUnitsPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellVpsGCR" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcVpsGCRPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellPlansSold" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcPlansSoldPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;0&quot;" ID="cellShowPlans" />
+                    <Column Class="ThemeAlignRight" ID="cellPlansSuper" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcPlansSuperPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellPlansPro" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcPlansProPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellPlansBasic" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcPlansBasicPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellPlansApi" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcPlansApiPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" Condition="&quot;@Request.ShowPlans~&quot;== &quot;1&quot;" ID="cellHidePlans" />
+                    <Remark>
+                      <Column Class="ThemeAlignRight" ID="cellResellerHostingUnits" IdeDisplayStatus="Collapsed">
+                        <Label Caption="@Data.dcResellerHostingUnitsPctPY~" Format="0%" />
+                      </Column>
+                    </Remark>
+                    <Remark>
+                      <Column Class="ThemeAlignRight" ID="cellResellerHostingGCR" IdeDisplayStatus="Collapsed">
+                        <Label Caption="@Data.dcResellerHostingGCRPctPY~" Format="0%" />
+                      </Column>
+                    </Remark>
+                    <Column Class="ThemeAlignRight" ID="cellDedicatedHostingUnits" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcDedicatedHostingUnitsPctPY~" Format="0%" />
+                    </Column>
+                    <Column Class="ThemeAlignRight" ID="cellDedicatedHostingGCR" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.dcDedicatedHostingGCRPctPY~" Format="0%" />
+                    </Column>
+                  </SummaryRow>
+                </DataTable>
+              </Column>
+            </Row>
+          </Rows>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter>
+    <Division Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams rptDay="" rptMonth="" ShowGCR="" ShowXfer="" ShowReg="" ShowPlans="" islRegion="" />
+</Report>

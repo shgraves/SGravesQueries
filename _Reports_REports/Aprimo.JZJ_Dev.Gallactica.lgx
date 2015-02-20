@@ -1,0 +1,1672 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Aprimo.JZJ_Dev.Gallactica" SavedBy="JOMAX\jzwayerjones" SavedAt="12/6/2013 3:01:26 PM" EngineVersion="11.0.43">
+  <FormulaScriptFile />
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams username="@Function.UserName~" rptEnd="@Date.Today~" rptStart="=DateAdd(&quot;d&quot;,-28,Date())" rdDataCache="=Math.floor((Math.random()*100000000)+1);" />
+  <Remark>
+    <LocalData>
+      <DataLayer Type="SQL" Source="USE CallCenterReporting&#xD;&#xA;&#xD;&#xA;SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED&#xD;&#xA;&#xD;&#xA;SELECT		rh.Manager_UserID AS MgrUserID&#xD;&#xA;			,CASE WHEN mu.isCallCenter = 1 AND (D.isInbound = 1 OR D.isOutbound = 1 OR D.isTraining = 1) THEN D.DepartmentID ELSE -1 END AS DepartmentID&#xD;&#xA;			,CASE WHEN rh.RepType = 1 AND mu.isCallCenter = 1 AND (D.isInbound = 1 OR D.isOutbound = 1 OR D.isTraining = 1) THEN rh.SupervisorID&#xD;&#xA;				  WHEN rh.RepType = 3 AND mu.isCallCenter = 1 AND (D.isInbound = 1 OR D.isOutbound = 1 OR D.isTraining = 1) THEN rh.Manager_UserID&#xD;&#xA;				  ELSE -1&#xD;&#xA;			 END AS SupID&#xD;&#xA;			,CASE WHEN rh.RepType = 1 THEN 1 ELSE 3 END AS RoleValue&#xD;&#xA;FROM		dbo.manager_users mu&#xD;&#xA;JOIN		dbo.crm_RepHierarchy rh ON mu.id = rh.Manager_UserID&#xD;&#xA;									AND rh.isActive = 1&#xD;&#xA;LEFT JOIN	dbo.fn_ActiveC3Departments() D ON D.DepartmentID = rh.Department&#xD;&#xA;WHERE		mu.login_name = '@Request.username~'" ID="dlRepID" ConnectionID="connP3BIG-CallCenterReporting" />
+    </LocalData>
+  </Remark>
+  <Remark>
+    <LocalData>
+      <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDatePickerGet_sp" ConnectionID="connP3BIG-CallCenterReporting" />
+    </LocalData>
+  </Remark>
+  <DefaultRequestParams LocationID="-1" MgrID="-1" SupID="@Local.SupID~" RepID="-1" DepartmentID="@Local.DepartmentID~" RoleValue="@Local.RoleValue~" deptStatus="1" ActiveUser="@Local.MgrUserID~" />
+  <Remark>
+    <ReportHeader>
+      <IncludeSharedElement DefinitionFile="SharedElements.C3Header" SharedElementID="sharedHeader" ID="sharedHeaderElement" />
+      <IncludeHtml Html="&lt;style&gt;&#xD;&#xA;.body {&#xD;&#xA;background-color:#FCFFFC;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdMetricTable {&#xD;&#xA;border-collapse:collapse;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td,th {&#xD;&#xA;border:2px solid white;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable td.none {&#xD;&#xA;border-style:none;&#xD;&#xA;}&#xD;&#xA;.gdMetricTable a&#xD;&#xA;{&#xD;&#xA;color:black;&#xD;&#xA;text-decoration:underline;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;.gdReportGroupHeaderStackRank&#xD;&#xA;{&#xD;&#xA;background-color:#fb6b5b;&#xD;&#xA;color: #fff !important;&#xD;&#xA;}&#xD;&#xA;.gdReportGroupHeaderFinancial&#xD;&#xA;{&#xD;&#xA;background-color:#35aa47;&#xD;&#xA;color: #fff !important;&#xD;&#xA;}&#xD;&#xA;.gdReportGroupHeaderOperational&#xD;&#xA;{&#xD;&#xA;background-color:#ffb848;&#xD;&#xA;color: #fff !important;&#xD;&#xA;}&#xD;&#xA;.gdReportGroupHeaderCustomer&#xD;&#xA;{&#xD;&#xA;background-color:#852b99;&#xD;&#xA;color: #fff !important;&#xD;&#xA;}&#xD;&#xA;.gdReportGroupHeaderSpacer&#xD;&#xA;{&#xD;&#xA;background-color:#fff;&#xD;&#xA;}&#xD;&#xA;.gdReportHeaderPrimaryBackground&#xD;&#xA;{&#xD;&#xA;background-color:#9BB3CC;&#xD;&#xA;}&#xD;&#xA;.gdReportHeaderSecondaryBackground&#xD;&#xA;{&#xD;&#xA;background-color:#CDD9E6;&#xD;&#xA;}&#xD;&#xA;.gdReportHeaderSecondaryBackground a&#xD;&#xA;{&#xD;&#xA;color:black;&#xD;&#xA;text-decoration:underline;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;.gdTableColumnName a&#xD;&#xA;{&#xD;&#xA;color:#009 !important;&#xD;&#xA;text-decoration:underline;&#xD;&#xA;border-style:none;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;.gdBackgroundGreen&#xD;&#xA;{&#xD;&#xA;background-image: linear-gradient(bottom, rgb(229,240,212,.4) 43%, rgb(229,240,212) 72%, rgb(229,240,212) 86%);&#xD;&#xA;background-image: -o-linear-gradient(bottom, rgb(229,240,212) 43%, rgb(229,240,212) 72%, rgb(229,240,212) 86%);&#xD;&#xA;background-image: -moz-linear-gradient(bottom, rgb(229,240,212) 43%, rgb(229,240,212) 72%, rgb(229,240,212) 86%);&#xD;&#xA;background-image: -webkit-linear-gradient(bottom, rgb(229,240,212) 43%, rgb(229,240,212) 72%, rgb(229,240,212) 86%);&#xD;&#xA;background-image: -ms-linear-gradient(bottom, rgb(229,240,212) 43%, rgb(229,240,212) 72%, rgb(229,240,212) 86%);&#xD;&#xA;&#xD;&#xA;background-image: -webkit-gradient(&#xD;&#xA;	linear,&#xD;&#xA;	left bottom,&#xD;&#xA;	left top,&#xD;&#xA;	color-stop(0.43, rgba(229,240,212,.8)),&#xD;&#xA;	color-stop(0.72, rgba(229,240,212,.8)),&#xD;&#xA;	color-stop(0.86, rgba(229,240,212,.8))&#xD;&#xA;);&#xD;&#xA;}&#xD;&#xA;.gdBackgroundYellow&#xD;&#xA;{&#xD;&#xA;background-image: linear-gradient(bottom, rgb(255,247,221) 43%, rgb(255,247,221) 72%, rgb(255,247,221) 86%);&#xD;&#xA;background-image: -o-linear-gradient(bottom, rgb(255,247,221) 43%, rgb(255,247,221) 72%, rgb(255,247,221) 86%);&#xD;&#xA;background-image: -moz-linear-gradient(bottom, rgb(255,247,221) 43%, rgb(255,247,221) 72%, rgb(255,247,221) 86%);&#xD;&#xA;background-image: -webkit-linear-gradient(bottom, rgb(255,247,221) 43%, rgb(255,247,221) 72%, rgb(255,247,221) 86%);&#xD;&#xA;background-image: -ms-linear-gradient(bottom, rgb(255,247,221) 43%, rgb(255,247,221) 72%, rgb(255,247,221) 86%);&#xD;&#xA;&#xD;&#xA;background-image: -webkit-gradient(&#xD;&#xA;	linear,&#xD;&#xA;	left bottom,&#xD;&#xA;	left top,&#xD;&#xA;	color-stop(0.43, rgb(255,247,221)),&#xD;&#xA;	color-stop(0.72, rgb(255,247,221)),&#xD;&#xA;	color-stop(0.86, rgb(255,247,221))&#xD;&#xA;);&#xD;&#xA;}&#xD;&#xA;.gdBackgroundOrange&#xD;&#xA;{&#xD;&#xA;background-image: linear-gradient(bottom, rgb(255,235,235) 43%, rgb(255,235,235) 72%, rgb(255,235,235) 86%);&#xD;&#xA;background-image: -o-linear-gradient(bottom, rgb(255,235,235) 43%, rgb(255,235,235) 72%, rgb(255,235,235) 86%);&#xD;&#xA;background-image: -moz-linear-gradient(bottom, rgb(255,235,235) 43%, rgb(255,235,235) 72%, rgb(255,235,235) 86%);&#xD;&#xA;background-image: -webkit-linear-gradient(bottom, rgb(255,235,235) 43%, rgb(255,235,235) 72%, rgb(255,235,235) 86%);&#xD;&#xA;background-image: -ms-linear-gradient(bottom, rgb(255,235,235) 43%, rgb(255,235,235) 72%, rgb(255,235,235) 86%);&#xD;&#xA;&#xD;&#xA;background-image: -webkit-gradient(&#xD;&#xA;	linear,&#xD;&#xA;	left bottom,&#xD;&#xA;	left top,&#xD;&#xA;	color-stop(0.43, rgb(255,235,235)),&#xD;&#xA;	color-stop(0.72, rgb(255,235,235)),&#xD;&#xA;	color-stop(0.86, rgb(255,235,235))&#xD;&#xA;);&#xD;&#xA;}&#xD;&#xA;.gdBackgroundRed&#xD;&#xA;{&#xD;&#xA;background-color:#990033;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;input[type=&quot;submit&quot;]:enabled {&#xD;&#xA;background: #545454 !important;&#xD;&#xA;border: 1px solid #545454 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;submit&quot;]:hover:enabled {&#xD;&#xA;background: #9BB3CC !important;&#xD;&#xA;border: 1px solid #9BB3CC !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;button&quot;] {&#xD;&#xA;background: #545454 !important;&#xD;&#xA;border: 1px solid #545454 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;}&#xD;&#xA;input[type=&quot;button&quot;]:hover {&#xD;&#xA;background: #9BB3CC !important;&#xD;&#xA;border: 1px solid #9BB3CC !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: white !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.ScoreCardImage {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.iconScoreCard20x20.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 25px;&#xD;&#xA;height: 25px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.SideArrow {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.sidearrow15x15.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 15px;&#xD;&#xA;height: 15px;&#xD;&#xA;}&#xD;&#xA;.UpArrow {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.uparrow15x15.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 15px;&#xD;&#xA;height: 15px;&#xD;&#xA;}&#xD;&#xA;.DownArrow {&#xD;&#xA;background-image:url('_SupportFiles/c3dash.downarrow15x15.png');&#xD;&#xA;background-repeat: no-repeat;&#xD;&#xA;padding-left: 15px;&#xD;&#xA;height: 15px;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;.gdFooterBackground&#xD;&#xA;{&#xD;&#xA;background-color:#9E9696;&#xD;&#xA;}&#xD;&#xA;&lt;/style&gt;&#xD;&#xA;&#xD;&#xA;&lt;!--[if IE]&gt;&#xD;&#xA;&lt;style type=&quot;text/css&quot;&gt;&#xD;&#xA;input[type=&quot;submit&quot;] {&#xD;&#xA;background: #CDD9E6 !important;&#xD;&#xA;border: 1px solid #386090 !important;&#xD;&#xA;border-radius: 3px 3px 3px 3px !important;&#xD;&#xA;color: black !important;&#xD;&#xA;padding: 1px 2px !important;&#xD;&#xA;text-shadow: none !important;&#xD;&#xA;box-shadow: none !important;&#xD;&#xA;}&#xD;&#xA;&lt;/style&gt;&#xD;&#xA;&lt;![endif]--&gt;" ID="CustomCSS" />
+    </ReportHeader>
+  </Remark>
+  <Body>
+    <LineBreak LineCount="0.5" />
+    <Rows Class="gdDefaultRowBground" WidthScale="%" Width="100">
+      <Row Class="gdReportHeader">
+        <Column ColSpan="5">
+          <Label Caption="Report Selection" Class="gdReportHeaderNameBI" />
+        </Column>
+      </Row>
+    </Rows>
+    <Rows Width="100" WidthScale="%" Class="gdDefaultRowBground">
+      <Row Class=".gdDefaultDropDownBground">
+        <Column ID="colSourceCodeSelect" Width="770" WidthScale="px">
+          <Rows ID="rowDropDowns" Class="gdDefaultDropDownBground" Caption="Choose Start and End Dates Then Source Codes to Compare">
+            <Row ID="rowDropCols">
+              <Column Width="265" WidthScale="px" ID="colLeft" IdeDisplayStatus="Collapsed">
+                <Rows WidthScale="px" ID="rowsHeader" Width="225">
+                  <Row ID="rowStartDate">
+                    <Column ID="colStartDate" Width="160" WidthScale="px">
+                      <Label Caption="Start Date:" />
+                    </Column>
+                    <Column ID="colRptStart" Width="160" WidthScale="px">
+                      <InputDate ID="rptStart1" DefaultValue="@Request.rptStart~">
+                        <Validation Type="Date" />
+                        <Validation Type="Required" />
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </InputDate>
+                    </Column>
+                  </Row>
+                  <Remark>
+                    <Row ID="rowDepartment" IdeDisplayStatus="Collapsed">
+                      <Column ID="colDept" Width="160" WidthScale="px">
+                        <Label Caption="Department: " />
+                      </Column>
+                      <Column ID="colDeptID" Width="160" WidthScale="px">
+                        <InputSelectList ID="DepartmentID" OptionValueColumn="DepartmentID" OptionCaptionColumn="Department" IncludeBlank="True" IncludeBlankCaption="&lt;SELECT&gt;" IncludeBlankValue="-1" DefaultValue="@Request.DepartmentID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownDepartmentGet_TEST" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter ID="@deptStatus" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" Value="@Request.deptStatus~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="Department" />
+                          </DataLayer>
+                        </InputSelectList>
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowDeptStatus" IdeDisplayStatus="Collapsed">
+                      <Column ID="colDeptStatus" Width="160" WidthScale="px">
+                        <Label Caption="Dept Status:" />
+                      </Column>
+                      <Column ID="colDepStatus" Width="160" WidthScale="px">
+                        <InputSelectList ID="deptStatus" OptionValueColumn="StatusValue" OptionCaptionColumn="StatusName" DefaultValue="@Request.deptStatus~">
+                          <DataLayer Type="Static" ID="dlDeptStatus">
+                            <StaticDataRow StatusName="Active" StatusValue="1" />
+                            <StaticDataRow StatusName="Inactive" StatusValue="0" />
+                            <StaticDataRow StatusName="&lt;ALL&gt;" StatusValue="-1" />
+                          </DataLayer>
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="DepartmentID" ID="actRefreshDepartments" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowLocation" IdeDisplayStatus="Collapsed">
+                      <Column ID="colLocation" Width="160" WidthScale="px">
+                        <Label Caption="Location: " />
+                      </Column>
+                      <Column ID="colLocationID" Width="160" WidthScale="px">
+                        <InputSelectList ID="LocationID" OptionCaptionColumn="Location" OptionValueColumn="LocationID" DefaultValue="@Request.LocationID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownLocationGet_sp" ConnectionID="connP3BIG-CallCenterReporting" />
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                </Rows>
+              </Column>
+              <Column Width="265" WidthScale="px" ID="colCenter" IdeDisplayStatus="Collapsed">
+                <Rows Width="225" WidthScale="px">
+                  <Row ID="rowEndDate">
+                    <Column ID="colEndDate" Width="100" WidthScale="%" IdeDisplayStatus="Collapsed">
+                      <Label Caption="End Date:" />
+                    </Column>
+                    <Column ID="colRptEnd" Width="160" WidthScale="px">
+                      <InputDate ID="rptEnd1" DefaultValue="@Request.rptEnd~">
+                        <Validation Type="Date" />
+                        <Validation Type="Required" />
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </InputDate>
+                      <Remark>
+                        <Spaces Size="3" />
+                      </Remark>
+                    </Column>
+                  </Row>
+                  <Remark>
+                    <Row ID="rowManager" IdeDisplayStatus="Collapsed">
+                      <Column ID="colManager" IdeDisplayStatus="Collapsed" Width="100" WidthScale="%">
+                        <Label Caption="Manager: " />
+                      </Column>
+                      <Column ID="colManagerID" IdeDisplayStatus="Collapsed" Width="160" WidthScale="px">
+                        <InputSelectList ID="MgrID" OptionValueColumn="MgrUserID" OptionCaptionColumn="MgrName" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.MgrID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownManagerGet_sp" IdeDisplayStatus="Collapsed" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter SPParamDirection="Input" ID="@StartDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                              <SPParameter SPParamDirection="Input" ID="@EndDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="MgrName" ID="sfName" />
+                          </DataLayer>
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="SupID" ID="actRefreshPerson" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowSupv" IdeDisplayStatus="Collapsed">
+                      <Column ID="colSupervisor" Width="100" WidthScale="%">
+                        <Label Caption="Supervisor: " />
+                      </Column>
+                      <Column ID="colSupID" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                        <InputSelectList ID="SupID" OptionValueColumn="MgrUserID" OptionCaptionColumn="MgrName" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.SupID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownSupervisorGet_sp" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter SPParamDirection="Input" ID="@StartDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                              <SPParameter SPParamDirection="Input" ID="@EndDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@SupID" SPParamDirection="Input" Value="@Request.MgrID~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="MgrName" ID="sfName" />
+                          </DataLayer>
+                        </InputSelectList>
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="Javascript" Javascript="disable()" ID="jsDisable" />
+                        </EventHandler>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowDisplay">
+                      <Column ID="colDisplay" Width="100" WidthScale="%">
+                        <Label Caption="Level:" />
+                      </Column>
+                      <Column ID="colRoleValue" Width="160" WidthScale="px">
+                        <InputSelectList ID="RoleValue" OptionValueColumn="RoleValue" OptionCaptionColumn="RoleName" DefaultValue="@Request.RoleValue~">
+                          <DataLayer Type="Static" ID="dlRole">
+                            <StaticDataRow RoleName="Supervisor" RoleValue="3" />
+                            <StaticDataRow RoleName="Representative" RoleValue="1" />
+                          </DataLayer>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                </Rows>
+              </Column>
+              <Column ID="colSourceCode" Width="265" WidthScale="px" IdeDisplayStatus="Collapsed">
+                <Rows Width="225" WidthScale="px" ID="rowsHeader">
+                  <Row ID="rowSourceCode">
+                    <Column ID="colSourceCodeInput" Width="160" WidthScale="px">
+                      <Label Caption="Source Code 1:" />
+                    </Column>
+                    <Column ID="colRptStart" Width="160" WidthScale="px">
+                      <InputSelectList ID="rptSourceCode1" OptionCaptionColumn="source_code" OptionValueColumn="source_code">
+                        <DataLayer Type="SQL" ConnectionID="connM1BIG-BIGReporting" Source="SELECT      TOP 10 r.source_code FROM BIGReporting.dbo.rptOrderdetail r (NOLOCK) WHERE r.order_date &gt;= '2013-10-01'" />
+                      </InputSelectList>
+                    </Column>
+                  </Row>
+                  <Remark>
+                    <Row ID="rowDepartment">
+                      <Column ID="colDept" Width="160" WidthScale="px">
+                        <Label Caption="Department: " />
+                      </Column>
+                      <Column ID="colDeptID" Width="160" WidthScale="px">
+                        <InputSelectList ID="DepartmentID" OptionValueColumn="DepartmentID" OptionCaptionColumn="Department" IncludeBlank="True" IncludeBlankCaption="&lt;SELECT&gt;" IncludeBlankValue="-1" DefaultValue="@Request.DepartmentID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownDepartmentGet_TEST" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter ID="@deptStatus" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" Value="@Request.deptStatus~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="Department" />
+                          </DataLayer>
+                        </InputSelectList>
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowDeptStatus" IdeDisplayStatus="Collapsed">
+                      <Column ID="colDeptStatus" Width="160" WidthScale="px">
+                        <Label Caption="Dept Status:" />
+                      </Column>
+                      <Column ID="colDepStatus" Width="160" WidthScale="px">
+                        <InputSelectList ID="deptStatus" OptionValueColumn="StatusValue" OptionCaptionColumn="StatusName" DefaultValue="@Request.deptStatus~">
+                          <DataLayer Type="Static" ID="dlDeptStatus">
+                            <StaticDataRow StatusName="Active" StatusValue="1" />
+                            <StaticDataRow StatusName="Inactive" StatusValue="0" />
+                            <StaticDataRow StatusName="&lt;ALL&gt;" StatusValue="-1" />
+                          </DataLayer>
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="DepartmentID" ID="actRefreshDepartments" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowLocation" IdeDisplayStatus="Collapsed">
+                      <Column ID="colLocation" Width="160" WidthScale="px">
+                        <Label Caption="Location: " />
+                      </Column>
+                      <Column ID="colLocationID" Width="160" WidthScale="px">
+                        <InputSelectList ID="LocationID" OptionCaptionColumn="Location" OptionValueColumn="LocationID" DefaultValue="@Request.LocationID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownLocationGet_sp" ConnectionID="connP3BIG-CallCenterReporting" />
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                </Rows>
+              </Column>
+              <Remark>
+                <Column ID="colRight" Width="215" WidthScale="px" IdeDisplayStatus="Collapsed">
+                  <Rows Width="215" WidthScale="px">
+                    <Row>
+                      <Column ID="col1" Width="100" WidthScale="px">
+                        <Rows>
+                          <Row>
+                            <Column ID="colBPtoDate" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP1~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colPriorBP" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP2~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colPDPtoDate" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP7~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colPriorPDP" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP8~" />
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Column ID="col2" Width="90" WidthScale="px" IdeDisplayStatus="Collapsed">
+                        <Rows>
+                          <Row>
+                            <Column ID="colMTD" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP3~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colLastMonth" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP4~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colWTD" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP5~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colLastWk" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP6~" />
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Remark>
+                        <Column ID="col3" Width="75" WidthScale="px" IdeDisplayStatus="Collapsed">
+                          <Rows>
+                            <Row>
+                              <Column ID="colYesterday" Width="90" WidthScale="px">
+                                <LineBreak />
+                              </Column>
+                            </Row>
+                            <Row>
+                              <Column ID="colYesterday" Width="90" WidthScale="px">
+                                <IncludeHtml Html="@Local.INP9~" />
+                              </Column>
+                            </Row>
+                            <Row>
+                              <Column ID="colToday" Width="90" WidthScale="px" IdeDisplayStatus="Collapsed">
+                                <IncludeHtml Html="@Local.INP10~" />
+                              </Column>
+                            </Row>
+                            <Row IdeDisplayStatus="Collapsed">
+                              <Column ID="colYesterday" Width="90" WidthScale="px">
+                                <LineBreak />
+                              </Column>
+                            </Row>
+                          </Rows>
+                        </Column>
+                      </Remark>
+                    </Row>
+                  </Rows>
+                </Column>
+              </Remark>
+            </Row>
+            <Row ID="rowDropCols">
+              <Column Width="265" WidthScale="px" ID="colLeft" IdeDisplayStatus="Collapsed">
+                <Rows WidthScale="px" ID="rowsHeader" Width="225">
+                  <Row ID="rowStartDate">
+                    <Column ID="colStartDate" Width="160" WidthScale="px">
+                      <Label Caption="Start Date:" />
+                    </Column>
+                    <Column ID="colRptStart" Width="160" WidthScale="px">
+                      <InputDate ID="rptStart2" DefaultValue="@Request.rptStart~">
+                        <Validation Type="Date" />
+                        <Validation Type="Required" />
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </InputDate>
+                    </Column>
+                  </Row>
+                  <Remark>
+                    <Row ID="rowDepartment" IdeDisplayStatus="Collapsed">
+                      <Column ID="colDept" Width="160" WidthScale="px">
+                        <Label Caption="Department: " />
+                      </Column>
+                      <Column ID="colDeptID" Width="160" WidthScale="px">
+                        <InputSelectList ID="DepartmentID" OptionValueColumn="DepartmentID" OptionCaptionColumn="Department" IncludeBlank="True" IncludeBlankCaption="&lt;SELECT&gt;" IncludeBlankValue="-1" DefaultValue="@Request.DepartmentID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownDepartmentGet_TEST" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter ID="@deptStatus" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" Value="@Request.deptStatus~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="Department" />
+                          </DataLayer>
+                        </InputSelectList>
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowDeptStatus" IdeDisplayStatus="Collapsed">
+                      <Column ID="colDeptStatus" Width="160" WidthScale="px">
+                        <Label Caption="Dept Status:" />
+                      </Column>
+                      <Column ID="colDepStatus" Width="160" WidthScale="px">
+                        <InputSelectList ID="deptStatus" OptionValueColumn="StatusValue" OptionCaptionColumn="StatusName" DefaultValue="@Request.deptStatus~">
+                          <DataLayer Type="Static" ID="dlDeptStatus">
+                            <StaticDataRow StatusName="Active" StatusValue="1" />
+                            <StaticDataRow StatusName="Inactive" StatusValue="0" />
+                            <StaticDataRow StatusName="&lt;ALL&gt;" StatusValue="-1" />
+                          </DataLayer>
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="DepartmentID" ID="actRefreshDepartments" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowLocation" IdeDisplayStatus="Collapsed">
+                      <Column ID="colLocation" Width="160" WidthScale="px">
+                        <Label Caption="Location: " />
+                      </Column>
+                      <Column ID="colLocationID" Width="160" WidthScale="px">
+                        <InputSelectList ID="LocationID" OptionCaptionColumn="Location" OptionValueColumn="LocationID" DefaultValue="@Request.LocationID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownLocationGet_sp" ConnectionID="connP3BIG-CallCenterReporting" />
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                </Rows>
+              </Column>
+              <Column Width="265" WidthScale="px" ID="colCenter" IdeDisplayStatus="Collapsed">
+                <Rows Width="225" WidthScale="px">
+                  <Row ID="rowEndDate">
+                    <Column ID="colEndDate" Width="100" WidthScale="%" IdeDisplayStatus="Collapsed">
+                      <Label Caption="End Date:" />
+                    </Column>
+                    <Column ID="colRptEnd" Width="160" WidthScale="px">
+                      <InputDate ID="rptEnd2" DefaultValue="@Request.rptEnd~">
+                        <Validation Type="Date" />
+                        <Validation Type="Required" />
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </InputDate>
+                      <Remark>
+                        <Spaces Size="3" />
+                      </Remark>
+                    </Column>
+                  </Row>
+                  <Remark>
+                    <Row ID="rowManager" IdeDisplayStatus="Collapsed">
+                      <Column ID="colManager" IdeDisplayStatus="Collapsed" Width="100" WidthScale="%">
+                        <Label Caption="Manager: " />
+                      </Column>
+                      <Column ID="colManagerID" IdeDisplayStatus="Collapsed" Width="160" WidthScale="px">
+                        <InputSelectList ID="MgrID" OptionValueColumn="MgrUserID" OptionCaptionColumn="MgrName" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.MgrID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownManagerGet_sp" IdeDisplayStatus="Collapsed" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter SPParamDirection="Input" ID="@StartDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                              <SPParameter SPParamDirection="Input" ID="@EndDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="MgrName" ID="sfName" />
+                          </DataLayer>
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="SupID" ID="actRefreshPerson" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowSupv" IdeDisplayStatus="Collapsed">
+                      <Column ID="colSupervisor" Width="100" WidthScale="%">
+                        <Label Caption="Supervisor: " />
+                      </Column>
+                      <Column ID="colSupID" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                        <InputSelectList ID="SupID" OptionValueColumn="MgrUserID" OptionCaptionColumn="MgrName" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.SupID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownSupervisorGet_sp" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter SPParamDirection="Input" ID="@StartDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                              <SPParameter SPParamDirection="Input" ID="@EndDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@SupID" SPParamDirection="Input" Value="@Request.MgrID~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="MgrName" ID="sfName" />
+                          </DataLayer>
+                        </InputSelectList>
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="Javascript" Javascript="disable()" ID="jsDisable" />
+                        </EventHandler>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowDisplay">
+                      <Column ID="colDisplay" Width="100" WidthScale="%">
+                        <Label Caption="Level:" />
+                      </Column>
+                      <Column ID="colRoleValue" Width="160" WidthScale="px">
+                        <InputSelectList ID="RoleValue" OptionValueColumn="RoleValue" OptionCaptionColumn="RoleName" DefaultValue="@Request.RoleValue~">
+                          <DataLayer Type="Static" ID="dlRole">
+                            <StaticDataRow RoleName="Supervisor" RoleValue="3" />
+                            <StaticDataRow RoleName="Representative" RoleValue="1" />
+                          </DataLayer>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                </Rows>
+              </Column>
+              <Column ID="colSourceCode" Width="265" WidthScale="px" IdeDisplayStatus="Collapsed">
+                <Rows Width="225" WidthScale="px" ID="rowsHeader">
+                  <Row ID="rowSourceCode">
+                    <Column ID="colSourceCodeInput" Width="160" WidthScale="px">
+                      <Label Caption="Source Code 2:" />
+                    </Column>
+                    <Column ID="colRptStart" Width="160" WidthScale="px">
+                      <InputSelectList ID="rptSourceCode2" OptionCaptionColumn="source_code" OptionValueColumn="source_code">
+                        <DataLayer Type="SQL" ConnectionID="connM1BIG-BIGReporting" Source="SELECT      TOP 10 r.source_code FROM BIGReporting.dbo.rptOrderdetail r (NOLOCK) WHERE r.order_date &gt;= '2013-10-01'" />
+                      </InputSelectList>
+                    </Column>
+                  </Row>
+                  <Remark>
+                    <Row ID="rowDepartment" IdeDisplayStatus="Collapsed">
+                      <Column ID="colDept" Width="160" WidthScale="px">
+                        <Label Caption="Department: " />
+                      </Column>
+                      <Column ID="colDeptID" Width="160" WidthScale="px">
+                        <InputSelectList ID="DepartmentID" OptionValueColumn="DepartmentID" OptionCaptionColumn="Department" IncludeBlank="True" IncludeBlankCaption="&lt;SELECT&gt;" IncludeBlankValue="-1" DefaultValue="@Request.DepartmentID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownDepartmentGet_TEST" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter ID="@deptStatus" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" Value="@Request.deptStatus~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="Department" />
+                          </DataLayer>
+                        </InputSelectList>
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowDeptStatus" IdeDisplayStatus="Collapsed">
+                      <Column ID="colDeptStatus" Width="160" WidthScale="px">
+                        <Label Caption="Dept Status:" />
+                      </Column>
+                      <Column ID="colDepStatus" Width="160" WidthScale="px">
+                        <InputSelectList ID="deptStatus" OptionValueColumn="StatusValue" OptionCaptionColumn="StatusName" DefaultValue="@Request.deptStatus~">
+                          <DataLayer Type="Static" ID="dlDeptStatus">
+                            <StaticDataRow StatusName="Active" StatusValue="1" />
+                            <StaticDataRow StatusName="Inactive" StatusValue="0" />
+                            <StaticDataRow StatusName="&lt;ALL&gt;" StatusValue="-1" />
+                          </DataLayer>
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="DepartmentID" ID="actRefreshDepartments" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowLocation" IdeDisplayStatus="Collapsed">
+                      <Column ID="colLocation" Width="160" WidthScale="px">
+                        <Label Caption="Location: " />
+                      </Column>
+                      <Column ID="colLocationID" Width="160" WidthScale="px">
+                        <InputSelectList ID="LocationID" OptionCaptionColumn="Location" OptionValueColumn="LocationID" DefaultValue="@Request.LocationID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownLocationGet_sp" ConnectionID="connP3BIG-CallCenterReporting" />
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                </Rows>
+              </Column>
+              <Remark>
+                <Column ID="colRight" Width="215" WidthScale="px" IdeDisplayStatus="Collapsed">
+                  <Rows Width="215" WidthScale="px">
+                    <Row>
+                      <Column ID="col1" Width="100" WidthScale="px" IdeDisplayStatus="Collapsed">
+                        <Rows>
+                          <Row>
+                            <Column ID="colBPtoDate" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP1~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colPriorBP" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP2~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colPDPtoDate" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP7~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colPriorPDP" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP8~" />
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Column ID="col2" Width="90" WidthScale="px" IdeDisplayStatus="Collapsed">
+                        <Rows>
+                          <Row>
+                            <Column ID="colMTD" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP3~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colLastMonth" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP4~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colWTD" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP5~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colLastWk" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP6~" />
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Remark>
+                        <Column ID="col3" Width="75" WidthScale="px" IdeDisplayStatus="Collapsed">
+                          <Rows>
+                            <Row>
+                              <Column ID="colYesterday" Width="90" WidthScale="px">
+                                <LineBreak />
+                              </Column>
+                            </Row>
+                            <Row>
+                              <Column ID="colYesterday" Width="90" WidthScale="px">
+                                <IncludeHtml Html="@Local.INP9~" />
+                              </Column>
+                            </Row>
+                            <Row>
+                              <Column ID="colToday" Width="90" WidthScale="px" IdeDisplayStatus="Collapsed">
+                                <IncludeHtml Html="@Local.INP10~" />
+                              </Column>
+                            </Row>
+                            <Row IdeDisplayStatus="Collapsed">
+                              <Column ID="colYesterday" Width="90" WidthScale="px">
+                                <LineBreak />
+                              </Column>
+                            </Row>
+                          </Rows>
+                        </Column>
+                      </Remark>
+                    </Row>
+                  </Rows>
+                </Column>
+              </Remark>
+            </Row>
+            <Row ID="rowDropCols">
+              <Column Width="265" WidthScale="px" ID="colLeft" IdeDisplayStatus="Collapsed">
+                <Rows WidthScale="px" ID="rowsHeader" Width="225">
+                  <Row ID="rowStartDate">
+                    <Column ID="colStartDate" Width="160" WidthScale="px">
+                      <Label Caption="Start Date:" />
+                    </Column>
+                    <Column ID="colRptStart" Width="160" WidthScale="px">
+                      <InputDate ID="rptStart3" DefaultValue="@Request.rptStart~">
+                        <Validation Type="Date" />
+                        <Validation Type="Required" />
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </InputDate>
+                    </Column>
+                  </Row>
+                  <Remark>
+                    <Row ID="rowDepartment" IdeDisplayStatus="Collapsed">
+                      <Column ID="colDept" Width="160" WidthScale="px">
+                        <Label Caption="Department: " />
+                      </Column>
+                      <Column ID="colDeptID" Width="160" WidthScale="px">
+                        <InputSelectList ID="DepartmentID" OptionValueColumn="DepartmentID" OptionCaptionColumn="Department" IncludeBlank="True" IncludeBlankCaption="&lt;SELECT&gt;" IncludeBlankValue="-1" DefaultValue="@Request.DepartmentID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownDepartmentGet_TEST" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter ID="@deptStatus" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" Value="@Request.deptStatus~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="Department" />
+                          </DataLayer>
+                        </InputSelectList>
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowDeptStatus" IdeDisplayStatus="Collapsed">
+                      <Column ID="colDeptStatus" Width="160" WidthScale="px">
+                        <Label Caption="Dept Status:" />
+                      </Column>
+                      <Column ID="colDepStatus" Width="160" WidthScale="px">
+                        <InputSelectList ID="deptStatus" OptionValueColumn="StatusValue" OptionCaptionColumn="StatusName" DefaultValue="@Request.deptStatus~">
+                          <DataLayer Type="Static" ID="dlDeptStatus">
+                            <StaticDataRow StatusName="Active" StatusValue="1" />
+                            <StaticDataRow StatusName="Inactive" StatusValue="0" />
+                            <StaticDataRow StatusName="&lt;ALL&gt;" StatusValue="-1" />
+                          </DataLayer>
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="DepartmentID" ID="actRefreshDepartments" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowLocation" IdeDisplayStatus="Collapsed">
+                      <Column ID="colLocation" Width="160" WidthScale="px">
+                        <Label Caption="Location: " />
+                      </Column>
+                      <Column ID="colLocationID" Width="160" WidthScale="px">
+                        <InputSelectList ID="LocationID" OptionCaptionColumn="Location" OptionValueColumn="LocationID" DefaultValue="@Request.LocationID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownLocationGet_sp" ConnectionID="connP3BIG-CallCenterReporting" />
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                </Rows>
+              </Column>
+              <Column Width="265" WidthScale="px" ID="colCenter" IdeDisplayStatus="Collapsed">
+                <Rows Width="225" WidthScale="px">
+                  <Row ID="rowEndDate">
+                    <Column ID="colEndDate" Width="100" WidthScale="%" IdeDisplayStatus="Collapsed">
+                      <Label Caption="End Date:" />
+                    </Column>
+                    <Column ID="colRptEnd" Width="160" WidthScale="px">
+                      <InputDate ID="rptEnd3" DefaultValue="@Request.rptEnd~">
+                        <Validation Type="Date" />
+                        <Validation Type="Required" />
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </InputDate>
+                      <Remark>
+                        <Spaces Size="3" />
+                      </Remark>
+                    </Column>
+                  </Row>
+                  <Remark>
+                    <Row ID="rowManager" IdeDisplayStatus="Collapsed">
+                      <Column ID="colManager" IdeDisplayStatus="Collapsed" Width="100" WidthScale="%">
+                        <Label Caption="Manager: " />
+                      </Column>
+                      <Column ID="colManagerID" IdeDisplayStatus="Collapsed" Width="160" WidthScale="px">
+                        <InputSelectList ID="MgrID" OptionValueColumn="MgrUserID" OptionCaptionColumn="MgrName" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.MgrID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownManagerGet_sp" IdeDisplayStatus="Collapsed" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter SPParamDirection="Input" ID="@StartDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                              <SPParameter SPParamDirection="Input" ID="@EndDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="MgrName" ID="sfName" />
+                          </DataLayer>
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="SupID" ID="actRefreshPerson" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowSupv" IdeDisplayStatus="Collapsed">
+                      <Column ID="colSupervisor" Width="100" WidthScale="%">
+                        <Label Caption="Supervisor: " />
+                      </Column>
+                      <Column ID="colSupID" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                        <InputSelectList ID="SupID" OptionValueColumn="MgrUserID" OptionCaptionColumn="MgrName" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.SupID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownSupervisorGet_sp" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter SPParamDirection="Input" ID="@StartDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                              <SPParameter SPParamDirection="Input" ID="@EndDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@SupID" SPParamDirection="Input" Value="@Request.MgrID~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="MgrName" ID="sfName" />
+                          </DataLayer>
+                        </InputSelectList>
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="Javascript" Javascript="disable()" ID="jsDisable" />
+                        </EventHandler>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowDisplay">
+                      <Column ID="colDisplay" Width="100" WidthScale="%">
+                        <Label Caption="Level:" />
+                      </Column>
+                      <Column ID="colRoleValue" Width="160" WidthScale="px">
+                        <InputSelectList ID="RoleValue" OptionValueColumn="RoleValue" OptionCaptionColumn="RoleName" DefaultValue="@Request.RoleValue~">
+                          <DataLayer Type="Static" ID="dlRole">
+                            <StaticDataRow RoleName="Supervisor" RoleValue="3" />
+                            <StaticDataRow RoleName="Representative" RoleValue="1" />
+                          </DataLayer>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                </Rows>
+              </Column>
+              <Column ID="colSourceCode" Width="265" WidthScale="px" IdeDisplayStatus="Collapsed">
+                <Rows Width="225" WidthScale="px" ID="rowsHeader">
+                  <Row ID="rowSourceCode">
+                    <Column ID="colSourceCodeInput" Width="160" WidthScale="px">
+                      <Label Caption="Source Code 3:" />
+                    </Column>
+                    <Column ID="colRptStart" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                      <InputSelectList ID="rptSourceCode3" OptionCaptionColumn="source_code" OptionValueColumn="source_code">
+                        <DataLayer Type="SQL" ConnectionID="connM1BIG-BIGReporting" Source="SELECT      TOP 10 r.source_code FROM BIGReporting.dbo.rptOrderdetail r (NOLOCK) WHERE r.order_date &gt;= '2013-10-01'" />
+                      </InputSelectList>
+                    </Column>
+                  </Row>
+                  <Remark>
+                    <Row ID="rowDepartment" IdeDisplayStatus="Collapsed">
+                      <Column ID="colDept" Width="160" WidthScale="px">
+                        <Label Caption="Department: " />
+                      </Column>
+                      <Column ID="colDeptID" Width="160" WidthScale="px">
+                        <InputSelectList ID="DepartmentID" OptionValueColumn="DepartmentID" OptionCaptionColumn="Department" IncludeBlank="True" IncludeBlankCaption="&lt;SELECT&gt;" IncludeBlankValue="-1" DefaultValue="@Request.DepartmentID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownDepartmentGet_TEST" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter ID="@deptStatus" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" Value="@Request.deptStatus~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="Department" />
+                          </DataLayer>
+                        </InputSelectList>
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowDeptStatus" IdeDisplayStatus="Collapsed">
+                      <Column ID="colDeptStatus" Width="160" WidthScale="px">
+                        <Label Caption="Dept Status:" />
+                      </Column>
+                      <Column ID="colDepStatus" Width="160" WidthScale="px">
+                        <InputSelectList ID="deptStatus" OptionValueColumn="StatusValue" OptionCaptionColumn="StatusName" DefaultValue="@Request.deptStatus~">
+                          <DataLayer Type="Static" ID="dlDeptStatus">
+                            <StaticDataRow StatusName="Active" StatusValue="1" />
+                            <StaticDataRow StatusName="Inactive" StatusValue="0" />
+                            <StaticDataRow StatusName="&lt;ALL&gt;" StatusValue="-1" />
+                          </DataLayer>
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="DepartmentID" ID="actRefreshDepartments" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowLocation" IdeDisplayStatus="Collapsed">
+                      <Column ID="colLocation" Width="160" WidthScale="px">
+                        <Label Caption="Location: " />
+                      </Column>
+                      <Column ID="colLocationID" Width="160" WidthScale="px">
+                        <InputSelectList ID="LocationID" OptionCaptionColumn="Location" OptionValueColumn="LocationID" DefaultValue="@Request.LocationID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownLocationGet_sp" ConnectionID="connP3BIG-CallCenterReporting" />
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                </Rows>
+              </Column>
+              <Remark>
+                <Column ID="colRight" Width="215" WidthScale="px" IdeDisplayStatus="Collapsed">
+                  <Rows Width="215" WidthScale="px">
+                    <Row>
+                      <Column ID="col1" Width="100" WidthScale="px" IdeDisplayStatus="Collapsed">
+                        <Rows>
+                          <Row>
+                            <Column ID="colBPtoDate" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP1~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colPriorBP" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP2~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colPDPtoDate" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP7~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colPriorPDP" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP8~" />
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Column ID="col2" Width="90" WidthScale="px" IdeDisplayStatus="Collapsed">
+                        <Rows>
+                          <Row>
+                            <Column ID="colMTD" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP3~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colLastMonth" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP4~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colWTD" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP5~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colLastWk" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP6~" />
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Remark>
+                        <Column ID="col3" Width="75" WidthScale="px" IdeDisplayStatus="Collapsed">
+                          <Rows>
+                            <Row>
+                              <Column ID="colYesterday" Width="90" WidthScale="px">
+                                <LineBreak />
+                              </Column>
+                            </Row>
+                            <Row>
+                              <Column ID="colYesterday" Width="90" WidthScale="px">
+                                <IncludeHtml Html="@Local.INP9~" />
+                              </Column>
+                            </Row>
+                            <Row>
+                              <Column ID="colToday" Width="90" WidthScale="px" IdeDisplayStatus="Collapsed">
+                                <IncludeHtml Html="@Local.INP10~" />
+                              </Column>
+                            </Row>
+                            <Row IdeDisplayStatus="Collapsed">
+                              <Column ID="colYesterday" Width="90" WidthScale="px">
+                                <LineBreak />
+                              </Column>
+                            </Row>
+                          </Rows>
+                        </Column>
+                      </Remark>
+                    </Row>
+                  </Rows>
+                </Column>
+              </Remark>
+            </Row>
+            <Row ID="rowDropCols">
+              <Column Width="265" WidthScale="px" ID="colLeft" IdeDisplayStatus="Collapsed">
+                <Rows WidthScale="px" ID="rowsHeader" Width="225">
+                  <Row ID="rowStartDate">
+                    <Column ID="colStartDate" Width="160" WidthScale="px">
+                      <Label Caption="Start Date:" />
+                    </Column>
+                    <Column ID="colRptStart" Width="160" WidthScale="px">
+                      <InputDate ID="rptStart4" DefaultValue="@Request.rptStart~">
+                        <Validation Type="Date" />
+                        <Validation Type="Required" />
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </InputDate>
+                    </Column>
+                  </Row>
+                  <Remark>
+                    <Row ID="rowDepartment" IdeDisplayStatus="Collapsed">
+                      <Column ID="colDept" Width="160" WidthScale="px">
+                        <Label Caption="Department: " />
+                      </Column>
+                      <Column ID="colDeptID" Width="160" WidthScale="px">
+                        <InputSelectList ID="DepartmentID" OptionValueColumn="DepartmentID" OptionCaptionColumn="Department" IncludeBlank="True" IncludeBlankCaption="&lt;SELECT&gt;" IncludeBlankValue="-1" DefaultValue="@Request.DepartmentID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownDepartmentGet_TEST" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter ID="@deptStatus" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" Value="@Request.deptStatus~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="Department" />
+                          </DataLayer>
+                        </InputSelectList>
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowDeptStatus" IdeDisplayStatus="Collapsed">
+                      <Column ID="colDeptStatus" Width="160" WidthScale="px">
+                        <Label Caption="Dept Status:" />
+                      </Column>
+                      <Column ID="colDepStatus" Width="160" WidthScale="px">
+                        <InputSelectList ID="deptStatus" OptionValueColumn="StatusValue" OptionCaptionColumn="StatusName" DefaultValue="@Request.deptStatus~">
+                          <DataLayer Type="Static" ID="dlDeptStatus">
+                            <StaticDataRow StatusName="Active" StatusValue="1" />
+                            <StaticDataRow StatusName="Inactive" StatusValue="0" />
+                            <StaticDataRow StatusName="&lt;ALL&gt;" StatusValue="-1" />
+                          </DataLayer>
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="DepartmentID" ID="actRefreshDepartments" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowLocation" IdeDisplayStatus="Collapsed">
+                      <Column ID="colLocation" Width="160" WidthScale="px">
+                        <Label Caption="Location: " />
+                      </Column>
+                      <Column ID="colLocationID" Width="160" WidthScale="px">
+                        <InputSelectList ID="LocationID" OptionCaptionColumn="Location" OptionValueColumn="LocationID" DefaultValue="@Request.LocationID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownLocationGet_sp" ConnectionID="connP3BIG-CallCenterReporting" />
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                </Rows>
+              </Column>
+              <Column Width="265" WidthScale="px" ID="colCenter" IdeDisplayStatus="Collapsed">
+                <Rows Width="225" WidthScale="px">
+                  <Row ID="rowEndDate">
+                    <Column ID="colEndDate" Width="100" WidthScale="%" IdeDisplayStatus="Collapsed">
+                      <Label Caption="End Date:" />
+                    </Column>
+                    <Column ID="colRptEnd" Width="160" WidthScale="px">
+                      <InputDate ID="rptEnd4" DefaultValue="@Request.rptEnd~">
+                        <Validation Type="Date" />
+                        <Validation Type="Required" />
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </InputDate>
+                      <Remark>
+                        <Spaces Size="3" />
+                      </Remark>
+                    </Column>
+                  </Row>
+                  <Remark>
+                    <Row ID="rowManager" IdeDisplayStatus="Collapsed">
+                      <Column ID="colManager" IdeDisplayStatus="Collapsed" Width="100" WidthScale="%">
+                        <Label Caption="Manager: " />
+                      </Column>
+                      <Column ID="colManagerID" IdeDisplayStatus="Collapsed" Width="160" WidthScale="px">
+                        <InputSelectList ID="MgrID" OptionValueColumn="MgrUserID" OptionCaptionColumn="MgrName" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.MgrID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownManagerGet_sp" IdeDisplayStatus="Collapsed" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter SPParamDirection="Input" ID="@StartDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                              <SPParameter SPParamDirection="Input" ID="@EndDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="MgrName" ID="sfName" />
+                          </DataLayer>
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="SupID" ID="actRefreshPerson" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowSupv" IdeDisplayStatus="Collapsed">
+                      <Column ID="colSupervisor" Width="100" WidthScale="%">
+                        <Label Caption="Supervisor: " />
+                      </Column>
+                      <Column ID="colSupID" Width="160" WidthScale="px" IdeDisplayStatus="Collapsed">
+                        <InputSelectList ID="SupID" OptionValueColumn="MgrUserID" OptionCaptionColumn="MgrName" IncludeBlank="True" IncludeBlankCaption="&lt;ALL&gt;" IncludeBlankValue="-1" DefaultValue="@Request.SupID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownSupervisorGet_sp" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter SPParamDirection="Input" ID="@StartDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                              <SPParameter SPParamDirection="Input" ID="@EndDate" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+                              <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@SupID" SPParamDirection="Input" Value="@Request.MgrID~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="MgrName" ID="sfName" />
+                          </DataLayer>
+                        </InputSelectList>
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="Javascript" Javascript="disable()" ID="jsDisable" />
+                        </EventHandler>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowDisplay">
+                      <Column ID="colDisplay" Width="100" WidthScale="%">
+                        <Label Caption="Level:" />
+                      </Column>
+                      <Column ID="colRoleValue" Width="160" WidthScale="px">
+                        <InputSelectList ID="RoleValue" OptionValueColumn="RoleValue" OptionCaptionColumn="RoleName" DefaultValue="@Request.RoleValue~">
+                          <DataLayer Type="Static" ID="dlRole">
+                            <StaticDataRow RoleName="Supervisor" RoleValue="3" />
+                            <StaticDataRow RoleName="Representative" RoleValue="1" />
+                          </DataLayer>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                </Rows>
+              </Column>
+              <Column ID="colSourceCode" Width="265" WidthScale="px" IdeDisplayStatus="Collapsed">
+                <Rows Width="225" WidthScale="px" ID="rowsHeader">
+                  <Row ID="rowSourceCode">
+                    <Column ID="colSourceCodeInput" Width="160" WidthScale="px">
+                      <Label Caption="Source Code 4:" />
+                    </Column>
+                    <Column ID="colRptStart" Width="160" WidthScale="px">
+                      <InputSelectList ID="rptSourceCode4" OptionCaptionColumn="source_code" OptionValueColumn="source_code">
+                        <DataLayer Type="SQL" ConnectionID="connM1BIG-BIGReporting" Source="SELECT      TOP 10 r.source_code FROM BIGReporting.dbo.rptOrderdetail r (NOLOCK) WHERE r.order_date &gt;= '2013-10-01'" />
+                      </InputSelectList>
+                    </Column>
+                  </Row>
+                  <Remark>
+                    <Row ID="rowDepartment">
+                      <Column ID="colDept" Width="160" WidthScale="px">
+                        <Label Caption="Department: " />
+                      </Column>
+                      <Column ID="colDeptID" Width="160" WidthScale="px">
+                        <InputSelectList ID="DepartmentID" OptionValueColumn="DepartmentID" OptionCaptionColumn="Department" IncludeBlank="True" IncludeBlankCaption="&lt;SELECT&gt;" IncludeBlankValue="-1" DefaultValue="@Request.DepartmentID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownDepartmentGet_TEST" ConnectionID="connP3BIG-CallCenterReporting">
+                            <SPParameters>
+                              <SPParameter ID="@deptStatus" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-3" Value="@Request.deptStatus~" />
+                            </SPParameters>
+                            <SortFilter SortColumn="Department" />
+                          </DataLayer>
+                        </InputSelectList>
+                        <EventHandler DhtmlEvent="onchange">
+                          <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                            <WaitPage Caption="Processing, please wait..." />
+                          </Action>
+                        </EventHandler>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowDeptStatus">
+                      <Column ID="colDeptStatus" Width="160" WidthScale="px">
+                        <Label Caption="Dept Status:" />
+                      </Column>
+                      <Column ID="colDepStatus" Width="160" WidthScale="px">
+                        <InputSelectList ID="deptStatus" OptionValueColumn="StatusValue" OptionCaptionColumn="StatusName" DefaultValue="@Request.deptStatus~">
+                          <DataLayer Type="Static" ID="dlDeptStatus">
+                            <StaticDataRow StatusName="Active" StatusValue="1" />
+                            <StaticDataRow StatusName="Inactive" StatusValue="0" />
+                            <StaticDataRow StatusName="&lt;ALL&gt;" StatusValue="-1" />
+                          </DataLayer>
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="DepartmentID" ID="actRefreshDepartments" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                  <Remark>
+                    <Row ID="rowLocation">
+                      <Column ID="colLocation" Width="160" WidthScale="px">
+                        <Label Caption="Location: " />
+                      </Column>
+                      <Column ID="colLocationID" Width="160" WidthScale="px">
+                        <InputSelectList ID="LocationID" OptionCaptionColumn="Location" OptionValueColumn="LocationID" DefaultValue="@Request.LocationID~">
+                          <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankDropDownLocationGet_sp" ConnectionID="connP3BIG-CallCenterReporting" />
+                          <EventHandler DhtmlEvent="onchange">
+                            <Action Type="RefreshElement" ElementID="MgrID,SupID" ID="actRefreshPerson" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Action>
+                          </EventHandler>
+                        </InputSelectList>
+                      </Column>
+                    </Row>
+                  </Remark>
+                </Rows>
+              </Column>
+              <Remark>
+                <Column ID="colRight" Width="215" WidthScale="px" IdeDisplayStatus="Collapsed">
+                  <Rows Width="215" WidthScale="px">
+                    <Row>
+                      <Column ID="col1" Width="100" WidthScale="px">
+                        <Rows>
+                          <Row>
+                            <Column ID="colBPtoDate" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP1~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colPriorBP" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP2~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colPDPtoDate" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP7~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colPriorPDP" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP8~" />
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Column ID="col2" Width="90" WidthScale="px">
+                        <Rows>
+                          <Row>
+                            <Column ID="colMTD" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP3~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colLastMonth" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP4~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colWTD" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP5~" />
+                            </Column>
+                          </Row>
+                          <Row>
+                            <Column ID="colLastWk" Width="90" WidthScale="px">
+                              <IncludeHtml Html="@Local.INP6~" />
+                            </Column>
+                          </Row>
+                        </Rows>
+                      </Column>
+                      <Remark>
+                        <Column ID="col3" Width="75" WidthScale="px">
+                          <Rows>
+                            <Row>
+                              <Column ID="colYesterday" Width="90" WidthScale="px">
+                                <LineBreak />
+                              </Column>
+                            </Row>
+                            <Row>
+                              <Column ID="colYesterday" Width="90" WidthScale="px">
+                                <IncludeHtml Html="@Local.INP9~" />
+                              </Column>
+                            </Row>
+                            <Row>
+                              <Column ID="colToday" Width="90" WidthScale="px" IdeDisplayStatus="Collapsed">
+                                <IncludeHtml Html="@Local.INP10~" />
+                              </Column>
+                            </Row>
+                            <Row IdeDisplayStatus="Collapsed">
+                              <Column ID="colYesterday" Width="90" WidthScale="px">
+                                <LineBreak />
+                              </Column>
+                            </Row>
+                          </Rows>
+                        </Column>
+                      </Remark>
+                    </Row>
+                  </Rows>
+                </Column>
+              </Remark>
+            </Row>
+            <Row ID="rowSubmit">
+              <Column ID="colSubmit" ColSpan="5" RowSpan="1">
+                <Button ID="Submit" Caption="Submit">
+                  <Action Type="Process" ID="LogFirstVisit" Process="LogFirstVisit" TaskID="LogFirstVisit">
+                    <LinkParams ReportName="@Request.rdReport~" EventType="First Visit" EventDate="@Function.DateTime~" rptStart="@Request.rptStart~" rptEnd="@Request.rptEnd~" DepartmentID="@Request.DepartmentID~" deptStatus="@Request.deptStatus~" LocationID="@Request.LocationID~" MgrID="@Request.MgrID~" SupID="@Request.SupID~" RoleValue="@Request.RoleValue~" login_name="@Function.UserName~" />
+                  </Action>
+                  <EventHandler DhtmlEvent="onclick">
+                    <Action Type="Javascript" Javascript="validateForm()" ID="actValidate" />
+                  </EventHandler>
+                </Button>
+              </Column>
+            </Row>
+          </Rows>
+        </Column>
+        <Column ID="colSourceCodeFind" Width="500" WidthScale="px">
+          <Rows ID="rowDropDowns" Class="gdDefaultDropDownBground" Caption="OR Select Source Codes Using The Following DropDowns">
+            <Row ID="rowStartDT" IdeDisplayStatus="Collapsed">
+              <Column>
+                <Label Caption="Start Date:" />
+              </Column>
+              <Column>
+                <InputDate ID="rptSCFindStartDate" />
+              </Column>
+            </Row>
+            <Row ID="rowEndDT" IdeDisplayStatus="Collapsed">
+              <Column>
+                <Label Caption="End Date:" />
+              </Column>
+              <Column>
+                <InputDate ID="rptSCFindEndDate" />
+              </Column>
+            </Row>
+            <Row ID="rowCollateral">
+              <Column>
+                <Label Caption="Collateral Type" />
+              </Column>
+              <Column>
+                <InputSelectList ID="rptCollateralType" OptionCaptionColumn="collateralType" OptionValueColumn="collateralType">
+                  <DataLayer Type="SQL" Source="SELECT  'BounceBack' AS collateralType UNION ALL SELECT 'Mass Mailer' UNION ALL SELECT 'Outbound Call' UNION ALL SELECT 'Inbound Call' " ConnectionID="connM1BIG-BIGReporting" />
+                </InputSelectList>
+              </Column>
+            </Row>
+            <Row ID="rowCommunication">
+              <Column>
+                <Label Caption="Communication ID" />
+              </Column>
+              <Column>
+                <InputSelectList ID="rptCommunicationID" OptionCaptionColumn="communicationID" OptionValueColumn="communicationID">
+                  <DataLayer Type="SQL" Source="SELECT  1234 AS communicationID UNION ALL SELECT 3456 UNION ALL SELECT 4677 UNION ALL SELECT 8790 UNION ALL SELECT 5678" ConnectionID="connM1BIG-BIGReporting" />
+                </InputSelectList>
+              </Column>
+            </Row>
+            <Row ID="rowStep">
+              <Column>
+                <Label Caption="Step ID" />
+              </Column>
+              <Column>
+                <InputSelectList ID="rptStepID" OptionCaptionColumn="step_id" OptionValueColumn="step_id">
+                  <DataLayer Type="SQL" Source="SELECT  'Day5' AS step_id UNION ALL SELECT 'Day10'  UNION ALL SELECT 'Day15'  UNION ALL SELECT 'Day20'  UNION ALL SELECT 'Day30' " ConnectionID="connM1BIG-BIGReporting" />
+                </InputSelectList>
+              </Column>
+            </Row>
+            <Row ID="rowSubmit">
+              <Column ID="colSubmit" ColSpan="5" RowSpan="1">
+                <Button ID="SubmitSourceCodeFind" Caption="Submit">
+                  <EventHandler DhtmlEvent="onclick">
+                    <Action Type="Javascript" Javascript="validateForm()" ID="actValidate" />
+                  </EventHandler>
+                </Button>
+              </Column>
+            </Row>
+          </Rows>
+        </Column>
+        <Remark>
+          <Column ID="colLegend" IdeDisplayStatus="Collapsed">
+            <Rows Class="gdDefaultDropDownBgroundWhite">
+              <Row>
+                <Column>
+                  <Label Caption="Legend:  Value Cell &amp; Trend Arrows " Class="gdColumnCellTitle17" />
+                  <LineBreak />
+                </Column>
+              </Row>
+              <Row ID="rowLegend">
+                <Column Width="275" WidthScale="px" ID="colLeft">
+                  <Rows ID="rowsHeader">
+                    <Row ID="rowGreenCell" IdeDisplayStatus="Collapsed">
+                      <Column ID="colGreen" Width="30" WidthScale="px">
+                        <Image ID="imgGreenCell" Caption="GreenCell.png" />
+                      </Column>
+                      <Column Width="250" WidthScale="px">
+                        <Label Caption="Ranked in top 20% vs. others in Dept." />
+                      </Column>
+                    </Row>
+                    <Row ID="rowYellowCell" IdeDisplayStatus="Collapsed">
+                      <Column ID="colYellow" Width="30" WidthScale="px">
+                        <Image ID="imgYellowCell" Caption="YellowCell.png" />
+                      </Column>
+                      <Column Width="250" WidthScale="px">
+                        <Label Caption="Ranked between top/bottom 20% in Dept." />
+                      </Column>
+                    </Row>
+                    <Row ID="rowRedCell" IdeDisplayStatus="Collapsed">
+                      <Column ID="colRed" Width="30" WidthScale="px">
+                        <Image ID="imgRedCell" Caption="RedCell.png" />
+                      </Column>
+                      <Column Width="250" WidthScale="px">
+                        <Label Caption="Ranked in bottom 20% vs. others in Dept." />
+                      </Column>
+                    </Row>
+                    <Row ID="rowGreenArrow">
+                      <Column ID="colGreen" Width="30" WidthScale="px">
+                        <Image ID="imgGreenArrow" Caption="c3dash.uparrow15x15.png" />
+                      </Column>
+                      <Column Width="250" WidthScale="px">
+                        <Label Caption="Increased 1% vs. prior period." Class="gdColumnCellText" />
+                      </Column>
+                    </Row>
+                    <Row ID="rowYellowArrow">
+                      <Column ID="colYellow" Width="30" WidthScale="px">
+                        <Image ID="imgYellowArrow" Caption="c3dash.sidearrow15x15.png" />
+                      </Column>
+                      <Column Width="250" WidthScale="px">
+                        <Label Caption="No increase/decrease vs. prior period." Class="gdColumnCellText" />
+                      </Column>
+                    </Row>
+                    <Row ID="rowRedArrow">
+                      <Column ID="colRed" Width="30" WidthScale="px">
+                        <Image ID="imgRedArrow" Caption="c3dash.downarrow15x15.png" />
+                      </Column>
+                      <Column Width="250" WidthScale="px">
+                        <Label Caption="Increased 1% vs. prior period." Class="gdColumnCellText" />
+                      </Column>
+                    </Row>
+                  </Rows>
+                </Column>
+              </Row>
+            </Rows>
+          </Column>
+        </Remark>
+      </Row>
+    </Rows>
+    <Remark>
+      <Rows Width="100" WidthScale="%" Class="gdDefaultRowBground" CellSpacing="10px" IdeDisplayStatus="Collapsed">
+        <Row>
+          <Column>
+            <Division ID="divTables" Condition="@Request.DepartmentID~ &gt; 0">
+              <Rows Class="gdDefaultRowBground">
+                <Row ID="rowOne">
+                  <Column ID="colOne" Class="gdColumnCell">
+                    <CrosstabTable ID="ctMetrics" Class="gdMetricTable" HideWhenZeroRows="True" ColumnHeaderClass="gdReportHeaderSecondaryBground">
+                      <DataLayer Type="SP" Command="CallCenterReporting.dbo.rptLogiC3RankMetricsGet_TEST" ConnectionID="connP3BIG-CallCenterReporting" ID="dlMetrics">
+                        <DataLayerLink ID="rptMetrics" />
+                        <CrosstabFilter CrosstabLabelColumn="DisplayName" CrosstabValueColumn="MetricValue" CrosstabValueFunction="Any" CrosstabColumn="MetricName">
+                          <ExtraCrosstabLabelColumn CrosstabLabelColumn="OverallDisplayRank" ID="OverallDisplayRank" />
+                          <ExtraCrosstabLabelColumn CrosstabLabelColumn="OverallRank" ID="OverallRank" />
+                          <ExtraCrosstabLabelColumn CrosstabLabelColumn="OverallRankDifference" ID="OverallRankDifference" />
+                          <ExtraCrosstabLabelColumn CrosstabLabelColumn="OverallRankArrow" ID="OverallRankArrow" />
+                          <ExtraCrosstabValueColumn CrosstabValueColumn="MetricArrow" ID="MetricArrow" CrosstabValueFunction="Any" />
+                          <ExtraCrosstabValueColumn CrosstabValueColumn="MetricDifference" ID="MetricDifference" CrosstabValueFunction="Any" />
+                          <ExtraCrosstabValueColumn CrosstabValueColumn="MetricFormat" ID="MetricFormat" CrosstabValueFunction="Any" />
+                          <ExtraCrosstabValueColumn CrosstabValueColumn="MetricQuintileClass" ID="MetricQuintileClass" CrosstabValueFunction="Any" />
+                          <ExtraCrosstabValueColumn ID="DisplayRank" CrosstabValueColumn="DisplayRank" CrosstabValueFunction="Any" />
+                          <ExtraCrosstabLabelColumn CrosstabLabelColumn="ID" ID="ID" />
+                          <ExtraCrosstabLabelColumn CrosstabLabelColumn="SupID" ID="SupID" />
+                          <ExtraCrosstabLabelColumn CrosstabLabelColumn="DeptID" ID="DeptID" />
+                          <ExtraCrosstabLabelColumn CrosstabLabelColumn="RepType" ID="RepType" />
+                        </CrosstabFilter>
+                        <SPParameters>
+                          <SPParameter SPParamDirection="Input" ID="@rptStart" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptStart~" />
+                          <SPParameter SPParamDirection="Input" ID="@rptEnd" SPParamSize="7" SPParamType="dt-7" Value="@Request.rptEnd~" />
+                          <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@DepartmentID" SPParamDirection="Input" Value="@Request.DepartmentID~" />
+                          <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@LocationID" SPParamDirection="Input" Value="@Request.LocationID~" />
+                          <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@MgrID" SPParamDirection="Input" Value="@Request.MgrID~" />
+                          <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@SupID" SPParamDirection="Input" Value="@Request.SupID~" />
+                          <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepID" SPParamDirection="Input" Value="@Request.RepID~" />
+                          <SPParameter SPParamType="dt-3" SPParamSize="0" ID="@RepType" SPParamDirection="Input" Value="@Request.RoleValue~" />
+                        </SPParameters>
+                      </DataLayer>
+                      <HeaderRow HeaderPosition="Top" ID="MetricHeaderRow" Class="gdReportHeaderPrimaryBground">
+                        <Column ID="colSup" Condition="@Request.RoleValue~ = 3" ColSpan="2" RowSpan="2" Width="170" WidthScale="px">
+                          <Label Caption="Supervisor">
+                            <Action Type="Link">
+                              <Target Type="Link" Link="javascript:SubmitSort('rdPage.aspx?rdRequestForwarding=Form&amp;rdReport=C3Dash.PerformanceRank&amp;rdPaging=&amp;rdShowModes=&amp;rdDataCache=@Request.rdDataCache~&amp;rdSort=ctMetrics~DisplayName~~~&amp;ctMetrics-PageNr=0','','','')" ID="actSort" />
+                            </Action>
+                          </Label>
+                          <Label />
+                        </Column>
+                        <Column ID="colRep" ColSpan="2" Condition="@Request.RoleValue~ = 1" RowSpan="2" Width="100" WidthScale="px">
+                          <Label Caption="Representative*">
+                            <Action Type="Link">
+                              <Target Type="Link" Link="javascript:SubmitSort('rdPage.aspx?rdRequestForwarding=Form&amp;rdReport=C3Dash.PerformanceRank&amp;rdPaging=&amp;rdShowModes=&amp;rdDataCache=@Request.rdDataCache~&amp;rdSort=ctMetrics~DisplayName~~~&amp;ctMetrics-PageNr=0','','','')" ID="actSort" />
+                            </Action>
+                          </Label>
+                        </Column>
+                        <Column ID="colOverallRankSup" RowSpan="2" Condition="@Request.RoleValue~ = 3" Width="85" WidthScale="px">
+                          <Label Caption="Overall Rank">
+                            <Action Type="Link">
+                              <Target Type="Link" Link="javascript:SubmitSort('rdPage.aspx?rdRequestForwarding=Form&amp;rdReport=C3Dash.PerformanceRank&amp;rdPaging=&amp;rdShowModes=&amp;rdDataCache=@Request.rdDataCache~&amp;rdSort=ctMetrics~OverallRank~Number~Descending~&amp;ctMetrics-PageNr=0','','','')" ID="actSort" />
+                            </Action>
+                          </Label>
+                        </Column>
+                        <Column ID="colOverallRankRep" RowSpan="2" Condition="@Request.RoleValue~ = 1">
+                          <Label Caption="Overall Rank">
+                            <Action Type="Link">
+                              <Target Type="Link" Link="javascript:SubmitSort('rdPage.aspx?rdRequestForwarding=Form&amp;rdReport=C3Dash.PerformanceRank&amp;rdPaging=&amp;rdShowModes=&amp;rdDataCache=@Request.rdDataCache~&amp;rdSort=ctMetrics~OverallRank~Number~Descending~&amp;ctMetrics-PageNr=0','','','')" ID="actSort" />
+                            </Action>
+                          </Label>
+                        </Column>
+                        <CrosstabTableHeaderColumn ID="ctHeader" ColSpan="2">
+                          <Label Caption="@Data.rdCrosstabColumn~ " />
+                        </CrosstabTableHeaderColumn>
+                      </HeaderRow>
+                      <CrosstabTableLabelColumn ID="colsNameSup" Condition="@Request.RoleValue~ = 3" Header="None" Class="gdTableColumnName,none">
+                        <Label Caption="@Data.DisplayName~">
+                          <ConditionalClass Class="ThemeBold" Condition="(@Data.ID~ == @Request.ActiveUser~)" />
+                          <Action Type="Report" ID="actReport">
+                            <LinkParams SupID="@Data.ID~" DepartmentID="@Request.DepartmentID~" LocationID="@Request.LocationID~" MgrID="@Request.MgrID~" RepID="@Request.RepID~" RepType="@Data.RepType~" RoleValue="1" />
+                            <Target Type="Report" RequestForwarding="True" ID="tgtReport" Report="C3Dash.PerformanceRank">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Target>
+                          </Action>
+                        </Label>
+                      </CrosstabTableLabelColumn>
+                      <CrosstabTableLabelColumn ID="colsNameRep" Condition="@Request.RoleValue~ = 1" Header="None" Class="gdTableColumnName,none" IdeDisplayStatus="Collapsed">
+                        <Label Caption="@Data.DisplayName~">
+                          <ConditionalClass Class="ThemeBold" Condition="(@Data.ID~ == @Request.ActiveUser~)" />
+                        </Label>
+                      </CrosstabTableLabelColumn>
+                      <CrosstabTableLabelColumn ID="colScoreCard" Header="None" IdeDisplayStatus="Collapsed">
+                        <Label Class="ScoreCardImage">
+                          <Action Type="Report" ID="actRepScoreCard">
+                            <Target Type="Report" ID="RepScoreCard" Report="C3Dash.RepScoreCard">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Target>
+                            <LinkParams rptEnd="@Request.rptEnd~" RepID="@Data.ID~" DepartmentID="@Data.DeptID~" RepType="@Data.RepType~" MgrName="@Data.DisplayName~" OverallDisplayRank="@Data.OverallDisplayRank~" rptStart="@Request.rptStart~" />
+                          </Action>
+                        </Label>
+                      </CrosstabTableLabelColumn>
+                      <CrosstabTableLabelColumn ID="colOverallRank" Class="ThemeAlignRight" Width="60" Header="None" IdeDisplayStatus="Collapsed">
+                        <Label Caption="@Data.OverallDisplayRank~">
+                          <ConditionalClass Class="ThemeBold" Condition="(@Data.ID~ == @Request.ActiveUser~)" />
+                        </Label>
+                        <Label Tooltip="@Data.OverallRankDifference~" Class="@Data.OverallRankArrow~" />
+                      </CrosstabTableLabelColumn>
+                      <CrosstabTableValueColumns ID="colMetricValue" Header="Value" Width="60" Class="ThemeAlignRight,@Data.rdCrosstabValue-MetricQuintileClass~" IdeDisplayStatus="Collapsed">
+                        <Label Caption="@Data.rdCrosstabValue~" Format="@Data.rdCrosstabValue-MetricFormat~">
+                          <ConditionalClass Class="ThemeBold" Condition="(@Data.ID~ == @Request.ActiveUser~)" />
+                          <Action Type="ShowElement" ElementID="pnlMetricModal" ID="actShowData" />
+                        </Label>
+                        <PopupPanel ID="pnlMetricModal" ShowOnPageLoad="False" PopupModal="True" HideCloseX="False" Draggable="True" Caption="@Data.rdCrosstabColumn~" PopupPanelLocation="Mouse">
+                          <IncludeFrame ID="srMetricModal" Class="ThemeAlignCenter" SubReportMode="IncludeFrame">
+                            <Target Type="IncludeFrameReport" ID="tgtPerformanceMetricModal" Report="C3Dash.PerformanceRankModal" LinkDataLayers="True" RequestForwarding="True">
+                              <WaitPage Caption="Processing, please wait..." />
+                            </Target>
+                            <LinkParams rptEnd="@Request.rptEnd~" RepID="@Data.ID~" DepartmentID="@Data.DeptID~" ParentMetric="@Data.rdCrosstabColumn~ " rptStart="@Request.rptStart~" RepType="@Data.RepType~" />
+                          </IncludeFrame>
+                        </PopupPanel>
+                        <Label Tooltip="@Data.rdCrosstabValue-MetricDifference~" Class="@Data.rdCrosstabValue-MetricArrow~" />
+                        <CrosstabValueColumnSort FirstSortSequence="Descending" />
+                      </CrosstabTableValueColumns>
+                      <CrosstabTableValueColumns ID="colDisplayRank" Header="Rank" Width="60" Class="ThemeAlignRight">
+                        <Label Caption="@Data.rdCrosstabValue-DisplayRank~">
+                          <ConditionalClass Class="ThemeBold" Condition="(@Data.ID~ == @Request.ActiveUser~)" />
+                        </Label>
+                        <CrosstabValueColumnSort FirstSortSequence="Descending" />
+                      </CrosstabTableValueColumns>
+                      <InteractivePaging PageRowCount="100" CaptionType="Image" HideWhenOnePage="True" ShowPageNumber="Numbered" />
+                    </CrosstabTable>
+                  </Column>
+                </Row>
+                <Row ID="RowTwo" IdeDisplayStatus="Collapsed">
+                  <Column ID="colOne" IdeDisplayStatus="Collapsed">
+                    <Division Condition="@Request.RoleValue~ = 1">
+                      <Label Caption="* Table displays representatives assigned to the sup as of @Request.rptEnd~" />
+                      <LineBreak />
+                      <Label Caption="** Rep reported to mutliple supervisors in time frame, metrics reflect all days regardless of selected supervisor" />
+                    </Division>
+                  </Column>
+                </Row>
+              </Rows>
+            </Division>
+          </Column>
+        </Row>
+      </Rows>
+    </Remark>
+    <Division>
+      <Remark>
+        <DimensionGrid ID="dimGrid">
+          <DimensionGridFilterPanel />
+          <DimensionGridColumnsPanel />
+          <Remark>
+            <XolapCube ID="XolapCube1">
+              <DataLayer Type="SQL" ID="SQLDataLayer" ConnectionID="connM1BIG-BIGReporting" Source="SELECT			'2013-11-01' AS order_date, c.name				AS channel_id&#xD;&#xA;				, r.source_code		AS source_code&#xD;&#xA;				, r.adjusted_price * 0.01	AS gcr&#xD;&#xA;				, r.order_id			as order_id&#xD;&#xA;FROM			bigreporting.dbo.rptorderdetail r (NOLOCK)&#xD;&#xA;JOIN			godaddy.dbo.isc_channel c (NOLOCK)&#xD;&#xA;ON				r.channel_Id = c.channel_id&#xD;&#xA;AND				r.order_date &gt;= '2013-11-01'&#xD;&#xA;AND				r.order_date &lt;  '2013-11-02'&#xD;&#xA;AND				(r.source_code LIKE '%1964%' OR r.source_code IN ('???', '?SR'))&#xD;&#xA;">
+                <TimePeriodColumn DataColumn="order_date" TimePeriod="Date" ID="tpcOrderDate" />
+              </DataLayer>
+              <XolapDimensions>
+                <XolapDimension ID="dimsource_code" DimensionName="[source_code]">
+                  <XolapLevel ID="lvlsourcecode" DataColumn="source_code" LevelName="source code" />
+                  <XolapLevel ID="lvlchannelid" DataColumn="channel_id" LevelName="channel id" />
+                </XolapDimension>
+              </XolapDimensions>
+              <XolapMeasures>
+                <XolapMeasure ID="measGCR" MeasureName="GCR" DataColumn="gcr" Function="Sum" />
+              </XolapMeasures>
+            </XolapCube>
+          </Remark>
+          <DimensionGridTablePanel />
+        </DimensionGrid>
+      </Remark>
+    </Division>
+    <CrosstabTable ID="ctChannelID">
+      <DataLayer Type="SQL" ConnectionID="connM1BIG-BIGReporting" Source="SELECT Channel_ID&#xD;&#xA;, source_code&#xD;&#xA;, COUNT(DISTINCT shopper_id) AS Shopper_Ct&#xD;&#xA;, COUNT(DISTINCT order_id) as Num_Orders&#xD;&#xA;, SUM(Adjusted_Price * 0.01) AS GCR&#xD;&#xA;, SUM(CASE WHEN is_renewal = 0 THEN Adjusted_Price*0.01 END) AS New_GCR&#xD;&#xA;&#xD;&#xA;FROM Bigreporting.dbo.rptorderdetail (NOLOCK)&#xD;&#xA;WHERE order_date &gt;= '2013-12-01'&#xD;&#xA;GROUP BY Channel_ID, source_code" ID="dlChannelID">
+        <CrosstabFilter CrosstabLabelColumn="Source_code" CrosstabColumn="Channel_ID" CrosstabValueColumn="GCR" CrosstabValueFunction="SUM" />
+      </DataLayer>
+      <CrosstabTableLabelColumn ID="colChannelID" Header="@Data.rdCrosstabColumn~">
+        <Label ID="lblCrosstabColumn" Caption="@Data.rdCrosstabColumn~" />
+        <DataColumnSummary Function="SUM" ID="DataColumnSummary" DataColumn="rdCrosstabColumn" />
+      </CrosstabTableLabelColumn>
+      <CrosstabTableValueColumns ID="colsData" Header="@Data.rdCrosstabValue~">
+        <Label ID="lblCrosstabValue" Caption="@Data.rdCrosstabValue~" />
+      </CrosstabTableValueColumns>
+    </CrosstabTable>
+  </Body>
+  <ReportFooter>
+    <Division>
+      <Rows ID="rowsFooter" Width="100" WidthScale="%">
+        <Row ID="rowFooter">
+          <Column Class="ThemeAlignLeft" ID="columnFooterText">
+            <Label Caption="Copyright © 2013 Go Daddy Operating Company, LLC. All rights reserved." Class="gdTextNormalWhite" ID="lblFooterText" />
+          </Column>
+        </Row>
+      </Rows>
+    </Division>
+    <IncludeScript IncludedScript="function disable() {&#xD;&#xA;&#xD;&#xA;	var s = document.getElementById('SupID');&#xD;&#xA;	var SupID = s.options[s.selectedIndex].value;&#xD;&#xA;	&#xD;&#xA;	if (SupID == -1) {&#xD;&#xA;			document.getElementById(&quot;RoleValue&quot;).selectedIndex=0;&#xD;&#xA;			return true;&#xD;&#xA;	}&#xD;&#xA;	else {&#xD;&#xA;			document.getElementById(&quot;RoleValue&quot;).selectedIndex=1;&#xD;&#xA;			return true;&#xD;&#xA;	}&#xD;&#xA;&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;function validateForm() {&#xD;&#xA;&#xD;&#xA;	var DeptID = document.getElementById('DepartmentID').value;&#xD;&#xA;&#xD;&#xA;	if (DeptID == -1)  {&#xD;&#xA;	alert('Department must be selected.');&#xD;&#xA;	return false;&#xD;&#xA;	}&#xD;&#xA;	else {&#xD;&#xA;	return true;&#xD;&#xA;	}&#xD;&#xA;}&#xD;&#xA;&#xD;&#xA;function SetDates(Date1,Date2) {&#xD;&#xA;&#xD;&#xA;	document.getElementById('rptStart').value = Date1; &#xD;&#xA;	document.getElementById('rptEnd').value = Date2; &#xD;&#xA;&#xD;&#xA;}" ID="functions" />
+  </ReportFooter>
+  <ideTestParams deptStatus="" rptStart="" rptEnd="" DepartmentID="" LocationID="" MgrID="" SupID="" RepID="" ActiveUser="" RoleValue="" rdDataCache="" username="" />
+</Report>

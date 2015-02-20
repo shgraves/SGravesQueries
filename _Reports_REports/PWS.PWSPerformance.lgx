@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PWS.PWSPerformance" SavedBy="JOMAX\dezell" SavedAt="9/26/2014 9:02:28 AM" EngineVersion="11.0.43-SP27" SecurityReportRightID="LogiC3Sups" Caption="PWS Performance ">
+  <FormulaScriptFile ScriptFile="gdITJscript.js" ID="gdITJscript" />
+  <DefaultRequestParams inpStartDate="@Date.ThisQuarterStart~" inpEndDate="@Date.Today~" />
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader ShowModes="logic3sups">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderIT" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rheader" Class="gdReportHeader" Height="50px">
+      <Row Class="gdReportHeader">
+        <Column IdeDisplayStatus="Collapsed">
+          <Label Caption="PWS Performance" Class="gdReportHeaderNameIT" />
+        </Column>
+        <Column Class="ThemeAlignLeft" IdeDisplayStatus="Collapsed">
+          <Spaces Size="10" />
+          <InputDate ID="inpStartDate" Caption="Start Date:" CalendarLinkType="Image" Format="General Date" InputDateReformat="General Date" DefaultValue="@Request.inpStartDate~" />
+          <Spaces Size="10" />
+          <InputDate CalendarLinkType="Image" ID="inpEndDate" Caption="End Date:" Format="General Date" InputDateReformat="General Date" DefaultValue="@Request.inpEndDate~" />
+          <Spaces Size="25" />
+          <Button ID="btnSubmit" Caption="Submit">
+            <Action Type="Report" ID="actSubmitReport" Validate="True" IdeDisplayStatus="Collapsed">
+              <Target Type="Report" Report="PWS.PWSPerformance" ID="tgtPerformanceDetails" RequestForwarding="True" />
+            </Action>
+          </Button>
+          <Spaces Size="10" />
+          <Remark>
+            <Division IdeDisplayStatus="Collapsed">
+              <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+                <Action Type="NativeExcel" ID="excelExport">
+                  <Target Type="NativeExcel" RequestForwarding="True" KeepShowElements="True" ExportDataTableID="dtTouchesByGroup" />
+                </Action>
+              </Image>
+            </Division>
+          </Remark>
+        </Column>
+      </Row>
+    </Rows>
+    <LineBreak LineCount="3" />
+    <Rows Layout="Auto" CellSpacing="10px">
+      <Row>
+        <Column Class="gdColumnCellIT">
+          <DataTable SortArrows="True" ID="dtPerformanceOverview" HideWhenZeroRows="True" CellSpacing="10 px" Caption="Time To Deliver" CaptionClass="gdTableHeaderBoldIT" ColumnHeaderClass="gdTableHeaderITcenter">
+            <DataLayer Type="SP" ID="SPDataLayer" ConnectionID="connP3CSS-Quote" Command="wb.report_BonusTimeToCompletion_sp" IdeDisplayStatus="Collapsed">
+              <SPParameters>
+                <SPParameter ID="dtLo" Value="@Request.inpStartDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                <SPParameter ID="dtHi" Value="@Request.inpEndDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+              </SPParameters>
+              <CalculatedColumn Formula="switch(&quot;@Data.ProjectGrouping~&quot;) {&#xD;&#xA;    case &quot;M&quot;:&#xD;&#xA;        &quot;Misc.&quot;;&#xD;&#xA;        break;&#xD;&#xA;    case &quot;U&quot;:&#xD;&#xA;       &quot;Updates&quot;;&#xD;&#xA;        break;&#xD;&#xA;	case &quot;N&quot;:&#xD;&#xA;        &quot;New Builds&quot;;&#xD;&#xA;        break;&#xD;&#xA;    default:&#xD;&#xA;        &quot;Error&quot;;&#xD;&#xA;}" ID="calcGroupingName" />
+              <CalculatedColumn Formula="IIF(&quot;@Data.CalendarHours~&quot; != &quot;&quot;,((@Data.CalendarHours~) - (@Data.NonBusinessDays~ * 24)),&quot;&quot;)" ID="calcBonusTime" />
+              <DataLayerLink ID="dlPerfOverview" />
+              <GroupFilter GroupColumn="calcGroupingName" IdeDisplayStatus="Collapsed">
+                <GroupAggregateColumn AggregateColumn="ProjectID" AggregateFunction="Count" ID="gacRowCount" />
+                <GroupAggregateColumn AggregateColumn="CalendarHours" AggregateFunction="Average" ID="gacCalendarHoursAverage" />
+                <GroupAggregateColumn AggregateColumn="calcBonusTime" AggregateFunction="Average" ID="gacBonusTimeHoursAverage" />
+              </GroupFilter>
+              <CalculatedColumn ID="calcAvgCalTime" Formula="iif(&quot;@Data.ProjectGrouping~&quot; == &quot;M&quot;,&quot;n/a&quot;,convertSecondstoDH(convertHoursToSeconds(@Data.gacCalendarHoursAverage~)))" />
+              <CalculatedColumn ID="calcAvgBonusTime" Formula="iif(&quot;@Data.ProjectGrouping~&quot; == &quot;M&quot;,&quot;n/a&quot;,convertSecondstoDH(convertHoursToSeconds(@Data.gacBonusTimeHoursAverage~)))" />
+              <SortFilter SortColumn="ProjectGrouping" SortSequence="Descending" DataType="Text" />
+            </DataLayer>
+            <DataTableColumn ID="colGrouping" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.calcGroupingName~" Class="gdTableHeaderITlink" />
+              <Action Type="ShowElement" ElementID="mirPerDetails" ID="actShowData" Display="Toggle" />
+            </DataTableColumn>
+            <DataTableColumn ID="colCalendarTime" Header="Calendar" Class="gdTableHeaderITleft" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.calcAvgCalTime~" Class="ThemeAlignLeft" />
+            </DataTableColumn>
+            <DataTableColumn ID="colBonusTime" Header="Business Days" Class="gdTableHeaderITleft" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.calcAvgBonusTime~" Class="ThemeAlignLeft" />
+            </DataTableColumn>
+            <DataTableColumn ID="colRowCount" Header="Count" Class="gdTableHeaderITcenter" IdeDisplayStatus="Collapsed">
+              <Label Caption="@Data.gacRowCount~" />
+            </DataTableColumn>
+            <MoreInfoRow ShowModes="None" ID="mirPerDetails">
+              <HR />
+              <IncludeFrame ID="srPerformanceDetails" SubReportMode="IncludeFrame" FrameBorder="False">
+                <Target Type="IncludeFrameReport" Report="PWS.PWSPerformanceDetails" ID="targetPerformanceDetails" RequestForwarding="True" LinkDataLayers="True" />
+                <LinkParams projectGroup="@Data.ProjectGrouping~" />
+              </IncludeFrame>
+              <HR />
+            </MoreInfoRow>
+            <Remark>
+              <DataTableColumn ID="colgacCalendarHoursAverage" Header="gacCalendarHoursAverage" IdeDisplayStatus="Collapsed">
+                <Label ID="lblgacCalendarHoursAverage" Caption="@Data.gacCalendarHoursAverage~" />
+                <DataColumnSort DataColumn="gacCalendarHoursAverage" DataType="Number" />
+              </DataTableColumn>
+            </Remark>
+            <Remark>
+              <DataTableColumn ID="colgacBonusTimeHoursAverage" Header="gacBonusTimeHoursAverage" IdeDisplayStatus="Collapsed">
+                <Label ID="lblgacBonusTimeHoursAverage" Caption="@Data.gacBonusTimeHoursAverage~" />
+                <DataColumnSort DataColumn="gacBonusTimeHoursAverage" DataType="Number" />
+              </DataTableColumn>
+            </Remark>
+          </DataTable>
+        </Column>
+      </Row>
+      <Row>
+        <Column Class="gdColumnCellIT" ID="colSurvyScores">
+          <CrosstabTable ID="ctSurveyScoring" CellSpacing="10px" Caption="CSS" CaptionClass="gdTableHeaderBoldIT" HideWhenZeroRows="True" SortArrows="True" ColumnHeaderClass="gdTableHeaderITcenter">
+            <DataLayer Type="SP" ConnectionID="connGoDaddySurvey" Command="dbo.report_css_BonusScoring_sp">
+              <SPParameters>
+                <SPParameter ID="dtLo" Value="@Request.inpStartDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+                <SPParameter ID="dtHi" Value="@Request.inpEndDate~" SPParamDirection="Input" SPParamSize="0" SPParamType="dt-7" />
+              </SPParameters>
+              <DataLayerLink ID="dllSurveyData" />
+              <CalculatedColumn ID="calcCSSGrouping" Formula="switch(&quot;@Data.SENU~&quot;) {&#xD;&#xA;    case &quot;ExpNew&quot;:&#xD;&#xA;	case &quot;ExpLog&quot;:&#xD;&#xA;	case &quot;ExpUpd&quot;:&#xD;&#xA;        &quot;Experience&quot;;&#xD;&#xA;        break;&#xD;&#xA;    case &quot;SatNew&quot;:&#xD;&#xA;	case &quot;SatUpd&quot;:&#xD;&#xA;	case &quot;SatLog&quot;:&#xD;&#xA;        &quot;Satisfaction&quot;;&#xD;&#xA;        break;&#xD;&#xA;    default:&#xD;&#xA;        &quot;Error&quot;;&#xD;&#xA;}" />
+              <CalculatedColumn ID="calcHeaderGroupings" Formula="switch(&quot;@Data.SENU~&quot;) {&#xD;&#xA;    case &quot;ExpNew&quot;:&#xD;&#xA;    case &quot;SatNew&quot;:&#xD;&#xA;        &quot;New Builds&quot;;&#xD;&#xA;        break;&#xD;&#xA;	case &quot;SatUpd&quot;:&#xD;&#xA;	case &quot;ExpUpd&quot;:&#xD;&#xA;		&quot;Updates&quot;;&#xD;&#xA;		break;&#xD;&#xA;	case &quot;SatLog&quot;:&#xD;&#xA;	case &quot;ExpLog&quot;:&#xD;&#xA;		&quot;Logos&quot;;&#xD;&#xA;		break;&#xD;&#xA;    default:&#xD;&#xA;        &quot;Error&quot;;&#xD;&#xA;}" />
+              <Remark>
+                <CalculatedColumn Formula="iif(&quot;@Data.SENUScore~&quot; == &quot;&quot;,&quot;n/a&quot;,&quot;@Data.SENUScore~&quot;)" ID="calcSenuScore" />
+              </Remark>
+              <SortFilter SortColumn="calcCSSGrouping" DataType="Text" SortSequence="Descending" />
+              <CrosstabFilter CrosstabColumn="calcHeaderGroupings" CrosstabLabelColumn="calcCSSGrouping" CrosstabValueColumn="SENUScore" CrosstabValueFunction="Any" IdeDisplayStatus="Collapsed">
+                <ExtraCrosstabLabelColumn CrosstabLabelColumn="SEScore" ID="extraSeScore" />
+              </CrosstabFilter>
+            </DataLayer>
+            <CrosstabTableLabelColumn ID="ctLabel">
+              <Label Caption="@Data.calcCSSGrouping~" Class="gdTableHeaderITlink">
+                <Action Type="ShowElement" ElementID="mirCSSDetails" ID="seMirDetails" />
+              </Label>
+            </CrosstabTableLabelColumn>
+            <CrosstabTableValueColumns ID="ctSenuValues" Header="@Data.rdCrosstabColumn~" Class="gdTableHeaderITcenter">
+              <Label Caption="@Data.rdCrosstabValue~" Class="ThemeAlignCenter" />
+            </CrosstabTableValueColumns>
+            <CrosstabTableLabelColumn ID="ctSEScore" Header="Combined" Class="gdTableHeaderITcenter">
+              <Label ID="lblSEScore" Caption="@Data.extraSeScore~" Format="###,###,##0.0" Class="ThemeAlignCenter" />
+            </CrosstabTableLabelColumn>
+            <MoreInfoRow ShowModes="None" ID="mirCSSDetails">
+              <HR />
+              <IncludeFrame SubReportMode="IncludeFrame" ID="subRepPWSDetails" FrameBorder="False">
+                <Target Type="IncludeFrameReport" Report="PWS.PWSPeformanceCSSDetails" ID="tgtPWSPerformanceDetails" LinkDataLayers="True" ReportShowModes="@Data.calcCSSGrouping~" />
+                <LinkParams dtHi="@Request.dtHi~" DtLo="@Request.dtLo~" />
+              </IncludeFrame>
+              <HR />
+            </MoreInfoRow>
+          </CrosstabTable>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter />
+  <ideTestParams dtLo="" dtHi="" inpStartDate="" inpEndDate="" />
+</Report>

@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Reports.Cubes.OrdersCubeViewer" SavedBy="JOMAX\bgaer" SavedAt="3/19/2013 3:28:10 PM" EngineVersion="10.2.424" SecurityReportRightID="BIGCubes-Orders">
+  <StyleSheet StyleSheet="ERHubTheme.css" ID="cssGD" />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeader" SharedElementID="sharedHeader" ID="seHeader" />
+  </ReportHeader>
+  <Body>
+    <Division>
+      <OlapGrid ID="olapOrdersGrid" BatchSelection="True" DrilldownAll="True" Caption="Orders Cube" LevelIndent="15" OlapCellColors="True" PickMemberProperties="True" SavedOlapGridFolder="@Function.AppPhysicalPath~\SavedOlapGrids">
+        <DataLayer Type="OlapMdx" ConnectionID="connOlapOrders" ID="dlOlapOrders">
+          <MdxQuery Cube="Orders" ID="mdxQueryOrders" NonEmpty="True" />
+        </DataLayer>
+      </OlapGrid>
+    </Division>
+    <Division ID="divSaveMenu" ShowModes="rdBrowser">
+      <LineBreak />
+      <Label Caption="Reset Cube View" ID="lblReset" Class="gdTextNormalWhiteLarger" IdeDisplayStatus="Collapsed">
+        <Action Type="Report" ID="actRestart">
+          <Target Type="Report" ID="tgtRestart" />
+          <LinkParams rdOgReset="True" />
+        </Action>
+      </Label>
+      <Spaces />
+      <Label Caption=" | " ID="lblDividerBar" Class="gdTextNormalWhiteLarger" />
+      <Spaces />
+      <Label Caption="Save Cube View" ID="lblSave" Class="gdTextNormalWhiteLarger">
+        <Action Type="Process" Process="procSaveOlapGridState" ConfirmMessage="Are you sure you want to save the OLAP Grid layout?" TaskID="tskSaveOrdersGrid" ID="actSave" />
+        <Remark>
+          <Action Type="Popup">
+            <PopupOption />
+          </Action>
+        </Remark>
+      </Label>
+      <Spaces />
+      <Label Caption=" | " ID="lblDividerBar" Class="gdTextNormalWhiteLarger" />
+      <Spaces />
+      <Label Caption="Restore Cube View" ID="lblRestore" Class="gdTextNormalWhiteLarger">
+        <Action Type="Report" ID="actRestore">
+          <Target Type="Report" ID="trgRestore" />
+          <LinkParams rdOgLoadSaved="@Cookie.OrdersGridFileName~" />
+        </Action>
+      </Label>
+      <LineBreak />
+      <LineBreak />
+    </Division>
+  </Body>
+  <ReportFooter>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="seFooter" />
+  </ReportFooter>
+  <ideTestParams />
+</Report>

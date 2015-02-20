@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Desktop-Telecom.MacComplianceDetails" SavedBy="JOMAX\dezell" SavedAt="10/23/2013 4:44:59 PM" EngineVersion="11.0.43" SecurityReportRightID="ENG-Desktop Engineering,BIG-Developer,RSDevelopers,logict,gdplasmauser">
+  <StyleSheet ID="cssGD" StyleSheet="ReportsStyles.css" />
+  <ReportHeader />
+  <Body>
+    <DataTable SortArrows="True" ID="DataTable1" CellSpacing="7px" AltRowClass="gdThemeAltRowNoPadding td" Layout="Fixed">
+      <DataLayer Type="SP" ID="dlComplianceDetails" ConnectionID="connSMDB" Command="patch.jamfReportGet_sp" IdeDisplayStatus="Collapsed">
+        <SPParameters />
+        <CalculatedColumn Formula="iif(&quot;@Request.complianceType~&quot; = &quot;Patch&quot;,&quot;@Data.Patch_Compliance_Group~&quot;,iif(&quot;@Request.complianceType~&quot; = &quot;AV&quot;, &quot;@Data.AV_Compliance_Group~&quot;,&quot;Error&quot;))" ID="calcComplianceType" />
+        <CompareFilter DataColumn="calcComplianceType" CompareType="=" CompareValue="@Request.complianceGroup~" />
+      </DataLayer>
+      <DataTableColumn ID="colComputer Name" Header="Computer Name" IdeDisplayStatus="Collapsed">
+        <Label ID="lblComputer Name" Caption="@Data.Computer Name~" />
+        <DataColumnSort DataColumn="Computer Name" DataType="Text" />
+      </DataTableColumn>
+      <DataTableColumn ID="colAvailable Updates" Header="Available Updates" Condition="&quot;@Request.complianceType~&quot; = &quot;Patch&quot;" IdeDisplayStatus="Collapsed">
+        <Label ID="lblAvailable Updates" Caption="@Data.Available Updates~" />
+        <DataColumnSort DataColumn="Available Updates" DataType="Number" />
+      </DataTableColumn>
+      <Note Note="The &quot;Is&quot; columns may be used for future validation or logic testing." />
+      <Remark>
+        <DataTableColumn ID="colIs_Updates_Compliant" Header="Is_Updates_Compliant" IdeDisplayStatus="Collapsed">
+          <Label ID="lblIs_Updates_Compliant" Caption="@Data.Is_Updates_Compliant~" />
+          <DataColumnSort DataColumn="Is_Updates_Compliant" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colIs_Off_Network" Header="Is_Off_Network" IdeDisplayStatus="Collapsed">
+          <Label ID="lblIs_Off_Network" Caption="@Data.Is_Off_Network~" />
+          <DataColumnSort DataColumn="Is_Off_Network" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colIs_Antivirus_Compliant" Header="Is_Antivirus_Compliant" IdeDisplayStatus="Collapsed">
+          <Label ID="lblIs_Antivirus_Compliant" Caption="@Data.Is_Antivirus_Compliant~" />
+          <DataColumnSort DataColumn="Is_Antivirus_Compliant" DataType="Number" />
+        </DataTableColumn>
+      </Remark>
+      <Note Note="Compliance Group columns can also be used in report validation." />
+      <Remark>
+        <DataTableColumn ID="colPatch_Compliance_Group" Header="Patch_Compliance_Group" IdeDisplayStatus="Collapsed">
+          <Label ID="lblPatch_Compliance_Group" Caption="@Data.Patch_Compliance_Group~" />
+          <DataColumnSort DataColumn="Patch_Compliance_Group" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colAV_Compliance_Group" Header="AV_Compliance_Group" IdeDisplayStatus="Collapsed">
+          <Label ID="lblAV_Compliance_Group" Caption="@Data.AV_Compliance_Group~" />
+          <DataColumnSort DataColumn="AV_Compliance_Group" />
+        </DataTableColumn>
+      </Remark>
+      <Remark>
+        <DataTableColumn ID="colHost Name" Header="Host Name" IdeDisplayStatus="Collapsed">
+          <Label ID="lblHost Name" Caption="@Data.Host Name~" />
+          <DataColumnSort DataColumn="Host Name" />
+        </DataTableColumn>
+      </Remark>
+      <DataTableColumn ID="colLast Contact" Header="Last Contact" IdeDisplayStatus="Collapsed">
+        <Label ID="lblLast Contact" Caption="@Data.Last Contact~" Format="Short Date" />
+        <DataColumnSort DataColumn="Last Contact" DataType="Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colNortonAntivirusDate" Header="Antivirus Date" IdeDisplayStatus="Collapsed" Condition="&quot;@Request.complianceType~&quot; = &quot;AV&quot;">
+        <Label ID="lblNorton AntiVirus Date" Caption="@Data.Norton AntiVirus Date~" Format="Short Date" />
+        <DataColumnSort DataColumn="Norton AntiVirus Date" />
+      </DataTableColumn>
+      <DataTableColumn ID="colOS" Header="OS" IdeDisplayStatus="Collapsed">
+        <Label ID="lblOS" Caption="@Data.OS~" />
+        <DataColumnSort DataColumn="OS" />
+      </DataTableColumn>
+      <DataTableColumn ID="colModel" Header="Model" IdeDisplayStatus="Collapsed">
+        <Label ID="lblModel" Caption="@Data.Model~" />
+        <DataColumnSort DataColumn="Model" />
+      </DataTableColumn>
+      <DataTableColumn ID="colIP" Header="IP">
+        <Label ID="lblIP" Caption="@Data.IP~" />
+        <DataColumnSort DataColumn="IP" />
+      </DataTableColumn>
+      <DataTableColumn ID="colLast User" Header="Last User" IdeDisplayStatus="Collapsed">
+        <Label ID="lblLast User" Caption="@Data.Last User~" />
+        <DataColumnSort DataColumn="Last User" />
+      </DataTableColumn>
+    </DataTable>
+  </Body>
+  <ReportFooter />
+  <ideTestParams complianceGroup="" complianceType="" />
+</Report>

@@ -1,0 +1,641 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="Dashboards.Productivity.Office365ProductDash" SavedBy="JOMAX\asham" SavedAt="4/16/2014 12:29:47 AM" EngineVersion="11.0.43">
+  <DefaultRequestParams ChartHeight="260" ChartWidth="450" LegendLeft="85" LegendTop="220" ShowSignupValues="False" LegendFontLongTitle="9" LegendLeftLongTitle="40" TableColWidth="32" />
+  <LocalData>
+    <DataLayer Type="Cached" CacheKey="Office365DashActivationFunnel" ExpirationTimeSpan="03:00">
+      <DataLayer Type="REST" ConnectionID="connBIDataApi" UrlPath="/r.xml?id=Office365_ActivationFunnel_Dashboard.r" ID="dlDataActivations1" />
+      <DataLayerLink ID="dllDataActivations" />
+    </DataLayer>
+    <DataLayer Type="Cached" CacheKey="Office365DashActivationFunnel_Channel" ExpirationTimeSpan="03:00">
+      <DataLayer Type="REST" ConnectionID="connBIDataApi" UrlPath="/r.xml?id=Office365_ActivationFunnelChannel_Dashboard.r" ID="dlDataActivations2" />
+      <Remark>
+        <DataLayer Type="XMLFile" XMLFile="C:\RTest\Office365Channel.xml" />
+      </Remark>
+      <DataLayerLink ID="dllDataActivationsChannel" />
+    </DataLayer>
+  </LocalData>
+  <StyleSheet />
+  <ReportHeader>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeader" ID="sharedHeaderElement" SharedElementID="sharedHeader" />
+  </ReportHeader>
+  <Body>
+    <Rows ID="rowHeader" IdeDisplayStatus="Collapsed">
+      <Row>
+        <Column>
+          <Division ID="divTitle" Class="rdAlternateTextColorWhite">
+            <IncludeHtml Html="&lt;h2&gt;Office 365 Product Dashboard&lt;/h2&gt;" />
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <Dashboard2 SaveFile="@Function.AppPhysicalPath~\Dashboard\Office365_@Function.UserName~.xml" SaveFileStarter="@Function.AppPhysicalPath~\Dashboard\Office365Default.xml" DashboardTabs="True" ID="dashOffice365Activations">
+      <Panel ID="pnl_Activation_Accounts" Caption="Activations by Weekly Cohort (Accounts) Last 30 Days" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divAccountsFunnel">
+            <Chart Type="XY" XYChartType="Bar" ChartDataColumn="NetPurchases" LineWidth="4" BorderLeft="55" BorderBottom="75" BorderColor="Black" ChartLabelColumn="Date" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ExtraBarOptions="SideBySide" Color="#28b8d5" LegendLabel="Net Purchases" YAxisTitle="Accounts">
+              <Note Note="dcNetPurchases" />
+              <Quicktip Description="@Chart.NetPurchases~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivations" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+              </DataLayer>
+              <DataScale />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="BeganProvisioning" ID="dcBeganProvisioning" Color="#e88622" LegendLabel="Began Provisioning">
+                <Quicktip Description="@Chart.BeganProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="CompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.CompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="MxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid" Color="#d45ce2">
+                <Quicktip Description="@Chart.MxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="LoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.LoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="10" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divAccountsFunnelDetail">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="psBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Previous Step">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.psBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivations" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="psCompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.psCompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psMxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid" Color="#d45ce2">
+                <Quicktip Description="@Chart.psMxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.psLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divAccountsFunnelDetail2">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="npBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Net Purchases">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.npBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivations" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="npLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.npLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnl_Activation_Shoppers" Caption="Activations by Weekly Cohort (Shoppers) Last 30 Days" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divShoppersFunnel">
+            <Chart Type="XY" XYChartType="Bar" ChartDataColumn="NetPurchases" LineWidth="4" BorderLeft="55" BorderBottom="75" BorderColor="Black" ChartLabelColumn="Date" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ExtraBarOptions="SideBySide" Color="#28b8d5" LegendLabel="Net Purchases" YAxisTitle="Shoppers">
+              <Note Note="dcNetPurchases" />
+              <Quicktip Description="@Chart.NetPurchases~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivations" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Shoppers" ID="cfActivationMeasure" />
+              </DataLayer>
+              <DataScale />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="BeganProvisioning" ID="dcBeganProvisioning" Color="#e88622" LegendLabel="Began Provisioning">
+                <Quicktip Description="@Chart.BeganProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="CompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.CompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="MxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid">
+                <Quicktip Description="@Chart.MxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="LoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.LoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="10" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divShoppersDetail">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="psBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Previous Step">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.psBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivations" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Shoppers" ID="cfActivationMeasure" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="psCompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.psCompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psMxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid" Color="#d45ce2">
+                <Quicktip Description="@Chart.psMxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.psLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divShoppersDetail2">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="npBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Net Purchases">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.npBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivations" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Shoppers" ID="cfActivationMeasure" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="npLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.npLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </PanelContent>
+      </Panel>
+      <Remark>
+        <Panel Caption="7-Day Logins by Weekly Cohort (Accounts) Last 30 Days" ID="pnl_ActiveUse_Accounts" IdeDisplayStatus="Collapsed">
+          <PanelContent>
+            <Division>
+              <Chart Type="XY" ID="chtRetentionActiveUse" XYChartType="Bar" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" YAxisTitle="% of Cohort" BorderColor="Black" ChartDataColumn="productRate" ChartLabelColumn="weekOf" LegendLabel="Product" BorderLeft="65" LineWidth="4" BorderBottom="75" ExtraBarOptions="SideBySide" ChartLabelColumnDataType="Date">
+                <Quicktip ID="qtProduct" Description="@Data.productRate~" />
+                <DataLayer Type="Cached" CacheKey="GDOBDashRetentionActiveUse" ExpirationTimeSpan="06:00" ID="dlCacheRetentionActiveUse">
+                  <DataLayer Type="SQL" Source="create temporary table if not exists 4WeekActiveMob (weekOf date, cohortSize int, mobile int);&#xD;&#xA;create temporary table if not exists 4WeekActiveProd (weekOf date, cohortSize int, product int);&#xD;&#xA;create temporary table if not exists 4WeekActiveEmail (weekOf date, cohortSize int, email int);&#xD;&#xA;&#xD;&#xA;-- set @startdate  =  date_format(date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week), '%Y%m%d');&#xD;&#xA;-- set @enddate = date_format(curdate(), '%Y%m%d');&#xD;&#xA;&#xD;&#xA;delete from 4WeekActiveMob;&#xD;&#xA;insert into 4WeekActiveMob&#xD;&#xA;select &#xD;&#xA;	t1.weekOf&#xD;&#xA;	, count(t1.company_id)&#xD;&#xA;	, sum(t1.is4WeekActiveMob)&#xD;&#xA;from&#xD;&#xA;	(&#xD;&#xA;	select &#xD;&#xA;		pc.*&#xD;&#xA;		, case when sum(&#xD;&#xA;			case when mlf.date_id between date_format(date_add(pc.updated_at, interval 1 day), '%Y%m%d') and date_format(date_add(pc.updated_at, interval 30 day), '%Y%m%d') then 1 end&#xD;&#xA;			) is not null then 1 else 0 end as is4WeekActiveMob&#xD;&#xA;	from asham_paidCohorts pc&#xD;&#xA;		join user_dims ud on pc.company_id = ud.company_id&#xD;&#xA;		left join mobile_log_fcts mlf on ud.company_id = mlf.company_id&#xD;&#xA;			and mlf.date_id between date_format(date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week), '%Y%m%d') and date_format(curdate(), '%Y%m%d')&#xD;&#xA;	where ud.user_created_first_day_of_week = pc.weekOf&#xD;&#xA;		and ud.user_created_first_day_of_week between date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week) and curdate()&#xD;&#xA;	group by pc.company_id&#xD;&#xA;	) t1&#xD;&#xA;group by t1.weekOf&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;delete from 4WeekActiveProd;&#xD;&#xA;insert into 4WeekActiveProd&#xD;&#xA;select t1.weekOf&#xD;&#xA;	, count(t1.company_id)&#xD;&#xA;	, sum(t1.is4WeekActiveProd)&#xD;&#xA;from&#xD;&#xA;	(&#xD;&#xA;	select &#xD;&#xA;		pc.*&#xD;&#xA;		, case when sum(&#xD;&#xA;			case when uaf.date_id between date_format(date_add(pc.updated_at, interval 1 day), '%Y%m%d') and date_format(date_add(pc.updated_at, interval 30 day), '%Y%m%d') then 1 end&#xD;&#xA;			) is not null then 1 else 0 end as is4WeekActiveProd&#xD;&#xA;	from asham_paidCohorts pc&#xD;&#xA;		join user_dims ud on pc.company_id = ud.company_id&#xD;&#xA;		left join user_action_fcts uaf on ud.id = uaf.user_id&#xD;&#xA;			and uaf.date_id between date_format(date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week), '%Y%m%d') and date_format(curdate(), '%Y%m%d')&#xD;&#xA;			and uaf.type = 'production_log'&#xD;&#xA;	where ud.user_created_first_day_of_week = pc.weekOf&#xD;&#xA;		and ud.user_created_first_day_of_week between date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week) and curdate()&#xD;&#xA;	group by pc.company_id&#xD;&#xA;	) t1&#xD;&#xA;group by t1.weekOf&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;delete from 4WeekActiveEmail;&#xD;&#xA;insert into 4WeekActiveEmail&#xD;&#xA;select &#xD;&#xA;	t1.weekOf&#xD;&#xA;	, count(t1.company_id)&#xD;&#xA;	, sum(t1.is4WeekActiveEmail)&#xD;&#xA;from&#xD;&#xA;	(&#xD;&#xA;	select &#xD;&#xA;		pc.*&#xD;&#xA;		, case when sum(&#xD;&#xA;			case when sgf.opened_date_id between date_format(date_add(pc.updated_at, interval 1 day), '%Y%m%d') and date_format(date_add(pc.updated_at, interval 30 day), '%Y%m%d') then 1 end&#xD;&#xA;			) is not null then 1 else 0 end as is4WeekActiveEmail&#xD;&#xA;	from asham_paidCohorts pc&#xD;&#xA;		join user_dims ud on pc.company_id = ud.company_id&#xD;&#xA;		left join send_grid_email_fcts sgf on ud.id = sgf.user_id&#xD;&#xA;			and sgf.opened_date_id between date_format(date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week), '%Y%m%d') and date_format(curdate(), '%Y%m%d')&#xD;&#xA;	where ud.user_created_first_day_of_week = pc.weekOf&#xD;&#xA;		and ud.user_created_first_day_of_week between date_add(date_add(curdate(), interval 0 - weekday(curdate()) day), interval -12 week) and curdate()&#xD;&#xA;	group by pc.company_id&#xD;&#xA;	) t1&#xD;&#xA;group by t1.weekOf&#xD;&#xA;;&#xD;&#xA;&#xD;&#xA;select &#xD;&#xA;	pr.weekOf&#xD;&#xA;	, pr.cohortSize&#xD;&#xA;	, pr.product&#xD;&#xA;	, mob.mobile&#xD;&#xA;	, em.email&#xD;&#xA;	, truncate(cast(pr.product as decimal(10,2)) / cast(pr.cohortSize as decimal(10,2)), 2) as productRate&#xD;&#xA;	, truncate(cast(mob.mobile as decimal(10,2)) / cast(pr.cohortSize as decimal(10,2)), 2) as mobileRate&#xD;&#xA;	, truncate(cast(em.email as decimal(10,2)) / cast(pr.cohortSize as decimal(10,2)), 2) as emailRate&#xD;&#xA;from 4WeekActiveProd pr&#xD;&#xA;	left join 4WeekActiveMob mob on pr.weekOf = mob.weekOf&#xD;&#xA;	left join 4WeekActiveEmail em on pr.weekOf = em.weekOf" ID="dlDataRetentionActiveUse" ConnectionID="connMySQL-P3Outright" />
+                </DataLayer>
+                <DataScale ScaleLowerBound="0" ScaleUpperBound="1" Format="##%" />
+                <LabelScale Format="M/d/yyyy" LinearTickIncrement="Months" />
+                <FontData FontColor="Black" FontSize="8" />
+                <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+                <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+                <Legend LegendLeft="@Request.LegendLeft~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~" BorderColor="Transparent">
+                  <FontLegend FontColor="Black" />
+                </Legend>
+                <ExtraXYDataColumn ChartDataColumn="emailRate" ID="dcEmail" LegendLabel="Email">
+                  <Quicktip ID="qtEmail" Description="@Data.emailRate~" />
+                </ExtraXYDataColumn>
+                <ExtraXYDataColumn ChartDataColumn="mobileRate" ID="dcMobile" LegendLabel="Mobile">
+                  <Quicktip ID="qtMobile" Description="@Data.mobileRate~" />
+                </ExtraXYDataColumn>
+              </Chart>
+            </Division>
+          </PanelContent>
+        </Panel>
+      </Remark>
+      <Panel ID="pnl_Activation_Accounts_C3" Caption="Purchase Path: C3" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divAccountsFunnel">
+            <Chart Type="XY" XYChartType="Bar" ChartDataColumn="NetPurchases" LineWidth="4" BorderLeft="55" BorderBottom="75" BorderColor="Black" ChartLabelColumn="Date" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ExtraBarOptions="SideBySide" Color="#28b8d5" LegendLabel="Net Purchases" YAxisTitle="Accounts">
+              <Note Note="dcNetPurchases" />
+              <Quicktip Description="@Chart.NetPurchases~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="C3" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="BeganProvisioning" ID="dcBeganProvisioning" Color="#e88622" LegendLabel="Began Provisioning">
+                <Quicktip Description="@Chart.BeganProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="CompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.CompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="MxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid" Color="#d45ce2">
+                <Quicktip Description="@Chart.MxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="LoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.LoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="10" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divAccountsFunnelDetail">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="psBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Previous Step">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.psBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="C3" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="psCompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.psCompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psMxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid" Color="#d45ce2">
+                <Quicktip Description="@Chart.psMxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.psLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divAccountsFunnelDetail2">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="npBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Net Purchases">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.npBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="C3" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="npLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.npLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnl_Activation_Accounts_LP" Caption="Purchase Path: Landing Page" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divAccountsFunnel">
+            <Chart Type="XY" XYChartType="Bar" ChartDataColumn="NetPurchases" LineWidth="4" BorderLeft="55" BorderBottom="75" BorderColor="Black" ChartLabelColumn="Date" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ExtraBarOptions="SideBySide" Color="#28b8d5" LegendLabel="Net Purchases" YAxisTitle="Accounts">
+              <Note Note="dcNetPurchases" />
+              <Quicktip Description="@Chart.NetPurchases~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="LP" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="BeganProvisioning" ID="dcBeganProvisioning" Color="#e88622" LegendLabel="Began Provisioning">
+                <Quicktip Description="@Chart.BeganProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="CompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.CompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="MxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid" Color="#d45ce2">
+                <Quicktip Description="@Chart.MxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="LoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.LoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="10" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divAccountsFunnelDetail">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="psBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Previous Step">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.psBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="LP" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="psCompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.psCompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psMxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid" Color="#d45ce2">
+                <Quicktip Description="@Chart.psMxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.psLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divAccountsFunnelDetail2">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="npBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Net Purchases">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.npBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="LP" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="npLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.npLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnl_Activation_Accounts_DPP" Caption="Purchase Path: Domain Purchase Path" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divAccountsFunnel">
+            <Chart Type="XY" XYChartType="Bar" ChartDataColumn="NetPurchases" LineWidth="4" BorderLeft="55" BorderBottom="75" BorderColor="Black" ChartLabelColumn="Date" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ExtraBarOptions="SideBySide" Color="#28b8d5" LegendLabel="Net Purchases" YAxisTitle="Accounts">
+              <Note Note="dcNetPurchases" />
+              <Quicktip Description="@Chart.NetPurchases~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="DPP" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="BeganProvisioning" ID="dcBeganProvisioning" Color="#e88622" LegendLabel="Began Provisioning">
+                <Quicktip Description="@Chart.BeganProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="CompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.CompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="MxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid" Color="#d45ce2">
+                <Quicktip Description="@Chart.MxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="LoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.LoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="10" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divAccountsFunnelDetail">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="psBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Previous Step">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.psBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="DPP" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="psCompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.psCompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psMxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid" Color="#d45ce2">
+                <Quicktip Description="@Chart.psMxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.psLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divAccountsFunnelDetail2">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="npBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Net Purchases">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.npBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="DPP" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="npLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.npLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnl_Activation_Accounts_DCC" Caption="Purchase Path: Domain Control Center" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divAccountsFunnel">
+            <Chart Type="XY" XYChartType="Bar" ChartDataColumn="NetPurchases" LineWidth="4" BorderLeft="55" BorderBottom="75" BorderColor="Black" ChartLabelColumn="Date" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ExtraBarOptions="SideBySide" Color="#28b8d5" LegendLabel="Net Purchases" YAxisTitle="Accounts">
+              <Note Note="dcNetPurchases" />
+              <Quicktip Description="@Chart.NetPurchases~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="DCC" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="BeganProvisioning" ID="dcBeganProvisioning" Color="#e88622" LegendLabel="Began Provisioning">
+                <Quicktip Description="@Chart.BeganProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="CompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.CompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="MxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid" Color="#d45ce2">
+                <Quicktip Description="@Chart.MxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="LoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.LoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="10" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divAccountsFunnelDetail">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="psBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Previous Step">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.psBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="DCC" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="psCompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.psCompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psMxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid" Color="#d45ce2">
+                <Quicktip Description="@Chart.psMxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.psLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divAccountsFunnelDetail2">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="npBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Net Purchases">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.npBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="DCC" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="npLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.npLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </PanelContent>
+      </Panel>
+      <Panel ID="pnl_Activation_Accounts_Other" Caption="Purchase Path: Other" IdeDisplayStatus="Collapsed">
+        <PanelContent>
+          <Division ID="divAccountsFunnel">
+            <Chart Type="XY" XYChartType="Bar" ChartDataColumn="NetPurchases" LineWidth="4" BorderLeft="55" BorderBottom="75" BorderColor="Black" ChartLabelColumn="Date" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" ExtraBarOptions="SideBySide" Color="#28b8d5" LegendLabel="Net Purchases" YAxisTitle="Accounts">
+              <Note Note="dcNetPurchases" />
+              <Quicktip Description="@Chart.NetPurchases~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="Other" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="BeganProvisioning" ID="dcBeganProvisioning" Color="#e88622" LegendLabel="Began Provisioning">
+                <Quicktip Description="@Chart.BeganProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="CompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.CompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="MxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid" Color="#d45ce2">
+                <Quicktip Description="@Chart.MxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="LoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.LoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="10" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divAccountsFunnelDetail">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="psBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Previous Step">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.psBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="Other" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="psCompletedProvisioning" ID="dcCompletedProvisioning" Color="#36db65" LegendLabel="Completed Provisioning">
+                <Quicktip Description="@Chart.psCompletedProvisioning~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psMxRecordIsValid" ID="dcMxRecordIsValid" LegendLabel="MX Record is Valid" Color="#d45ce2">
+                <Quicktip Description="@Chart.psMxRecordIsValid~" />
+              </ExtraXYDataColumn>
+              <ExtraXYDataColumn ChartDataColumn="psLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.psLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Division ID="divAccountsFunnelDetail2">
+            <Chart Type="XY" ID="chtLPFunnel2" XYChartType="Line" ChartHeight="@Request.ChartHeight~" ChartWidth="@Request.ChartWidth~" BorderColor="Black" ChartDataColumn="npBeganProvisioning" ChartLabelColumn="Date" LegendLabel="Began Provisioning" BorderLeft="65" LineWidth="3" BorderBottom="75" Color="#e88622" YAxisTitle="% of Net Purchases">
+              <Note Note="dcBeganProvisioning" />
+              <Quicktip Description="@Chart.npBeganProvisioning~" />
+              <DataLayer Type="Linked" LinkedDataLayerID="dllDataActivationsChannel" ID="dlDataActivations2">
+                <ContainFilter DataColumn="FunnelMeasure" SearchString="Accounts" ID="cfActivationMeasure" />
+                <ContainFilter DataColumn="Channel" SearchString="Other" ID="cfActivationChannel" />
+              </DataLayer>
+              <DataScale Format="##%" ScaleLowerBound="0" ScaleUpperBound="1" />
+              <LabelScale Format="M/d/yyyy" LinearTickIncrement="Weeks" ScalingMode="LinearTime" />
+              <FontData FontColor="Black" FontSize="8" />
+              <FontLabel FontColor="Black" FontSize="8" FontAngle="30" BorderColor="Black" />
+              <FontYAxisTitle FontAngle="90" FontColor="Black" FontSize="10" />
+              <ExtraXYDataColumn ChartDataColumn="npLoggedIn" ID="dcLoggedIn" Color="#F7EF1F" LegendLabel="Logged In (7 Days)">
+                <Quicktip Description="@Chart.npLoggedIn~" />
+              </ExtraXYDataColumn>
+              <Legend BorderColor="Transparent" LegendLeft="@Request.LegendLeftLongTitle~" LegendOrientation="Horizontal" LegendTop="@Request.LegendTop~">
+                <FontLegend FontColor="Black" FontSize="@Request.LegendFontLongTitle~" />
+              </Legend>
+            </Chart>
+          </Division>
+          <Label Caption="Last Refreshed : @Function.DateTime~" Format="Medium Time" />
+        </PanelContent>
+      </Panel>
+    </Dashboard2>
+  </Body>
+  <ReportFooter>
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="sharedFooterElement" />
+  </ReportFooter>
+  <ideTestParams ChartHeight="" ChartWidth="" LegendTop="" LegendFontLongTitle="" LegendLeftLongTitle="" LegendLeft="" />
+</Report>

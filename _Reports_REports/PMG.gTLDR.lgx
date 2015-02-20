@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.gTLDR" SavedBy="JOMAX\txadams" SavedAt="1/9/2014 4:44:23 PM" EngineVersion="11.0.43">
+  <StyleSheet StyleSheet="ReportsStyles.css" />
+  <DefaultRequestParams inputStartDate="2013-11-07" inputEndDate="@Date.Today~" CacheExpTimeSpan="00:10" CacheHardExpire="23:59:59" CacheExpireNow="False" inputGTLD="-1" inputStatus="2" />
+  <ReportHeader IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body>
+    <LineBreak />
+    <Rows ID="rowReportHeader" Class="gdDefaultRowBground" Width="100" WidthScale="%">
+      <Row>
+        <Column>
+          <Division>
+            <Rows Width="860" WidthScale="px">
+              <Row ID="rowReportTitle" Class="gdReportHeader">
+                <Column Class="gdReportHeaderNameBI">
+                  <Label Caption="gTLD Report" Class="gdReportHeaderNameBI" />
+                </Column>
+              </Row>
+              <Row ID="rowParameters">
+                <Column Class="gdDropDown">
+                  <InputSelectList ID="inputGTLD" OptionCaptionColumn="Value" OptionValueColumn="Value" Caption="gTLD: " DefaultValue="@Request.inputGTLD~" IncludeBlank="True" IncludeBlankCaption="Select a TLD" IncludeBlankValue="-1">
+                    <Remark>
+                      <DataLayer Type="SP" Command="rptSplitList_sp" ConnectionID="connM1BIG-biLogiReporting" ID="procSplitList">
+                        <SPParameters>
+                          <SPParameter SPParamDirection="Input" ID="spSplitType" SPParamSize="3" SPParamType="dt-3" Value="@Request.inputSplitType~" />
+                        </SPParameters>
+                      </DataLayer>
+                    </Remark>
+                    <Remark>
+                      <DataLayer Type="Static">
+                        <StaticDataRow Key="All" Value="All" />
+                        <StaticDataRow Key="Build" Value="Build" />
+                        <StaticDataRow Key="Luxury" Value="Luxury" />
+                        <StaticDataRow Key="Menu" Value="Menu" />
+                        <StaticDataRow Key="Uno" Value="Uno" />
+                      </DataLayer>
+                    </Remark>
+                    <DataLayer Type="SQL" Source="	SELECT 'All' as Value&#xD;&#xA;	&#xD;&#xA;	UNION ALL&#xD;&#xA;	&#xD;&#xA;	SELECT dp.Pnl_Subline as Value&#xD;&#xA;	FROM DMStaging.dbo.Dim_Product dp (NOLOCK) &#xD;&#xA;	WHERE dp.PnL_Line = 'Domain Name Registration' &#xD;&#xA;		AND dp.PnL_Group = 'Domains' &#xD;&#xA;		AND dp.productsubcategory = 'newgtlds'&#xD;&#xA;	GROUP BY  dp.Pnl_Subline&#xD;&#xA;	&#xD;&#xA;&#xD;&#xA;	ORDER BY Value" ConnectionID="connM1BIG-BIGReporting" ID="dlgTLD" />
+                  </InputSelectList>
+                  <Spaces Size="10" />
+                </Column>
+                <Column Class="gdDropDown">
+                  <InputSelectList ID="inputStatus" OptionCaptionColumn="Key" OptionValueColumn="Value" Caption="Customer Type:" DefaultValue="@Request.inputStatus~" IncludeBlank="False">
+                    <DataLayer Type="Static">
+                      <StaticDataRow Key="All" Value="All" />
+                      <StaticDataRow Key="New" Value="New" />
+                      <StaticDataRow Key="Repeat" Value="Repeat" />
+                    </DataLayer>
+                  </InputSelectList>
+                  <Spaces Size="10" />
+                </Column>
+                <Column Class="gdReportHeader">
+                  <Remark>
+                    <InputText ID="inputStartDate" Format="MM/dd/yy hh:mm tt" Caption="Start Date: " DefaultValue="@Request.inputStartDate~" InputMaxLength="17" InputSize="16px" />
+                  </Remark>
+                  <InputDate ID="inputStartDate" Caption="Start Date:" DefaultValue="@Request.inputStartDate~" CaptionClass="rdAlternateTextColorWhite" Tooltip="Data before 11/7/2013 not available">
+                    <Validation Type="Date" ErrorMsg="Data for this date is unavailable" RangeStart="2013-11-07" RangeEnd="@Date.Tomorrow~" Class="ThemeErrorText" />
+                  </InputDate>
+                  <Spaces Size="5" />
+                </Column>
+                <Column Class="gdReportHeader">
+                  <Remark>
+                    <InputText ID="inputEndDate" DefaultValue="@Request.inputEndDate~" Format="MM/dd/yy hh:mm tt" Caption="End Date: " InputMaxLength="17" InputSize="16px" />
+                  </Remark>
+                  <InputDate ID="inputEndDate" Caption="End Date:" DefaultValue="@Request.inputEndDate~" />
+                  <Remark>
+                    <Spaces Size="3" />
+                  </Remark>
+                </Column>
+              </Row>
+              <Row IdeDisplayStatus="Collapsed">
+                <Column Class="gdReportHeader">
+                  <Button ID="btnSubmit" Caption="Submit">
+                    <Action Type="Report" ID="actSubmitReport" Validate="True" EnterKeyDefault="True">
+                      <Target Type="Report" ID="tgtCurrentReport" Report="PMG.gTLDR" RequestForwarding="True" />
+                      <Remark>
+                        <LinkParams inputEndDate="@Ap" inputStartDate="@Input.inputStartDate~" />
+                      </Remark>
+                    </Action>
+                  </Button>
+                  <LineBreak />
+                </Column>
+              </Row>
+            </Rows>
+          </Division>
+        </Column>
+      </Row>
+    </Rows>
+    <Rows Width="100" WidthScale="%" Class="gdDefaultRowBground">
+      <Row>
+        <Column>
+          <DataTable ID="testDataTable" AltRowClass="gdThemeAltRowBgrndContrast td" CaptionClass=".gdColumnHeader" ColumnHeaderClass="gdColumnHeader">
+            <DataLayer Type="REST" ConnectionID="connBIDataApi" UrlPath="/r.xml?id=gTLD.r&amp;parms=@Request.inputGTLD~|@Request.inputStatus~|@Request.inputStartDate~|@Request.inputEndDate~" ID="dlRestGTLD" RemoveNamespace="True">
+              <GroupFilter GroupColumn="group" DataType="Text" Hierarchical="False" KeepGroupedRows="True" ID="grpFilter" SortSequence="Descending" />
+            </DataLayer>
+            <Remark>
+              <DataLayer Type="Cached" ID="dlcacheGTLD" CacheKey="gtld,@Request.inputGTLD~,@Request.inputStatus~,@Request.inputStartDate~,@Request.inputEndDate~" ExpirationNow="@Request.CacheExpireNow~" ExpirationTime="@Request.CacheHardExpire~" ExpirationTimeSpan="@Request.CacheExpTimeSpan~" IdeDisplayStatus="Collapsed">
+                <DataLayer Type="REST" ConnectionID="connBIDataApi" UrlPath="/r.xml?id=gTLD.r&amp;parms=@Request.inputGTLD~|@Request.inputStatus~|11/7/2013 11:00:00|11/19/2013 11:00:00" ID="dlRestGTLD" RemoveNamespace="True">
+                  <GroupFilter GroupColumn="group" DataType="Text" Hierarchical="False" KeepGroupedRows="True" ID="grpFilter" />
+                </DataLayer>
+              </DataLayer>
+            </Remark>
+            <Remark>
+              <DataLayer Type="XMLFile" ID="XMLFileDataLayer" XMLFile="C:\Projects\Notes and Scripts\Projects\R\XML for BIECM-222_gtld.xml" IdeDisplayStatus="Collapsed">
+                <GroupFilter GroupColumn="group" DataType="Text" Hierarchical="False" KeepGroupedRows="True" ID="grpFilter" />
+              </DataLayer>
+            </Remark>
+            <GroupHeaderRow Caption="@Data.group~" GroupFilterID="grpFilter" PrependBlankRows="1" Class="gdReportHeaderName" />
+            <Remark>
+              <DataTableColumn ID="Group" />
+            </Remark>
+            <DataTableColumn ID="Product">
+              <Label Caption="@Data.RegType~" />
+            </DataTableColumn>
+            <DataTableColumn ID="Shoppers" Class="ThemeAlignCenter" Width="75" Header="Shoppers" WidthScale="px">
+              <Label Caption="@Data.Shoppers~" Class=".gdColumnHeader" />
+            </DataTableColumn>
+            <DataTableColumn ID="Orders" Class="ThemeAlignCenter" Header="Orders" Width="75" WidthScale="px">
+              <Label Caption="@Data.Orders~" />
+            </DataTableColumn>
+            <DataTableColumn ID="Units" Class="ThemeAlignCenter" Header="Units" Width="75" WidthScale="px">
+              <Label Caption="@Data.Units~" />
+            </DataTableColumn>
+            <DataTableColumn ID="DRYs" Class="ThemeAlignCenter" Header="DRYs" Width="75" WidthScale="px">
+              <Label Caption="@Data.DRYs~" />
+            </DataTableColumn>
+            <DataTableColumn ID="GCR" Class="ThemeAlignCenter" Header="GCR" Width="75" WidthScale="px">
+              <Label Caption="@Data.GCR~" />
+            </DataTableColumn>
+            <DataTableColumn ID="GCRminusCOGs" Class="ThemeAlignCenter" Header="GCR Excl. COGs" Width="110" WidthScale="px">
+              <Label Caption="@Data.GCRminusCOGs~" />
+            </DataTableColumn>
+            <DataTableColumn ID="AvgPriceperUnit" Class="ThemeAlignCenter" Header="Avg Price p/Unit" Width="110" WidthScale="px">
+              <Label Caption="@Data.AvgPricePerUnit~" />
+            </DataTableColumn>
+          </DataTable>
+        </Column>
+      </Row>
+    </Rows>
+  </Body>
+  <ReportFooter IdeDisplayStatus="Collapsed">
+    <Division Class="ThemeAlignCenter">
+      <IncludeSharedElement DefinitionFile="SharedElements.SharedFooter" SharedElementID="sharedFooter" ID="SharedFooterElement" />
+    </Division>
+  </ReportFooter>
+  <ideTestParams inputSplitType="" inputStartDate="" inputEndDate="" inputGTLD="" inputStatus="" CacheExpireNow="" CacheExpTimeSpan="" CacheHardExpire="" />
+</Report>

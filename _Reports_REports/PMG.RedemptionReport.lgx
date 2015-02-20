@@ -1,0 +1,375 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ID="PMG.RedemptionReport" SavedBy="JOMAX\shgraves" SavedAt="9/8/2014 11:46:16 AM" EngineVersion="11.0.43" SecurityReportRightID="LogiCT">
+  <StyleSheet StyleSheet="ReportsStyles.css" ID="ssMain" />
+  <DefaultRequestParams rptStart="@Date.ThisMonthStart~" rptVendor="@Data.Vendor~" islVendor="2" rptEnd="@Date.Today~" />
+  <LocalData ID="ldMain">
+    <DataLayer Type="SQL" Source="--select distinct Description as Vendor, gdshop_promoInjectedRevenueVendorID as VendorID&#xD;&#xA;--from [gdMasterPromo].[dbo].[gdshop_promoInjectedRevenueVendor] pirv WITH(NOLOCK) &#xD;&#xA;&#xD;&#xA;select 'Office Max' as Vendor, 2 as VendorID&#xD;&#xA;UNION All&#xD;&#xA;Select 'Ditto Music' as Vendor, 5 as VendorID" ConnectionID="connM1BIG-BIGReporting" ID="dlVendorList">
+      <DataLayerLink ID="dllVendorList" />
+    </DataLayer>
+    <DataLayer Type="SP" Command="rptLogiCouponRedemptionsTotalGet_sp" ConnectionID="connM1BIG-biLogiReporting" ID="dlSPRdmSummary">
+      <DataLayerLink ID="dllRdmSummary" />
+      <SPParameters>
+        <SPParameter SPParamDirection="Input" ID="sppVendorId" SPParamSize="0" SPParamType="dt-3" Value="@Request.islVendor~" />
+        <SPParameter SPParamDirection="Input" ID="spRptStart" SPParamType="dt-7" SPParamSize="0" Value="@Request.rptStart~" />
+        <SPParameter SPParamDirection="Input" ID="spRptEnd" SPParamSize="0" SPParamType="dt-7" Value="@Request.rptEnd~" />
+      </SPParameters>
+    </DataLayer>
+    <DataLayer Type="SP" Command="rptLogiCouponRedemptionsByBundleGet_sp" ConnectionID="connM1BIG-biLogiReporting" ID="dlSPRedemptionsByBundle">
+      <DataLayerLink ID="dllRdmBundle" />
+      <SPParameters>
+        <SPParameter SPParamDirection="Input" ID="sppVendorId" SPParamSize="0" SPParamType="dt-3" Value="@Request.islVendor~" />
+        <SPParameter SPParamDirection="Input" ID="spRptStart" SPParamType="dt-7" SPParamSize="0" Value="@Request.rptStart~" />
+        <SPParameter SPParamDirection="Input" ID="spRptEnd" SPParamSize="0" SPParamType="dt-7" Value="@Request.rptEnd~" />
+      </SPParameters>
+    </DataLayer>
+    <DataLayer Type="SP" ID="dlSPRedemptionsByDay" Command="rptLogiCouponRedemptionsByDayGet_sp" ConnectionID="connM1BIG-biLogiReporting">
+      <DataLayerLink ID="dllRdmByDay" />
+      <SPParameters>
+        <SPParameter SPParamDirection="Input" ID="sppVendorId" SPParamSize="0" SPParamType="dt-3" Value="@Request.islVendor~" />
+        <SPParameter SPParamDirection="Input" ID="spRptStart" SPParamType="dt-7" SPParamSize="0" Value="@Request.rptStart~" />
+        <SPParameter SPParamDirection="Input" ID="spRptEnd" SPParamSize="0" SPParamType="dt-7" Value="@Request.rptEnd~" />
+      </SPParameters>
+    </DataLayer>
+    <Remark>
+      <DataLayer Type="SP" ID="dlSPRdmDetail" ConnectionID="connM1BIG-biLogiReporting">
+        <DataLayerLink ID="dllRdmDetail" />
+        <SPParameters>
+          <SPParameter SPParamDirection="Input" ID="sppVendorId" SPParamSize="0" SPParamType="dt-3" Value="@Request.islVendor~" />
+          <SPParameter SPParamDirection="Input" ID="spRptStart" SPParamType="dt-7" SPParamSize="0" Value="@Request.rptStart~" />
+          <SPParameter SPParamDirection="Input" ID="spRptEnd" SPParamSize="0" SPParamType="dt-7" Value="@Request.rptEnd~" />
+        </SPParameters>
+      </DataLayer>
+    </Remark>
+    <DataLayer Type="SQL" Source="&#xD;&#xA;&#xD;&#xA;DECLARE @RptStart DATETIME = '@Request.rptStart~' &#xD;&#xA;DECLARE @RptEnd DATETIME = '@Request.rptEnd~' &#xD;&#xA;DECLARE @VendorID INT = '@Request.islVendor~'&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;&#xD;&#xA;	SELECT&#xD;&#xA;			pirv.[description]									AS VendorName&#xD;&#xA;			, prc.externalRedemptionCode&#xD;&#xA;			, x.shopper_id&#xD;&#xA;			, prc.order_id&#xD;&#xA;			, x.packageDescription&#xD;&#xA;			, Convert(date,prc.ActionDate) as ActionDate&#xD;&#xA;			, case when newCustomers = 1 then 'Yes' else 'No' end	AS isNewCustomer&#xD;&#xA;			, SUM(x.gcr)*.01										AS TotalGCR&#xD;&#xA;	FROM [gdMasterPromo].[dbo].[prs_redemptionCode] prc WITH (NOLOCK)&#xD;&#xA;	INNER JOIN [gdMasterPromo].[dbo].[prs_redemptionCodeStatus] prs WITH (NOLOCK) ON prc.prs_redemptionCodeStatusID = prs.prs_redemptionCodeStatusID&#xD;&#xA;	INNER JOIN [gdMasterPromo].[dbo].[gdshop_promoInjectedRevenueVendor] pirv WITH (NOLOCK) ON prc.gdshop_promoInjectedRevenueVendorID = pirv.gdshop_promoInjectedRevenueVendorID    &#xD;&#xA;																						AND pirv.gdshop_promoInjectedRevenueVendorID = @VendorID &#xD;&#xA;	INNER JOIN	(&#xD;&#xA;				SELECT	od.shopper_id,&#xD;&#xA;						prs.order_id,&#xD;&#xA;						pk.packageDescription,&#xD;&#xA;						SUM(od.revenue)		AS gcr,&#xD;&#xA;						COUNT(DISTINCT CASE&#xD;&#xA;								WHEN od.is_first_order = 1	THEN shopper_id&#xD;&#xA;						END)				AS newCustomers&#xD;&#xA;						--select distinct prs_packageID&#xD;&#xA;				FROM godaddy.dbo.gdshop_receipt_item_prs_package prs WITH (NOLOCK) &#xD;&#xA;				JOIN [BIGReporting].[dbo].[rptOrderDetail] od WITH (NOLOCK) on prs.order_id = od.order_id and prs.row_id = od.row_id&#xD;&#xA;				JOIN godaddy.dbo.gdshop_receipt_promo_tracking po WITH (NOLOCK) ON prs.order_id = po.order_id AND prs.row_id = po.row_id&#xD;&#xA;				LEFT JOIN [gdMasterPromo].[dbo].[prs_package] pk WITH (NOLOCK) ON po.promo_tracking_code = pk.promo_tracking_code&#xD;&#xA;				GROUP BY prs.order_id, shopper_id,&#xD;&#xA;						pk.packageDescription&#xD;&#xA;				) x ON prc.Order_id = x.order_id&#xD;&#xA;	WHERE prc.actionDate &gt;= @rptStart and prc.actionDate &lt; @rptEnd&#xD;&#xA;	&#xD;&#xA;	AND prs.redemptionCodeStatusDescription = 'Redeemed'&#xD;&#xA;	GROUP BY pirv.[description]&#xD;&#xA;			, prc.externalRedemptionCode&#xD;&#xA;			, x.shopper_id&#xD;&#xA;			, prc.order_id&#xD;&#xA;			, x.packageDescription&#xD;&#xA;			, prc.ActionDate&#xD;&#xA;			, CASE WHEN newCustomers = 1 THEN 'Yes' ELSE 'No' END" ConnectionID="connM1BIG-BIGReporting" ID="dlSQLRdmDetail">
+      <DataLayerLink ID="dllRdmDetail" />
+    </DataLayer>
+  </LocalData>
+  <ReportHeader ID="rhHeader" IdeDisplayStatus="Collapsed">
+    <IncludeSharedElement DefinitionFile="SharedElements.SharedHeaderNoMenu" SharedElementID="sharedHeaderRptName" ID="sharedHeaderElement" />
+  </ReportHeader>
+  <Body ID="bMain">
+    <Division ID="divHeader" ShowModes="rdBrowser">
+      <Rows ID="rowReportHeader" Class="gdReportHeader">
+        <Row ID="rowReportTitle" Class="gdReportHeader">
+          <Column Width="400" WidthScale="px">
+            <DataTable ID="dtVendorName">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllVendorList">
+                <ConditionFilter Condition="@Data.VendorID~ = @Request.islVendor~" />
+              </DataLayer>
+              <DataTableColumn ID="dtcVendorName">
+                <Label Caption="Redemption Report for: " Class="gdReportHeaderNameBI" />
+                <Label Caption="@Data.Vendor~" Class="gdReportHeaderNameBI" />
+              </DataTableColumn>
+            </DataTable>
+          </Column>
+          <Remark>
+            <Column Width="45" WidthScale="px">
+              <Image Caption="betasoftware.jpg" ID="imgBeta" Width="50" Height="50" />
+              <LineBreak />
+            </Column>
+          </Remark>
+        </Row>
+        <Row>
+          <Column Class="ThemeAlignLeft" Width="250">
+            <InputDate ID="rptStart" Caption="Report Start:" DefaultValue="@Request.rptStart~" CaptionClass="rdAlternateTextColorWhite" />
+          </Column>
+          <Column Class="ThemeAlignLeft" Width="250">
+            <InputDate ID="rptEnd" Caption="Report End:" DefaultValue="@Request.rptEnd~" CaptionClass="rdAlternateTextColorWhite" />
+          </Column>
+          <Column Class="ThemeAlignRight" Width="150">
+            <InputSelectList OptionCaptionColumn="Vendor" ID="islVendor" OptionValueColumn="VendorID" Caption="Vendor: " MultiSelect="False" CaptionClass="rdAlternateTextColorWhite" DefaultValue="@Request.islVendor~">
+              <DataLayer Type="Linked" LinkedDataLayerID="dllVendorList" />
+            </InputSelectList>
+          </Column>
+          <Column Width="50">
+            <Button ID="btnSubmit" Caption="Submit">
+              <Action Type="Report" ID="actSubmit">
+                <Target Type="Report" ID="tgRedemptionReport" Report="PMG.RedemptionReport" RequestForwarding="True">
+                  <WaitPage Caption="Updating results" />
+                </Target>
+              </Action>
+            </Button>
+          </Column>
+        </Row>
+        <Row>
+          <Column>
+            <Division ID="divExport">
+              <Image Caption="Export2Excel.png" ID="imgExclExport" AltText="Export to Excel" Tooltip="Click to Export to Excel">
+                <Action Type="NativeExcel" ID="actExportExcel">
+                  <Target Type="NativeExcel" ExcelOutputFormat="Excel2007" ExportFilename="RedemptionReport.xlsx" ID="tgtExcel">
+                    <WaitPage Caption="Please wait while report is generated" />
+                  </Target>
+                </Action>
+              </Image>
+            </Division>
+          </Column>
+        </Row>
+      </Rows>
+      <LineBreak />
+    </Division>
+    <Tabs ID="tMain" ActiveTabBackgroundColor="White">
+      <TabPanel ID="tpMain" Caption="Summary">
+        <Division ID="divSummary">
+          <Rows Class="gdColumn">
+            <Row ID="rowSummary">
+              <Column ColSpan="7" ID="cHeader" Class="gdReportHeaderNameSSRS-fill">
+                <Label Caption="Redemptions - Summary" />
+              </Column>
+            </Row>
+            <Row ID="rowRdmSummaryHeader">
+              <Column Class="gdColumnSSRS" ShowModes="All">
+                <DataTable ID="dtRdmSummary" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="2" ColumnHeaderClass="gdReportColumnHdrSSRS-fill" Width="900" WidthScale="px">
+                  <DataLayer Type="Linked" LinkedDataLayerID="dllRdmSummary" />
+                  <DataTableColumn ID="dtcStatusDescription" Header="Status" Class="ThemeAlignCenter" Width="250" WidthScale="px" ShowModes="All">
+                    <Label Caption="@Data.StatusDescription~" ID="lSumStatus" />
+                    <ExcelColumnFormat DataType="Text" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtcSumTotal" Header="Total" Class="ThemeAlignCenter" Width="250" WidthScale="px">
+                    <Label Caption="@Data.Total~" ID="lSumTotal" Format="General Number" />
+                    <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                  <Remark>
+                    <DataTableColumn ID="dtcSumRdmLastSevenDays" Header="Redemptions Last 7 Days" Class="ThemeAlignCenter" Width="80" WidthScale="px">
+                      <Label Caption="@Data.LastSevenDays~" ID="lSumL7Days" Format="General Number" />
+                      <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                  </Remark>
+                  <DataTableColumn ID="dtcSumTotalNewCustomers" Header="Total New Customers" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+                    <Label Caption="@Data.TotalNewCustomers~" ID="lSumTotalNewCustomers" Format="General Number" ErrorResult="IF &quot;@Data.StatusDescription~&quot; = &quot;Redeemed&quot; then True ELSE False END" />
+                    <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                  <Remark>
+                    <DataTableColumn ID="dtcSumNewCustomersLast7Days" Header="New Customers Last 7 Days" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+                      <Label Caption="@Data.LastSevenDaysNewCustomers~" ID="lSumLast7DaysNewCustomers" Format="General Number" />
+                      <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                  </Remark>
+                  <DataTableColumn ID="dtcSumTotalGCR" Header="Total GCR" Class="gdThemeAlignRightPad30" Width="100" WidthScale="px">
+                    <Label Caption="@Data.TotalGCR~" ID="dSumTotalGCR" Format="Currency" />
+                    <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                  <Remark>
+                    <DataTableColumn ID="dtcSumTotalGCRLast7Days" Header="GCR Last 7 Days" Class="gdThemeAlignRightPad30" Width="80" WidthScale="px">
+                      <Label Caption="@Data.LastSevenDaysGCR~" ID="dSumTotalGCRLast7Days" Format="Currency" />
+                      <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                  </Remark>
+                </DataTable>
+                <Remark>
+                  <DataTable ID="dtRdmSummary" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="2" ColumnHeaderClass="gdReportColumnHdrSSRS-fill" Width="900" WidthScale="px">
+                    <DataLayer Type="Linked" LinkedDataLayerID="dllRdmSummary" />
+                    <DataTableColumn ID="dtcStatusDescription" Header="Status" Class="ThemeAlignCenter" Width="250" WidthScale="px">
+                      <Label Caption="@Data.StatusDescription~" ID="lSumStatus" />
+                      <ExcelColumnFormat DataType="Text" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="dtcStatusDescription" Header="Status" Class="ThemeAlignCenter" Width="250" WidthScale="px">
+                      <Label Caption="@Data.StatusDescription~" ID="lSumStatus" />
+                      <ExcelColumnFormat DataType="Text" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="dtcSumTotal" Header="Total" Class="ThemeAlignCenter" Width="250" WidthScale="px">
+                      <Label Caption="@Data.Total~" ID="lSumTotal" Format="General Number" />
+                      <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <DataTableColumn ID="dtcSumTotalNewCustomers" Header="Total New Customers" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+                      <Label Caption="@Data.TotalNewCustomers~" ID="lSumTotalNewCustomers" Format="General Number" />
+                      <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <Remark>
+                      <DataTableColumn ID="dtcSumNewCustomersLast7Days" Header="New Customers Last 7 Days" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+                        <Label Caption="@Data.LastSevenDaysNewCustomers~" ID="lSumLast7DaysNewCustomers" Format="General Number" />
+                        <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+                      </DataTableColumn>
+                    </Remark>
+                    <DataTableColumn ID="dtcSumTotalGCR" Header="Total GCR" Class="gdThemeAlignRightPad30" Width="100" WidthScale="px" Condition="&quot;@Data.StatusDescription~&quot; = &quot;Redeemed&quot;">
+                      <Label Caption="@Data.TotalGCR~" ID="dSumTotalGCR" Format="Currency" />
+                      <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                    <Remark>
+                      <DataTableColumn ID="dtcSumTotalGCRLast7Days" Header="GCR Last 7 Days" Class="gdThemeAlignRightPad30" Width="80" WidthScale="px">
+                        <Label Caption="@Data.LastSevenDaysGCR~" ID="dSumTotalGCRLast7Days" Format="Currency" />
+                        <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+                      </DataTableColumn>
+                    </Remark>
+                    <DataTableColumn ID="dtcStatusDescription" Header="Status" Class="ThemeAlignCenter" Width="250" WidthScale="px">
+                      <Label Caption="@Data.StatusDescription~" ID="lSumStatus" />
+                      <ExcelColumnFormat DataType="Text" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                  </DataTable>
+                </Remark>
+              </Column>
+            </Row>
+            <Row ID="rowSpacer">
+              <Column>
+                <LineBreak LineCount="1" />
+              </Column>
+            </Row>
+          </Rows>
+        </Division>
+        <LineBreak />
+        <Division ID="divBundle">
+          <Rows Class="gdColumn">
+            <Row ID="rowByBundle">
+              <Column ColSpan="7" ID="cHeader" Class="gdReportHeaderNameSSRS-fill">
+                <Label Caption="Redemptions - By Bundle" />
+              </Column>
+            </Row>
+            <Row ID="rowRdmByBundleHeader">
+              <Column Class="gdColumnSSRS">
+                <DataTable ID="dtRedemptionsbyBundle" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="2" Width="900" WidthScale="px" ColumnHeaderClass="gdReportColumnHdrSSRS-fill">
+                  <DataLayer Type="Linked" LinkedDataLayerID="dllRdmBundle" />
+                  <DataTableColumn ID="dtPackageDescription" Header="Package Description" Width="150" WidthScale="px" Class="ThemeAlignCenter">
+                    <Label Caption="@Data.packageDescription~" ID="lOrderDate" Format="Short Date" Class="gdColumnCellText" />
+                    <ExcelColumnFormat DataType="Text" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtcSumTotalOrders" Header="Total Orders" Width="80" WidthScale="px" Class="ThemeAlignCenter">
+                    <Label Caption="@Data.TotalOrders~" ID="lOrders" Format="General Number" />
+                    <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                  <Remark>
+                    <DataTableColumn ID="dtcSumLastSevenDays" Header="Last 7 Days" Class="ThemeAlignCenter" Width="80" WidthScale="px">
+                      <Label Caption="@Data.LastSevenDays~" ID="lL7Days" Format="General Number" />
+                      <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                  </Remark>
+                  <DataTableColumn ID="dtcSumTotalNewCustomers" Header="Total New Customers" Class="ThemeAlignCenter" Width="80" WidthScale="px">
+                    <Label Caption="@Data.TotalNewCustomers~" ID="lTotalNewCustomers" Format="General Number" />
+                    <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                  <Remark>
+                    <DataTableColumn ID="dtcSumNewCustomersLast7Days" Header="New Customers Last 7 Days" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+                      <Label Caption="@Data.LastSevenDaysNewCustomers~" ID="lLast7DaysNewCustomers" Format="General Number" />
+                      <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                  </Remark>
+                  <DataTableColumn ID="dtcSumTotalGCR" Header="Total GCR" Class="gdThemeAlignRightPad30" Width="100" WidthScale="px">
+                    <Label Caption="@Data.TotalGCR~" ID="dTotalGCR" Format="Currency" />
+                    <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                  <Remark>
+                    <DataTableColumn ID="dtcSumTotalGCRLast7Days" Header="Total GCR Last 7 Days" Class="gdThemeAlignRightPad30" Width="80" WidthScale="px">
+                      <Label Caption="@Data.LastSevenDaysGCR~" ID="dTotalGCRLast7Days" Format="Currency" />
+                      <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                  </Remark>
+                </DataTable>
+              </Column>
+            </Row>
+            <Row ID="rowSpacer">
+              <Column>
+                <LineBreak LineCount="1" />
+                <AnimatedChart Type="Pie" PieChartType="Pie" ChartWidth="500" ChartHeight="200" ChartDataColumn="TotalOrders" Animation="True" ChartLabelColumn="packageDescription" BackgroundColor="White">
+                  <DataLayer Type="Linked" LinkedDataLayerID="dllRdmBundle" />
+                </AnimatedChart>
+              </Column>
+            </Row>
+          </Rows>
+        </Division>
+      </TabPanel>
+      <TabPanel Caption="Redemptions by Day" ID="tpRdmByDay">
+        <Division>
+          <Rows>
+            <Row ID="rowRedembyDay">
+              <Column ColSpan="7" ID="cHeader" Class="gdReportHeaderNameSSRS-fill">
+                <Label Caption="Redemptions - By Day " />
+              </Column>
+            </Row>
+            <Row ID="rowRdmByDayHeader">
+              <Column Class="gdColumnSSRS">
+                <DataTable ID="dtRedemptionsByDay" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="2" ColumnHeaderClass="gdReportColumnHdrSSRS-fill" Width="900" WidthScale="px">
+                  <DataLayer Type="Linked" LinkedDataLayerID="dllRdmByDay" />
+                  <Remark>
+                    <DataTableColumn ID="dtVendorName" Header="Vendor Name" Width="200" WidthScale="px" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.VendorName~" ID="lVendorName" Class="gdColumnCellText" />
+                      <ExcelColumnFormat DataType="Text" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                  </Remark>
+                  <DataTableColumn ID="dtcRedemptionDate" Header="Redemption Date" Width="100" WidthScale="px" Class="ThemeAlignCenter">
+                    <Label Caption="@Data.RedemptionDate~" ID="lRedemptionDate" Format="General Number" />
+                    <ExcelColumnFormat DataType="Date" ExcelFormat="Short Date" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtcStatusDescription" Header="Status" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+                    <Label Caption="@Data.StatusDescription~" ID="lStatus" />
+                    <ExcelColumnFormat DataType="Text" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtcSumTotal" Header="Total" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+                    <Label Caption="@Data.Total~" ID="lTotal" Format="General Number" />
+                    <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtcSumTotalNewCustomers" Header="Total New Customers" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+                    <Label Caption="@Data.TotalNewCustomers~" ID="lTotalNewCustomers" Format="General Number" />
+                    <ExcelColumnFormat DataType="Number" ExcelFormat="#,##0" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtcSumTotalGCR" Header="Total GCR" Class="gdThemeAlignRightPad30" Width="100" WidthScale="px">
+                    <Label Caption="@Data.TotalGCR~" ID="dTotalGCR" Format="Currency" />
+                    <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                </DataTable>
+              </Column>
+            </Row>
+            <Row ID="rowSpacer">
+              <Column>
+                <LineBreak LineCount="1" />
+              </Column>
+            </Row>
+          </Rows>
+        </Division>
+      </TabPanel>
+      <TabPanel ID="tDetail" Caption="Detail">
+        <Division ID="divMain" ShowModes="All">
+          <Rows Class="gdColumn">
+            <Row ID="rowDetail">
+              <Column ColSpan="7" ID="cHeader" Class="gdReportHeaderNameSSRS-fill">
+                <Label Caption="Redemptions - Detail" />
+              </Column>
+            </Row>
+            <Row ID="rowRdmSummaryHeader">
+              <Column Class="gdColumnSSRS">
+                <DataTable ID="dtRdmDetail" AltRowClass="gdThemeAltRowNoPadding td" CellSpacing="2" ColumnHeaderClass="gdReportColumnHdrSSRS-fill" Width="900" WidthScale="px">
+                  <DataLayer Type="Linked" LinkedDataLayerID="dllRdmDetail" />
+                  <Remark>
+                    <DataTableColumn ID="dtDtlVendorName" Header="Vendor Name" Width="100" WidthScale="px" Class="ThemeAlignCenter" IdeDisplayStatus="Collapsed">
+                      <Label Caption="@Data.VendorName~" ID="lDtlVendorName" Class="gdColumnCellText" />
+                      <ExcelColumnFormat DataType="Text" ExcelColumnWidth="Auto" />
+                    </DataTableColumn>
+                  </Remark>
+                  <DataTableColumn ID="dtcDtlRdmCode" Header="Redemtion Code" Class="ThemeAlignCenter" Width="200" WidthScale="px">
+                    <Label Caption="@Data.externalRedemptionCode~" ID="lDtlRdmCode" />
+                    <ExcelColumnFormat DataType="Text" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtcDtlShopper" Header="Shopper Id" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+                    <Label Caption="@Data.shopper_id~" ID="lShopperID" />
+                    <ExcelColumnFormat DataType="Text" ExcelColumnWidth="Auto" />
+                    <DataColumnSort DataColumn="shopper_id" DataType="Number" FirstSortSequence="Ascending" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtcDtlOrderId" Header="Order ID" Class="ThemeAlignCenter" Width="80" WidthScale="px">
+                    <Label Caption="@Data.order_id~" ID="lDtlOrderId" />
+                    <ExcelColumnFormat DataType="Text" ExcelColumnWidth="Auto" />
+                    <DataColumnSort DataColumn="order_id" DataType="Number" FirstSortSequence="Ascending" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtcDtlRdmDate" Header="Redemption Date" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+                    <Label Caption="@Data.ActionDate~" ID="lActionDate" Format="Short Date" />
+                    <ExcelColumnFormat DataType="Date" ExcelFormat="Short Date" ExcelColumnWidth="Auto" />
+                    <DataColumnSort DataColumn="ActionDate" DataType="Date" FirstSortSequence="Ascending" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtcNewCustomer" Header="New Customer?" Class="ThemeAlignCenter" Width="100" WidthScale="px">
+                    <Label Caption="@Data.isNewCustomer~" ID="lisNewCustomer" />
+                    <ExcelColumnFormat DataType="Text" ExcelColumnWidth="Auto" />
+                    <DataColumnSort DataColumn="isNewCustomer" DataType="Text" FirstSortSequence="Ascending" />
+                  </DataTableColumn>
+                  <DataTableColumn ID="dtcTotalGCR" Header="Total GCR" Class="gdThemeAlignRightPad30" Width="100" WidthScale="px">
+                    <Label Caption="@Data.TotalGCR~" ID="dGCR" Format="Currency" />
+                    <ExcelColumnFormat DataType="Number" ExcelFormat="$#,##0.00" ExcelColumnWidth="Auto" />
+                  </DataTableColumn>
+                </DataTable>
+              </Column>
+            </Row>
+          </Rows>
+          <LineBreak />
+          <Division ID="divMain" ShowModes="All" />
+        </Division>
+      </TabPanel>
+    </Tabs>
+  </Body>
+  <ReportFooter ID="rfFooter" />
+  <ideTestParams rptStart="" islVendor="" rptEnd="" />
+</Report>
